@@ -1,0 +1,16 @@
+29Apr2018
+
+To provision for generating netaut/hellosnap:
+- sudo apt install libpng-dev
+- download graphviz...gz
+-   gunzip ...gz
+-   tar xvf ...tar
+-   cd graphviz...
+-   ./configure
+-   make
+-   sudo make install
+- clone SNAP from Github into ~/snap
+-   make all
+
+(Deferred enabling doxygen)
+(Deferred enabling googletest to run SNAP's tests)
