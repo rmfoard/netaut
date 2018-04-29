@@ -1,7 +1,13 @@
 29Apr2018
 
 To provision for generating netaut/hellosnap:
+
+- (install git, vim)
+
+- git config --global push.default simple
+
 - sudo apt install libpng-dev
+
 - download graphviz...gz
 -   gunzip ...gz
 -   tar xvf ...tar
