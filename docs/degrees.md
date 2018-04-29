@@ -9,3 +9,4 @@
 * Juxtaposition
 * Nesting
 * Heterogeneity
+* Evaluation of terminal net (general characterization, tree construction, ...)
