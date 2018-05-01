@@ -18,5 +18,13 @@ To provision for generating netaut/hellosnap:
 - clone SNAP from Github into ~/snap
 -   make all
 
+- sudo apt install gnuplot
+
+- (for graph-tool)
+-   add to /etc/apt/source-list
+-   deb http://downloads.skewed.de/apt/DISTRIBUTION DISTRIBUTION universe
+-   deb-src http://downloads.skewed.de/apt/DISTRIBUTION DISTRIBUTION universe
+
+
 (Deferred enabling doxygen)
 (Deferred enabling googletest to run SNAP's tests)
