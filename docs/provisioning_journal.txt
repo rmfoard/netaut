@@ -24,6 +24,7 @@ To provision for generating netaut/hellosnap:
 -   add to /etc/apt/source-list
 -   deb http://downloads.skewed.de/apt/DISTRIBUTION DISTRIBUTION universe
 -   deb-src http://downloads.skewed.de/apt/DISTRIBUTION DISTRIBUTION universe
+-   sudo apt install graph-tool
 
 
 (Deferred enabling doxygen)
