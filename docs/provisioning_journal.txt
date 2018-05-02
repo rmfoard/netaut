@@ -26,6 +26,11 @@ To provision for generating netaut/hellosnap:
 -   deb-src http://downloads.skewed.de/apt/xenial xenial universe
 -   sudo apt install graph-tool
 
+- install yEd
+-   downloaded .sh install script, chmod +x
+-   (also installs a JRE in the yEd dir, which must be writable
+-   next time try sudo ...sh and place in /usr/bin?)
+
 
 (Deferred enabling doxygen)
 (Deferred enabling googletest to run SNAP's tests)
