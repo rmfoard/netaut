@@ -19,8 +19,13 @@ void PrintGStats(const char s[], PBPGraph Graph) {
 }
 
 // Save directed, undirected and multi-graphs in GraphVizp .DOT format
-void IOGViz() {
-  
+int main(int argc, char* argv[]) {
+    //****
+    PNEANet net = TNEANet::New();
+    net->AddNode(0);
+    net->AddNode(2);
+    net->AddEdge(0, 2);
+    
   const int NNodes = 50;
   const int NEdges = 200;
   
@@ -43,14 +48,4 @@ void IOGViz() {
   TSnap::SaveGViz(GOut, FName2, Desc, NIdLabelH);
   
   PrintGStats("IOGViz - In", GOut);
-}
-
-int main(int argc, char* argv[]) {
-    //****
-    PNEANet net = TNEANet::New();
-    net->AddNode(1);
-    net->AddNode(2);
-    net->AddEdge(1, 2);
-    
-  IOGViz();
 }
