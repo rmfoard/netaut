@@ -1,13 +1,6 @@
 #
-# Makefile for non-Microsoft compilers
-#	tested only on Linux
-
-#include ../Makefile.config
-
-#
 #	Global configuration for SNAP makefiles
 #
-
 GLIB = glib-core
 SNAP = snap-core
 GLIBADV = glib-adv
@@ -22,7 +15,7 @@ UNAME := $(shell uname)
 # Linux flags
 CC = g++
 CXXFLAGS += -std=c++98 -Wall
-CXXFLAGS += -O3 -DNDEBUG -fopenmp
+CXXFLAGS += -O0 -DNDEBUG -fopenmp
 # turn on for crash debugging, get symbols with <prog> 2>&1 | c++filt
 CXXFLAGS += -g -rdynamic
 CXXFLAGS += -ggdb
@@ -30,8 +23,9 @@ CXXFLAGS += -ggdb
 CXXOPENMP = 
 LDFLAGS +=
 LIBS += -lrt
+# End global configuration
 
-## Main application file
+## Program-specific configuration
 DEMOS = \
 	demo-gio \
 	\
