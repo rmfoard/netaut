@@ -27,7 +27,7 @@ void IOGViz() {
   const int NNodes = 50;
   const int NEdges = 200;
   
-  const char *FName1 = "demo1.dot.dat", *FName2 = "demo2.dot.dat";
+  const char *FName1 = "demo1.dot", *FName2 = "demo2.dot";
   const char *Desc = "Randomly generated GgraphVizp for input/output.";
   
   PNGraph GOut;     // Can be PNEGraph or PUNGraph
