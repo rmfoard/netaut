@@ -18,9 +18,6 @@ void PrintGStats(const char s[], PBPGraph Graph) {
          Graph->GetEdges(), Graph->Empty() ? "yes" : "no");
 }
 
-using namespace TSnap;
-
-
 // Save directed, undirected and multi-graphs in GraphVizp .DOT format
 void IOGViz() {
   
@@ -31,9 +28,9 @@ void IOGViz() {
   const char *Desc = "Randomly generated GgraphVizp for input/output.";
   
   PNGraph GOut;     // Can be PNEGraph or PUNGraph
-  GOut = GenRndGnm<PNGraph>(NNodes, NEdges);
+  GOut = TSnap::GenRndGnm<PNGraph>(NNodes, NEdges);
   
-  SaveGViz(GOut, FName1);
+  TSnap::SaveGViz(GOut, FName1);
   
   // Output node IDs as numbers
   TIntStrH NIdLabelH;
@@ -43,11 +40,17 @@ void IOGViz() {
     NIdLabelH.AddDat(NI.GetId(), TStr::Fmt("Node%d", NI.GetId()));
     
   }
-  SaveGViz(GOut, FName2, Desc, NIdLabelH);
+  TSnap::SaveGViz(GOut, FName2, Desc, NIdLabelH);
   
   PrintGStats("IOGViz - In", GOut);
 }
 
 int main(int argc, char* argv[]) {
+    //****
+    PNEANet net = TNEANet::New();
+    net->AddNode(1);
+    net->AddNode(2);
+    net->AddEdge(1, 2);
+    
   IOGViz();
 }
