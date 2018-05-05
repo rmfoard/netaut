@@ -1,9 +1,0 @@
-30Apr2018
-- Toward a visualization toolset:
-  - SNAP has a ~SaveGViz routine that writes a .dot file
-  - SNAP also uses GnuPlot, according to my LabBook/AIDA notes
-  - My AIDA LabBook notes record a .dot-to-.graphml converter find (yml reads .graphml)
-  - neo4j is always a possibility
-  - I found graph-tool to be the most useful, but cranky to install and use
-  - ~/snap/snap-core/testSnap runs and produces .png output (once gnuplot was installed) They're statistical, though.
-  - It may be instructive to examine testSnap.cpp, in the eponymous directory.
