@@ -27,13 +27,13 @@ LIBS += -lrt
 
 ## Program-specific configuration
 DEMOS = \
-	demo-gio \
+	demo \
 	\
 
 all: $(DEMOS)
 
 # COMPILE
-demo-%: demo-%.cpp $(CSNAP)/Snap.o
+demo: demo.cpp $(CSNAP)/Snap.o
 	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
 
 $(CSNAP)/Snap.o:
