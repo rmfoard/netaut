@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <vector>
 
+static
 uintmax_t Raise(const int base, const int exponent) {
     uintmax_t result = 1;
     for (int i = 0; i < exponent; i += 1) result *= base;
@@ -11,7 +12,11 @@ uintmax_t Raise(const int base, const int exponent) {
     return result;
 }
 
+static
 uintmax_t RuleNr(const int nrStates, const int nrActions, const std::vector<int> ruleParts) {
+    assert(nrStates > 1);
+    assert(nrActions > 0);
+
     uintmax_t ruleNr = 0;
     uintmax_t increase;
     for (int partNr = 0; partNr < nrStates; partNr += 1) {
@@ -24,7 +29,11 @@ uintmax_t RuleNr(const int nrStates, const int nrActions, const std::vector<int>
     return ruleNr;
 }
 
+static
 std::vector<int>* RuleParts(const int nrStates, const int nrActions, const uintmax_t ruleNr) {
+    assert(nrStates > 1);
+    assert(nrActions > 0);
+
     std::vector<int>* ruleParts = new std::vector<int>(nrStates);
     uintmax_t residue = ruleNr;
     for (int state = 0; state < nrStates; state += 1) {
