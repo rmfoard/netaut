@@ -33,9 +33,6 @@ static TPt<TGraph> RingGraph(int nrNodes) {
 // Save directed, undirected and multi-graphs in GraphVizp .DOT format
 int main(int argc, char* argv[]) {
     
-  const int NNodes = 50;
-  const int NEdges = 200;
-  
   const char *FName1 = "demo1.dot", *FName2 = "demo2.dot";
   const char *Desc = "Randomly generated GgraphVizp for input/output.";
   
