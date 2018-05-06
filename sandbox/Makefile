@@ -14,7 +14,7 @@ UNAME := $(shell uname)
 
 # Linux flags
 CC = g++
-CXXFLAGS += -std=c++98 -Wall
+CXXFLAGS += -std=c++11 -Wall
 CXXFLAGS += -O0 -DNDEBUG -fopenmp
 # turn on for crash debugging, get symbols with <prog> 2>&1 | c++filt
 CXXFLAGS += -g -rdynamic
@@ -32,15 +32,17 @@ DEMOS = \
 
 all: $(DEMOS)
 
-# COMPILE
 demo: demo.cpp $(CSNAP)/Snap.o
 	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
 
 $(CSNAP)/Snap.o:
 	$(MAKE) -C $(CSNAP)
 
+machine: machine.cpp $(CSNAP)/Snap.o
+	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
+
 clean:
-	rm -f *.o $(DEMOS) *.exe
+	rm -f *.o $(DEMOS) machine
 	rm -rf Debug Release
 	rm -rf *.Err demo*.dat
 
