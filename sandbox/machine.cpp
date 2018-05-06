@@ -10,7 +10,7 @@ int Raise(int base, int exponent) {
     return result;
 }
 
-int MachineNr(int nrStates, int nrActions, std::vector<int> rules) {
+int MachineNr(const int nrStates, const int nrActions, const std::vector<int> rules) {
     int machineNr = 0;
     for (int ruleNr = 0; ruleNr < nrStates; ruleNr += 1)
         machineNr += rules[ruleNr] * Raise(nrActions, ruleNr);
@@ -18,7 +18,7 @@ int MachineNr(int nrStates, int nrActions, std::vector<int> rules) {
     return machineNr;
 }
 
-std::vector<int>* Rules(int nrStates, int nrActions, int machineNr) {
+std::vector<int>* Rules(const int nrStates, const int nrActions, const int machineNr) {
     std::vector<int>* rules = new std::vector<int>(nrStates);
     for (int state = 0, residue = machineNr; state < nrStates; state += 1) {
         (*rules)[state] = residue % nrActions;
@@ -28,7 +28,7 @@ std::vector<int>* Rules(int nrStates, int nrActions, int machineNr) {
     return rules;
 }
 
-int main(int argc, char* argv[]) {
+int main(const int argc, const char* argv[]) {
     std::vector<int> rules = { 1, 3, 5, 0, 0, 0, 0, 0  };
 
     int machineNr = MachineNr(8, 20, rules);
