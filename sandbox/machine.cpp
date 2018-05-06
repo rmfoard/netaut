@@ -13,10 +13,12 @@ uintmax_t Raise(const int base, const int exponent) {
 
 uintmax_t RuleNr(const int nrStates, const int nrActions, const std::vector<int> ruleParts) {
     uintmax_t ruleNr = 0;
+    uintmax_t increase;
     for (int partNr = 0; partNr < nrStates; partNr += 1) {
+        increase = ruleParts[partNr] * Raise(nrActions, partNr);
         assert(ruleParts[partNr] < nrActions);
-        assert(ruleParts[partNr] * Raise(nrActions,partNr) <= (UINTMAX_MAX - ruleNr));
-        ruleNr += ruleParts[partNr] * Raise(nrActions, partNr);
+        assert(increase <= (UINTMAX_MAX - ruleNr));
+        ruleNr += increase;
     }
 
     return ruleNr;
@@ -35,7 +37,8 @@ std::vector<int>* RuleParts(const int nrStates, const int nrActions, const uintm
 }
 
 int main(const int argc, const char* argv[]) {
-    std::vector<int> ruleParts = { 1, 3, 5, 7, 0, 11, 9, 2  };
+    //std::vector<int> ruleParts = { 1, 3, 5, 7, 0, 11, 9, 2  };
+    std::vector<int> ruleParts = { 19, 19, 19, 19, 19, 19, 19, 19  };
 
     uintmax_t ruleNr = RuleNr(8, 20, ruleParts);
     printf("ruleNr: %lld\n", ruleNr);
