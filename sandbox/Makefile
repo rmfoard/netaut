@@ -15,7 +15,7 @@ UNAME := $(shell uname)
 # Linux flags
 CC = g++
 CXXFLAGS += -std=c++11 -Wall
-CXXFLAGS += -O0 -DNDEBUG -fopenmp
+CXXFLAGS += -O0 -fopenmp
 # turn on for crash debugging, get symbols with <prog> 2>&1 | c++filt
 CXXFLAGS += -g -rdynamic
 CXXFLAGS += -ggdb
