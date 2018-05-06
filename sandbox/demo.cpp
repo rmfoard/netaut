@@ -30,13 +30,13 @@ static TPt<TGraph> RingGraph(int nrNodes) {
     return net;
 }
 
-// Save directed, undirected and multi-graphs in GraphVizp .DOT format
+// Save directed, undirected and multi-nets in GraphVizp .DOT format
 int main(int argc, char* argv[]) {
     
   const char *FName1 = "demo1.dot", *FName2 = "demo2.dot";
-  const char *Desc = "Randomly generated GgraphVizp for input/output.";
+  const char *Desc = "Illuminating information about the network";
   
-  PNEGraph GOut = RingGraph<TNEGraph>(10);
+  PNEANet GOut = RingGraph<TNEANet>(10);
   
   TSnap::SaveGViz(GOut, FName1);
   
@@ -44,7 +44,7 @@ int main(int argc, char* argv[]) {
   TIntStrH NIdLabelH;
   
   // Generate labels for random graph
-  for (TNEGraph::TNodeI NI = GOut->BegNI(); NI < GOut->EndNI(); NI++) {
+  for (TNEANet::TNodeI NI = GOut->BegNI(); NI < GOut->EndNI(); NI++) {
     NIdLabelH.AddDat(NI.GetId(), TStr::Fmt("Node%d", NI.GetId()));
     
   }
