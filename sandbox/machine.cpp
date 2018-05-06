@@ -10,34 +10,34 @@ int Raise(const int base, const int exponent) {
     return result;
 }
 
-int MachineNr(const int nrStates, const int nrActions, const std::vector<int> rules) {
-    int machineNr = 0;
-    for (int ruleNr = 0; ruleNr < nrStates; ruleNr += 1) {
-        assert(rules[ruleNr] < nrActions);
-        machineNr += rules[ruleNr] * Raise(nrActions, ruleNr);
+int RuleNr(const int nrStates, const int nrActions, const std::vector<int> ruleParts) {
+    int ruleNr = 0;
+    for (int partNr = 0; partNr < nrStates; partNr += 1) {
+        assert(ruleParts[partNr] < nrActions);
+        ruleNr += ruleParts[partNr] * Raise(nrActions, partNr);
     }
 
-    return machineNr;
+    return ruleNr;
 }
 
-std::vector<int>* Rules(const int nrStates, const int nrActions, const int machineNr) {
-    std::vector<int>* rules = new std::vector<int>(nrStates);
-    for (int state = 0, residue = machineNr; state < nrStates; state += 1) {
-        (*rules)[state] = residue % nrActions;
+std::vector<int>* RuleParts(const int nrStates, const int nrActions, const int ruleNr) {
+    std::vector<int>* ruleParts = new std::vector<int>(nrStates);
+    for (int state = 0, residue = ruleNr; state < nrStates; state += 1) {
+        (*ruleParts)[state] = residue % nrActions;
         residue /= nrActions;
         assert(state < nrStates - 1 || residue == 0);
     }
 
-    return rules;
+    return ruleParts;
 }
 
 int main(const int argc, const char* argv[]) {
-    std::vector<int> rules = { 1, 3, 5, 7, 0, 11, 9, 2  };
+    std::vector<int> ruleParts = { 1, 3, 5, 7, 0, 11, 9, 2  };
 
-    int machineNr = MachineNr(8, 20, rules);
-    printf("machineNr: %d\n", machineNr);
+    int ruleNr = RuleNr(8, 20, ruleParts);
+    printf("ruleNr: %d\n", ruleNr);
 
-    std::vector<int>* rulesBack = Rules(8, 20, machineNr);
+    std::vector<int>* rulePartsBack = RuleParts(8, 20, ruleNr);
     for (int i = 0; i < 8; i += 1)
-        printf("rule %d: action %d\n", i, (*rulesBack)[i]);
+        printf("rule %d: action %d\n", i, (*rulePartsBack)[i]);
 }
