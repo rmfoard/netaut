@@ -10,21 +10,14 @@ void PrintGStats(const char s[], PGraph Graph) {
 
 }
 
-// Print bipartite graph statistics
-void PrintGStats(const char s[], PBPGraph Graph) {
-
-  printf("graph %s, right nodes %d, left nodes %d, edges %d, empty %s\n",
-         s, Graph->GetRNodes(), Graph->GetLNodes(),
-         Graph->GetEdges(), Graph->Empty() ? "yes" : "no");
+// AHA!! It's their pointer management scheme!
+template <class TGraph>
+TPt<TGraph> NewGraph() { // instantiates into equivalents of PUNGraph, PNGraph, PNEGraph, etc.
+  return TPt<TGraph>::New();
 }
 
 // Save directed, undirected and multi-graphs in GraphVizp .DOT format
 int main(int argc, char* argv[]) {
-    //****
-    PNEANet net = TNEANet::New();
-    net->AddNode(0);
-    net->AddNode(2);
-    net->AddEdge(0, 2);
     
   const int NNodes = 50;
   const int NEdges = 200;
@@ -32,8 +25,7 @@ int main(int argc, char* argv[]) {
   const char *FName1 = "demo1.dot", *FName2 = "demo2.dot";
   const char *Desc = "Randomly generated GgraphVizp for input/output.";
   
-  PNGraph GOut;     // Can be PNEGraph or PUNGraph
-  GOut = TSnap::GenRndGnm<PNGraph>(NNodes, NEdges);
+  PNEGraph GOut = NewGraph<TNEGraph>();
   
   TSnap::SaveGViz(GOut, FName1);
   
@@ -41,7 +33,7 @@ int main(int argc, char* argv[]) {
   TIntStrH NIdLabelH;
   
   // Generate labels for random graph
-  for (TNGraph::TNodeI NI = GOut->BegNI(); NI < GOut->EndNI(); NI++) {
+  for (TNEGraph::TNodeI NI = GOut->BegNI(); NI < GOut->EndNI(); NI++) {
     NIdLabelH.AddDat(NI.GetId(), TStr::Fmt("Node%d", NI.GetId()));
     
   }
