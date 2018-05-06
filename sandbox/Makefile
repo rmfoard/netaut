@@ -38,11 +38,14 @@ demo: demo.cpp $(CSNAP)/Snap.o
 $(CSNAP)/Snap.o:
 	$(MAKE) -C $(CSNAP)
 
-machine: machine.cpp $(CSNAP)/Snap.o
+rules: rules.cpp $(CSNAP)/Snap.o
 	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
 
+machine: machine.cpp rules.o $(CSNAP)/Snap.o
+	$(CC) $(CXXFLAGS) -o $@ $@.cpp rules.o $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
+
 clean:
-	rm -f *.o $(DEMOS) machine
+	rm -f *.o $(DEMOS) rules machine
 	rm -rf Debug Release
-	rm -rf *.Err demo*.dat
+	rm -rf *.Err
 
