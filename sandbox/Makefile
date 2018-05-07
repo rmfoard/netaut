@@ -38,7 +38,7 @@ demo: demo.cpp $(CSNAP)/Snap.o
 $(CSNAP)/Snap.o:
 	$(MAKE) -C $(CSNAP)
 
-machine: machine.cpp rules.cpp $(CSNAP)/Snap.o
+machine: machine.cpp rules.o $(CSNAP)/Snap.o
 	$(CC) $(CXXFLAGS) -o $@ $@.cpp rules.o $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
 
 clean:
