@@ -29,25 +29,60 @@ private:
     uintmax_t m_ruleNr;
     int m_nrNodes;
     PNEGraph m_graph;
-    int *m_color;
+    int *m_state;
+    int *m_nextState;
     std::vector<int>* m_ruleParts;
+
+    void InitNodeStates();
 };
 
 MachineS::MachineS(uintmax_t ruleNr, int nrNodes) {
     m_ruleNr = ruleNr;
     m_nrNodes = nrNodes;
     m_graph = TNEGraph::New();
+    m_state = new int[nrNodes];
+    m_nextState = new int[nrNodes];
     BuildRing(nrNodes, m_graph);
-    m_color = new int[nrNodes];
+    InitNodeStates();
     m_ruleParts = RuleParts(8, 20, ruleNr);
+}
+
+void MachineS::InitNodeStates() {
+    for (int i = 0; i < m_nrNodes; i += 1) m_state[i] = 0;
+    m_state[m_nrNodes / 2] = 1;
 }
 
 // Cycle: Run one step of the loaded rule.
 void MachineS::Cycle() {
     PNEGraph nextGraph = TNEGraph::New();
 
-    // Traverse the current graph building 'nextGraph'.
-    for (TNEGraph::TNodeI NI = m_graph->BegNI(); NI < m_graph->EndNI(); NI++) ;
+    // Traverse the current graph, applying the rule.
+    // (Right now, we just copy.)
+    for (TNEGraph::TNodeI NI = m_graph->BegNI(); NI < m_graph->EndNI(); NI++) {
+        int n = NI.GetId();
+        //printf("node Id: %d, state: %d\n", n, m_state[n]);
+        nextGraph->AddNode(n);
+        m_nextState[n] = m_state[n];
+    }
+
+    for (TNEGraph::TNodeI NI = m_graph->BegNI(); NI < m_graph->EndNI(); NI++) {
+        for (int e = 0; e < NI.GetOutDeg(); e++) {
+            int orig = NI.GetId();
+            int dest = NI.GetOutNId(e);
+            //printf("edge: %d --> %d\n", orig, dest);
+            nextGraph->AddEdge(orig, dest);
+        }
+    }
+
+    // Cycling finished, replace "current" structures with "next" counterparts.
+    // (Abandon m->graph to garbage collection.)
+    m_graph = nextGraph;
+
+    // Unlike with the net, avoid de- and re-allocating state storage.
+    // Instead, alternate "current" and "next" roles.
+    int* swap = m_state;
+    m_state = m_nextState;
+    m_nextState = swap;
 }
 
 int main(const int argc, const char* argv[]) {
@@ -60,4 +95,5 @@ int main(const int argc, const char* argv[]) {
         printf("rulePart %d: action %d\n", i, (*rulePartsBack)[i]);
 
     MachineS* m = new MachineS(ruleNr, 10);
+    for (int i = 1; i <= 100000; i += 1) m->Cycle();
 }
