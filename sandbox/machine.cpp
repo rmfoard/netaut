@@ -4,11 +4,13 @@
 #include <stdint.h>
 #include <vector>
 
+// TODO: Move these to a header file for 'rules'.
 uintmax_t RuleNr(const int, const int, const std::vector<int>);
 std::vector<int>* RuleParts(const int, const int, const uintmax_t);
 
+// TODO: Consider moving this to a 'net_factory' module.
 template <class TGraph>
-static TPt<TGraph> RingGraph(int nrNodes) {
+static TPt<TGraph> RingNet(int nrNodes) {
     assert(nrNodes > 1);
     TPt<TGraph> net = TGraph::New();
 
@@ -24,17 +26,29 @@ static TPt<TGraph> RingGraph(int nrNodes) {
 class Machine {
 
 public:
-    Machine(uintmax_t);
+    Machine(uintmax_t, int, PNEANet);
+    void Cycle();
 
 private:
     uintmax_t m_ruleNr;
+    int m_nrNodes;
+    PNEANet m_net;
+    std::vector<int>* m_ruleParts;
 };
 
-Machine::Machine(uintmax_t ruleNr) {
+Machine::Machine(uintmax_t ruleNr, int nrNodes, PNEANet net) {
     m_ruleNr = ruleNr;
-    // accept a network parameter
-    // unpack the rule's ruleparts
-    // build a 'next' network
+    m_nrNodes = nrNodes;
+    m_net = net;
+    m_ruleParts = RuleParts(8, 20, ruleNr);
+}
+
+// Cycle: Run one step of the loaded rule.
+void Machine::Cycle() {
+    PNEANet nextNet = TNEANet::New();
+
+    // Traverse the current net building 'nextNet'.
+    for (TNEANet::TNodeI NI = m_net->BegNI(); NI < m_net->EndNI(); NI++) ;
 }
 
 int main(const int argc, const char* argv[]) {
@@ -43,12 +57,11 @@ int main(const int argc, const char* argv[]) {
     printf("ruleNr: %lld\n", ruleNr);
 
     // build a ring network
-    PNEANet fred = RingGraph<TNEANet>(10);
-    // pass it to the Machine constructor
+    PNEANet net = RingNet<TNEANet>(10);
 
     std::vector<int>* rulePartsBack = RuleParts(8, 20, ruleNr);
     for (int i = 0; i < 8; i += 1)
         printf("rulePart %d: action %d\n", i, (*rulePartsBack)[i]);
 
-    Machine* m = new Machine(ruleNr);
+    Machine* m = new Machine(ruleNr, 10, net);
 }
