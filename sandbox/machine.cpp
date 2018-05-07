@@ -7,6 +7,20 @@
 uintmax_t RuleNr(const int, const int, const std::vector<int>);
 std::vector<int>* RuleParts(const int, const int, const uintmax_t);
 
+template <class TGraph>
+static TPt<TGraph> RingGraph(int nrNodes) {
+    assert(nrNodes > 1);
+    TPt<TGraph> net = TGraph::New();
+
+    for (int n = 0; n < nrNodes; n += 1) net->AddNode(n);
+    for (int n = 0; n < nrNodes - 1; n += 1) net->AddEdge(n, n + 1);
+    net->AddEdge(nrNodes - 1, 0);
+    net->AddEdge(0, nrNodes - 1);
+    for (int n = 1; n < nrNodes; n += 1) net->AddEdge(n, n - 1);
+
+    return net;
+}
+
 class Machine {
 
 public:
@@ -29,6 +43,7 @@ int main(const int argc, const char* argv[]) {
     printf("ruleNr: %lld\n", ruleNr);
 
     // build a ring network
+    PNEANet fred = RingGraph<TNEANet>(10);
     // pass it to the Machine constructor
 
     std::vector<int>* rulePartsBack = RuleParts(8, 20, ruleNr);
