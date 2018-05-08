@@ -33,7 +33,8 @@ private:
     int *m_nextNodeStates;
     std::vector<int>* m_ruleParts;
 
-    void AdvanceNode(TNEGraph::TNodeI);
+    //void AdvanceNode(TNEGraph::TNodeI);
+    void AdvanceNode(int);
     void InitNodeStates();
 };
 
@@ -55,51 +56,55 @@ void MachineS::InitNodeStates() {
 
 // Cycle: Run one step of the loaded rule.
 void MachineS::Cycle() {
-    PNEGraph nextGraph = TNEGraph::New();
-/*
-    // Traverse the current graph, applying the rule.
-    // (Right now, we just copy.)
-    for (TNEGraph::TNodeI ni = m_graph->BegNI(); ni < m_graph->EndNI(); ni++) {
-        int n = ni.GetId();
-        //printf("node Id: %d, state: %d\n", n, m_nodeStates[n]);
-        nextGraph->AddNode(n);
-        m_nextNodeStates[n] = m_nodeStates[n];
-    }
 
-    for (TNEGraph::TNodeI ni = m_graph->BegNI(); ni < m_graph->EndNI(); ni++) {
-        for (int e = 0; e < ni.GetOutDeg(); e++) {
-            int orig = ni.GetId();
-            int dest = ni.GetOutNId(e);
-            //printf("edge: %d --> %d\n", orig, dest);
-            nextGraph->AddEdge(orig, dest);
-        }
+    // Show node states at the beginning of the cycle.
+    for (int i = m_nrNodes - 1; i >= 0; i -= 1) {
+        printf("%d", m_nodeStates[i]);
     }
-*/
+    printf("\n");
+
+    PNEGraph nextGraph = TNEGraph::New();
 
     // Apply one generation of the loaded rule, creating the next generation
     // state in 'm_nextGraph'.
-    for (TNEGraph::TNodeI ni = m_graph->BegNI(); ni < m_graph->EndNI(); ni++) AdvanceNode(ni);
+    //for (TNEGraph::TNodeI ni = m_graph->BegNI(); ni < m_graph->EndNI(); ni++) AdvanceNode(ni);
+    //for (int nodeNr = 0; nodeNr < m_nrNodes; nodeNr += 1) AdvanceNode(nodeNr);
+    for (int nodeNr = 0; nodeNr < m_nrNodes; nodeNr += 1) AdvanceNode(nodeNr);
 
     // Cycling finished, replace "current" structures with "next" counterparts.
     // (Abandon m->graph to garbage collection.)
     m_graph = nextGraph;
 
+/*
     // Unlike with the net, avoid de- and re-allocating state storage.
     // Instead, alternate "current" and "next" roles.
     int* swap = m_nodeStates;
     m_nodeStates = m_nextNodeStates;
     m_nextNodeStates = swap;
+*/
+    // Replace current states with next states.
+    for (int i = 0; i < m_nrNodes; i += 1) m_nodeStates[i] = m_nextNodeStates[i];
 }
 
-void MachineS::AdvanceNode(TNEGraph::TNodeI NI) {
-    int nodeId = NI.GetId();
-    int lState = m_nodeStates[NI.GetOutNId(0)];
-    int nState = m_nodeStates[nodeId];
-    int rState = m_nodeStates[NI.GetOutNId(1)];
+//void MachineS::AdvanceNode(TNEGraph::TNodeI NI) {
+void MachineS::AdvanceNode(int nodeNr) {
+//    int nodeId = NI.GetId();
+//    int lState = m_nodeStates[NI.GetOutNId(0)];
+//    int nState = m_nodeStates[nodeId];
+//    int rState = m_nodeStates[NI.GetOutNId(1)];
+
+    int nodeId = nodeNr;
+    int lState;
+    if (nodeNr > 0) lState = m_nodeStates[nodeNr-1]; else lState = 0;
+    int nState = m_nodeStates[nodeNr];
+    int rState;
+    if (nodeNr == m_nrNodes - 1) rState = 0; else rState = m_nodeStates[nodeNr+1];
+
     int triadState = lState * 4 + nState * 2 + rState;
 
     assert(0 <= triadState && triadState <= 7);
     int action = (*m_ruleParts)[triadState];
+    //printf("triadState %d => action %d\n", triadState, action);
     assert(0 <= action && action <= 19);
     switch (action) {
         case 0:
@@ -175,5 +180,5 @@ int main(const int argc, const char* argv[]) {
         printf("rulePart %d: action %d\n", i, (*rulePartsBack)[i]);
 
     MachineS* m = new MachineS(ruleNr, 10);
-    for (int i = 1; i <= 1; i += 1) m->Cycle();
+    for (int i = 1; i <= 10; i += 1) m->Cycle();
 }
