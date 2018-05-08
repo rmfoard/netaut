@@ -4,6 +4,9 @@
 #include <stdint.h>
 #include <vector>
 
+#define NR_CYCLES 40
+#define NR_NODES 100
+
 // TODO: Move these to a header file for 'rules'.
 uintmax_t RuleNr(const int, const int, const std::vector<int>);
 std::vector<int>* RuleParts(const int, const int, const uintmax_t);
@@ -29,12 +32,12 @@ private:
     uintmax_t m_ruleNr;
     int m_nrNodes;
     PNEGraph m_graph;
+    PNEGraph m_nextGraph;
     int *m_nodeStates;
     int *m_nextNodeStates;
     std::vector<int>* m_ruleParts;
 
-    //void AdvanceNode(TNEGraph::TNodeI);
-    void AdvanceNode(int);
+    void AdvanceNode(TNEGraph::TNodeI);
     void InitNodeStates();
 };
 
@@ -63,42 +66,48 @@ void MachineS::Cycle() {
     }
     printf("\n");
 
-    PNEGraph nextGraph = TNEGraph::New();
+    PNEGraph m_nextGraph = TNEGraph::New();
 
     // Apply one generation of the loaded rule, creating the next generation
     // state in 'm_nextGraph'.
-    //for (TNEGraph::TNodeI ni = m_graph->BegNI(); ni < m_graph->EndNI(); ni++) AdvanceNode(ni);
-    //for (int nodeNr = 0; nodeNr < m_nrNodes; nodeNr += 1) AdvanceNode(nodeNr);
-    for (int nodeNr = 0; nodeNr < m_nrNodes; nodeNr += 1) AdvanceNode(nodeNr);
+    for (TNEGraph::TNodeI ni = m_graph->BegNI(); ni < m_graph->EndNI(); ni++) AdvanceNode(ni);
+
+    // Temporarily copy m_nextGraph <- graph here.
+    // It'll later be done piecemeal, when applying rules.
+    for (TNEGraph::TNodeI ni = m_graph->BegNI(); ni < m_graph->EndNI(); ni++) {
+        int n = ni.GetId();
+        //printf("node Id: %d, state: %d\n", n, m_nodeStates[n]);
+        m_nextGraph->AddNode(n);
+    }
+
+    for (TNEGraph::TNodeI ni = m_graph->BegNI(); ni < m_graph->EndNI(); ni++) {
+        for (int e = 0; e < ni.GetOutDeg(); e++) {
+            int orig = ni.GetId();
+            int dest = ni.GetOutNId(e);
+            m_nextGraph->AddEdge(orig, dest);
+        }
+    }
 
     // Cycling finished, replace "current" structures with "next" counterparts.
     // (Abandon m->graph to garbage collection.)
-    m_graph = nextGraph;
+    m_graph = m_nextGraph;
 
-/*
     // Unlike with the net, avoid de- and re-allocating state storage.
     // Instead, alternate "current" and "next" roles.
     int* swap = m_nodeStates;
     m_nodeStates = m_nextNodeStates;
     m_nextNodeStates = swap;
-*/
+/*
     // Replace current states with next states.
     for (int i = 0; i < m_nrNodes; i += 1) m_nodeStates[i] = m_nextNodeStates[i];
+*/
 }
 
-//void MachineS::AdvanceNode(TNEGraph::TNodeI NI) {
-void MachineS::AdvanceNode(int nodeNr) {
-//    int nodeId = NI.GetId();
-//    int lState = m_nodeStates[NI.GetOutNId(0)];
-//    int nState = m_nodeStates[nodeId];
-//    int rState = m_nodeStates[NI.GetOutNId(1)];
-
-    int nodeId = nodeNr;
-    int lState;
-    if (nodeNr > 0) lState = m_nodeStates[nodeNr-1]; else lState = 0;
-    int nState = m_nodeStates[nodeNr];
-    int rState;
-    if (nodeNr == m_nrNodes - 1) rState = 0; else rState = m_nodeStates[nodeNr+1];
+void MachineS::AdvanceNode(TNEGraph::TNodeI NI) {
+    int nodeId = NI.GetId();
+    int lState = m_nodeStates[NI.GetOutNId(0)];
+    int nState = m_nodeStates[nodeId];
+    int rState = m_nodeStates[NI.GetOutNId(1)];
 
     int triadState = lState * 4 + nState * 2 + rState;
 
@@ -106,6 +115,8 @@ void MachineS::AdvanceNode(int nodeNr) {
     int action = (*m_ruleParts)[triadState];
     //printf("triadState %d => action %d\n", triadState, action);
     assert(0 <= action && action <= 19);
+
+    // TODO: Keep running stats on action use.
     switch (action) {
         case 0:
             m_nextNodeStates[nodeId] = 0;
@@ -170,6 +181,7 @@ void MachineS::AdvanceNode(int nodeNr) {
     }
 }
 
+// TODO: Use an array instead of a vector.
 int main(const int argc, const char* argv[]) {
     std::vector<int> ruleParts = { 0, 1, 1, 1, 0, 1, 1, 0  };
     uintmax_t ruleNr = RuleNr(8, 20, ruleParts);
@@ -179,6 +191,6 @@ int main(const int argc, const char* argv[]) {
     for (int i = 0; i < 8; i += 1)
         printf("rulePart %d: action %d\n", i, (*rulePartsBack)[i]);
 
-    MachineS* m = new MachineS(ruleNr, 10);
-    for (int i = 1; i <= 10; i += 1) m->Cycle();
+    MachineS* m = new MachineS(ruleNr, NR_NODES);
+    for (int i = 1; i <= NR_CYCLES; i += 1) m->Cycle();
 }
