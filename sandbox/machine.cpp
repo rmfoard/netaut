@@ -55,7 +55,8 @@ MachineS::MachineS(uintmax_t ruleNr, int nrNodes) {
 
 void MachineS::InitNodeStates() {
     for (int i = 0; i < m_nrNodes; i += 1) {
-        m_nodeStates[i] = (i % 3) % 2;
+        //m_nodeStates[i] = (i % 3) % 2;
+        m_nodeStates[i] = (i == m_nrNodes / 2) ? 1 : 0;
     }
 }
 
