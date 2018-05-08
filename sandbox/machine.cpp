@@ -1,6 +1,7 @@
 #include "Snap.h"
 #include <assert.h>
 #include <getopt.h>
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <vector>
@@ -30,6 +31,7 @@
 uintmax_t RuleNr(const int, const int, const std::vector<int>);
 std::vector<int>* RuleParts(const int, const int, const uintmax_t);
 
+//---------------
 // TODO: Consider moving this to a 'graph_factory' module.
 static void BuildRing(int nrNodes, PNEGraph graph) {
     assert(nrNodes > 1);
@@ -41,6 +43,7 @@ static void BuildRing(int nrNodes, PNEGraph graph) {
     for (int n = 1; n < nrNodes; n += 1) graph->AddEdge(n, n - 1);
 }
 
+//---------------
 class MachineS {
 
 public:
@@ -60,6 +63,7 @@ private:
     void InitNodeStates();
 };
 
+//---------------
 MachineS::MachineS(uintmax_t ruleNr, int nrNodes) {
     m_ruleNr = ruleNr;
     m_nrNodes = nrNodes;
@@ -71,6 +75,7 @@ MachineS::MachineS(uintmax_t ruleNr, int nrNodes) {
     m_ruleParts = RuleParts(8, 20, ruleNr);
 }
 
+//---------------
 void MachineS::InitNodeStates() {
     for (int i = 0; i < m_nrNodes; i += 1) {
         //m_nodeStates[i] = (i % 3) % 2;
@@ -78,6 +83,7 @@ void MachineS::InitNodeStates() {
     }
 }
 
+//---------------
 // Cycle: Run one step of the loaded rule.
 void MachineS::Cycle() {
 
@@ -120,6 +126,7 @@ void MachineS::Cycle() {
     m_nextNodeStates = swap;
 }
 
+//---------------
 void MachineS::AdvanceNode(TNEGraph::TNodeI NI) {
     int nodeId = NI.GetId();
     int lState = m_nodeStates[NI.GetOutNId(0)];
@@ -142,92 +149,67 @@ void MachineS::AdvanceNode(TNEGraph::TNodeI NI) {
             m_nextNodeStates[nodeId] = 1;
             break;
         case 2:
-            printf("apply action %d\n", action);
             break;
         case 3:
-            printf("apply action %d\n", action);
             break;
         case 4:
-            printf("apply action %d\n", action);
             break;
         case 5:
-            printf("apply action %d\n", action);
             break;
         case 6:
-            printf("apply action %d\n", action);
             break;
         case 7:
-            printf("apply action %d\n", action);
             break;
         case 8:
-            printf("apply action %d\n", action);
             break;
         case 9:
-            printf("apply action %d\n", action);
             break;
         case 10:
-            printf("apply action %d\n", action);
             break;
         case 11:
-            printf("apply action %d\n", action);
             break;
         case 12:
-            printf("apply action %d\n", action);
             break;
         case 13:
-            printf("apply action %d\n", action);
             break;
         case 14:
-            printf("apply action %d\n", action);
             break;
         case 15:
-            printf("apply action %d\n", action);
             break;
         case 16:
-            printf("apply action %d\n", action);
             break;
         case 17:
-            printf("apply action %d\n", action);
             break;
         case 18:
-            printf("apply action %d\n", action);
             break;
         case 19:
-            printf("apply action %d\n", action);
             break;
     }
 }
 
-// TODO: Use an array instead of a vector.
-int hide_main(const int argc, const char* argv[]) {
-    std::vector<int> ruleParts = { 0, 1, 1, 1, 0, 1, 1, 0  };
-    uintmax_t ruleNr = RuleNr(8, 20, ruleParts);
-    printf("ruleNr: %lld\n", ruleNr);
-
-    std::vector<int>* rulePartsBack = RuleParts(8, 20, ruleNr);
-    for (int i = 0; i < 8; i += 1)
-        printf("rulePart %d: action %d\n", i, (*rulePartsBack)[i]);
-
-    MachineS* m = new MachineS(ruleNr, NR_NODES);
-    for (int i = 1; i <= NR_CYCLES; i += 1) m->Cycle();
-}
-
+//---------------
 class CommandOpts {
 
 public:
     static int convertOnly;
     static int nrIterations;
     static int nrActions;
+    static uintmax_t ruleNr;
     static bool rulePresent;
     static bool partsPresent;
 };
 int CommandOpts::convertOnly;
 int CommandOpts::nrIterations = 40;
 int CommandOpts::nrActions = 20;
+// TODO: Use an array instead of a vector.
+std::vector<int> ruleParts = { 0, 1, 1, 1, 0, 1, 1, 0  }; // Wolfram 110 equivalent
+uintmax_t CommandOpts::ruleNr = RuleNr(8, 20, ruleParts);
 bool CommandOpts::rulePresent = false;
 bool CommandOpts::partsPresent = false;
+    //uintmax_t ruleNr = RuleNr(8, 20, ruleParts);
 
-int main (const int argc, char* const argv[]) {
+//---------------
+static void ParseCommand(const int argc, char* argv[]) {
     int c;
     bool errorFound = false;
 
@@ -287,8 +269,13 @@ int main (const int argc, char* const argv[]) {
                 printf("error: can't specify both --parts and --rule\n");
                 errorFound = true;
             } else {
-                printf("--rule option is not yet supported.\n");
-                errorFound = true;
+                printf("--rule %s\n", optarg);
+                char* endPtr;
+                CommandOpts::ruleNr = strtoumax(optarg, &endPtr, 10); // radix 10
+                if (CommandOpts::ruleNr == 0) {
+                    printf("error: invalid rule number\n");
+                    errorFound = true;
+                }
             }
             break;
 
@@ -298,23 +285,31 @@ int main (const int argc, char* const argv[]) {
             break;
 
           case '?':
-            printf("when is the '?' path taken?\n");
+            errorFound = true;
             break;
 
           default:
             abort();
        }
     }
-
     if (errorFound) exit(1);
-    // Process any non-option command arguments.
-  if (optind < argc)
-    {
-      printf ("non-option ARGV-elements: ");
-      while (optind < argc)
-        printf ("%s ", argv[optind++]);
-      putchar ('\n');
-    }
 
-    exit (0);
+    // Process any non-option command arguments.
+    if (optind < argc) {
+        printf ("non-option ARGV-elements: ");
+        while (optind < argc) printf ("%s ", argv[optind++]);
+        putchar ('\n');
+    }
+}
+
+//---------------
+int main(const int argc, char* argv[]) {
+    ParseCommand(argc, argv);
+
+    //uintmax_t ruleNr = RuleNr(8, 20, ruleParts);
+    printf("ruleNr: %lld\n", CommandOpts::ruleNr);
+
+    //MachineS* m = new MachineS(ruleNr, NR_NODES);
+    MachineS* m = new MachineS(CommandOpts::ruleNr, NR_NODES);
+    for (int i = 1; i <= NR_CYCLES; i += 1) m->Cycle();
 }
