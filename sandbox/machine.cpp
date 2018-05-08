@@ -7,6 +7,7 @@
 #define NR_CYCLES 40
 #define NR_NODES 100
 
+
 // TODO: Move these to a header file for 'rules'.
 uintmax_t RuleNr(const int, const int, const std::vector<int>);
 std::vector<int>* RuleParts(const int, const int, const uintmax_t);
@@ -63,7 +64,7 @@ void MachineS::Cycle() {
 
     // Show node states at the beginning of the cycle.
     for (int i = m_nrNodes - 1; i >= 0; i -= 1) {
-        printf("%d", m_nodeStates[i]);
+        printf("%s", (m_nodeStates[i] == 1) ? "X" : " ");
     }
     printf("\n");
 
@@ -98,10 +99,6 @@ void MachineS::Cycle() {
     int* swap = m_nodeStates;
     m_nodeStates = m_nextNodeStates;
     m_nextNodeStates = swap;
-/*
-    // Replace current states with next states.
-    for (int i = 0; i < m_nrNodes; i += 1) m_nodeStates[i] = m_nextNodeStates[i];
-*/
 }
 
 void MachineS::AdvanceNode(TNEGraph::TNodeI NI) {
