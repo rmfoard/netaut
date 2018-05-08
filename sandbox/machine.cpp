@@ -1,11 +1,29 @@
 #include "Snap.h"
 #include <assert.h>
+#include <getopt.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <vector>
 
 #define NR_CYCLES 40
 #define NR_NODES 100
+
+// Command format:
+//
+//      machine --(t)ype <machine type> --(n)r-actions <n> --(r)ule <rulenum> ...
+//          --(p)arts <rulepart list> --(c)onvert-only --iterations <n>
+//
+//      --type defaults to "S"
+//
+//      --nr-actions defaults to 20
+//
+//      --iterations defaults to 40
+//
+//      --rule xor --parts must be specified. (part list must be quoted)
+//
+//      The specified machine will be run for 'iterations' unless
+//      --convert-only is given.
+//  
 
 
 // TODO: Move these to a header file for 'rules'.
@@ -181,7 +199,7 @@ void MachineS::AdvanceNode(TNEGraph::TNodeI NI) {
 }
 
 // TODO: Use an array instead of a vector.
-int main(const int argc, const char* argv[]) {
+int hide_main(const int argc, const char* argv[]) {
     std::vector<int> ruleParts = { 0, 1, 1, 1, 0, 1, 1, 0  };
     uintmax_t ruleNr = RuleNr(8, 20, ruleParts);
     printf("ruleNr: %lld\n", ruleNr);
@@ -192,4 +210,111 @@ int main(const int argc, const char* argv[]) {
 
     MachineS* m = new MachineS(ruleNr, NR_NODES);
     for (int i = 1; i <= NR_CYCLES; i += 1) m->Cycle();
+}
+
+class CommandOpts {
+
+public:
+    static int convertOnly;
+    static int nrIterations;
+    static int nrActions;
+    static bool rulePresent;
+    static bool partsPresent;
+};
+int CommandOpts::convertOnly;
+int CommandOpts::nrIterations = 40;
+int CommandOpts::nrActions = 20;
+bool CommandOpts::rulePresent = false;
+bool CommandOpts::partsPresent = false;
+
+int main (const int argc, char* const argv[]) {
+    int c;
+    bool errorFound = false;
+
+    while (1) {
+        static struct option long_options[] = {
+            {"convert-only", no_argument, &CommandOpts::convertOnly, 1},
+
+            {"type", required_argument, 0, 't'},
+            {"nr-actions", required_argument, 0, 'n'},
+            {"iterations", required_argument, 0, 'i'},
+            {"rule", required_argument, 0, 'r'},
+            {"parts", required_argument, 0, 'p'},
+            {0, 0, 0, 0}
+        };
+
+        int option_index = 0;
+        c = getopt_long (argc, argv, "i:n:p:r:t:", long_options, &option_index);
+
+        if (c == -1) // end of options?
+            break;
+
+        switch (c) {
+          case 0: // flag setting only, no further processing required
+            if (long_options[option_index].flag != 0)
+                break;
+
+            printf ("option %s", long_options[option_index].name);
+            if (optarg)
+                printf (" with arg %s", optarg);
+            printf ("\n");
+            break;
+
+          case 'i':
+            printf("--iterations option is not yet supported.\n");
+            errorFound = true;
+            break;
+
+          case 'n':
+            printf("--nr-actions option is not yet supported.\n");
+            errorFound = true;
+            break;
+
+          case 'p':
+            CommandOpts::partsPresent = true;
+            if (CommandOpts::rulePresent) {
+                printf("error: can't specify both --parts and --rule\n");
+                errorFound = true;
+            } else {
+                printf("--parts option is not yet supported.\n");
+                errorFound = true;
+            }
+            break;
+
+          case 'r':
+            CommandOpts::rulePresent = true;
+            if (CommandOpts::partsPresent) {
+                printf("error: can't specify both --parts and --rule\n");
+                errorFound = true;
+            } else {
+                printf("--rule option is not yet supported.\n");
+                errorFound = true;
+            }
+            break;
+
+          case 't':
+            printf("--type option is not yet supported.\n");
+            errorFound = true;
+            break;
+
+          case '?':
+            printf("when is the '?' path taken?\n");
+            break;
+
+          default:
+            abort();
+       }
+    }
+
+    if (errorFound) exit(1);
+    // Process any non-option command arguments.
+  if (optind < argc)
+    {
+      printf ("non-option ARGV-elements: ");
+      while (optind < argc)
+        printf ("%s ", argv[optind++]);
+      putchar ('\n');
+    }
+
+    exit (0);
 }
