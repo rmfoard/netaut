@@ -8,6 +8,8 @@
 
 #define NR_CYCLES 40
 #define NR_NODES 100
+#define NR_STATES 8
+#define NR_ACTIONS 20
 
 // Command format:
 //
@@ -53,6 +55,8 @@ public:
 private:
     uintmax_t m_ruleNr;
     int m_nrNodes;
+    int m_nrStates;
+    int m_nrActions;
     PNEGraph m_graph;
     PNEGraph m_nextGraph;
     int *m_nodeStates;
@@ -67,6 +71,8 @@ private:
 MachineS::MachineS(uintmax_t ruleNr, int nrNodes) {
     m_ruleNr = ruleNr;
     m_nrNodes = nrNodes;
+    m_nrStates = NR_STATES;
+    m_nrActions = NR_ACTIONS;
     m_graph = TNEGraph::New();
     m_nodeStates = new int[nrNodes];
     m_nextNodeStates = new int[nrNodes];
@@ -206,14 +212,14 @@ std::vector<int> ruleParts = { 0, 1, 1, 1, 0, 1, 1, 0  }; // Wolfram 110 equival
 uintmax_t CommandOpts::ruleNr = RuleNr(8, 20, ruleParts);
 bool CommandOpts::rulePresent = false;
 bool CommandOpts::partsPresent = false;
-    //uintmax_t ruleNr = RuleNr(8, 20, ruleParts);
 
 //---------------
+// TODO: Learn where the hell 'optind' came from.
 static void ParseCommand(const int argc, char* argv[]) {
     int c;
     bool errorFound = false;
 
-    while (1) {
+    while (true) {
         static struct option long_options[] = {
             {"convert-only", no_argument, &CommandOpts::convertOnly, 1},
 
@@ -293,6 +299,31 @@ static void ParseCommand(const int argc, char* argv[]) {
        }
     }
     if (errorFound) exit(1);
+
+    // TODO: Lower this into a subroutine.
+    // Convert-only?
+    if (CommandOpts::convertOnly) {
+        if ((CommandOpts::partsPresent && !CommandOpts::rulePresent)
+          || (!CommandOpts::partsPresent && CommandOpts::rulePresent)) {
+            if (CommandOpts::partsPresent) {
+                printf("parts -> rule conversion is not yet supported.\n");
+                errorFound = true;
+            } else { // rulePresent
+                std::vector<int>* ruleParts = RuleParts(NR_STATES, NR_ACTIONS, CommandOpts::ruleNr);
+                printf("actions: ");
+                for (int part = 0; part < NR_STATES; part += 1) {
+                    printf("%d ", (*ruleParts)[part]);
+                }
+                printf("\n");
+                exit(0);
+            }
+        } else {
+            printf("error: must specify either --rule xor --parts\n");
+            errorFound = true;
+        }
+    }
+    if (errorFound) exit(1);
+
 
     // Process any non-option command arguments.
     if (optind < argc) {
