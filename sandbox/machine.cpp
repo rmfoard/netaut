@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <vector>
+#include "rules.h"
 
 #define NR_CYCLES 40
 #define NR_NODES 132
@@ -28,10 +29,6 @@
 //      --convert-only is given.
 //  
 
-
-// TODO: Move these to a header file for 'rules'.
-uintmax_t RuleNr(const int, const int, const std::vector<int>);
-std::vector<int>* RuleParts(const int, const int, const uintmax_t);
 
 //---------------
 // TODO: Consider moving this to a 'graph_factory' module.

@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <vector>
+#include "rules.h"
 
 static
 uintmax_t Raise(const int base, const int exponent) {
