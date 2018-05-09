@@ -46,11 +46,11 @@ static void BuildRing(int nrNodes, PNEGraph graph) {
 class MachineS {
 
 public:
-    MachineS(uintmax_t, int);
+    MachineS(long long unsigned, int);
     void Cycle();
 
 private:
-    uintmax_t m_ruleNr;
+    long long unsigned m_ruleNr;
     int m_nrNodes;
     int m_nrStates;
     int m_nrActions;
@@ -65,7 +65,7 @@ private:
 };
 
 //---------------
-MachineS::MachineS(uintmax_t ruleNr, int nrNodes) {
+MachineS::MachineS(long long unsigned ruleNr, int nrNodes) {
     m_ruleNr = ruleNr;
     m_nrNodes = nrNodes;
     m_nrStates = NR_STATES;
@@ -200,7 +200,7 @@ public:
     static int convertOnly;
     static int nrIterations;
     static int nrActions;
-    static uintmax_t ruleNr;
+    static long long unsigned ruleNr;
     static bool rulePresent;
     static bool partsPresent;
 };
@@ -209,7 +209,7 @@ int CommandOpts::nrIterations = 40;
 int CommandOpts::nrActions = 20;
 // TODO: Use an array instead of a vector.
 std::vector<int> ruleParts = { 0, 1, 1, 1, 0, 1, 1, 0  }; // Wolfram 110 equivalent
-uintmax_t CommandOpts::ruleNr = RuleNr(8, 20, ruleParts);
+long long unsigned CommandOpts::ruleNr = RuleNr(8, 20, ruleParts);
 bool CommandOpts::rulePresent = false;
 bool CommandOpts::partsPresent = false;
 
@@ -336,7 +336,7 @@ static void ParseCommand(const int argc, char* argv[]) {
 int main(const int argc, char* argv[]) {
     ParseCommand(argc, argv);
 
-    //uintmax_t ruleNr = RuleNr(8, 20, ruleParts);
+    //long long unsigned ruleNr = RuleNr(8, 20, ruleParts);
     printf("ruleNr: %llu\n", CommandOpts::ruleNr);
 
     //MachineS* m = new MachineS(ruleNr, NR_NODES);

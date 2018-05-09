@@ -10,8 +10,8 @@
 // Performs integer exponentiation.
 //---------------
 static
-uintmax_t Raise(const int base, const int exponent) {
-    uintmax_t result = 1;
+long long unsigned Raise(const int base, const int exponent) {
+    long long unsigned result = 1;
     for (int i = 0; i < exponent; i += 1) result *= base;
 
     return result;
@@ -24,12 +24,12 @@ uintmax_t Raise(const int base, const int exponent) {
 // The rule number is a radix 'nrActions' number in which the nth digit is the
 // action number applicable to nodes in state 'n'.
 //---------------
-uintmax_t RuleNr(const int nrStates, const int nrActions, const std::vector<int> ruleParts) {
+long long unsigned RuleNr(const int nrStates, const int nrActions, const std::vector<int> ruleParts) {
     assert(nrStates > 1);
     assert(nrActions > 0);
 
-    uintmax_t ruleNr = 0;
-    uintmax_t increase;
+    long long unsigned ruleNr = 0;
+    long long unsigned increase;
     for (int partNr = 0; partNr < nrStates; partNr += 1) {
         increase = ruleParts[partNr] * Raise(nrActions, partNr);
         assert(ruleParts[partNr] < nrActions);
@@ -47,12 +47,12 @@ uintmax_t RuleNr(const int nrStates, const int nrActions, const std::vector<int>
 // machine, returns an integer vector in which the nth entry is the action number
 // applicable to nodes in state 'n'.
 //---------------
-std::vector<int>* RuleParts(const int nrStates, const int nrActions, const uintmax_t ruleNr) {
+std::vector<int>* RuleParts(const int nrStates, const int nrActions, const long long unsigned ruleNr) {
     assert(nrStates > 1);
     assert(nrActions > 0);
 
     std::vector<int>* ruleParts = new std::vector<int>(nrStates);
-    uintmax_t residue = ruleNr;
+    long long unsigned residue = ruleNr;
     for (int state = 0; state < nrStates; state += 1) {
         (*ruleParts)[state] = residue % nrActions;
         residue /= nrActions;
@@ -67,7 +67,7 @@ int main(const int argc, const char* argv[]) {
     //std::vector<int> ruleParts = { 1, 3, 5, 7, 0, 11, 9, 2  };
     std::vector<int> ruleParts = { 19, 19, 19, 19, 19, 19, 19, 19  };
 
-    uintmax_t ruleNr = RuleNr(8, 20, ruleParts);
+    long long unsigned ruleNr = RuleNr(8, 20, ruleParts);
     printf("ruleNr: %llu\n", ruleNr);
 
     std::vector<int>* rulePartsBack = RuleParts(8, 20, ruleNr);
