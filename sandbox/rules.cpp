@@ -5,6 +5,16 @@
 #include "rules.h"
 
 //---------------
+// Action names (indexed by action number)
+//---------------
+const char* Rules::actionNames[4] = {
+    "white",
+    "black",
+    "none",
+    "invert"
+};
+
+//---------------
 // Raise
 //
 // Performs integer exponentiation.

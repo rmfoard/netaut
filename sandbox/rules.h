@@ -7,13 +7,7 @@ public:
     long long unsigned RuleNr(const int, const int, const std::vector<int>);
     std::vector<int>* RuleParts(const int, const int, const long long unsigned);
 
-    // Action names
-    const char* actionNames[4] = {
-        "white",
-        "black",
-        "none",
-        "invert"
-    };
+    static const char* actionNames[];
 
 private:
     long long unsigned Raise(const int, const int);
