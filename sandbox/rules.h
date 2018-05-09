@@ -8,12 +8,4 @@ std::vector<int>* RuleParts(const int, const int, const long long unsigned);
 #define ABLACK 1
 #define ANONE 2
 #define AINVERT 3
-
-// Action names
-const char* actionNames[] = {
-    "white",
-    "black",
-    "none",
-    "invert"
-};
 #endif

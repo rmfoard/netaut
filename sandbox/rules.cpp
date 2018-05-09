@@ -4,6 +4,15 @@
 #include <vector>
 #include "rules.h"
 
+
+// Action names
+const char* actionNames[] = {
+    "white",
+    "black",
+    "none",
+    "invert"
+};
+
 //---------------
 // Raise
 //
