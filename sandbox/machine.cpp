@@ -7,7 +7,7 @@
 #include <vector>
 
 #define NR_CYCLES 40
-#define NR_NODES 100
+#define NR_NODES 132
 #define NR_STATES 8
 #define NR_ACTIONS 20
 
@@ -252,8 +252,7 @@ static void ParseCommand(const int argc, char* argv[]) {
             break;
 
           case 'i':
-            printf("--iterations option is not yet supported.\n");
-            errorFound = true;
+            CommandOpts::nrIterations = atoi(optarg);
             break;
 
           case 'n':
@@ -345,5 +344,5 @@ int main(const int argc, char* argv[]) {
 
     //MachineS* m = new MachineS(ruleNr, NR_NODES);
     MachineS* m = new MachineS(CommandOpts::ruleNr, NR_NODES);
-    for (int i = 1; i <= NR_CYCLES; i += 1) m->Cycle();
+    for (int i = 1; i <= CommandOpts::nrIterations; i += 1) m->Cycle();
 }
