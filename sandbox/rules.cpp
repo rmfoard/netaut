@@ -4,22 +4,12 @@
 #include <vector>
 #include "rules.h"
 
-
-// Action names
-const char* actionNames[] = {
-    "white",
-    "black",
-    "none",
-    "invert"
-};
-
 //---------------
 // Raise
 //
 // Performs integer exponentiation.
 //---------------
-static
-long long unsigned Raise(const int base, const int exponent) {
+long long unsigned Rules::Raise(const int base, const int exponent) {
     long long unsigned result = 1;
     for (int i = 0; i < exponent; i += 1) result *= base;
 
@@ -33,7 +23,7 @@ long long unsigned Raise(const int base, const int exponent) {
 // The rule number is a radix 'nrActions' number in which the nth digit is the
 // action number applicable to nodes in state 'n'.
 //---------------
-long long unsigned RuleNr(const int nrStates, const int nrActions, const std::vector<int> ruleParts) {
+long long unsigned Rules::RuleNr(const int nrStates, const int nrActions, const std::vector<int> ruleParts) {
     assert(nrStates > 1);
     assert(nrActions > 0);
 
@@ -56,7 +46,7 @@ long long unsigned RuleNr(const int nrStates, const int nrActions, const std::ve
 // machine, returns an integer vector in which the nth entry is the action number
 // applicable to nodes in state 'n'.
 //---------------
-std::vector<int>* RuleParts(const int nrStates, const int nrActions, const long long unsigned ruleNr) {
+std::vector<int>* Rules::RuleParts(const int nrStates, const int nrActions, const long long unsigned ruleNr) {
     assert(nrStates > 1);
     assert(nrActions > 0);
 
@@ -70,17 +60,3 @@ std::vector<int>* RuleParts(const int nrStates, const int nrActions, const long 
 
     return ruleParts;
 }
-
-#ifdef __rules_main__
-int main(const int argc, const char* argv[]) {
-    //std::vector<int> ruleParts = { 1, 3, 5, 7, 0, 11, 9, 2  };
-    std::vector<int> ruleParts = { 19, 19, 19, 19, 19, 19, 19, 19  };
-
-    long long unsigned ruleNr = RuleNr(8, 20, ruleParts);
-    printf("ruleNr: %llu\n", ruleNr);
-
-    std::vector<int>* rulePartsBack = RuleParts(8, 20, ruleNr);
-    for (int i = 0; i < 8; i += 1)
-        printf("rulePart %d: action %d\n", i, (*rulePartsBack)[i]);
-}
-#endif

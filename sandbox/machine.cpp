@@ -59,6 +59,7 @@ private:
     int *m_nodeStates;
     int *m_nextNodeStates;
     std::vector<int>* m_ruleParts;
+    Rules* m_rules;
 
     void AdvanceNode(TNEGraph::TNodeI);
     void InitNodeStates();
@@ -66,6 +67,7 @@ private:
 
 //---------------
 MachineS::MachineS(long long unsigned ruleNr, int nrNodes) {
+    m_rules = new Rules();
     m_ruleNr = ruleNr;
     m_nrNodes = nrNodes;
     m_nrStates = NR_STATES;
@@ -75,7 +77,7 @@ MachineS::MachineS(long long unsigned ruleNr, int nrNodes) {
     m_nextNodeStates = new int[nrNodes];
     BuildRing(nrNodes, m_graph);
     InitNodeStates();
-    m_ruleParts = RuleParts(8, 20, ruleNr);
+    m_ruleParts = m_rules->RuleParts(8, 20, ruleNr);
 }
 
 //---------------
@@ -208,8 +210,9 @@ int CommandOpts::convertOnly;
 int CommandOpts::nrIterations = 40;
 int CommandOpts::nrActions = 20;
 // TODO: Use an array instead of a vector.
-std::vector<int> ruleParts = { 0, 1, 1, 1, 0, 1, 1, 0  }; // Wolfram 110 equivalent
-long long unsigned CommandOpts::ruleNr = RuleNr(8, 20, ruleParts);
+//std::vector<int> ruleParts = { 0, 1, 1, 1, 0, 1, 1, 0  }; // Wolfram 110 equivalent
+//long long unsigned CommandOpts::ruleNr = RuleNr(8, 20, ruleParts);
+long long unsigned CommandOpts::ruleNr = 237451457;
 bool CommandOpts::rulePresent = false;
 bool CommandOpts::partsPresent = false;
 
@@ -298,29 +301,6 @@ static void ParseCommand(const int argc, char* argv[]) {
        }
     }
     if (errorFound) exit(1);
-
-    // TODO: Lower this into a subroutine.
-    // Convert-only?
-    if (CommandOpts::convertOnly) {
-        if ((CommandOpts::partsPresent && !CommandOpts::rulePresent)
-          || (!CommandOpts::partsPresent && CommandOpts::rulePresent)) {
-            if (CommandOpts::partsPresent) {
-                printf("parts -> rule conversion is not yet supported.\n");
-                errorFound = true;
-            } else { // rulePresent
-                std::vector<int>* ruleParts = RuleParts(NR_STATES, NR_ACTIONS, CommandOpts::ruleNr);
-                printf("actions: ");
-                for (int part = 0; part < NR_STATES; part += 1) {
-                    printf("%d ", (*ruleParts)[part]);
-                }
-                printf("\n");
-                exit(0);
-            }
-        } else {
-            printf("error: must specify either --rule xor --parts\n");
-            errorFound = true;
-        }
-    }
     if (errorFound) exit(1);
 
 
@@ -336,10 +316,32 @@ static void ParseCommand(const int argc, char* argv[]) {
 int main(const int argc, char* argv[]) {
     ParseCommand(argc, argv);
 
-    //long long unsigned ruleNr = RuleNr(8, 20, ruleParts);
+    // Was the --convert-only option present?
+    if (CommandOpts::convertOnly) {
+        if ((CommandOpts::partsPresent && !CommandOpts::rulePresent)
+          || (!CommandOpts::partsPresent && CommandOpts::rulePresent)) {
+            if (CommandOpts::partsPresent) {
+                printf("parts -> rule conversion is not yet supported.\n");
+                exit(1);
+            } else { // rulePresent
+                Rules* rules = new Rules();
+                std::vector<int>* ruleParts = rules->RuleParts(NR_STATES, NR_ACTIONS, CommandOpts::ruleNr);
+                printf("actions: ");
+                for (int part = 0; part < NR_STATES; part += 1) {
+                    printf("%d ", (*ruleParts)[part]);
+                }
+                printf("\n");
+                exit(0);
+            }
+        } else {
+            printf("error: must specify either --rule xor --parts\n");
+            exit(1);
+        }
+    }
+
+    // Convert-only was not selected, so build and run the machine.
     printf("ruleNr: %llu\n", CommandOpts::ruleNr);
 
-    //MachineS* m = new MachineS(ruleNr, NR_NODES);
     MachineS* m = new MachineS(CommandOpts::ruleNr, NR_NODES);
     for (int i = 1; i <= CommandOpts::nrIterations; i += 1) m->Cycle();
 }
