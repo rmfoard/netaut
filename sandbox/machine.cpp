@@ -12,6 +12,7 @@
 #define NR_STATES 8
 #define NR_ACTIONS 20
 
+//---------------
 // Command format:
 //
 //      machine --(t)ype <machine type> --(n)r-actions <n> --(r)ule <rulenum> ...
@@ -27,8 +28,7 @@
 //
 //      The specified machine will be run for 'iterations' unless
 //      --convert-only is given.
-//  
-
+//---------------
 
 //---------------
 // TODO: Consider moving this to a 'graph_factory' module.
@@ -83,13 +83,15 @@ MachineS::MachineS(long long unsigned ruleNr, int nrNodes) {
 //---------------
 void MachineS::InitNodeStates() {
     for (int i = 0; i < m_nrNodes; i += 1) {
-        //m_nodeStates[i] = (i % 3) % 2;
         m_nodeStates[i] = (i == m_nrNodes / 2) ? 1 : 0;
     }
 }
 
 //---------------
-// Cycle: Run one step of the loaded rule.
+// Cycle
+//
+// Run one step of the loaded rule.
+//---------------
 void MachineS::Cycle() {
 
     // Show node states at the beginning of the cycle.
@@ -98,33 +100,27 @@ void MachineS::Cycle() {
     }
     printf("\n");
 
-    PNEGraph m_nextGraph = TNEGraph::New();
+    // Create the seed of the graph's next generation.
+    m_nextGraph = TNEGraph::New();
+
+    // Copy all nodes from current to next graph (added edges will "forward
+    // reference" them. Rule actions in 'AdvanceNode' are responsible for
+    // [re-]creating all edges in the new graph -- those that have been changed
+    // and those that remain the same.
+    for (TNEGraph::TNodeI NIter = m_graph->BegNI(); NIter < m_graph->EndNI(); NIter++) {
+        int nId = NIter.GetId();
+        m_nextGraph->AddNode(nId);
+    }
 
     // Apply one generation of the loaded rule, creating the next generation
-    // state in 'm_nextGraph'.
-    for (TNEGraph::TNodeI ni = m_graph->BegNI(); ni < m_graph->EndNI(); ni++) AdvanceNode(ni);
-
-    // Temporarily copy m_graph -> m_nextGraph.
-    // (It'll later be done piecemeal, during rule application.)
-    for (TNEGraph::TNodeI ni = m_graph->BegNI(); ni < m_graph->EndNI(); ni++) {
-        int n = ni.GetId();
-        //printf("node Id: %d, state: %d\n", n, m_nodeStates[n]);
-        m_nextGraph->AddNode(n);
-    }
-
-    for (TNEGraph::TNodeI ni = m_graph->BegNI(); ni < m_graph->EndNI(); ni++) {
-        for (int e = 0; e < ni.GetOutDeg(); e++) {
-            int orig = ni.GetId();
-            int dest = ni.GetOutNId(e);
-            m_nextGraph->AddEdge(orig, dest);
-        }
-    }
+    // state in 'm_nextGraph' and 'm_nextNodeStates'.
+    for (TNEGraph::TNodeI NIter = m_graph->BegNI(); NIter < m_graph->EndNI(); NIter++) AdvanceNode(NIter);
 
     // Cycling finished, replace "current" structures with "next" counterparts.
-    // (Abandon m->graph to garbage collection.)
+    // (Abandoning m->graph to garbage collection.)
     m_graph = m_nextGraph;
 
-    // Unlike with the net, avoid de- and re-allocating state storage.
+    // Unlike with the graph, avoid de- and re-allocating state storage.
     // Instead, alternate "current" and "next" roles.
     int* swap = m_nodeStates;
     m_nodeStates = m_nextNodeStates;
@@ -132,65 +128,166 @@ void MachineS::Cycle() {
 }
 
 //---------------
-void MachineS::AdvanceNode(TNEGraph::TNodeI NI) {
-    int nodeId = NI.GetId();
-    int lState = m_nodeStates[NI.GetOutNId(0)];
-    int nState = m_nodeStates[nodeId];
-    int rState = m_nodeStates[NI.GetOutNId(1)];
+// AdvanceNode
+//
+// Apply the loaded rule to the indicated node, adjusting "next"
+// structures.  Every action must put appropriate edges in place
+// for the node being advanced.
+//---------------
+void MachineS::AdvanceNode(TNEGraph::TNodeI NIter) {
+
+    // Get node id's of neighbors.
+    int nNId = NIter.GetId();
+    int lNId = NIter.GetOutNId(0);
+    int rNId = NIter.GetOutNId(1);
+
+    // Set state variables for convenience.
+    int nState = m_nodeStates[nNId]; 
+    int lState = m_nodeStates[lNId];
+    int rState = m_nodeStates[rNId];
 
     int triadState = lState * 4 + nState * 2 + rState;
+
+    // Gather info on neighbors' neighbors.
+    TNEGraph::TNodeI lNIter = m_graph->GetNI(lNId); // iterator for left neighbor
+    TNEGraph::TNodeI rNIter = m_graph->GetNI(rNId); // iterator for right neighbor
+    int llNId = lNIter.GetOutNId(0);
+    int lrNId = lNIter.GetOutNId(1);
+    int rlNId = rNIter.GetOutNId(0);
+    int rrNId = rNIter.GetOutNId(1);
 
     assert(0 <= triadState && triadState <= 7);
     int action = (*m_ruleParts)[triadState];
     assert(0 <= action && action <= 19);
 
     // TODO: Keep running stats on action use.
+    // See rules.h for a description of action codes.
+    // Right now, all actions simply copy each node's edges to the "next" graph,
+    // untransformed even by actions that are supposed to transform.
     switch (action) {
-        case 0: // turn white
-            m_nextNodeStates[nodeId] = 0;
+        case GNONE*4 + NWHITE: // turn white
+            m_nextNodeStates[nNId] = 0;
+            m_nextGraph->AddEdge(nNId, lNId);
+            m_nextGraph->AddEdge(nNId, rNId);
             break;
-        case 1: // turn black
-            m_nextNodeStates[nodeId] = 1;
+        case GNONE*4 + NBLACK: // turn black
+            m_nextNodeStates[nNId] = 1;
+            m_nextGraph->AddEdge(nNId, lNId);
+            m_nextGraph->AddEdge(nNId, rNId);
             break;
-        case 2: // toggle
-            m_nextNodeStates[nodeId] = 1 - m_nodeStates[nodeId];
+        case GNONE*4 + NNONE: // no action
+            m_nextNodeStates[nNId] = nState;
+            m_nextGraph->AddEdge(nNId, lNId);
+            m_nextGraph->AddEdge(nNId, rNId);
             break;
-        case 3: // take rState
-            m_nextNodeStates[nodeId] = rState;
+        case GNONE*4 + NINVERT: // invert
+            m_nextNodeStates[nNId] = 1 - m_nodeStates[nNId];
+            m_nextGraph->AddEdge(nNId, lNId);
+            m_nextGraph->AddEdge(nNId, rNId);
             break;
-        case 4: // take lState
-            m_nextNodeStates[nodeId] = lState;
+        case GR_RR*4 + NWHITE:
+            m_nextNodeStates[nNId] = 0;
+            m_nextGraph->AddEdge(nNId, lNId);
+            if (rrNId != nNId)
+                m_nextGraph->AddEdge(nNId, rrNId); // no self-edges (yet)
+            else
+                m_nextGraph->AddEdge(nNId, rNId);
             break;
-        case 5: // take (lState + rState) % 2
-            m_nextNodeStates[nodeId] = (lState + rState) % 2;
+        case GR_RR*4 + NBLACK:
+            m_nextNodeStates[nNId] = 1;
+            m_nextGraph->AddEdge(nNId, lNId);
+            if (rrNId != nNId)
+                m_nextGraph->AddEdge(nNId, rrNId); // no self-edges (yet)
+            else
+                m_nextGraph->AddEdge(nNId, rNId);
             break;
-        case 6:
+        case GR_RR*4 + NNONE:
+            m_nextNodeStates[nNId] = nState;
+            m_nextGraph->AddEdge(nNId, lNId);
+            if (rrNId != nNId)
+                m_nextGraph->AddEdge(nNId, rrNId); // no self-edges (yet)
+            else
+                m_nextGraph->AddEdge(nNId, rNId);
             break;
-        case 7:
+        case GR_RR*4 + NINVERT:
+            m_nextNodeStates[nNId] = 1 - m_nodeStates[nNId];
+            m_nextGraph->AddEdge(nNId, lNId);
+            if (rrNId != nNId)
+                m_nextGraph->AddEdge(nNId, rrNId); // no self-edges (yet)
+            else
+                m_nextGraph->AddEdge(nNId, rNId);
             break;
-        case 8:
+        case GL_LL*4 + NWHITE:
+            m_nextNodeStates[nNId] = 0;
+            if (llNId != nNId)
+                m_nextGraph->AddEdge(nNId, llNId);
+            else
+                m_nextGraph->AddEdge(nNId, lNId);
+            m_nextGraph->AddEdge(nNId, rNId);
             break;
-        case 9:
+        case GL_LL*4 + NBLACK:
+            m_nextNodeStates[nNId] = 1;
+            if (llNId != nNId)
+                m_nextGraph->AddEdge(nNId, llNId);
+            else
+                m_nextGraph->AddEdge(nNId, lNId);
+            m_nextGraph->AddEdge(nNId, rNId);
             break;
-        case 10:
+        case GL_LL*4 + NNONE:
+            m_nextNodeStates[nNId] = nState;
+            if (llNId != nNId)
+                m_nextGraph->AddEdge(nNId, llNId);
+            else
+                m_nextGraph->AddEdge(nNId, lNId);
+            m_nextGraph->AddEdge(nNId, rNId);
             break;
-        case 11:
+        case GL_LL*4 + NINVERT:
+            m_nextNodeStates[nNId] = 1 - m_nodeStates[nNId];
+            if (llNId != nNId)
+                m_nextGraph->AddEdge(nNId, llNId);
+            else
+                m_nextGraph->AddEdge(nNId, lNId);
+            m_nextGraph->AddEdge(nNId, rNId);
             break;
-        case 12:
+        case GR_RL*4 + NWHITE:
+            m_nextNodeStates[nNId] = 0;
+            m_nextGraph->AddEdge(nNId, lNId);
+            m_nextGraph->AddEdge(nNId, rNId);
             break;
-        case 13:
+        case GR_RL*4 + NBLACK:
+            m_nextNodeStates[nNId] = 1;
+            m_nextGraph->AddEdge(nNId, lNId);
+            m_nextGraph->AddEdge(nNId, rNId);
             break;
-        case 14:
+        case GR_RL*4 + NNONE:
+            m_nextNodeStates[nNId] = nState;
+            m_nextGraph->AddEdge(nNId, lNId);
+            m_nextGraph->AddEdge(nNId, rNId);
             break;
-        case 15:
+        case GR_RL*4 + NINVERT:
+            m_nextNodeStates[nNId] = 1 - m_nodeStates[nNId];
+            m_nextGraph->AddEdge(nNId, lNId);
+            m_nextGraph->AddEdge(nNId, rNId);
             break;
-        case 16:
+        case GL_LR*4 + NWHITE:
+            m_nextNodeStates[nNId] = 0;
+            m_nextGraph->AddEdge(nNId, lNId);
+            m_nextGraph->AddEdge(nNId, rNId);
             break;
-        case 17:
+        case GL_LR*4 + NBLACK:
+            m_nextNodeStates[nNId] = 1;
+            m_nextGraph->AddEdge(nNId, lNId);
+            m_nextGraph->AddEdge(nNId, rNId);
             break;
-        case 18:
+        case GL_LR*4 + NNONE:
+            m_nextNodeStates[nNId] = nState;
+            m_nextGraph->AddEdge(nNId, lNId);
+            m_nextGraph->AddEdge(nNId, rNId);
             break;
-        case 19:
+        case GL_LR*4 + NINVERT:
+            m_nextNodeStates[nNId] = 1 - m_nodeStates[nNId];
+            m_nextGraph->AddEdge(nNId, lNId);
+            m_nextGraph->AddEdge(nNId, rNId);
             break;
     }
 }

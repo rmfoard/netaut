@@ -13,9 +13,23 @@ private:
     long long unsigned Raise(const int, const int);
 };
 
-// Action numbers
-#define AWHITE 0
-#define ABLACK 1
-#define ANONE 2
-#define AINVERT 3
+//---------------
+// Action code = graph state op * 4 + node state op
+//
+// Node state operations
+//---------------
+#define NWHITE 0
+#define NBLACK 1
+#define NNONE 2
+#define NINVERT 3
+
+//---------------
+// Graph state operations
+//---------------
+#define GNONE 0
+#define GR_RR 1 // replace redge with redge[redge]
+#define GL_LL 2 // replace ledge with ledge[ledge]
+#define GR_RL 3 // replace redge with redge[ledge]
+#define GL_LR 4 // replace ledge with ledge[redge]
+//---------------
 #endif
