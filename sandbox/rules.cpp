@@ -4,6 +4,11 @@
 #include <vector>
 #include "rules.h"
 
+//---------------
+// Raise
+//
+// Performs integer exponentiation.
+//---------------
 static
 uintmax_t Raise(const int base, const int exponent) {
     uintmax_t result = 1;
@@ -12,6 +17,13 @@ uintmax_t Raise(const int base, const int exponent) {
     return result;
 }
 
+//---------------
+// RuleNr
+//
+// Given a rule expressed as a 'ruleParts' vector, returns a rule number.
+// The rule number is a radix 'nrActions' number in which the nth digit is the
+// action number applicable to nodes in state 'n'.
+//---------------
 uintmax_t RuleNr(const int nrStates, const int nrActions, const std::vector<int> ruleParts) {
     assert(nrStates > 1);
     assert(nrActions > 0);
@@ -28,6 +40,13 @@ uintmax_t RuleNr(const int nrStates, const int nrActions, const std::vector<int>
     return ruleNr;
 }
 
+//---------------
+// RuleParts
+//
+// Given a rule number and the number of states and actions of its associated
+// machine, returns an integer vector in which the nth entry is the action number
+// applicable to nodes in state 'n'.
+//---------------
 std::vector<int>* RuleParts(const int nrStates, const int nrActions, const uintmax_t ruleNr) {
     assert(nrStates > 1);
     assert(nrActions > 0);
@@ -49,7 +68,7 @@ int main(const int argc, const char* argv[]) {
     std::vector<int> ruleParts = { 19, 19, 19, 19, 19, 19, 19, 19  };
 
     uintmax_t ruleNr = RuleNr(8, 20, ruleParts);
-    printf("ruleNr: %lld\n", ruleNr);
+    printf("ruleNr: %llu\n", ruleNr);
 
     std::vector<int>* rulePartsBack = RuleParts(8, 20, ruleNr);
     for (int i = 0; i < 8; i += 1)

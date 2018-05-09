@@ -337,7 +337,7 @@ int main(const int argc, char* argv[]) {
     ParseCommand(argc, argv);
 
     //uintmax_t ruleNr = RuleNr(8, 20, ruleParts);
-    printf("ruleNr: %lld\n", CommandOpts::ruleNr);
+    printf("ruleNr: %llu\n", CommandOpts::ruleNr);
 
     //MachineS* m = new MachineS(ruleNr, NR_NODES);
     MachineS* m = new MachineS(CommandOpts::ruleNr, NR_NODES);
