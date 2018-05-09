@@ -105,8 +105,8 @@ void MachineS::Cycle() {
     // state in 'm_nextGraph'.
     for (TNEGraph::TNodeI ni = m_graph->BegNI(); ni < m_graph->EndNI(); ni++) AdvanceNode(ni);
 
-    // Temporarily copy m_nextGraph <- graph here.
-    // It'll later be done piecemeal, when applying rules.
+    // Temporarily copy m_graph -> m_nextGraph.
+    // (It'll later be done piecemeal, during rule application.)
     for (TNEGraph::TNodeI ni = m_graph->BegNI(); ni < m_graph->EndNI(); ni++) {
         int n = ni.GetId();
         //printf("node Id: %d, state: %d\n", n, m_nodeStates[n]);
@@ -143,24 +143,27 @@ void MachineS::AdvanceNode(TNEGraph::TNodeI NI) {
 
     assert(0 <= triadState && triadState <= 7);
     int action = (*m_ruleParts)[triadState];
-    //printf("triadState %d => action %d\n", triadState, action);
     assert(0 <= action && action <= 19);
 
     // TODO: Keep running stats on action use.
     switch (action) {
-        case 0:
+        case 0: // turn white
             m_nextNodeStates[nodeId] = 0;
             break;
-        case 1:
+        case 1: // turn black
             m_nextNodeStates[nodeId] = 1;
             break;
-        case 2:
+        case 2: // toggle
+            m_nextNodeStates[nodeId] = 1 - m_nodeStates[nodeId];
             break;
-        case 3:
+        case 3: // take rState
+            m_nextNodeStates[nodeId] = rState;
             break;
-        case 4:
+        case 4: // take lState
+            m_nextNodeStates[nodeId] = lState;
             break;
-        case 5:
+        case 5: // take (lState + rState) % 2
+            m_nextNodeStates[nodeId] = (lState + rState) % 2;
             break;
         case 6:
             break;
