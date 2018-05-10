@@ -50,6 +50,10 @@ static void BuildRing(int nrNodes, PNEGraph graph) {
     for (int n = 1; n < nrNodes; n += 1) graph->AddEdge(n, n - 1);
 }
 
+static char* strAllocCpy(const char* src) {
+    return strcpy(new char[strlen(src) + 1], src);
+}
+
 //---------------
 class CommandOpts {
 
@@ -61,6 +65,8 @@ public:
     static long long unsigned ruleNr;
     static bool rulePresent;
     static bool partsPresent;
+    static bool writeDot;
+    static char* outFile;
 };
 int CommandOpts::convertOnly;
 int CommandOpts::nrIterations = 40;
@@ -71,12 +77,15 @@ long long unsigned CommandOpts::ruleNr = 237451457;
 int CommandOpts::selfEdges = 0;
 bool CommandOpts::rulePresent = false;
 bool CommandOpts::partsPresent = false;
+bool CommandOpts::writeDot = false;
+char* CommandOpts::outFile;
 
 //---------------
 class MachineS {
 
 public:
     MachineS(long long unsigned, int);
+    PNEGraph get_m_graph();
     void Cycle();
 
 private:
@@ -109,6 +118,9 @@ MachineS::MachineS(long long unsigned ruleNr, int nrNodes) {
     InitNodeStates();
     m_ruleParts = m_rules->RuleParts(NR_STATES, NR_ACTIONS, ruleNr);
 }
+
+//---------------
+PNEGraph MachineS::get_m_graph() { return m_graph; }
 
 //---------------
 void MachineS::InitNodeStates() {
@@ -361,6 +373,7 @@ static void ParseCommand(const int argc, char* argv[]) {
             {"iterations", required_argument, 0, 'i'},
             {"rule", required_argument, 0, 'r'},
             {"parts", required_argument, 0, 'p'},
+            {"write", required_argument, 0, 'w'},
             {0, 0, 0, 0}
         };
 
@@ -422,6 +435,12 @@ static void ParseCommand(const int argc, char* argv[]) {
             errorFound = true;
             break;
 
+          case 'w':
+            CommandOpts::outFile = strAllocCpy(optarg);
+            CommandOpts::writeDot = true;
+            printf("outFile: %s\n", CommandOpts::outFile);
+            break;
+
           case '?':
             errorFound = true;
             break;
@@ -474,4 +493,6 @@ int main(const int argc, char* argv[]) {
 
     MachineS* m = new MachineS(CommandOpts::ruleNr, NR_NODES);
     for (int i = 1; i <= CommandOpts::nrIterations; i += 1) m->Cycle();
+
+    if (CommandOpts::writeDot) TSnap::SaveGViz(m->get_m_graph(), CommandOpts::outFile);
 }
