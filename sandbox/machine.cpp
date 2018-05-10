@@ -135,6 +135,7 @@ void MachineS::Cycle() {
 // for the node being advanced.
 //---------------
 void MachineS::AdvanceNode(TNEGraph::TNodeI NIter) {
+    bool selfEdge = false;
 
     // Get node id's of neighbors.
     int nNId = NIter.GetId();
@@ -188,38 +189,38 @@ void MachineS::AdvanceNode(TNEGraph::TNodeI NIter) {
         case GR_RR*4 + NWHITE:
             m_nextNodeStates[nNId] = 0;
             m_nextGraph->AddEdge(nNId, lNId);
-            if (rrNId != nNId)
-                m_nextGraph->AddEdge(nNId, rrNId); // no self-edges (yet)
+            if (rrNId != nNId || selfEdge)
+                m_nextGraph->AddEdge(nNId, rrNId);
             else
                 m_nextGraph->AddEdge(nNId, rNId);
             break;
         case GR_RR*4 + NBLACK:
             m_nextNodeStates[nNId] = 1;
             m_nextGraph->AddEdge(nNId, lNId);
-            if (rrNId != nNId)
-                m_nextGraph->AddEdge(nNId, rrNId); // no self-edges (yet)
+            if (rrNId != nNId || selfEdge)
+                m_nextGraph->AddEdge(nNId, rrNId);
             else
                 m_nextGraph->AddEdge(nNId, rNId);
             break;
         case GR_RR*4 + NNONE:
             m_nextNodeStates[nNId] = nState;
             m_nextGraph->AddEdge(nNId, lNId);
-            if (rrNId != nNId)
-                m_nextGraph->AddEdge(nNId, rrNId); // no self-edges (yet)
+            if (rrNId != nNId || selfEdge)
+                m_nextGraph->AddEdge(nNId, rrNId);
             else
                 m_nextGraph->AddEdge(nNId, rNId);
             break;
         case GR_RR*4 + NINVERT:
             m_nextNodeStates[nNId] = 1 - m_nodeStates[nNId];
             m_nextGraph->AddEdge(nNId, lNId);
-            if (rrNId != nNId)
-                m_nextGraph->AddEdge(nNId, rrNId); // no self-edges (yet)
+            if (rrNId != nNId || selfEdge)
+                m_nextGraph->AddEdge(nNId, rrNId);
             else
                 m_nextGraph->AddEdge(nNId, rNId);
             break;
         case GL_LL*4 + NWHITE:
             m_nextNodeStates[nNId] = 0;
-            if (llNId != nNId)
+            if (llNId != nNId || selfEdge)
                 m_nextGraph->AddEdge(nNId, llNId);
             else
                 m_nextGraph->AddEdge(nNId, lNId);
@@ -227,7 +228,7 @@ void MachineS::AdvanceNode(TNEGraph::TNodeI NIter) {
             break;
         case GL_LL*4 + NBLACK:
             m_nextNodeStates[nNId] = 1;
-            if (llNId != nNId)
+            if (llNId != nNId || selfEdge)
                 m_nextGraph->AddEdge(nNId, llNId);
             else
                 m_nextGraph->AddEdge(nNId, lNId);
@@ -235,7 +236,7 @@ void MachineS::AdvanceNode(TNEGraph::TNodeI NIter) {
             break;
         case GL_LL*4 + NNONE:
             m_nextNodeStates[nNId] = nState;
-            if (llNId != nNId)
+            if (llNId != nNId || selfEdge)
                 m_nextGraph->AddEdge(nNId, llNId);
             else
                 m_nextGraph->AddEdge(nNId, lNId);
@@ -243,7 +244,7 @@ void MachineS::AdvanceNode(TNEGraph::TNodeI NIter) {
             break;
         case GL_LL*4 + NINVERT:
             m_nextNodeStates[nNId] = 1 - m_nodeStates[nNId];
-            if (llNId != nNId)
+            if (llNId != nNId || selfEdge)
                 m_nextGraph->AddEdge(nNId, llNId);
             else
                 m_nextGraph->AddEdge(nNId, lNId);
@@ -252,41 +253,65 @@ void MachineS::AdvanceNode(TNEGraph::TNodeI NIter) {
         case GR_RL*4 + NWHITE:
             m_nextNodeStates[nNId] = 0;
             m_nextGraph->AddEdge(nNId, lNId);
-            m_nextGraph->AddEdge(nNId, rNId);
+            if (rlNId != nNId || selfEdge)
+                m_nextGraph->AddEdge(nNId, rlNId);
+            else
+                m_nextGraph->AddEdge(nNId, rNId);
             break;
         case GR_RL*4 + NBLACK:
             m_nextNodeStates[nNId] = 1;
             m_nextGraph->AddEdge(nNId, lNId);
-            m_nextGraph->AddEdge(nNId, rNId);
+            if (rlNId != nNId || selfEdge)
+                m_nextGraph->AddEdge(nNId, rlNId);
+            else
+                m_nextGraph->AddEdge(nNId, rNId);
             break;
         case GR_RL*4 + NNONE:
             m_nextNodeStates[nNId] = nState;
             m_nextGraph->AddEdge(nNId, lNId);
-            m_nextGraph->AddEdge(nNId, rNId);
+            if (rlNId != nNId || selfEdge)
+                m_nextGraph->AddEdge(nNId, rlNId);
+            else
+                m_nextGraph->AddEdge(nNId, rNId);
             break;
         case GR_RL*4 + NINVERT:
             m_nextNodeStates[nNId] = 1 - m_nodeStates[nNId];
             m_nextGraph->AddEdge(nNId, lNId);
-            m_nextGraph->AddEdge(nNId, rNId);
+            if (rlNId != nNId || selfEdge)
+                m_nextGraph->AddEdge(nNId, rlNId);
+            else
+                m_nextGraph->AddEdge(nNId, rNId);
             break;
         case GL_LR*4 + NWHITE:
             m_nextNodeStates[nNId] = 0;
-            m_nextGraph->AddEdge(nNId, lNId);
+            if (lrNId != nNId || selfEdge)
+                m_nextGraph->AddEdge(nNId, lrNId);
+            else
+                m_nextGraph->AddEdge(nNId, lNId);
             m_nextGraph->AddEdge(nNId, rNId);
             break;
         case GL_LR*4 + NBLACK:
             m_nextNodeStates[nNId] = 1;
-            m_nextGraph->AddEdge(nNId, lNId);
+            if (lrNId != nNId || selfEdge)
+                m_nextGraph->AddEdge(nNId, lrNId);
+            else
+                m_nextGraph->AddEdge(nNId, lNId);
             m_nextGraph->AddEdge(nNId, rNId);
             break;
         case GL_LR*4 + NNONE:
             m_nextNodeStates[nNId] = nState;
-            m_nextGraph->AddEdge(nNId, lNId);
+            if (lrNId != nNId || selfEdge)
+                m_nextGraph->AddEdge(nNId, lrNId);
+            else
+                m_nextGraph->AddEdge(nNId, lNId);
             m_nextGraph->AddEdge(nNId, rNId);
             break;
         case GL_LR*4 + NINVERT:
             m_nextNodeStates[nNId] = 1 - m_nodeStates[nNId];
-            m_nextGraph->AddEdge(nNId, lNId);
+            if (lrNId != nNId || selfEdge)
+                m_nextGraph->AddEdge(nNId, lrNId);
+            else
+                m_nextGraph->AddEdge(nNId, lNId);
             m_nextGraph->AddEdge(nNId, rNId);
             break;
     }
