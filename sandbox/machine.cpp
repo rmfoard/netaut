@@ -28,7 +28,7 @@
 //
 //      --parts <actions string>
 //
-//      --self-edges defaults to off/false
+//      --self-edges [permitted] defaults to off/false
 //
 //      --rule xor --parts must be specified. (part list must be quoted)
 //
@@ -49,6 +49,28 @@ static void BuildRing(int nrNodes, PNEGraph graph) {
     graph->AddEdge(0, nrNodes - 1);
     for (int n = 1; n < nrNodes; n += 1) graph->AddEdge(n, n - 1);
 }
+
+//---------------
+class CommandOpts {
+
+public:
+    static int convertOnly;
+    static int nrIterations;
+    static int nrActions;
+    static int selfEdges;
+    static long long unsigned ruleNr;
+    static bool rulePresent;
+    static bool partsPresent;
+};
+int CommandOpts::convertOnly;
+int CommandOpts::nrIterations = 40;
+int CommandOpts::nrActions = 20;
+// TODO: Use an array instead of a vector.
+//std::vector<int> ruleParts = { 0, 1, 1, 1, 0, 1, 1, 0  }; // Wolfram 110 equivalent
+long long unsigned CommandOpts::ruleNr = 237451457;
+int CommandOpts::selfEdges = 0;
+bool CommandOpts::rulePresent = false;
+bool CommandOpts::partsPresent = false;
 
 //---------------
 class MachineS {
@@ -143,7 +165,7 @@ void MachineS::Cycle() {
 // for the node being advanced.
 //---------------
 void MachineS::AdvanceNode(TNEGraph::TNodeI NIter) {
-    bool selfEdge = false;
+    bool selfEdge = CommandOpts::selfEdges;
 
     // Get node ids of neighbors.
     int nNId = NIter.GetId();
@@ -322,28 +344,6 @@ void MachineS::AdvanceNode(TNEGraph::TNodeI NIter) {
             break;
     }
 }
-
-//---------------
-class CommandOpts {
-
-public:
-    static int convertOnly;
-    static int nrIterations;
-    static int nrActions;
-    static long long unsigned ruleNr;
-    static bool selfEdges;
-    static bool rulePresent;
-    static bool partsPresent;
-};
-int CommandOpts::convertOnly;
-int CommandOpts::nrIterations = 40;
-int CommandOpts::nrActions = 20;
-// TODO: Use an array instead of a vector.
-//std::vector<int> ruleParts = { 0, 1, 1, 1, 0, 1, 1, 0  }; // Wolfram 110 equivalent
-long long unsigned CommandOpts::ruleNr = 237451457;
-bool CommandOpts::selfEdges = false;
-bool CommandOpts::rulePresent = false;
-bool CommandOpts::partsPresent = false;
 
 //---------------
 // TODO: Learn where the hell 'optind' came from.
