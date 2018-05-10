@@ -24,10 +24,18 @@
 //
 //      --iterations defaults to 40
 //
+//      --rule <rule number>
+//
+//      --parts <actions string>
+//
+//      --self-edges defaults to off/false
+//
 //      --rule xor --parts must be specified. (part list must be quoted)
 //
 //      The specified machine will be run for 'iterations' unless
 //      --convert-only is given.
+//
+// TODO: Explain actions string
 //---------------
 
 //---------------
@@ -77,7 +85,7 @@ MachineS::MachineS(long long unsigned ruleNr, int nrNodes) {
     m_nextNodeStates = new int[nrNodes];
     BuildRing(nrNodes, m_graph);
     InitNodeStates();
-    m_ruleParts = m_rules->RuleParts(8, 20, ruleNr);
+    m_ruleParts = m_rules->RuleParts(NR_STATES, NR_ACTIONS, ruleNr);
 }
 
 //---------------
@@ -104,7 +112,7 @@ void MachineS::Cycle() {
     m_nextGraph = TNEGraph::New();
 
     // Copy all nodes from current to next graph (added edges will "forward
-    // reference" them. Rule actions in 'AdvanceNode' are responsible for
+    // reference" them). Rule actions in 'AdvanceNode' are responsible for
     // [re-]creating all edges in the new graph -- those that have been changed
     // and those that remain the same.
     for (TNEGraph::TNodeI NIter = m_graph->BegNI(); NIter < m_graph->EndNI(); NIter++) {
@@ -137,7 +145,7 @@ void MachineS::Cycle() {
 void MachineS::AdvanceNode(TNEGraph::TNodeI NIter) {
     bool selfEdge = false;
 
-    // Get node id's of neighbors.
+    // Get node ids of neighbors.
     int nNId = NIter.GetId();
     int lNId = NIter.GetOutNId(0);
     int rNId = NIter.GetOutNId(1);
@@ -163,8 +171,6 @@ void MachineS::AdvanceNode(TNEGraph::TNodeI NIter) {
 
     // TODO: Keep running stats on action use.
     // See rules.h for a description of action codes.
-    // Right now, all actions simply copy each node's edges to the "next" graph,
-    // untransformed even by actions that are supposed to transform.
     switch (action) {
         case GNONE*4 + NWHITE: // turn white
             m_nextNodeStates[nNId] = 0;
@@ -325,6 +331,7 @@ public:
     static int nrIterations;
     static int nrActions;
     static long long unsigned ruleNr;
+    static bool selfEdges;
     static bool rulePresent;
     static bool partsPresent;
 };
@@ -333,8 +340,8 @@ int CommandOpts::nrIterations = 40;
 int CommandOpts::nrActions = 20;
 // TODO: Use an array instead of a vector.
 //std::vector<int> ruleParts = { 0, 1, 1, 1, 0, 1, 1, 0  }; // Wolfram 110 equivalent
-//long long unsigned CommandOpts::ruleNr = RuleNr(8, 20, ruleParts);
 long long unsigned CommandOpts::ruleNr = 237451457;
+bool CommandOpts::selfEdges = false;
 bool CommandOpts::rulePresent = false;
 bool CommandOpts::partsPresent = false;
 
@@ -347,6 +354,7 @@ static void ParseCommand(const int argc, char* argv[]) {
     while (true) {
         static struct option long_options[] = {
             {"convert-only", no_argument, &CommandOpts::convertOnly, 1},
+            {"self-edges", no_argument, &CommandOpts::selfEdges, 1},
 
             {"type", required_argument, 0, 't'},
             {"nr-actions", required_argument, 0, 'n'},
