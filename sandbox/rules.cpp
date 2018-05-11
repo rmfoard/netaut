@@ -81,18 +81,25 @@ int* Rules::RuleParts(const int nrStates, const int nrActions, const long long u
 
 //---------------
 std::string Rules::RulePartText(const int rulePart) {
-    return "L<" + topo_action_component_names[(rulePart/2) / 6]
-      + "+"
+    return "{L<" + topo_action_component_names[(rulePart/2) / 6]
+      + ", "
       + "R<" + topo_action_component_names[(rulePart/2) % 6]
-      + "+"
-      + "N<" + node_action_names[rulePart % 2];
+      + ", "
+      + "N<" + node_action_names[rulePart % 2]
+      + "}";
 }
 
 //---------------
 int main(int argc, char* argv[]) {
     Rules* r = new Rules();
-    int* ruleParts = r->RuleParts(NR_TRIAD_STATES, NR_ACTIONS, (unsigned long long) 10658);
-    for (int i = 0; i < NR_TRIAD_STATES; i += 1)
-        printf("[%d] ___ %d = %s\n", i, ruleParts[i], r->RulePartText(ruleParts[i]).c_str());
+    int* ruleParts = r->RuleParts(NR_TRIAD_STATES, NR_ACTIONS, (unsigned long long) 4832146842);
+    int i;
+    for (i = 0; i < NR_TRIAD_STATES; i += 1) {
+        printf("[%d ", i);
+        printf("%s", (i / 4 == 1) ? "*" : "-");
+        printf("%s", ((i / 2) % 2 == 1) ? "*" : "-");
+        printf("%s] ", (i % 2 == 1) ? "*" : "-");
+        printf("%d = %s\n", ruleParts[i], r->RulePartText(ruleParts[i]).c_str());
+    }
     printf("finis.\n");
 }
