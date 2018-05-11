@@ -105,6 +105,8 @@ private:
 };
 
 //---------------
+// TODO: Provide a destructor that releases resources.
+//---------------
 MachineS::MachineS(long long unsigned ruleNr, int nrNodes) {
     m_rules = new Rules();
     m_ruleNr = ruleNr;
@@ -119,6 +121,8 @@ MachineS::MachineS(long long unsigned ruleNr, int nrNodes) {
     m_ruleParts = m_rules->RuleParts(NR_STATES, NR_ACTIONS, ruleNr);
 }
 
+//---------------
+// TODO: Use the proper form for "getters."
 //---------------
 PNEGraph MachineS::get_m_graph() { return m_graph; }
 
@@ -462,26 +466,39 @@ static void ParseCommand(const int argc, char* argv[]) {
 }
 
 //---------------
+// DoConversion
+//
+// Convert from rule number to rule parts or vice versa, depending on
+// command line options present.
+//---------------
+static int DoConversion() {
+    if (CommandOpts::partsPresent) {
+        printf("parts -> rule conversion is not yet supported.\n");
+        return 1; // failure
+    }
+    else { // rulePresent
+        Rules* rules = new Rules();
+        std::vector<int>* ruleParts = rules->RuleParts(NR_STATES, NR_ACTIONS, CommandOpts::ruleNr);
+        printf("actions: ");
+        for (int part = 0; part < NR_STATES; part += 1) {
+            printf("%d ", (*ruleParts)[part]);
+        }
+        printf("\n");
+        delete rules;
+        return 0; // success
+    }
+}
+
+//---------------
 int main(const int argc, char* argv[]) {
     ParseCommand(argc, argv);
 
     // Was the --convert-only option present?
+    // If so, then either --parts or --rule, but not both, must be present.
     if (CommandOpts::convertOnly) {
         if ((CommandOpts::partsPresent && !CommandOpts::rulePresent)
           || (!CommandOpts::partsPresent && CommandOpts::rulePresent)) {
-            if (CommandOpts::partsPresent) {
-                printf("parts -> rule conversion is not yet supported.\n");
-                exit(1);
-            } else { // rulePresent
-                Rules* rules = new Rules();
-                std::vector<int>* ruleParts = rules->RuleParts(NR_STATES, NR_ACTIONS, CommandOpts::ruleNr);
-                printf("actions: ");
-                for (int part = 0; part < NR_STATES; part += 1) {
-                    printf("%d ", (*ruleParts)[part]);
-                }
-                printf("\n");
-                exit(0);
-            }
+            exit(DoConversion());
         } else {
             printf("error: must specify either --rule xor --parts\n");
             exit(1);
@@ -494,5 +511,9 @@ int main(const int argc, char* argv[]) {
     MachineS* m = new MachineS(CommandOpts::ruleNr, NR_NODES);
     for (int i = 1; i <= CommandOpts::nrIterations; i += 1) m->Cycle();
 
+    // Write the end-state graph if --write was present.
     if (CommandOpts::writeDot) TSnap::SaveGViz(m->get_m_graph(), CommandOpts::outFile);
+
+    delete m;
+    exit(0);
 }
