@@ -1,5 +1,6 @@
 #ifndef RULES_H
 #define RULES_H
+#include <string>
 
 class Rules {
 
@@ -7,7 +8,7 @@ public:
     long long unsigned RuleNr(const int, const int, const std::vector<int>);
     std::vector<int>* RuleParts(const int, const int, const long long unsigned);
 
-    static const char* actionNames[];
+    static const std::string actionNames[];
 
 private:
     long long unsigned Raise(const int, const int);

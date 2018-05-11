@@ -1,17 +1,38 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <string>
 #include <vector>
 #include "rules.h"
 
 //---------------
 // Action names (indexed by action number)
 //---------------
-const char* Rules::actionNames[4] = {
+const std::string Rules::actionNames[] = {
     "white",
     "black",
     "none",
-    "invert"
+    "invert",
+
+    "r_rr+white",
+    "r_rr+black",
+    "r_rr",
+    "r_rr+invert",
+
+    "l_ll+white",
+    "l_ll+black",
+    "l_ll",
+    "l_ll+invert",
+
+    "r_rl+white",
+    "r_rl+black",
+    "r_rl",
+    "r_rl+invert",
+
+    "l_lr+white",
+    "l_lr+black",
+    "l_lr",
+    "l_lr+invert"
 };
 
 //---------------

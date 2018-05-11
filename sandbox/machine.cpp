@@ -4,6 +4,7 @@
 #include <inttypes.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <string>
 #include <vector>
 #include "rules.h"
 
@@ -12,6 +13,7 @@
 #define NR_STATES 8
 #define NR_ACTIONS 20
 
+// TODO: Make 'CommandOptions' a structure.
 //---------------
 // Command format:
 //
@@ -479,9 +481,10 @@ static int DoConversion() {
     else { // rulePresent
         Rules* rules = new Rules();
         std::vector<int>* ruleParts = rules->RuleParts(NR_STATES, NR_ACTIONS, CommandOpts::ruleNr);
+        // TODO: lose trailing comma and prefix ea with _x_, e.g.
         printf("actions: ");
         for (int part = 0; part < NR_STATES; part += 1) {
-            printf("%d ", (*ruleParts)[part]);
+            printf("%s, ", rules->actionNames[(*ruleParts)[part]].c_str());
         }
         printf("\n");
         delete rules;
