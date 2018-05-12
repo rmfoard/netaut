@@ -80,15 +80,40 @@ std::string Rules::RulePartText(const int rulePart) {
 }
 
 //---------------
+// TODO: Fix this mess.
+std::string Rules::RuleText(unsigned long long ruleNr) {
+    char scratch[4096]; // TODO: ick!
+    Rules* r = new Rules();
+    int* ruleParts = r->RuleParts(NR_TRIAD_STATES, NR_ACTIONS, ruleNr);
+
+    std::string s = std::string();
+    int i;
+    for (i = 0; i < NR_TRIAD_STATES; i += 1) { // for each rule part
+
+        // Insert the triad state number.
+        sprintf(scratch, "[%d ", i);
+        s += scratch;
+
+        // Add the three-character triad state icon, e.g., --- -*- **-, ...
+        sprintf(scratch, "%s", (i / 4 == 1) ? "*" : "-");
+        s += scratch;
+        sprintf(scratch, "%s", ((i / 2) % 2 == 1) ? "*" : "-");
+        s += scratch;
+        sprintf(scratch, "%s] ", (i % 2 == 1) ? "*" : "-");
+        s += scratch;
+
+        // Add the rule part text and terminate the line.
+        sprintf(scratch, "%d = %s\n", ruleParts[i], r->RulePartText(ruleParts[i]).c_str());
+        s += scratch;
+    }
+    delete ruleParts;
+    delete r;
+    return s;
+}
+
+//---------------
 //int main(int argc, char* argv[]) {
 //    Rules* r = new Rules();
-//    int* ruleParts = r->RuleParts(NR_TRIAD_STATES, NR_ACTIONS, (unsigned long long) 4832146842);
-//    int i;
-//    for (i = 0; i < NR_TRIAD_STATES; i += 1) {
-//        printf("[%d ", i);
-//        printf("%s", (i / 4 == 1) ? "*" : "-");
-//        printf("%s", ((i / 2) % 2 == 1) ? "*" : "-");
-//        printf("%s] ", (i % 2 == 1) ? "*" : "-");
-//        printf("%d = %s\n", ruleParts[i], r->RulePartText(ruleParts[i]).c_str());
-//    }
+//    printf("%s", r->RuleText((unsigned long long) 61699204822654).c_str());
+//    delete r;
 //}

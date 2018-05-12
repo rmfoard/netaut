@@ -8,6 +8,7 @@ public:
     long long unsigned RuleNr(const int, const int, int*);
     int* RuleParts(const int, const int, const long long unsigned);
     std::string RulePartText(const int);
+    std::string RuleText(unsigned long long);
 
     static const std::string dst_names[];
     static const std::string state_names[];
