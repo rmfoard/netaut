@@ -9,8 +9,7 @@
 #include "rules.h"
 
 #define NR_CYCLES 40
-#define NR_NODES 132
-#define NR_ACTIONS 20
+#define NR_NODES 128
 
 // TODO: Make 'CommandOptions' a structure.
 //---------------
@@ -72,7 +71,7 @@ public:
 int CommandOpts::convertOnly;
 int CommandOpts::nrIterations = 40;
 int CommandOpts::nrActions = 20;
-long long unsigned CommandOpts::ruleNr = 237451457;
+long long unsigned CommandOpts::ruleNr; // initial/default value is set at run-time
 int CommandOpts::selfEdges = 0;
 bool CommandOpts::rulePresent = false;
 bool CommandOpts::partsPresent = false;
@@ -94,9 +93,9 @@ private:
     int m_nrActions;
     PNEGraph m_graph;
     PNEGraph m_nextGraph;
-    int *m_nodeStates;
-    int *m_nextNodeStates;
-    std::vector<int>* m_ruleParts;
+    int* m_nodeStates;
+    int* m_nextNodeStates;
+    int* m_ruleParts;
     Rules* m_rules;
 
     void AdvanceNode(TNEGraph::TNodeI);
@@ -187,6 +186,7 @@ void MachineS::AdvanceNode(TNEGraph::TNodeI NIter) {
     int lNId = NIter.GetOutNId(0);
     int rNId = NIter.GetOutNId(1);
 
+    // TODO: Remove unnecessary intermediate variables.
     // Set state variables for convenience.
     int nState = m_nodeStates[nNId]; 
     int lState = m_nodeStates[lNId];
@@ -202,162 +202,39 @@ void MachineS::AdvanceNode(TNEGraph::TNodeI NIter) {
     int rlNId = rNIter.GetOutNId(0);
     int rrNId = rNIter.GetOutNId(1);
 
-    assert(0 <= triadState && triadState <= 7);
-    int action = (*m_ruleParts)[triadState];
-    assert(0 <= action && action <= 19);
+    // Prepare an array of possible new destinations for edges
+    int* newDsts = new int[NR_POSS_DSTS];
+    newDsts[LEDGE] = lNId;
+    newDsts[LLEDGE] = llNId;
+    newDsts[LREDGE] = lrNId;
+    newDsts[REDGE] = rNId;
+    newDsts[RLEDGE] = rlNId;
+    newDsts[RREDGE] = rrNId;
 
+    assert(0 <= triadState && triadState < NR_TRIAD_STATES);
+    int rulePart = m_ruleParts[triadState];
+    assert(0 <= rulePart && rulePart < NR_ACTIONS);
+
+    // Unpack the rule part into left edge, right edge, and node actions
+    int lAction = (rulePart / 2) / NR_POSS_DSTS;
+    int rAction = (rulePart / 2) % NR_POSS_DSTS;
+    int nAction = rulePart % 2;
+
+    // Apply the actions
     // TODO: Keep running stats on action use.
-    // See rules.h for a description of action codes.
-    switch (action) {
-        case GNONE*4 + NWHITE: // turn white
-            m_nextNodeStates[nNId] = 0;
-            m_nextGraph->AddEdge(nNId, lNId);
-            m_nextGraph->AddEdge(nNId, rNId);
-            break;
-        case GNONE*4 + NBLACK: // turn black
-            m_nextNodeStates[nNId] = 1;
-            m_nextGraph->AddEdge(nNId, lNId);
-            m_nextGraph->AddEdge(nNId, rNId);
-            break;
-        case GNONE*4 + NNONE: // no action
-            m_nextNodeStates[nNId] = nState;
-            m_nextGraph->AddEdge(nNId, lNId);
-            m_nextGraph->AddEdge(nNId, rNId);
-            break;
-        case GNONE*4 + NINVERT: // invert
-            m_nextNodeStates[nNId] = 1 - m_nodeStates[nNId];
-            m_nextGraph->AddEdge(nNId, lNId);
-            m_nextGraph->AddEdge(nNId, rNId);
-            break;
-        case GR_RR*4 + NWHITE:
-            m_nextNodeStates[nNId] = 0;
-            m_nextGraph->AddEdge(nNId, lNId);
-            if (rrNId != nNId || selfEdge)
-                m_nextGraph->AddEdge(nNId, rrNId);
-            else
-                m_nextGraph->AddEdge(nNId, rNId);
-            break;
-        case GR_RR*4 + NBLACK:
-            m_nextNodeStates[nNId] = 1;
-            m_nextGraph->AddEdge(nNId, lNId);
-            if (rrNId != nNId || selfEdge)
-                m_nextGraph->AddEdge(nNId, rrNId);
-            else
-                m_nextGraph->AddEdge(nNId, rNId);
-            break;
-        case GR_RR*4 + NNONE:
-            m_nextNodeStates[nNId] = nState;
-            m_nextGraph->AddEdge(nNId, lNId);
-            if (rrNId != nNId || selfEdge)
-                m_nextGraph->AddEdge(nNId, rrNId);
-            else
-                m_nextGraph->AddEdge(nNId, rNId);
-            break;
-        case GR_RR*4 + NINVERT:
-            m_nextNodeStates[nNId] = 1 - m_nodeStates[nNId];
-            m_nextGraph->AddEdge(nNId, lNId);
-            if (rrNId != nNId || selfEdge)
-                m_nextGraph->AddEdge(nNId, rrNId);
-            else
-                m_nextGraph->AddEdge(nNId, rNId);
-            break;
-        case GL_LL*4 + NWHITE:
-            m_nextNodeStates[nNId] = 0;
-            if (llNId != nNId || selfEdge)
-                m_nextGraph->AddEdge(nNId, llNId);
-            else
-                m_nextGraph->AddEdge(nNId, lNId);
-            m_nextGraph->AddEdge(nNId, rNId);
-            break;
-        case GL_LL*4 + NBLACK:
-            m_nextNodeStates[nNId] = 1;
-            if (llNId != nNId || selfEdge)
-                m_nextGraph->AddEdge(nNId, llNId);
-            else
-                m_nextGraph->AddEdge(nNId, lNId);
-            m_nextGraph->AddEdge(nNId, rNId);
-            break;
-        case GL_LL*4 + NNONE:
-            m_nextNodeStates[nNId] = nState;
-            if (llNId != nNId || selfEdge)
-                m_nextGraph->AddEdge(nNId, llNId);
-            else
-                m_nextGraph->AddEdge(nNId, lNId);
-            m_nextGraph->AddEdge(nNId, rNId);
-            break;
-        case GL_LL*4 + NINVERT:
-            m_nextNodeStates[nNId] = 1 - m_nodeStates[nNId];
-            if (llNId != nNId || selfEdge)
-                m_nextGraph->AddEdge(nNId, llNId);
-            else
-                m_nextGraph->AddEdge(nNId, lNId);
-            m_nextGraph->AddEdge(nNId, rNId);
-            break;
-        case GR_RL*4 + NWHITE:
-            m_nextNodeStates[nNId] = 0;
-            m_nextGraph->AddEdge(nNId, lNId);
-            if (rlNId != nNId || selfEdge)
-                m_nextGraph->AddEdge(nNId, rlNId);
-            else
-                m_nextGraph->AddEdge(nNId, rNId);
-            break;
-        case GR_RL*4 + NBLACK:
-            m_nextNodeStates[nNId] = 1;
-            m_nextGraph->AddEdge(nNId, lNId);
-            if (rlNId != nNId || selfEdge)
-                m_nextGraph->AddEdge(nNId, rlNId);
-            else
-                m_nextGraph->AddEdge(nNId, rNId);
-            break;
-        case GR_RL*4 + NNONE:
-            m_nextNodeStates[nNId] = nState;
-            m_nextGraph->AddEdge(nNId, lNId);
-            if (rlNId != nNId || selfEdge)
-                m_nextGraph->AddEdge(nNId, rlNId);
-            else
-                m_nextGraph->AddEdge(nNId, rNId);
-            break;
-        case GR_RL*4 + NINVERT:
-            m_nextNodeStates[nNId] = 1 - m_nodeStates[nNId];
-            m_nextGraph->AddEdge(nNId, lNId);
-            if (rlNId != nNId || selfEdge)
-                m_nextGraph->AddEdge(nNId, rlNId);
-            else
-                m_nextGraph->AddEdge(nNId, rNId);
-            break;
-        case GL_LR*4 + NWHITE:
-            m_nextNodeStates[nNId] = 0;
-            if (lrNId != nNId || selfEdge)
-                m_nextGraph->AddEdge(nNId, lrNId);
-            else
-                m_nextGraph->AddEdge(nNId, lNId);
-            m_nextGraph->AddEdge(nNId, rNId);
-            break;
-        case GL_LR*4 + NBLACK:
-            m_nextNodeStates[nNId] = 1;
-            if (lrNId != nNId || selfEdge)
-                m_nextGraph->AddEdge(nNId, lrNId);
-            else
-                m_nextGraph->AddEdge(nNId, lNId);
-            m_nextGraph->AddEdge(nNId, rNId);
-            break;
-        case GL_LR*4 + NNONE:
-            m_nextNodeStates[nNId] = nState;
-            if (lrNId != nNId || selfEdge)
-                m_nextGraph->AddEdge(nNId, lrNId);
-            else
-                m_nextGraph->AddEdge(nNId, lNId);
-            m_nextGraph->AddEdge(nNId, rNId);
-            break;
-        case GL_LR*4 + NINVERT:
-            m_nextNodeStates[nNId] = 1 - m_nodeStates[nNId];
-            if (lrNId != nNId || selfEdge)
-                m_nextGraph->AddEdge(nNId, lrNId);
-            else
-                m_nextGraph->AddEdge(nNId, lNId);
-            m_nextGraph->AddEdge(nNId, rNId);
-            break;
-    }
+    if (newDsts[lAction] != nNId || selfEdge)
+        m_nextGraph->AddEdge(nNId, newDsts[lAction]);
+    else
+        m_nextGraph->AddEdge(nNId, lNId);
+
+    if (newDsts[rAction] != nNId || selfEdge)
+        m_nextGraph->AddEdge(nNId, newDsts[rAction]);
+    else
+        m_nextGraph->AddEdge(nNId, rNId);
+
+    m_nextNodeStates[nNId] = nAction;
+
+    delete newDsts;
 }
 
 //---------------
@@ -479,7 +356,6 @@ static int DoConversion() {
         Rules* rules = new Rules();
         // TODO: Re-implement rule part display
 //        std::vector<int>* ruleParts = rules->RuleParts(NR_TRIAD_STATES, NR_ACTIONS, CommandOpts::ruleNr);
-//        // TODO: lose trailing comma and prefix ea with _x_, e.g.
 //        printf("actions: ");
 //        for (int part = 0; part < NR_TRIAD_STATES; part += 1) {
 //            printf("%s, ", rules->actionNames[(*ruleParts)[part]].c_str());
@@ -492,6 +368,17 @@ static int DoConversion() {
 
 //---------------
 int main(const int argc, char* argv[]) {
+
+    CommandOpts::ruleNr = 
+        (long long unsigned) 6
+        + (long long unsigned) 6 *72
+        + (long long unsigned)11 *72*72
+        + (long long unsigned)10 *72*72*72
+        + (long long unsigned)7  *72*72*72*72
+        + (long long unsigned)11 *72*72*72*72*72
+        + (long long unsigned)10 *72*72*72*72*72*72
+        + (long long unsigned)6  *72*72*72*72*72*72*72;
+
     ParseCommand(argc, argv);
 
     // Was the --convert-only option present?
