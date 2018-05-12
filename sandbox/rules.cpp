@@ -6,19 +6,9 @@
 #include <vector>
 #include "rules.h"
 
-const std::string Rules::topo_action_component_names[] = {
-    "L",
-    "LL",
-    "LR",
-    "R",
-    "RL",
-    "RR"
-};
+const std::string Rules::dst_names[] = { "L", "LL", "LR", "R", "RL", "RR" };
 
-const std::string Rules::node_action_names[] = {
-    "WHITE",
-    "BLACK"
-};
+const std::string Rules::state_names[] = { "WHITE", "BLACK" };
 
 //---------------
 // Raise
@@ -35,17 +25,17 @@ long long unsigned Rules::Raise(const int base, const int exponent) {
 //---------------
 // RuleNr
 //
-// Given a rule expressed as a 'ruleParts' vector, returns a rule number.
-// The rule number is a radix 'nrActions' number in which the nth digit is the
-// action number applicable to nodes in state 'n'.
+// Given a rule expressed as a 'ruleParts' array, returns a rule number.
+// The rule number is a radix 'NR_ACTIONS' number in which the nth digit is the
+// action number applicable to nodes embedded in triad state 'n'.
 //---------------
-long long unsigned Rules::RuleNr(const int nrStates, const int nrActions, int* ruleParts) {
-    assert(nrStates > 1);
+long long unsigned Rules::RuleNr(const int nrTriadStates, const int nrActions, int* ruleParts) {
+    assert(nrTriadStates > 1);
     assert(nrActions > 0);
 
     long long unsigned ruleNr = 0;
     long long unsigned increase;
-    for (int partNr = 0; partNr < nrStates; partNr += 1) {
+    for (int partNr = 0; partNr < nrTriadStates; partNr += 1) {
         increase = ruleParts[partNr] * Raise(nrActions, partNr);
         assert(ruleParts[partNr] < nrActions);
         // TODO: Replace UINTMAX_MAX, below.
@@ -63,17 +53,17 @@ long long unsigned Rules::RuleNr(const int nrStates, const int nrActions, int* r
 // machine, returns an integer vector in which the nth entry is the action number
 // applicable to nodes in state 'n'.
 //---------------
-int* Rules::RuleParts(const int nrStates, const int nrActions, const long long unsigned ruleNr) {
-    assert(nrStates > 1);
+int* Rules::RuleParts(const int nrTriadStates, const int nrActions, const long long unsigned ruleNr) {
+    assert(nrTriadStates > 1);
     assert(nrActions > 0);
 
     int* ruleParts = new int[NR_TRIAD_STATES];
     long long unsigned residue = ruleNr;
 
-    for (int state = 0; state < nrStates; state += 1) {
-        *(ruleParts + state) = residue % nrActions;
+    for (int triadState = 0; triadState < nrTriadStates; triadState += 1) {
+        *(ruleParts + triadState) = residue % nrActions;
         residue /= nrActions;
-        assert(state < nrStates - 1 || residue == 0);
+        assert(triadState < nrTriadStates - 1 || residue == 0);
     }
 
     return ruleParts;
@@ -81,11 +71,11 @@ int* Rules::RuleParts(const int nrStates, const int nrActions, const long long u
 
 //---------------
 std::string Rules::RulePartText(const int rulePart) {
-    return "{L<" + topo_action_component_names[(rulePart/2) / 6]
+    return "{L<" + dst_names[(rulePart/2) / 6]
       + ", "
-      + "R<" + topo_action_component_names[(rulePart/2) % 6]
+      + "R<" + dst_names[(rulePart/2) % 6]
       + ", "
-      + "N<" + node_action_names[rulePart % 2]
+      + "N<" + state_names[rulePart % 2]
       + "}";
 }
 
@@ -101,5 +91,4 @@ int main(int argc, char* argv[]) {
         printf("%s] ", (i % 2 == 1) ? "*" : "-");
         printf("%d = %s\n", ruleParts[i], r->RulePartText(ruleParts[i]).c_str());
     }
-    printf("finis.\n");
 }

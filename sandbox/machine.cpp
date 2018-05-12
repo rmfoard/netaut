@@ -10,7 +10,6 @@
 
 #define NR_CYCLES 40
 #define NR_NODES 132
-#define NR_STATES 8
 #define NR_ACTIONS 20
 
 // TODO: Make 'CommandOptions' a structure.
@@ -18,7 +17,7 @@
 // Command format:
 //
 //      machine --(t)ype <machine type> --(n)r-actions <n> --(r)ule <rulenum> ...
-//          --(p)arts <rulepart list> --(c)onvert-only --iterations <n>
+//          --(p)arts <rulepart list> --(c)onvert-only --write --iterations <n>
 //
 //      --type defaults to "S"
 //
@@ -73,8 +72,6 @@ public:
 int CommandOpts::convertOnly;
 int CommandOpts::nrIterations = 40;
 int CommandOpts::nrActions = 20;
-// TODO: Use an array instead of a vector.
-//std::vector<int> ruleParts = { 0, 1, 1, 1, 0, 1, 1, 0  }; // Wolfram 110 equivalent
 long long unsigned CommandOpts::ruleNr = 237451457;
 int CommandOpts::selfEdges = 0;
 bool CommandOpts::rulePresent = false;
@@ -93,7 +90,7 @@ public:
 private:
     long long unsigned m_ruleNr;
     int m_nrNodes;
-    int m_nrStates;
+    int m_nrTriadStates;
     int m_nrActions;
     PNEGraph m_graph;
     PNEGraph m_nextGraph;
@@ -113,14 +110,14 @@ MachineS::MachineS(long long unsigned ruleNr, int nrNodes) {
     m_rules = new Rules();
     m_ruleNr = ruleNr;
     m_nrNodes = nrNodes;
-    m_nrStates = NR_STATES;
+    m_nrTriadStates = NR_TRIAD_STATES;
     m_nrActions = NR_ACTIONS;
     m_graph = TNEGraph::New();
     m_nodeStates = new int[nrNodes];
     m_nextNodeStates = new int[nrNodes];
     BuildRing(nrNodes, m_graph);
     InitNodeStates();
-    m_ruleParts = m_rules->RuleParts(NR_STATES, NR_ACTIONS, ruleNr);
+    m_ruleParts = m_rules->RuleParts(NR_TRIAD_STATES, NR_ACTIONS, ruleNr);
 }
 
 //---------------
@@ -384,7 +381,7 @@ static void ParseCommand(const int argc, char* argv[]) {
         };
 
         int option_index = 0;
-        c = getopt_long (argc, argv, "i:n:p:r:t:", long_options, &option_index);
+        c = getopt_long (argc, argv, "i:n:p:r:t:w:", long_options, &option_index);
 
         if (c == -1) // end of options?
             break;
@@ -480,13 +477,14 @@ static int DoConversion() {
     }
     else { // rulePresent
         Rules* rules = new Rules();
-        std::vector<int>* ruleParts = rules->RuleParts(NR_STATES, NR_ACTIONS, CommandOpts::ruleNr);
-        // TODO: lose trailing comma and prefix ea with _x_, e.g.
-        printf("actions: ");
-        for (int part = 0; part < NR_STATES; part += 1) {
-            printf("%s, ", rules->actionNames[(*ruleParts)[part]].c_str());
-        }
-        printf("\n");
+        // TODO: Re-implement rule part display
+//        std::vector<int>* ruleParts = rules->RuleParts(NR_TRIAD_STATES, NR_ACTIONS, CommandOpts::ruleNr);
+//        // TODO: lose trailing comma and prefix ea with _x_, e.g.
+//        printf("actions: ");
+//        for (int part = 0; part < NR_TRIAD_STATES; part += 1) {
+//            printf("%s, ", rules->actionNames[(*ruleParts)[part]].c_str());
+//        }
+//        printf("\n");
         delete rules;
         return 0; // success
     }
