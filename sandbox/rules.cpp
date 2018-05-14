@@ -23,11 +23,27 @@ long long unsigned Rules::Raise(const int base, const int exponent) {
 }
 
 //---------------
+// ParseRule
+//
+// Parses a rule expressed in text. Returns a rule number if successful,
+// otherwise returns -1.
+//
+// Syntax for rule text:
+//   <rule part> (8 (nr triad states) times), separated by ';'s.
+//
+//   <rule part> = [L<]<dst>, [R<]<dst>, [N<]<node state>
+//
+//   <dst> = L | LL | LR | R | RL | RR
+//
+//   <node state> = WHITE | BLACK
+//---------------
+long long unsigned Rules::ParseRule(string text, 
+
+//---------------
 // RuleNr
 //
 // Given a rule expressed as a 'ruleParts' array, returns a rule number.
 // The rule number is a radix 'NR_ACTIONS' number in which the nth digit is the
-// action number applicable to nodes embedded in triad state 'n'.
 //---------------
 long long unsigned Rules::RuleNr(const int nrTriadStates, const int nrActions, int* ruleParts) {
     assert(nrTriadStates > 1);
@@ -50,8 +66,19 @@ long long unsigned Rules::RuleNr(const int nrTriadStates, const int nrActions, i
 // RuleParts
 //
 // Given a rule number and the number of states and actions of its associated
-// machine, returns an integer vector in which the nth entry is the action number
+// machine, returns an integer vector in which the nth entry is the rule part
 // applicable to nodes in state 'n'.
+//
+// A rule part is:
+//  ((<left dst> * 6 (nr dsts)) + <right dst>) * 2
+//
+//  <dst> =
+//      0 L (left edge)
+//      1 LL (left edge of left neighbor)
+//      2 LR (right edge of left neighbor)
+//      3 R (right edge)
+//      4 RL (left edge of right neighbor)
+//      5 RR (right edge of right neighbor)
 //---------------
 int* Rules::RuleParts(const int nrTriadStates, const int nrActions, const long long unsigned ruleNr) {
     assert(nrTriadStates > 1);
