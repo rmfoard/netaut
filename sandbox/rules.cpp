@@ -26,7 +26,7 @@ long long unsigned Rules::Raise(const int base, const int exponent) {
 // ParseRule
 //
 // Parses a rule expressed in text. Returns a rule number if successful,
-// otherwise returns -1.
+// otherwise throws an exception.
 //
 // Syntax for rule text:
 //   <rule part> (8 (nr triad states) times), separated by ';'s.
@@ -36,8 +36,22 @@ long long unsigned Rules::Raise(const int base, const int exponent) {
 //   <dst> = L | LL | LR | R | RL | RR
 //
 //   <node state> = WHITE | BLACK
+//
+//  (see rule.h for numeric values of 'dst' and 'node state' codes.)
+//
+// Rule part components may be omitted if the separating commas are present. Rule parts,
+// likewise, may be omitted if separating semicolons are present. Defaults are:
+// L<L, R<R, N< (existing node color for the triad state this rule part is associated with).
+//
+// For example, '...; L<LL,, N<WHITE;..a.' is equivalent to '...; L<LL, R<R, N<WHITE;...'
+//
+// ';;;;;;;' is equivalent to:
+//
+// 'L<L, R<R, N<WHITE; L<L, R<R, N<WHITE; L<L, R<R, N<BLACK; L<L, R<R, N<BLACK; ...
+//    L<L, R<R, N<WHITE; L<L, R<R, N<WHITE; L<L, R<R, N<BLACK; L<L, R<R, N<BLACK'
 //---------------
-long long unsigned Rules::ParseRule(string text, 
+long long unsigned Rules::ParseRule(const char* text) {
+}
 
 //---------------
 // RuleNr
