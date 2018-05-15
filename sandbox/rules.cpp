@@ -51,6 +51,7 @@ long long unsigned Rules::Raise(const int base, const int exponent) {
 //    L<L, R<R, N<WHITE; L<L, R<R, N<WHITE; L<L, R<R, N<BLACK; L<L, R<R, N<BLACK'
 //---------------
 long long unsigned Rules::ParseRule(const char* text) {
+    return (long long unsigned) 0;
 }
 
 //---------------

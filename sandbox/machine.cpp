@@ -9,7 +9,7 @@
 #include "rules.h"
 
 #define NR_CYCLES 40
-#define NR_NODES 128
+#define NR_NODES 100
 
 // TODO: Make 'CommandOptions' a structure.
 //---------------

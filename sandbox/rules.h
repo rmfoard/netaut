@@ -6,6 +6,7 @@ class Rules {
 
 public:
     long long unsigned RuleNr(const int, const int, int*);
+    long long unsigned ParseRule(const char* text);
     int* RuleParts(const int, const int, const long long unsigned);
     std::string RulePartText(const int);
     std::string RuleText(unsigned long long);
