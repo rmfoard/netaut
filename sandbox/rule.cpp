@@ -1,13 +1,14 @@
 #include <assert.h>
 #include <inttypes.h>
 #include <stdio.h>
+#include <stdexcept>
 #include <string>
 #include "rule.h"
 
 //---------------
 Rule::Rule(const rulenr_t ruleNr) {
     static_assert(sizeof(rulenr_t) == sizeof(uintmax_t), "faulty type size assumption");
-    CheckRuleNumber(ruleNr);
+    CheckRuleNr(ruleNr);
     m_ruleNr = ruleNr;
 }
 
@@ -21,14 +22,14 @@ Rule::Rule(const int* ruleParts) {
         assert(increase <= (RULENR_MAX - ruleNr));
         ruleNr += increase;
     }
-    Rule::CheckRuleNumber(ruleNr);
+    Rule::CheckRuleNr(ruleNr);
     m_ruleNr = ruleNr;
 }
 
 //---------------
 Rule::Rule(const char* ruleText) {
     m_ruleNr = 0;
-    CheckRuleNumber(m_ruleNr);
+    CheckRuleNr(m_ruleNr);
 }
 
 //---------------
@@ -64,14 +65,13 @@ const char* Rule::get_ruleText() {
 }
 
 //---------------
-// CheckRuleNumber
+// CheckRuleNr
 //
 // Checks for overlarge rule number.
 //---------------
-static
-void Rule::CheckRuleNumber(rulenr_t ruleNr) {
+void Rule::CheckRuleNr(rulenr_t ruleNr) {
     if (ruleNr >= Raise(NR_ACTIONS, NR_TRIAD_STATES))
-        throw std::exception("rule number overflow");
+        throw std::runtime_error("rule number overflow");
 }
 
 //---------------
@@ -102,6 +102,13 @@ int main(const int argc, const char* argv[]) {
 
     const int ruleParts[] = { 71, 71, 71, 71, 71, 71, 71, 71 };
     r = new Rule(ruleParts);
+    rulenr_t bigRuleNr = r->get_ruleNr() + 1;
+    try {
+        Rule* bogus = new Rule(bigRuleNr);
+    }
+    catch (std::exception& exc) {
+        printf("exception: %s\n", exc.what());
+    }
     printf("rule: %llu\n", r->get_ruleNr());
     const int* rp = r->get_ruleParts();
     for (int i = 0; i < NR_TRIAD_STATES; i += 1) printf("part %d: %d\n", i, rp[i]);
