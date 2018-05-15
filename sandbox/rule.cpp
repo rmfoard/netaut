@@ -4,11 +4,14 @@
 #include <string>
 #include "rule.h"
 
-Rule::Rule(rulenr_t ruleNr) {
+//---------------
+Rule::Rule(const rulenr_t ruleNr) {
     static_assert(sizeof(rulenr_t) == sizeof(uintmax_t), "faulty type size assumption");
+    CheckRuleNumber(ruleNr);
     m_ruleNr = ruleNr;
 }
 
+//---------------
 Rule::Rule(const int* ruleParts) {
     rulenr_t ruleNr = 0;
     rulenr_t increase;
@@ -18,10 +21,14 @@ Rule::Rule(const int* ruleParts) {
         assert(increase <= (RULENR_MAX - ruleNr));
         ruleNr += increase;
     }
+    Rule::CheckRuleNumber(ruleNr);
     m_ruleNr = ruleNr;
 }
 
+//---------------
 Rule::Rule(const char* ruleText) {
+    m_ruleNr = 0;
+    CheckRuleNumber(m_ruleNr);
 }
 
 //---------------
@@ -54,6 +61,17 @@ const char* Rule::get_ruleText() {
         if (partNr < NR_TRIAD_STATES - 1) rt += "; ";
     }
     return rt.c_str();
+}
+
+//---------------
+// CheckRuleNumber
+//
+// Checks for overlarge rule number.
+//---------------
+static
+void Rule::CheckRuleNumber(rulenr_t ruleNr) {
+    if (ruleNr >= Raise(NR_ACTIONS, NR_TRIAD_STATES))
+        throw std::exception("rule number overflow");
 }
 
 //---------------
