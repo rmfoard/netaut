@@ -6,7 +6,7 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
-#include "rules.h"
+#include "rule.h"
 
 #define NR_CYCLES 40
 #define NR_NODES 100
@@ -15,10 +15,10 @@
 //---------------
 // Command format:
 //
-//      machine --(t)ype <machine type> --(n)r-actions <n> --(r)ule <rulenum> ...
+//      machine --(m)achine <machine type> --(n)r-actions <n> --(r)ule <rulenum> ...
 //          --(p)arts <rulepart list> --(c)onvert-only --write --iterations <n>
 //
-//      --type defaults to "S"
+//      --machine defaults to "S"
 //
 //      --nr-actions defaults to 20
 //
@@ -26,11 +26,11 @@
 //
 //      --rule <rule number>
 //
-//      --parts <actions string>
+//      --text <rule text>
 //
 //      --self-edges [permitted] defaults to off/false
 //
-//      --rule xor --parts must be specified. (part list must be quoted)
+//      --rule xor --text must be specified. (part list must be quoted)
 //
 //      The specified machine will be run for 'iterations' unless
 //      --convert-only is given.
@@ -62,41 +62,38 @@ public:
     static int nrIterations;
     static int nrActions;
     static int selfEdges;
-    static long long unsigned ruleNr;
+    static rulenr_t ruleNr;
     static bool rulePresent;
-    static bool partsPresent;
+    static bool textPresent;
     static bool writeDot;
     static char* outFile;
+    static char* ruleText;
 };
 int CommandOpts::convertOnly;
 int CommandOpts::nrIterations = 40;
 int CommandOpts::nrActions = 20;
-long long unsigned CommandOpts::ruleNr; // initial/default value is set at run-time
+rulenr_t CommandOpts::ruleNr; // initial/default value is set at run-time
 int CommandOpts::selfEdges = 0;
 bool CommandOpts::rulePresent = false;
-bool CommandOpts::partsPresent = false;
+bool CommandOpts::textPresent = false;
 bool CommandOpts::writeDot = false;
-char* CommandOpts::outFile;
+char* CommandOpts::outFile = NULL;
+char* CommandOpts::ruleText = NULL;
 
 //---------------
 class MachineS {
 
 public:
-    MachineS(long long unsigned, int);
+    MachineS(rulenr_t);
     PNEGraph get_m_graph();
     void Cycle();
 
 private:
-    long long unsigned m_ruleNr;
-    int m_nrNodes;
-    int m_nrTriadStates;
-    int m_nrActions;
+    Rule* m_rule;
     PNEGraph m_graph;
     PNEGraph m_nextGraph;
     int* m_nodeStates;
     int* m_nextNodeStates;
-    int* m_ruleParts;
-    Rules* m_rules;
 
     void AdvanceNode(TNEGraph::TNodeI);
     void InitNodeStates();
@@ -105,18 +102,13 @@ private:
 //---------------
 // TODO: Provide a destructor that releases resources.
 //---------------
-MachineS::MachineS(long long unsigned ruleNr, int nrNodes) {
-    m_rules = new Rules();
-    m_ruleNr = ruleNr;
-    m_nrNodes = nrNodes;
-    m_nrTriadStates = NR_TRIAD_STATES;
-    m_nrActions = NR_ACTIONS;
+MachineS::MachineS(rulenr_t ruleNr) {
+    m_rule = new Rule(ruleNr);
     m_graph = TNEGraph::New();
-    m_nodeStates = new int[nrNodes];
-    m_nextNodeStates = new int[nrNodes];
-    BuildRing(nrNodes, m_graph);
+    m_nodeStates = new int[NR_NODES];
+    m_nextNodeStates = new int[NR_NODES];
+    BuildRing(NR_NODES, m_graph);
     InitNodeStates();
-    m_ruleParts = m_rules->RuleParts(NR_TRIAD_STATES, NR_ACTIONS, ruleNr);
 }
 
 //---------------
@@ -126,8 +118,8 @@ PNEGraph MachineS::get_m_graph() { return m_graph; }
 
 //---------------
 void MachineS::InitNodeStates() {
-    for (int i = 0; i < m_nrNodes; i += 1) {
-        m_nodeStates[i] = (i == m_nrNodes / 2) ? 1 : 0;
+    for (int i = 0; i < NR_NODES; i += 1) {
+        m_nodeStates[i] = (i == NR_NODES / 2) ? 1 : 0;
     }
 }
 
@@ -139,7 +131,7 @@ void MachineS::InitNodeStates() {
 void MachineS::Cycle() {
 
     // Show node states at the beginning of the cycle.
-    for (int i = m_nrNodes - 1; i >= 0; i -= 1) {
+    for (int i = NR_NODES - 1; i >= 0; i -= 1) {
         printf("%s", (m_nodeStates[i] == 1) ? "X" : " ");
     }
     printf("\n");
@@ -212,7 +204,7 @@ void MachineS::AdvanceNode(TNEGraph::TNodeI NIter) {
     newDsts[RREDGE] = rrNId;
 
     assert(0 <= triadState && triadState < NR_TRIAD_STATES);
-    int rulePart = m_ruleParts[triadState];
+    int rulePart = m_rule->get_ruleParts()[triadState];
     assert(0 <= rulePart && rulePart < NR_ACTIONS);
 
     // Unpack the rule part into left edge, right edge, and node actions
@@ -248,17 +240,17 @@ static void ParseCommand(const int argc, char* argv[]) {
             {"convert-only", no_argument, &CommandOpts::convertOnly, 1},
             {"self-edges", no_argument, &CommandOpts::selfEdges, 1},
 
-            {"type", required_argument, 0, 't'},
+            {"machine", required_argument, 0, 'm'},
             {"nr-actions", required_argument, 0, 'n'},
             {"iterations", required_argument, 0, 'i'},
             {"rule", required_argument, 0, 'r'},
-            {"parts", required_argument, 0, 'p'},
+            {"text", required_argument, 0, 't'},
             {"write", required_argument, 0, 'w'},
             {0, 0, 0, 0}
         };
 
         int option_index = 0;
-        c = getopt_long (argc, argv, "i:n:p:r:t:w:", long_options, &option_index);
+        c = getopt_long (argc, argv, "m:n:i:r:t:w:", long_options, &option_index);
 
         if (c == -1) // end of options?
             break;
@@ -283,24 +275,24 @@ static void ParseCommand(const int argc, char* argv[]) {
             errorFound = true;
             break;
 
-          case 'p':
-            CommandOpts::partsPresent = true;
+          case 't':
+            CommandOpts::textPresent = true;
             if (CommandOpts::rulePresent) {
-                printf("error: can't specify both --parts and --rule\n");
+                printf("error: can't specify both --text and --rule\n");
                 errorFound = true;
             } else {
-                printf("--parts option is not yet supported.\n");
+                CommandOpts::ruleText = strAllocCpy(optarg);
+                printf("--text option is not yet supported.\n");
                 errorFound = true;
             }
             break;
 
           case 'r':
             CommandOpts::rulePresent = true;
-            if (CommandOpts::partsPresent) {
-                printf("error: can't specify both --parts and --rule\n");
+            if (CommandOpts::textPresent) {
+                printf("error: can't specify both --text and --rule\n");
                 errorFound = true;
             } else {
-                printf("--rule %s\n", optarg);
                 char* endPtr;
                 CommandOpts::ruleNr = strtoumax(optarg, &endPtr, 10); // radix 10
                 if (CommandOpts::ruleNr == 0) {
@@ -310,8 +302,8 @@ static void ParseCommand(const int argc, char* argv[]) {
             }
             break;
 
-          case 't':
-            printf("--type option is not yet supported.\n");
+          case 'm':
+            printf("--machine option is not yet supported.\n");
             errorFound = true;
             break;
 
@@ -348,20 +340,14 @@ static void ParseCommand(const int argc, char* argv[]) {
 // command line options present.
 //---------------
 static int DoConversion() {
-    if (CommandOpts::partsPresent) {
-        printf("parts -> rule conversion is not yet supported.\n");
+    if (CommandOpts::textPresent) {
+        printf("text -> rule conversion is not yet supported.\n");
         return 1; // failure
     }
     else { // rulePresent
-        Rules* rules = new Rules();
-        // TODO: Re-implement rule part display
-//        std::vector<int>* ruleParts = rules->RuleParts(NR_TRIAD_STATES, NR_ACTIONS, CommandOpts::ruleNr);
-//        printf("actions: ");
-//        for (int part = 0; part < NR_TRIAD_STATES; part += 1) {
-//            printf("%s, ", rules->actionNames[(*ruleParts)[part]].c_str());
-//        }
-//        printf("\n");
-        delete rules;
+        Rule* rule = new Rule(CommandOpts::ruleNr);
+        printf("%s\n", rule->get_ruleText());
+        delete rule;
         return 0; // success
     }
 }
@@ -370,25 +356,25 @@ static int DoConversion() {
 int main(const int argc, char* argv[]) {
 
     CommandOpts::ruleNr = 
-        (long long unsigned) 6
-        + (long long unsigned) 6 *72
-        + (long long unsigned)11 *72*72
-        + (long long unsigned)10 *72*72*72
-        + (long long unsigned)7  *72*72*72*72
-        + (long long unsigned)11 *72*72*72*72*72
-        + (long long unsigned)10 *72*72*72*72*72*72
-        + (long long unsigned)6  *72*72*72*72*72*72*72;
+        (rulenr_t) 6
+        + (rulenr_t) 6 *72
+        + (rulenr_t)11 *72*72
+        + (rulenr_t)10 *72*72*72
+        + (rulenr_t)7  *72*72*72*72
+        + (rulenr_t)11 *72*72*72*72*72
+        + (rulenr_t)10 *72*72*72*72*72*72
+        + (rulenr_t)6  *72*72*72*72*72*72*72;
 
     ParseCommand(argc, argv);
 
     // Was the --convert-only option present?
-    // If so, then either --parts or --rule, but not both, must be present.
+    // If so, then either --text or --rule, but not both, must be present.
     if (CommandOpts::convertOnly) {
-        if ((CommandOpts::partsPresent && !CommandOpts::rulePresent)
-          || (!CommandOpts::partsPresent && CommandOpts::rulePresent)) {
+        if ((CommandOpts::textPresent && !CommandOpts::rulePresent)
+          || (!CommandOpts::textPresent && CommandOpts::rulePresent)) {
             exit(DoConversion());
         } else {
-            printf("error: must specify either --rule xor --parts\n");
+            printf("error: must specify either --rule xor --text\n");
             exit(1);
         }
     }
@@ -396,7 +382,14 @@ int main(const int argc, char* argv[]) {
     // Convert-only was not selected, so build and run the machine.
     printf("ruleNr: %llu\n", CommandOpts::ruleNr);
 
-    MachineS* m = new MachineS(CommandOpts::ruleNr, NR_NODES);
+    if (CommandOpts::textPresent) {
+        Rule* tmpRule = new Rule(CommandOpts::ruleText);
+        CommandOpts::ruleNr = tmpRule->get_ruleNr();
+        delete tmpRule;
+    }
+
+    MachineS* m = new MachineS(CommandOpts::ruleNr);
+
     for (int i = 1; i <= CommandOpts::nrIterations; i += 1) m->Cycle();
 
     // Write the end-state graph if --write was present.

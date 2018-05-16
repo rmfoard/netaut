@@ -61,7 +61,7 @@ class Rule {
 
 public:
     // Constructors, from "rule number," "rule parts," and "rule text."
-    Rule(const long long unsigned);
+    Rule(const rulenr_t);
     Rule(const int*);
     Rule(const char*);
 
