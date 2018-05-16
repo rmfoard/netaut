@@ -1,9 +1,14 @@
 #include <assert.h>
 #include <inttypes.h>
 #include <stdio.h>
+#include <string.h>
 #include <stdexcept>
 #include <string>
 #include "rule.h"
+
+const char* Rule::dstNames[] = { "L", "LL", "LR", "R", "RL", "RR" };
+
+const char* Rule::nodeStateNames[] = { "W", "B" };
 
 //---------------
 Rule::Rule(const rulenr_t ruleNr) {
@@ -28,8 +33,31 @@ Rule::Rule(const int* ruleParts) {
 
 //---------------
 Rule::Rule(const char* ruleText) {
+    char* text = new char[strlen(ruleText) + 1];
+    strcpy(text, ruleText);
+    char* tok = strtok(text, " ,-;");
     m_ruleNr = 0;
+    for (int partNr = 0; partNr < NR_TRIAD_STATES; partNr += 1) {
+        int rulePart = 0;
+        if (strcmp(tok, "L") != 0) throw std::runtime_error("rule text error 1");
+        tok = strtok(NULL, " ,-;");
+        rulePart += dstIndex(tok) * NR_POSS_DSTS * 2;
+        tok = strtok(NULL, " ,-;");
+        if (strcmp(tok, "R") != 0) throw std::runtime_error("rule text error 2");
+        tok = strtok(NULL, " ,-;");
+        rulePart += dstIndex(tok) * 2;
+        tok = strtok(NULL, " ,-;");
+        if (strcmp(tok, "N") != 0) throw std::runtime_error("rule text error 3");
+        tok = strtok(NULL, " ,-;");
+        if (strcmp(tok, "B") == 0)
+            rulePart += 1;
+        else
+            if (strcmp(tok, "W") != 0) throw std::runtime_error("rule text error 4");
+        m_ruleNr = m_ruleNr * NR_ACTIONS + rulePart;
+        tok = strtok(NULL, " ,-;");
+    }
     CheckRuleNr(m_ruleNr);
+    delete text;
 }
 
 //---------------
@@ -59,9 +87,21 @@ const char* Rule::get_ruleText() {
     const int* rp = get_ruleParts();
     for (int partNr = 0; partNr < NR_TRIAD_STATES; partNr += 1) {
         rt += RulePartText(rp[partNr]);
-        if (partNr < NR_TRIAD_STATES - 1) rt += "; ";
+        if (partNr < NR_TRIAD_STATES - 1) rt += ";";
     }
     return rt.c_str();
+}
+
+//---------------
+// dstIndex
+//---------------
+int Rule::dstIndex(const char* dstStr) {
+    for (int i = 0; i < NR_POSS_DSTS; i += 1) {
+        if (strcmp(dstStr, dstNames[i]) == 0) return i;
+    }
+    throw std::runtime_error("rule text error 5");
+    assert(false);
+    return 0; // appease compiler
 }
 
 //---------------
@@ -91,7 +131,12 @@ long long unsigned Rule::Raise(const int base, const int exponent) {
 // Returns a rule part in text form.
 //---------------
 const std::string Rule::RulePartText(const int rulePart) {
-    return std::string("L,R,N");
+    int lAction = (rulePart / 2) / NR_POSS_DSTS;
+    int rAction = (rulePart / 2) % NR_POSS_DSTS;
+    int nAction = rulePart % 2;
+    return std::string("L-") + std::string(dstNames[lAction]) + std::string(",")
+      + std::string("R-") + std::string(dstNames[rAction]) + std::string(",")
+      + std::string("N-") + std::string(nodeStateNames[nAction]);
 }
 
 //---------------
@@ -102,13 +147,10 @@ int main(const int argc, const char* argv[]) {
 
     const int ruleParts[] = { 71, 71, 71, 71, 71, 71, 71, 71 };
     r = new Rule(ruleParts);
-    rulenr_t bigRuleNr = r->get_ruleNr() + 1;
-    try {
-        Rule* bogus = new Rule(bigRuleNr);
-    }
-    catch (std::exception& exc) {
-        printf("exception: %s\n", exc.what());
-    }
+    printf("rule text: %s\n", r->get_ruleText());
+    Rule* rtext = new Rule("L-L,R-R,N-B;L-L,R-R,N-W;L-L,R-R,N-W;L-L,R-R,N-W;L-L,R-R,N-W;L-L,R-R,N-W;L-L,R-R,N-W;L-L,R-R,N-W");
+    printf("rule text: %s\n", rtext->get_ruleText());
+    delete rtext;
     printf("rule: %llu\n", r->get_ruleNr());
     const int* rp = r->get_ruleParts();
     for (int i = 0; i < NR_TRIAD_STATES; i += 1) printf("part %d: %d\n", i, rp[i]);
@@ -124,4 +166,5 @@ int main(const int argc, const char* argv[]) {
     printf("rule text: %s\n", r->get_ruleText());
     delete rp2;
     delete r;
+    exit(0);
 }

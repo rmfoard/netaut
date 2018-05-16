@@ -73,7 +73,10 @@ private:
     long long unsigned Raise(const int, const int);
     const std::string RulePartText(const int);
     void CheckRuleNr(const rulenr_t);
+    int dstIndex(const char*);
 
     rulenr_t m_ruleNr;
+    static const char* dstNames[];
+    static const char* nodeStateNames[];
 };
 #endif
