@@ -20,8 +20,6 @@
 //
 //      --machine defaults to "S"
 //
-//      --nr-actions defaults to 20
-//
 //      --iterations defaults to 40
 //
 //      --rule <rule number>
@@ -60,7 +58,6 @@ class CommandOpts {
 public:
     static int convertOnly;
     static int nrIterations;
-    static int nrActions;
     static int selfEdges;
     static rulenr_t ruleNr;
     static bool rulePresent;
@@ -71,7 +68,6 @@ public:
 };
 int CommandOpts::convertOnly;
 int CommandOpts::nrIterations = 40;
-int CommandOpts::nrActions = 20;
 rulenr_t CommandOpts::ruleNr; // initial/default value is set at run-time
 int CommandOpts::selfEdges = 0;
 bool CommandOpts::rulePresent = false;
@@ -241,7 +237,6 @@ static void ParseCommand(const int argc, char* argv[]) {
             {"self-edges", no_argument, &CommandOpts::selfEdges, 1},
 
             {"machine", required_argument, 0, 'm'},
-            {"nr-actions", required_argument, 0, 'n'},
             {"iterations", required_argument, 0, 'i'},
             {"rule", required_argument, 0, 'r'},
             {"text", required_argument, 0, 't'},
@@ -250,7 +245,7 @@ static void ParseCommand(const int argc, char* argv[]) {
         };
 
         int option_index = 0;
-        c = getopt_long (argc, argv, "m:n:i:r:t:w:", long_options, &option_index);
+        c = getopt_long (argc, argv, "m:i:r:t:w:", long_options, &option_index);
 
         if (c == -1) // end of options?
             break;
@@ -268,11 +263,6 @@ static void ParseCommand(const int argc, char* argv[]) {
 
           case 'i':
             CommandOpts::nrIterations = atoi(optarg);
-            break;
-
-          case 'n':
-            printf("--nr-actions option is not yet supported.\n");
-            errorFound = true;
             break;
 
           case 't':
