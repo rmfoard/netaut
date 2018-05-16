@@ -138,33 +138,3 @@ const std::string Rule::RulePartText(const int rulePart) {
       + std::string("R-") + std::string(dstNames[rAction]) + std::string(",")
       + std::string("N-") + std::string(nodeStateNames[nAction]);
 }
-
-//---------------
-int main(const int argc, const char* argv[]) {
-    Rule* r = new Rule((rulenr_t) 1234);
-    printf("rule: %llu\n", r->get_ruleNr());
-    delete r;
-
-    const int ruleParts[] = { 71, 71, 71, 71, 71, 71, 71, 71 };
-    r = new Rule(ruleParts);
-    printf("rule text: %s\n", r->get_ruleText());
-    Rule* rtext = new Rule("L-L,R-R,N-B;L-L,R-R,N-W;L-L,R-R,N-W;L-L,R-R,N-W;L-L,R-R,N-W;L-L,R-R,N-W;L-L,R-R,N-W;L-L,R-R,N-W");
-    printf("rule text: %s\n", rtext->get_ruleText());
-    delete rtext;
-    printf("rule: %llu\n", r->get_ruleNr());
-    const int* rp = r->get_ruleParts();
-    for (int i = 0; i < NR_TRIAD_STATES; i += 1) printf("part %d: %d\n", i, rp[i]);
-    delete rp;
-    printf("rule text: %s\n", r->get_ruleText());
-    delete r;
-
-    const int ruleParts2[] = { 1, 2, 3, 4, 5, 6, 7, 8 };
-    r = new Rule(ruleParts2);
-    printf("rule: %llu\n", r->get_ruleNr());
-    const int* rp2 = r->get_ruleParts();
-    for (int i = 0; i < NR_TRIAD_STATES; i += 1) printf("part %d: %d\n", i, rp2[i]);
-    printf("rule text: %s\n", r->get_ruleText());
-    delete rp2;
-    delete r;
-    exit(0);
-}
