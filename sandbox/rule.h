@@ -45,7 +45,7 @@ typedef long long unsigned rulenr_t;
 // A rule number is a radix NR_TRIAD_STATES number, each "digit" of which is
 // a "rule part" value. The digit in the i-th power position gives the rule part
 // to be applied for triads whose left neighbor/node/right neighbor node states
-// equal i when interpreted as a binary number.
+// equal i when interpreted as a binary number (the "triad state").
 //
 // A rule part value is the packed representation:
 //
@@ -55,8 +55,18 @@ typedef long long unsigned rulenr_t;
 // in which the "new edge dst" codes are as defined above, under "Graph topology action
 // components," and the "new state for node" codes are as defined under "Node states,i
 // node action components."
-//---------------
+//
+// Rule encoding -- order of action specifications for triad states
+//
+// The leftmost part specification in a ruleText string corresponds to the low-order "digit"
+// in the corresponding ruleNr integer; both encode the action for triad state 0, i.e.,
+//
+// ruleText: <action for triad state 0>; ... ;<action for triad state NR_TRIAD_STATES-1>
+//
+// ruleNr: <"digit" for triad state NR_TRIAD_STATES-1> ... <"digit" for triad state 0>
+//
 
+//---------------
 class Rule {
 
 public:
