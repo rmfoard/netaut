@@ -200,6 +200,7 @@ void MachineS::AdvanceNode(TNEGraph::TNodeI NIter) {
     newDsts[RREDGE] = rrNId;
 
     assert(0 <= triadState && triadState < NR_TRIAD_STATES);
+    // TODO: Eliminate call to get_ruleParts
     int rulePart = m_rule->get_ruleParts()[triadState];
     assert(0 <= rulePart && rulePart < NR_ACTIONS);
 
