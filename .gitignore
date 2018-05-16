@@ -1,2 +1,5 @@
 *.dot
 *.tmp
+*.o
+*.Err
+a.out
