@@ -273,8 +273,6 @@ static void ParseCommand(const int argc, char* argv[]) {
                 errorFound = true;
             } else {
                 CommandOpts::ruleText = strAllocCpy(optarg);
-                printf("--text option is not yet supported.\n");
-                errorFound = true;
             }
             break;
 
@@ -313,7 +311,6 @@ static void ParseCommand(const int argc, char* argv[]) {
        }
     }
     if (errorFound) exit(1);
-    if (errorFound) exit(1);
 
 
     // Process any non-option command arguments.
@@ -332,8 +329,10 @@ static void ParseCommand(const int argc, char* argv[]) {
 //---------------
 static int DoConversion() {
     if (CommandOpts::textPresent) {
-        printf("text -> rule conversion is not yet supported.\n");
-        return 1; // failure
+        Rule* rule = new Rule(CommandOpts::ruleText);
+        printf("%llu\n", rule->get_ruleNr());
+        delete rule;
+        return 0; // failure
     }
     else { // rulePresent
         Rule* rule = new Rule(CommandOpts::ruleNr);

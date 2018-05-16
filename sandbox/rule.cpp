@@ -53,7 +53,9 @@ Rule::Rule(const char* ruleText) {
             rulePart += 1;
         else
             if (strcmp(tok, "W") != 0) throw std::runtime_error("rule text error 4");
-        m_ruleNr = m_ruleNr * NR_ACTIONS + rulePart;
+
+        // Build rule number from low order to high.
+        m_ruleNr = m_ruleNr + (rulePart * Raise(NR_ACTIONS, partNr));
         tok = strtok(NULL, " ,-;");
     }
     CheckRuleNr(m_ruleNr);
