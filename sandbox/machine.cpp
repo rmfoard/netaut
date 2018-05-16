@@ -15,10 +15,10 @@
 //---------------
 // Command format:
 //
-//      machine --(m)achine <machine type> --(n)r-actions <n> --(r)ule <rulenum> ...
-//          --(p)arts <rulepart list> --(c)onvert-only --write --iterations <n>
+//      machine --(m)achine <machine type> --(r)ule <rule number> ...
+//          --(t)ext <rule text> --(c)onvert-only --write --iterations <nr>
 //
-//      --machine defaults to "S"
+//      --machine type defaults to "S"
 //
 //      --iterations defaults to 40
 //
@@ -28,10 +28,10 @@
 //
 //      --self-edges [permitted] defaults to off/false
 //
-//      --rule xor --text must be specified. (part list must be quoted)
+//      --rule xor --text must be specified.
 //
-//      The specified machine will be run for 'iterations' unless
-//      --convert-only is given.
+//      Runs the specified machine for 'iterations' unless --convert-only
+//      is present.
 //
 // TODO: Explain actions string
 //---------------
