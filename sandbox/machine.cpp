@@ -9,7 +9,7 @@
 #include "rule.h"
 
 #define NR_CYCLES 40
-#define NR_NODES 100
+#define NR_NODES 256
 
 // TODO: Make 'CommandOptions' a structure.
 //---------------
@@ -127,7 +127,8 @@ void MachineS::InitNodeStates() {
 void MachineS::Cycle() {
 
     // Show node states at the beginning of the cycle.
-    for (int i = NR_NODES - 1; i >= 0; i -= 1) {
+    assert(NR_NODES > 2 * 64);
+    for (int i = NR_NODES/2 - 64; i <= NR_NODES/2 + 64; i += 1) {
         printf("%s", (m_nodeStates[i] == 1) ? "X" : " ");
     }
     printf("\n");

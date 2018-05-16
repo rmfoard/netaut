@@ -49,10 +49,12 @@ Rule::Rule(const char* ruleText) {
         tok = strtok(NULL, " ,-;");
         if (strcmp(tok, "N") != 0) throw std::runtime_error("rule text error 3");
         tok = strtok(NULL, " ,-;");
-        if (strcmp(tok, "B") == 0)
+        if (strcmp(tok, "B") == 0) {
             rulePart += 1;
-        else
+        }
+        else {
             if (strcmp(tok, "W") != 0) throw std::runtime_error("rule text error 4");
+        }
 
         // Build rule number from low order to high.
         m_ruleNr = m_ruleNr + (rulePart * Raise(NR_ACTIONS, partNr));
