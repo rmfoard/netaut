@@ -388,6 +388,15 @@ int main(const int argc, char* argv[]) {
     // Write the end-state graph if --write was present.
     if (CommandOpts::writeDot) TSnap::SaveGViz(m->get_m_graph(), CommandOpts::outFile);
 
+    // Show graph characteristis.
+    // get distribution of connected components (component size, count)
+    TVec<TPair<TInt, TInt> > CntV; // vector of pairs of integers (size, count)
+    TSnap::GetWccSzCnt(m->get_m_graph(), CntV); // get degree distribution pairs (degree, count)
+
+    for (int i = 0; i < CntV.Len(); i += 1) {
+        printf("%d: %d %d\n", i, CntV[i].Val1, CntV[i].Val2);
+    }
+
     delete m;
     exit(0);
 }
