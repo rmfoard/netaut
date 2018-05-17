@@ -80,12 +80,13 @@ char* CommandOpts::ruleText = NULL;
 class MachineS {
 
 public:
-    MachineS(rulenr_t);
+    MachineS(rulenr_t, int);
     PNEGraph get_m_graph();
     void Cycle();
 
 private:
     Rule* m_rule;
+    int m_nrNodes;
     PNEGraph m_graph;
     PNEGraph m_nextGraph;
     int* m_nodeStates;
@@ -98,12 +99,13 @@ private:
 //---------------
 // TODO: Provide a destructor that releases resources.
 //---------------
-MachineS::MachineS(rulenr_t ruleNr) {
+MachineS::MachineS(rulenr_t ruleNr, const int nrNodes) {
     m_rule = new Rule(ruleNr);
+    m_nrNodes = nrNodes;
     m_graph = TNEGraph::New();
-    m_nodeStates = new int[NR_NODES];
-    m_nextNodeStates = new int[NR_NODES];
-    BuildRing(NR_NODES, m_graph);
+    m_nodeStates = new int[m_nrNodes];
+    m_nextNodeStates = new int[m_nrNodes];
+    BuildRing(m_nrNodes, m_graph);
     InitNodeStates();
 }
 
@@ -114,8 +116,8 @@ PNEGraph MachineS::get_m_graph() { return m_graph; }
 
 //---------------
 void MachineS::InitNodeStates() {
-    for (int i = 0; i < NR_NODES; i += 1) {
-        m_nodeStates[i] = (i == NR_NODES / 2) ? 1 : 0;
+    for (int i = 0; i < m_nrNodes; i += 1) {
+        m_nodeStates[i] = (i == m_nrNodes / 2) ? 1 : 0;
     }
 }
 
@@ -127,8 +129,8 @@ void MachineS::InitNodeStates() {
 void MachineS::Cycle() {
 
     // Show node states at the beginning of the cycle.
-    assert(NR_NODES > 2 * 64);
-    for (int i = NR_NODES/2 - 64; i <= NR_NODES/2 + 64; i += 1) {
+    assert(m_nrNodes > 2 * 64);
+    for (int i = m_nrNodes/2 - 64; i <= m_nrNodes/2 + 64; i += 1) {
         printf("%s", (m_nodeStates[i] == 1) ? "X" : " ");
     }
     printf("\n");
@@ -379,7 +381,7 @@ int main(const int argc, char* argv[]) {
         delete tmpRule;
     }
 
-    MachineS* m = new MachineS(CommandOpts::ruleNr);
+    MachineS* m = new MachineS(CommandOpts::ruleNr, NR_NODES);
 
     for (int i = 1; i <= CommandOpts::nrIterations; i += 1) m->Cycle();
 
