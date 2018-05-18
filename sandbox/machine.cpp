@@ -388,6 +388,9 @@ int main(const int argc, char* argv[]) {
     // Write the end-state graph if --write was present.
     if (CommandOpts::writeDot) TSnap::SaveGViz(m->get_m_graph(), CommandOpts::outFile);
 
+    // Reiterate the machine number.
+    printf("ruleNr: %llu\n", CommandOpts::ruleNr);
+
     // Show graph characteristis.
     // get distribution of connected components (component size, count)
     TVec<TPair<TInt, TInt> > CntV; // vector of pairs of integers (size, count)
