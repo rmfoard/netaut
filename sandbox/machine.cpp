@@ -391,14 +391,29 @@ int main(const int argc, char* argv[]) {
     // Reiterate the machine number.
     printf("ruleNr: %llu\n", CommandOpts::ruleNr);
 
-    // Show graph characteristis.
+    // Show graph characteristics.
     // get distribution of connected components (component size, count)
     TVec<TPair<TInt, TInt> > CntV; // vector of pairs of integers (size, count)
-    TSnap::GetWccSzCnt(m->get_m_graph(), CntV); // get degree distribution pairs (degree, count)
-
+    TSnap::GetWccSzCnt(m->get_m_graph(), CntV);
+    printf("size: count, connected components\n");
     for (int i = 0; i < CntV.Len(); i += 1) {
         printf("%d: %d %d\n", i, CntV[i].Val1, CntV[i].Val2);
     }
+
+    // Print statistics.
+  TFltPrV DegCCfV;
+  int64 ClosedTriads, OpenTriads;
+  int FullDiam;
+  double EffDiam;
+  printf("Nodes\t%d\n", m->get_m_graph()->GetNodes());
+  printf("Edges\t%d\n", m->get_m_graph()->GetEdges());
+  const double CCF = TSnap::GetClustCf(m->get_m_graph(), DegCCfV, ClosedTriads, OpenTriads);
+  printf("Average clustering coefficient\t%.4f\n", CCF);
+  printf("Number of triangles\t%s\n", TUInt64(ClosedTriads).GetStr().CStr());
+  printf("Fraction of closed triangles\t%.4g\n", ClosedTriads/double(ClosedTriads+OpenTriads));
+  TSnap::GetBfsEffDiam(m->get_m_graph(), 1000, false, EffDiam, FullDiam);
+  printf("Diameter (longest shortest path)\t%d\n", FullDiam);
+  printf("90-percentile effective diameter\t%.2g\n", EffDiam);
 
     delete m;
     exit(0);
