@@ -219,12 +219,25 @@ void MachineS::AdvanceNode(TNEGraph::TNodeI NIter) {
     assert(lNId != rNId || multiEdge);
     assert((lNId != nNId && rNId != nNId) || selfEdge);
 
-    if (newDsts[rAction] != nNId || selfEdge)
-        m_nextGraph->AddEdge(nNId, newDsts[rAction]);
-    else
-        m_nextGraph->AddEdge(nNId, rNId);
+    // TODO: Keep running stats on action use.
 
+    // Apply the node action unconditionally.
     m_nextNodeStates[nNId] = nAction;
+
+    // Apply the topological actions...
+    int lNewDst = newDsts[lAction];
+    int rNewDst = newDsts[rAction];
+
+    // ...only if they preserve the topo invariants.
+    if (((lNewDst != nNId && rNewDst != nNId) || selfEdge)
+      && ((lNewDst != rNewDst) || multiEdge)) {
+        m_nextGraph->AddEdge(nNId, lNewDst);
+        m_nextGraph->AddEdge(nNId, rNewDst);
+    }
+    else { // Re-create the previous edges if they don't.
+        m_nextGraph->AddEdge(nNId, lNId);
+        m_nextGraph->AddEdge(nNId, rNId);
+    }
 
     delete newDsts;
 }
