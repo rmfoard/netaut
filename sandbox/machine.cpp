@@ -42,10 +42,10 @@ static void BuildRing(int nrNodes, PNEGraph graph) {
     assert(nrNodes > 1);
 
     for (int n = 0; n < nrNodes; n += 1) graph->AddNode(n);
+    for (int n = 1; n < nrNodes; n += 1) graph->AddEdge(n, n - 1);
+    graph->AddEdge(0, nrNodes - 1);
     for (int n = 0; n < nrNodes - 1; n += 1) graph->AddEdge(n, n + 1);
     graph->AddEdge(nrNodes - 1, 0);
-    graph->AddEdge(0, nrNodes - 1);
-    for (int n = 1; n < nrNodes; n += 1) graph->AddEdge(n, n - 1);
 }
 
 static char* strAllocCpy(const char* src) {
