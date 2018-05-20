@@ -59,6 +59,7 @@ public:
     static int convertOnly;
     static int nrIterations;
     static int selfEdges;
+    static int noMultiEdges;
     static rulenr_t ruleNr;
     static bool rulePresent;
     static bool textPresent;
@@ -70,6 +71,7 @@ int CommandOpts::convertOnly;
 int CommandOpts::nrIterations = 40;
 rulenr_t CommandOpts::ruleNr; // initial/default value is set at run-time
 int CommandOpts::selfEdges = 0;
+int CommandOpts::noMultiEdges = 0;
 bool CommandOpts::rulePresent = false;
 bool CommandOpts::textPresent = false;
 bool CommandOpts::writeDot = false;
@@ -171,6 +173,7 @@ void MachineS::Cycle() {
 //---------------
 void MachineS::AdvanceNode(TNEGraph::TNodeI NIter) {
     bool selfEdge = CommandOpts::selfEdges;
+    bool multiEdge = !CommandOpts::noMultiEdges;
 
     // Get node ids of neighbors.
     int nNId = NIter.GetId();
@@ -239,6 +242,7 @@ static void ParseCommand(const int argc, char* argv[]) {
         static struct option long_options[] = {
             {"convert-only", no_argument, &CommandOpts::convertOnly, 1},
             {"self-edges", no_argument, &CommandOpts::selfEdges, 1},
+            {"no-multi-edges", no_argument, &CommandOpts::noMultiEdges, 1},
 
             {"machine", required_argument, 0, 'm'},
             {"iterations", required_argument, 0, 'i'},
