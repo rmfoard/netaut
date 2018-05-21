@@ -86,6 +86,7 @@ class MachineS {
 
 public:
     MachineS(rulenr_t, int);
+    ~MachineS();
     PNEGraph get_m_graph();
     void Cycle();
 
@@ -94,6 +95,7 @@ private:
     int m_nrNodes;
     PNEGraph m_graph;
     PNEGraph m_nextGraph;
+    const int* m_ruleParts;
     int* m_nodeStates;
     int* m_nextNodeStates;
 
@@ -102,16 +104,22 @@ private:
 };
 
 //---------------
-// TODO: Provide a destructor that releases resources.
-//---------------
-MachineS::MachineS(rulenr_t ruleNr, const int nrNodes) {
+MachineS::MachineS(rulenr_t ruleNr, int nrNodes) {
     m_rule = new Rule(ruleNr);
+    m_ruleParts = m_rule->get_ruleParts();
     m_nrNodes = nrNodes;
     m_graph = TNEGraph::New();
     m_nodeStates = new int[m_nrNodes];
     m_nextNodeStates = new int[m_nrNodes];
     BuildRing(m_nrNodes, m_graph);
     InitNodeStates();
+}
+
+//---------------
+MachineS::~MachineS() {
+    delete m_ruleParts;
+    delete m_nodeStates;
+    delete m_nextNodeStates;
 }
 
 //---------------
@@ -210,14 +218,13 @@ void MachineS::AdvanceNode(TNEGraph::TNodeI NIter) {
     newDsts[RREDGE] = rrNId;
 
     assert(0 <= triadState && triadState < NR_TRIAD_STATES);
-    // TODO: Eliminate call to get_ruleParts
-    int rulePart = m_rule->get_ruleParts()[triadState];
+    const int rulePart = m_ruleParts[triadState];
     assert(0 <= rulePart && rulePart < NR_ACTIONS);
 
     // Unpack the rule part into left edge, right edge, and node actions
-    int lAction = (rulePart / 2) / NR_POSS_DSTS;
-    int rAction = (rulePart / 2) % NR_POSS_DSTS;
-    int nAction = rulePart % 2;
+    const int lAction = (rulePart / 2) / NR_POSS_DSTS;
+    const int rAction = (rulePart / 2) % NR_POSS_DSTS;
+    const int nAction = rulePart % 2;
 
     // Confirm that topological invariants still hold.
     assert(lNId != rNId || multiEdge);
