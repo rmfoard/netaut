@@ -257,7 +257,7 @@ static void ParseCommand(const int argc, char* argv[]) {
             {"convert-only", no_argument, &CommandOpts::convertOnly, 1},
             {"self-edges", no_argument, &CommandOpts::selfEdges, 1},
             {"no-multi-edges", no_argument, &CommandOpts::noMultiEdges, 1},
-            {"print-tape", no_argument, &CommandOpts::printTape, 1},
+            {"print", no_argument, &CommandOpts::printTape, 1},
 
             {"machine", required_argument, 0, 'm'},
             {"iterations", required_argument, 0, 'i'},
