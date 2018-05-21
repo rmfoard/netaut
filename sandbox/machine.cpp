@@ -9,7 +9,6 @@
 #include "rule.h"
 
 #define NR_CYCLES 40
-#define NR_NODES 256
 
 // TODO: Make 'CommandOptions' a structure.
 //---------------
@@ -60,6 +59,8 @@ public:
     static int nrIterations;
     static int selfEdges;
     static int noMultiEdges;
+    static int printTape;
+    static int nrNodes;
     static rulenr_t ruleNr;
     static bool rulePresent;
     static bool textPresent;
@@ -72,6 +73,8 @@ int CommandOpts::nrIterations = 40;
 rulenr_t CommandOpts::ruleNr; // initial/default value is set at run-time
 int CommandOpts::selfEdges = 0;
 int CommandOpts::noMultiEdges = 0;
+int CommandOpts::printTape = 0;
+int CommandOpts::nrNodes = 256;
 bool CommandOpts::rulePresent = false;
 bool CommandOpts::textPresent = false;
 bool CommandOpts::writeDot = false;
@@ -132,10 +135,11 @@ void MachineS::Cycle() {
 
     // Show node states at the beginning of the cycle.
     assert(m_nrNodes > 2 * 64);
-    for (int i = m_nrNodes/2 - 64; i <= m_nrNodes/2 + 64; i += 1) {
-        printf("%s", (m_nodeStates[i] == 1) ? "X" : " ");
+    if (CommandOpts::printTape) {
+        for (int i = m_nrNodes/2 - 64; i <= m_nrNodes/2 + 64; i += 1)
+            printf("%s", (m_nodeStates[i] == 1) ? "X" : " ");
+        printf("\n");
     }
-    printf("\n");
 
     // Create the seed of the graph's next generation.
     m_nextGraph = TNEGraph::New();
@@ -253,9 +257,11 @@ static void ParseCommand(const int argc, char* argv[]) {
             {"convert-only", no_argument, &CommandOpts::convertOnly, 1},
             {"self-edges", no_argument, &CommandOpts::selfEdges, 1},
             {"no-multi-edges", no_argument, &CommandOpts::noMultiEdges, 1},
+            {"print-tape", no_argument, &CommandOpts::printTape, 1},
 
             {"machine", required_argument, 0, 'm'},
             {"iterations", required_argument, 0, 'i'},
+            {"nodes", required_argument, 0, 'n'},
             {"rule", required_argument, 0, 'r'},
             {"text", required_argument, 0, 't'},
             {"write", required_argument, 0, 'w'},
@@ -281,6 +287,10 @@ static void ParseCommand(const int argc, char* argv[]) {
 
           case 'i':
             CommandOpts::nrIterations = atoi(optarg);
+            break;
+
+          case 'n':
+            CommandOpts::nrNodes = atoi(optarg);
             break;
 
           case 't':
@@ -395,15 +405,20 @@ int main(const int argc, char* argv[]) {
         delete tmpRule;
     }
 
-    MachineS* m = new MachineS(CommandOpts::ruleNr, NR_NODES);
+    MachineS* m = new MachineS(CommandOpts::ruleNr, CommandOpts::nrNodes);
 
     for (int i = 1; i <= CommandOpts::nrIterations; i += 1) m->Cycle();
 
     // Write the end-state graph if --write was present.
     if (CommandOpts::writeDot) TSnap::SaveGViz(m->get_m_graph(), CommandOpts::outFile);
 
-    // Reiterate the machine number.
-    printf("ruleNr: %llu\n", CommandOpts::ruleNr);
+    // Show machine specifications.
+    printf("rule: %llu\n", CommandOpts::ruleNr);
+    printf("nodes: %d\n", CommandOpts::nrNodes);
+    printf("iterations: %d\n", CommandOpts::nrIterations);
+    printf("self-edges: %s\n", (CommandOpts::selfEdges ? "allowed" : "disallowed"));
+    printf("multi-edges: %s\n", (CommandOpts::noMultiEdges ? "disallowed" : "allowed"));
+    printf("\n");
 
     // Show graph characteristics.
     // get distribution of connected components (component size, count)
