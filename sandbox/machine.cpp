@@ -57,11 +57,13 @@ class CommandOpts {
 public:
     static int convertOnly;
     static int nrIterations;
+    static rulenr_t ruleNr;
+    static int breadthFirstRoot;
+    static int depthFirstRoot;
     static int selfEdges;
     static int noMultiEdges;
     static int printTape;
     static int nrNodes;
-    static rulenr_t ruleNr;
     static bool rulePresent;
     static bool textPresent;
     static bool writeDot;
@@ -71,6 +73,8 @@ public:
 int CommandOpts::convertOnly;
 int CommandOpts::nrIterations = 40;
 rulenr_t CommandOpts::ruleNr; // initial/default value is set at run-time
+int CommandOpts::breadthFirstRoot = -1;
+int CommandOpts::depthFirstRoot = -1;
 int CommandOpts::selfEdges = 0;
 int CommandOpts::noMultiEdges = 0;
 int CommandOpts::printTape = 0;
@@ -89,6 +93,7 @@ public:
     ~MachineS();
     PNEGraph get_m_graph();
     void Cycle();
+    void ShowDepthFirst(int);
 
 private:
     Rule* m_rule;
@@ -101,6 +106,7 @@ private:
 
     void AdvanceNode(TNEGraph::TNodeI);
     void InitNodeStates();
+    void ShowDF(int, bool*);
 };
 
 //---------------
@@ -254,6 +260,34 @@ void MachineS::AdvanceNode(TNEGraph::TNodeI NIter) {
 }
 
 //---------------
+// ShowDepthFirst
+//
+// Print a string representing node values traversed in depth-first order from 'root'.
+//---------------
+void MachineS::ShowDepthFirst(int rootNId) {
+    bool *visited = new bool[m_nrNodes];
+    for (int i = 0; i < m_nrNodes; i += 1) visited[i] = false;
+
+    // Get an iterator for the root.
+    ShowDF(rootNId, visited);
+    printf("\n");
+    delete visited;
+}
+
+//---------------
+void MachineS::ShowDF(int rootNId, bool *visited) {
+    if (!visited[rootNId]) {
+        visited[rootNId] = true;
+        printf("%s", (m_nodeStates[rootNId] == NBLACK) ? "X" : " ");
+        TNEGraph::TNodeI rootIter = m_graph->GetNI(rootNId);
+        int lNId = rootIter.GetOutNId(0);
+        int rNId = rootIter.GetOutNId(1);
+        ShowDF(lNId, visited);
+        ShowDF(rNId, visited);
+    }
+}
+
+//---------------
 // TODO: Learn where the hell 'optind' came from.
 static void ParseCommand(const int argc, char* argv[]) {
     int c;
@@ -268,6 +302,8 @@ static void ParseCommand(const int argc, char* argv[]) {
 
             {"machine", required_argument, 0, 'm'},
             {"iterations", required_argument, 0, 'i'},
+            {"breadth-first-root", required_argument, 0, 'b'},
+            {"depth-first-root", required_argument, 0, 'd'},
             {"nodes", required_argument, 0, 'n'},
             {"rule", required_argument, 0, 'r'},
             {"text", required_argument, 0, 't'},
@@ -294,6 +330,14 @@ static void ParseCommand(const int argc, char* argv[]) {
 
           case 'i':
             CommandOpts::nrIterations = atoi(optarg);
+            break;
+
+          case 'b':
+            CommandOpts::breadthFirstRoot = atoi(optarg);
+            break;
+
+          case 'd':
+            CommandOpts::depthFirstRoot = atoi(optarg);
             break;
 
           case 'n':
@@ -344,12 +388,27 @@ static void ParseCommand(const int argc, char* argv[]) {
             abort();
        }
     }
+
+    // Check assembled options.
+    if (CommandOpts::breadthFirstRoot >= 0 && CommandOpts::depthFirstRoot >= 0) {
+        printf("error: only one of --breadth-first-root and --depth-first-root may be present\n");
+        errorFound = true;
+    }
+    else if (CommandOpts::breadthFirstRoot >= CommandOpts::nrNodes) {
+        printf("breadth-first-root is too large\n");
+        errorFound = true;
+    }
+    else if (CommandOpts::depthFirstRoot >= CommandOpts::nrNodes) {
+        printf("depth-first-root is too large\n");
+        errorFound = true;
+    }
+
     if (errorFound) exit(1);
 
 
-    // Process any non-option command arguments.
+    // Warn if any non-option command arguments are present.
     if (optind < argc) {
-        printf ("non-option ARGV-elements: ");
+        printf ("warning: there are extraneous command arguments: ");
         while (optind < argc) printf ("%s ", argv[optind++]);
         putchar ('\n');
     }
@@ -434,19 +493,25 @@ int main(const int argc, char* argv[]) {
     printf("size: count, connected components\n");
     for (int i = 0; i < CntV.Len(); i += 1) printf("%d: %d\n", CntV[i].Val1, CntV[i].Val2);
 
-  TFltPrV DegCCfV;
-  int64 ClosedTriads, OpenTriads;
-  int FullDiam;
-  double EffDiam;
-  //printf("Nodes\t%d\n", m->get_m_graph()->GetNodes());
-  //printf("Edges\t%d\n", m->get_m_graph()->GetEdges());
-  const double CCF = TSnap::GetClustCf(m->get_m_graph(), DegCCfV, ClosedTriads, OpenTriads);
-  printf("Average clustering coefficient\t%.4f\n", CCF);
-  printf("Number of triangles\t%s\n", TUInt64(ClosedTriads).GetStr().CStr());
-  printf("Fraction of closed triangles\t%.4g\n", ClosedTriads/double(ClosedTriads+OpenTriads));
-  TSnap::GetBfsEffDiam(m->get_m_graph(), 1000, false, EffDiam, FullDiam);
-  printf("Diameter (longest shortest path)\t%d\n", FullDiam);
-  printf("90-percentile effective diameter\t%.2g\n", EffDiam);
+    TFltPrV DegCCfV;
+    int64 ClosedTriads, OpenTriads;
+    int FullDiam;
+    double EffDiam;
+    const double CCF = TSnap::GetClustCf(m->get_m_graph(), DegCCfV, ClosedTriads, OpenTriads);
+    printf("Average clustering coefficient\t%.4f\n", CCF);
+    printf("Number of triangles\t%s\n", TUInt64(ClosedTriads).GetStr().CStr());
+    printf("Fraction of closed triangles\t%.4g\n", ClosedTriads/double(ClosedTriads+OpenTriads));
+    TSnap::GetBfsEffDiam(m->get_m_graph(), 1000, false, EffDiam, FullDiam);
+    printf("Diameter (longest shortest path)\t%d\n", FullDiam);
+    printf("90-percentile effective diameter\t%.2g\n", EffDiam);
+
+    // Show node values in tree order if requested.
+    if (CommandOpts::depthFirstRoot >= 0) {
+        m->ShowDepthFirst(CommandOpts::depthFirstRoot);
+    }
+    else if (CommandOpts::breadthFirstRoot >= 0) {
+        printf("error: breadth-first-root is not yet implemented.\n");
+    }
 
     delete m;
     exit(0);
