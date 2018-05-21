@@ -150,9 +150,10 @@ void MachineS::Cycle() {
     // Show node states at the beginning of the cycle.
     assert(m_nrNodes > 2 * 64);
     if (CommandOpts::printTape) {
-        for (int i = m_nrNodes/2 - 64; i <= m_nrNodes/2 + 64; i += 1)
-            printf("%s", (m_nodeStates[i] == 1) ? "X" : " ");
-        printf("\n");
+    //    for (int i = m_nrNodes/2 - 64; i <= m_nrNodes/2 + 64; i += 1)
+    //        printf("%s", (m_nodeStates[i] == 1) ? "X" : " ");
+    //    printf("\n");
+        ShowDepthFirst(0);
     }
 
     // Create the seed of the graph's next generation.
