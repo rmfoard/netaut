@@ -47,9 +47,8 @@ static void BuildRing(int nrNodes, PNEGraph graph) {
     graph->AddEdge(nrNodes - 1, 0);
 }
 
-static char* strAllocCpy(const char* src) {
-    return strcpy(new char[strlen(src) + 1], src);
-}
+//---------------
+static char* strAllocCpy(const char* src) { return strcpy(new char[strlen(src) + 1], src); }
 
 //---------------
 class CommandOpts {
@@ -252,7 +251,7 @@ void MachineS::AdvanceNode(TNEGraph::TNodeI NIter) {
         m_nextGraph->AddEdge(nNId, lNewDst);
         m_nextGraph->AddEdge(nNId, rNewDst);
     }
-    else { // Re-create the previous edges if they don't.
+    else { // Otherwise, re-create the previous edges.
         m_nextGraph->AddEdge(nNId, lNId);
         m_nextGraph->AddEdge(nNId, rNId);
     }
@@ -269,9 +268,9 @@ void MachineS::ShowDepthFirst(int rootNId) {
     bool *visited = new bool[m_nrNodes];
     for (int i = 0; i < m_nrNodes; i += 1) visited[i] = false;
 
-    // Get an iterator for the root.
     ShowDF(rootNId, visited);
     printf("\n");
+
     delete visited;
 }
 
