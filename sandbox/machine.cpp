@@ -4,6 +4,7 @@
 #include <inttypes.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <algorithm>
 #include <string>
 #include <vector>
 #include "rule.h"
@@ -59,6 +60,7 @@ public:
     static rulenr_t ruleNr;
     static int breadthFirstRoot;
     static int depthFirstRoot;
+    static int randSeed;
     static int selfEdges;
     static int noMultiEdges;
     static int printTape;
@@ -74,6 +76,7 @@ int CommandOpts::nrIterations = 40;
 rulenr_t CommandOpts::ruleNr; // initial/default value is set at run-time
 int CommandOpts::breadthFirstRoot = -1;
 int CommandOpts::depthFirstRoot = -1;
+int CommandOpts::randSeed = -1;
 int CommandOpts::selfEdges = 0;
 int CommandOpts::noMultiEdges = 0;
 int CommandOpts::printTape = 0;
@@ -147,11 +150,10 @@ void MachineS::InitNodeStates() {
 void MachineS::Cycle() {
 
     // Show node states at the beginning of the cycle.
-    assert(m_nrNodes > 2 * 64);
     if (CommandOpts::printTape) {
-    //    for (int i = m_nrNodes/2 - 64; i <= m_nrNodes/2 + 64; i += 1)
-    //        printf("%s", (m_nodeStates[i] == 1) ? "X" : " ");
-    //    printf("\n");
+        for (int i = m_nrNodes/2 - std::min(64, m_nrNodes/2); i <= m_nrNodes/2 + std::min(64, m_nrNodes/2); i += 1)
+            printf("%s", (m_nodeStates[i] == 1) ? "X" : " ");
+        printf("\n");
         ShowDepthFirst(0);
     }
 
@@ -278,7 +280,7 @@ void MachineS::ShowDepthFirst(int rootNId) {
 void MachineS::ShowDF(int rootNId, bool *visited) {
     if (!visited[rootNId]) {
         visited[rootNId] = true;
-        printf("%s", (m_nodeStates[rootNId] == NBLACK) ? "X" : " ");
+        printf("%s", (m_nodeStates[rootNId] == NBLACK) ? "+" : " ");
         TNEGraph::TNodeI rootIter = m_graph->GetNI(rootNId);
         int lNId = rootIter.GetOutNId(0);
         int rNId = rootIter.GetOutNId(1);
@@ -306,6 +308,7 @@ static void ParseCommand(const int argc, char* argv[]) {
             {"depth-first-root", required_argument, 0, 'd'},
             {"nodes", required_argument, 0, 'n'},
             {"rule", required_argument, 0, 'r'},
+            {"random", required_argument, 0, 'a'},
             {"text", required_argument, 0, 't'},
             {"write", required_argument, 0, 'w'},
             {0, 0, 0, 0}
@@ -342,6 +345,10 @@ static void ParseCommand(const int argc, char* argv[]) {
 
           case 'n':
             CommandOpts::nrNodes = atoi(optarg);
+            break;
+
+          case 'a':
+            CommandOpts::randSeed = atoi(optarg);
             break;
 
           case 't':
@@ -401,6 +408,14 @@ static void ParseCommand(const int argc, char* argv[]) {
     else if (CommandOpts::depthFirstRoot >= CommandOpts::nrNodes) {
         printf("depth-first-root is too large\n");
         errorFound = true;
+    }
+
+    // Create a random rule number if called for.
+    if (CommandOpts::randSeed >= 0) {
+        Rule* r  = new Rule((rulenr_t) 0);
+        srand(CommandOpts::randSeed);
+        CommandOpts::ruleNr = ((unsigned long long) rand() * RAND_MAX + rand()) % r->get_maxRuleNr();
+        delete r;
     }
 
     if (errorFound) exit(1);

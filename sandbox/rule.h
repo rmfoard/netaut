@@ -76,6 +76,7 @@ public:
     Rule(const char*);
 
     rulenr_t get_ruleNr();
+    rulenr_t get_maxRuleNr();
     const int* get_ruleParts();
     const char* get_ruleText();
 

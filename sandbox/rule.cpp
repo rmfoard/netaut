@@ -70,6 +70,17 @@ Rule::Rule(const char* ruleText) {
 rulenr_t Rule::get_ruleNr() { return m_ruleNr; }
 
 //---------------
+// get_maxRuleNr
+//---------------
+rulenr_t Rule::get_maxRuleNr() {
+    rulenr_t maxRuleNr = 0;
+    for (int i = 0; i < NR_TRIAD_STATES; i += 1) {
+        maxRuleNr = maxRuleNr * NR_ACTIONS + ((NR_POSS_DSTS-1) * NR_POSS_DSTS + (NR_POSS_DSTS-1));
+    }
+    return maxRuleNr;
+}
+
+//---------------
 // get_ruleParts
 //---------------
 const int* Rule::get_ruleParts() {
