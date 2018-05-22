@@ -1,0 +1,2 @@
+echo $RANDOM > ruleseed.tmp
+./machine --random `cat ruleseed.tmp` --write ruleseed.dot $*
