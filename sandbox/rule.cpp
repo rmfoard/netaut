@@ -71,12 +71,15 @@ rulenr_t Rule::get_ruleNr() { return m_ruleNr; }
 
 //---------------
 // get_maxRuleNr
+//
+// Return the largest possible rule number. NR_ACTIONS**NR_TRIAD_STATES - 1
 //---------------
 rulenr_t Rule::get_maxRuleNr() {
     rulenr_t maxRuleNr = 0;
     for (int i = 0; i < NR_TRIAD_STATES; i += 1) {
         maxRuleNr = maxRuleNr * NR_ACTIONS + ((NR_POSS_DSTS-1) * NR_POSS_DSTS + (NR_POSS_DSTS-1));
     }
+    assert(maxRuleNr == (Raise(NR_ACTIONS, NR_TRIAD_STATES) - 1));
     return maxRuleNr;
 }
 
