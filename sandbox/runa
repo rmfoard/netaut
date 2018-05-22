@@ -1,0 +1,1 @@
+./machine --random `cat ruleseed.tmp` --write ruleseed.dot $*
