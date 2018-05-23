@@ -43,7 +43,18 @@ To provision for generating netaut/hellosnap:
 
 - install jsoncpp
 -   clone from github
--   cd jsoncpp && python amalgamate.py // generates single .cpp and .h
+-   using the 'amalgamated' approach did not go smoothly (my err omitting -std=c++11, maybe)
+-   generate lib with:
+    cmake -DCMAKE_BUILD_TYPE=release -DBUILD_STATIC_LIBS=ON -DBUILD_SHARED_LIBS=OFF -DARCHIVE_INSTALL_DIR=. -G "Unix Makefiles" ..
+    make
+    sudo make install
+-   use #include <json/json.h>
+-   the install step places a copy of libjsoncpp.a in /usr/lib/local, which is typically in ld's default search path
+        (if not, edit ~/etc/ld.so.conf, which refs include's in /etc/ld.so.conf.d/, then refresh cache w/ldconfig)
+-   generate as in `g++ -std=c++11 myapp.cpp -ljsoncpp`
+
+- do not forget -std=c++11
+
 
 (Deferred enabling doxygen)
 (Deferred enabling googletest to run SNAP's tests)
