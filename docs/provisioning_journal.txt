@@ -41,5 +41,9 @@ To provision for generating netaut/hellosnap:
 -   README => mkdir -p build && cd build
 -   (see README for build commands)
 
+- install jsoncpp
+-   clone from github
+-   cd jsoncpp && python amalgamate.py // generates single .cpp and .h
+
 (Deferred enabling doxygen)
 (Deferred enabling googletest to run SNAP's tests)
