@@ -22,7 +22,7 @@ CXXFLAGS += -ggdb
 # turn on for OpenMP
 CXXOPENMP = 
 LDFLAGS +=
-LIBS += -lrt
+LIBS += -lrt -ljsoncpp
 # End global configuration
 
 ## Program-specific configuration
@@ -34,6 +34,9 @@ all: $(DEMOS)
 
 demo: demo.cpp $(CSNAP)/Snap.o
 	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
+
+jtoy: jtoy.o
+	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(LDFLAGS) $(LIBS)
 
 $(CSNAP)/Snap.o:
 	$(MAKE) -C $(CSNAP)
