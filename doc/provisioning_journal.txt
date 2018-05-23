@@ -40,6 +40,8 @@ To provision for generating netaut/hellosnap:
 -   download from github
 -   README => mkdir -p build && cd build
 -   (see README for build commands)
+-   manually sudo cp -r ~/leveldb/include/leveldb into /usr/local/include
+-   use, e.g., #include <leveldb/db.h>
 
 - install jsoncpp
 -   clone from github
