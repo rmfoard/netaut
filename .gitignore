@@ -3,3 +3,5 @@
 *.o
 *.Err
 a.out
+machine
+rule
