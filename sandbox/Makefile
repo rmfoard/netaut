@@ -22,12 +22,10 @@ CXXFLAGS += -ggdb
 # turn on for OpenMP
 CXXOPENMP = 
 LDFLAGS +=
-LIBS += -lrt -ljsoncpp -lpthread
+LIBS += -lrt -ljsoncpp -lleveldb -lpthread 
 # End global configuration
 
 ## Program-specific configuration
-LEVELDB_P = /home/richard/leveldb
-LEVELDB_LIB = $(LEVELDB_P)/build/libleveldb.a
 
 DEMOS = \
 	demo \
@@ -42,7 +40,7 @@ jtoy: jtoy.o
 	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(LDFLAGS) $(LIBS)
 
 ldtoy: ldtoy.o
-	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(LDFLAGS) $(LIBS) $(LEVELDB_LIB)
+	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(LDFLAGS) $(LIBS)
 
 $(CSNAP)/Snap.o:
 	$(MAKE) -C $(CSNAP)
