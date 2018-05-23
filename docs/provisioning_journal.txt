@@ -31,6 +31,15 @@ To provision for generating netaut/hellosnap:
 -   (also installs a JRE in the yEd dir, which must be writable
 -   next time try sudo ...sh and place in /usr/bin?)
 
+- install cmake >= v3.9
+-   (uninstall < v3.9 if necessary)
+-   from current source .tar: gunzip, tar xvf
+-   make, sudo make install
+
+- install leveldb
+-   download from github
+-   README => mkdir -p build && cd build
+-   (see README for build commands)
 
 (Deferred enabling doxygen)
 (Deferred enabling googletest to run SNAP's tests)
