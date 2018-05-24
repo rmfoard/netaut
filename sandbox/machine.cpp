@@ -336,12 +336,7 @@ void ParseCommand(const int argc, char* argv[]) {
           case 0: // flag setting only, no further processing required
             if (long_options[option_index].flag != 0)
                 break;
-
-            printf ("option %s", long_options[option_index].name);
-            if (optarg)
-                printf (" with arg %s", optarg);
-            printf ("\n");
-            break;
+            assert(false);
 
           case 'i':
             CommandOpts::nrIterations = atoi(optarg);
@@ -517,8 +512,6 @@ int main(const int argc, char* argv[]) {
     }
 
     // Convert-only was not selected, so build and run the machine.
-    printf("ruleNr: %llu\n", CommandOpts::ruleNr);
-
     if (CommandOpts::textPresent) {
         Rule* tmpRule = new Rule(CommandOpts::ruleText);
         CommandOpts::ruleNr = tmpRule->get_ruleNr();
@@ -528,14 +521,6 @@ int main(const int argc, char* argv[]) {
     MachineS* m = new MachineS(CommandOpts::ruleNr, CommandOpts::nrNodes);
 
     for (int i = 1; i <= CommandOpts::nrIterations; i += 1) m->Cycle();
-
-    // Show machine specifications.
-    printf("rule: %llu\n", CommandOpts::ruleNr);
-    printf("nodes: %d\n", CommandOpts::nrNodes);
-    printf("iterations: %d\n", CommandOpts::nrIterations);
-    printf("self-edges: %s\n", (CommandOpts::selfEdges ? "allowed" : "disallowed"));
-    printf("multi-edges: %s\n", (CommandOpts::noMultiEdges ? "disallowed" : "allowed"));
-    printf("\n");
 
     // Show graph characteristics.
     // get distribution of connected components (component size, count)
