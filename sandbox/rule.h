@@ -80,7 +80,7 @@ public:
     rulenr_t get_ruleNr();
     rulenr_t get_maxRuleNr();
     const int* get_ruleParts();
-    const char* get_ruleText();
+    std::string get_ruleText();
 
 private:
     long long unsigned Raise(const int, const int);

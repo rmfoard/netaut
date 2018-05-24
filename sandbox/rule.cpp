@@ -93,14 +93,14 @@ const int* Rule::get_ruleParts() {
 //---------------
 // get_ruleText
 //---------------
-const char* Rule::get_ruleText() {
+std::string Rule::get_ruleText() {
     std::string rt = std::string("");
     const int* rp = get_ruleParts();
     for (int partNr = 0; partNr < NR_TRIAD_STATES; partNr += 1) {
         rt += RulePartText(rp[partNr]);
         if (partNr < NR_TRIAD_STATES - 1) rt += ";";
     }
-    return rt.c_str();
+    return rt;
 }
 
 //---------------

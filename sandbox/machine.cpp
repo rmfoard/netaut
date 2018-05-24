@@ -457,7 +457,7 @@ int DoConversion() {
     }
     else { // rulePresent
         Rule* rule = new Rule(CommandOpts::ruleNr);
-        printf("%s\n", rule->get_ruleText());
+        printf("%s\n", rule->get_ruleText().c_str());
         delete rule;
         return 0; // success
     }
@@ -480,6 +480,7 @@ void MachineS::WriteInfo() {
         rulePartsText.append(m_rule->RulePartText(m_ruleParts[i]));
     }
     params["ruleParts"] = ruleParts;
+    params["ruleText"] = m_rule->get_ruleText();
     params["rulePartsText"] = rulePartsText;
     params["nrNodes"] = m_nrNodes;
     params["iterations"] = CommandOpts::nrIterations;
