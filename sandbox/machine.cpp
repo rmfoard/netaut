@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <string>
 #include <vector>
+#include <json/json.h>
 #include "rule.h"
 
 #define NR_CYCLES 40
@@ -38,7 +39,8 @@
 
 //---------------
 // TODO: Consider moving this to a 'graph_factory' module.
-static void BuildRing(int nrNodes, PNEGraph graph) {
+static
+void BuildRing(int nrNodes, PNEGraph graph) {
     assert(nrNodes > 1);
 
     for (int n = 0; n < nrNodes; n += 1) graph->AddNode(n);
@@ -49,7 +51,8 @@ static void BuildRing(int nrNodes, PNEGraph graph) {
 }
 
 //---------------
-static char* strAllocCpy(const char* src) { return strcpy(new char[strlen(src) + 1], src); }
+static
+char* strAllocCpy(const char* src) { return strcpy(new char[strlen(src) + 1], src); }
 
 //---------------
 class CommandOpts {
@@ -63,6 +66,7 @@ public:
     static int randSeed;
     static int selfEdges;
     static int noMultiEdges;
+    static int noWriteInfo;
     static int printTape;
     static int nrNodes;
     static bool rulePresent;
@@ -79,6 +83,7 @@ int CommandOpts::depthFirstRoot = -1;
 int CommandOpts::randSeed = -1;
 int CommandOpts::selfEdges = 0;
 int CommandOpts::noMultiEdges = 0;
+int CommandOpts::noWriteInfo = 0;
 int CommandOpts::printTape = 0;
 int CommandOpts::nrNodes = 256;
 bool CommandOpts::rulePresent = false;
@@ -291,31 +296,35 @@ void MachineS::ShowDF(int rootNId, bool *visited) {
 
 //---------------
 // TODO: Learn where the hell 'optind' came from.
-static void ParseCommand(const int argc, char* argv[]) {
+static
+void ParseCommand(const int argc, char* argv[]) {
     int c;
     bool errorFound = false;
 
-    while (true) {
-        static struct option long_options[] = {
-            {"convert-only", no_argument, &CommandOpts::convertOnly, 1},
-            {"self-edges", no_argument, &CommandOpts::selfEdges, 1},
-            {"no-multi-edges", no_argument, &CommandOpts::noMultiEdges, 1},
-            {"print", no_argument, &CommandOpts::printTape, 1},
+    static struct option long_options[] = {
+        {"convert-only", no_argument, &CommandOpts::convertOnly, 1},
+        {"self-edges", no_argument, &CommandOpts::selfEdges, 1},
+        {"no-multi-edges", no_argument, &CommandOpts::noMultiEdges, 1},
+        {"no-write-info", no_argument, &CommandOpts::noWriteInfo, 1},
+        {"print", no_argument, &CommandOpts::printTape, 1},
 
-            {"machine", required_argument, 0, 'm'},
-            {"iterations", required_argument, 0, 'i'},
-            {"breadth-first-root", required_argument, 0, 'b'},
-            {"depth-first-root", required_argument, 0, 'd'},
-            {"nodes", required_argument, 0, 'n'},
-            {"rule", required_argument, 0, 'r'},
-            {"random", required_argument, 0, 'a'},
-            {"text", required_argument, 0, 't'},
-            {"write", required_argument, 0, 'w'},
-            {0, 0, 0, 0}
-        };
+        {"machine", required_argument, 0, 'm'},
+        {"iterations", required_argument, 0, 'i'},
+        {"breadth-first-root", required_argument, 0, 'b'},
+        {"depth-first-root", required_argument, 0, 'd'},
+        {"nodes", required_argument, 0, 'n'},
+        {"rule", required_argument, 0, 'r'},
+        {"random", required_argument, 0, 'a'},
+        {"text", required_argument, 0, 't'},
+        {"write", required_argument, 0, 'w'},
+        {0, 0, 0, 0}
+    };
+
+    while (true) {
 
         int option_index = 0;
-        c = getopt_long (argc, argv, "m:i:r:t:w:", long_options, &option_index);
+        c = getopt_long (argc, argv, "m:i:b:d:n:r:a:t:w:",
+          long_options, &option_index);
 
         if (c == -1) // end of options?
             break;
@@ -435,7 +444,8 @@ static void ParseCommand(const int argc, char* argv[]) {
 // Convert from rule number to rule parts or vice versa, depending on
 // command line options present.
 //---------------
-static int DoConversion() {
+static
+int DoConversion() {
     if (CommandOpts::textPresent) {
         Rule* rule = new Rule(CommandOpts::ruleText);
         printf("%llu\n", rule->get_ruleNr());
@@ -448,6 +458,15 @@ static int DoConversion() {
         delete rule;
         return 0; // success
     }
+}
+
+//---------------
+// WriteInfo
+//
+// Write a file containing JSON-encoded run parameters and outcome statistics.
+//---------------
+static
+void WriteInfo(MachineS* m) {
 }
 
 //---------------
@@ -490,9 +509,6 @@ int main(const int argc, char* argv[]) {
 
     for (int i = 1; i <= CommandOpts::nrIterations; i += 1) m->Cycle();
 
-    // Write the end-state graph if --write was present.
-    if (CommandOpts::writeDot) TSnap::SaveGViz(m->get_m_graph(), CommandOpts::outFile);
-
     // Show machine specifications.
     printf("rule: %llu\n", CommandOpts::ruleNr);
     printf("nodes: %d\n", CommandOpts::nrNodes);
@@ -527,6 +543,12 @@ int main(const int argc, char* argv[]) {
     else if (CommandOpts::breadthFirstRoot >= 0) {
         printf("error: breadth-first-root is not yet implemented.\n");
     }
+
+    // Write the end-state graph if --write was present.
+    if (CommandOpts::writeDot) TSnap::SaveGViz(m->get_m_graph(), CommandOpts::outFile);
+
+    // Write run statistics unless --no-write-info was present.
+    if (!CommandOpts::noWriteInfo) WriteInfo(m);
 
     delete m;
     exit(0);
