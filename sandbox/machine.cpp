@@ -103,14 +103,14 @@ public:
     PNEGraph get_m_graph();
     void Cycle();
     void ShowDepthFirst(int);
-    void WriteInfo();
 
-private:
     Rule* m_rule;
     int m_nrNodes;
+    const int* m_ruleParts;
+
+private:
     PNEGraph m_graph;
     PNEGraph m_nextGraph;
-    const int* m_ruleParts;
     int* m_nodeStates;
     int* m_nextNodeStates;
 
@@ -468,21 +468,21 @@ int DoConversion() {
 //
 // Write a file containing JSON-encoded run parameters and outcome statistics.
 //---------------
-void MachineS::WriteInfo() {
+void WriteInfo(MachineS* machine) {
     Json::Value params;
     Json::Value ruleParts;
     Json::Value rulePartsText;
 
     params["version"] = VERSION;
-    params["ruleNr"] = (Json::UInt64) m_rule->get_ruleNr();
+    params["ruleNr"] = (Json::UInt64) machine->m_rule->get_ruleNr();
     for (int i = 0; i < NR_TRIAD_STATES; i += 1) {
-        ruleParts.append(m_ruleParts[i]);
-        rulePartsText.append(m_rule->RulePartText(m_ruleParts[i]));
+        ruleParts.append(machine->m_ruleParts[i]);
+        rulePartsText.append(machine->m_rule->RulePartText(machine->m_ruleParts[i]));
     }
     params["ruleParts"] = ruleParts;
-    params["ruleText"] = m_rule->get_ruleText();
+    params["ruleText"] = machine->m_rule->get_ruleText();
     params["rulePartsText"] = rulePartsText;
-    params["nrNodes"] = m_nrNodes;
+    params["nrNodes"] = machine->m_nrNodes;
     params["iterations"] = CommandOpts::nrIterations;
     params["selfEdges"] = CommandOpts::selfEdges;
     params["noMultiEdges"] = CommandOpts::noMultiEdges;
@@ -568,7 +568,7 @@ int main(const int argc, char* argv[]) {
     if (CommandOpts::writeDot) TSnap::SaveGViz(m->get_m_graph(), CommandOpts::outFile);
 
     // Write run statistics unless --no-write-info was present.
-    if (!CommandOpts::noWriteInfo) m->WriteInfo();
+    if (!CommandOpts::noWriteInfo) WriteInfo(m);
 
     delete m;
     exit(0);
