@@ -11,6 +11,7 @@
 #include <json/json.h>
 #include "rule.h"
 
+#define VERSION "25May2018"
 #define NR_CYCLES 40
 
 // TODO: Make 'CommandOptions' a structure.
@@ -472,6 +473,7 @@ void MachineS::WriteInfo() {
     Json::Value ruleParts;
     Json::Value rulePartsText;
 
+    params["version"] = VERSION;
     params["ruleNr"] = (Json::UInt64) m_rule->get_ruleNr();
     for (int i = 0; i < NR_TRIAD_STATES; i += 1) {
         ruleParts.append(m_ruleParts[i]);
