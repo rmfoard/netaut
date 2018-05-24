@@ -78,7 +78,7 @@ public:
     static char* ruleText;
 };
 int CommandOpts::convertOnly;
-int CommandOpts::nrIterations = 40;
+int CommandOpts::nrIterations = 128;
 rulenr_t CommandOpts::ruleNr; // initial/default value is set at run-time
 int CommandOpts::breadthFirstRoot = -1;
 int CommandOpts::depthFirstRoot = -1;
@@ -482,6 +482,7 @@ void MachineS::WriteInfo() {
     params["ruleParts"] = ruleParts;
     params["rulePartsText"] = rulePartsText;
     params["nrNodes"] = m_nrNodes;
+    params["iterations"] = CommandOpts::nrIterations;
     params["selfEdges"] = CommandOpts::selfEdges;
     params["noMultiEdges"] = CommandOpts::noMultiEdges;
     std::cout << params << std::endl;
