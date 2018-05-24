@@ -145,9 +145,9 @@ PNEGraph MachineS::get_m_graph() { return m_graph; }
 
 //---------------
 void MachineS::InitNodeStates() {
-    for (int i = 0; i < m_nrNodes; i += 1) {
-        m_nodeStates[i] = (i == m_nrNodes / 2) ? 1 : 0;
-    }
+    for (int i = 0; i < m_nrNodes; i += 1) m_nodeStates[i] = 0;
+    m_nodeStates[m_nrNodes / 2] = 1;
+    //m_nodeStates[m_nrNodes / 2 + 2] = 1;
 }
 
 //---------------
