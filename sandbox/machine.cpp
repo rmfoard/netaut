@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <algorithm>
+#include <iostream>
 #include <string>
 #include <vector>
 #include <json/json.h>
@@ -101,6 +102,7 @@ public:
     PNEGraph get_m_graph();
     void Cycle();
     void ShowDepthFirst(int);
+    void WriteInfo();
 
 private:
     Rule* m_rule;
@@ -465,8 +467,22 @@ int DoConversion() {
 //
 // Write a file containing JSON-encoded run parameters and outcome statistics.
 //---------------
-static
-void WriteInfo(MachineS* m) {
+void MachineS::WriteInfo() {
+    Json::Value params;
+    Json::Value ruleParts;
+    Json::Value rulePartsText;
+
+    params["ruleNr"] = (Json::UInt64) m_rule->get_ruleNr();
+    for (int i = 0; i < NR_TRIAD_STATES; i += 1) {
+        ruleParts.append(m_ruleParts[i]);
+        rulePartsText.append(m_rule->RulePartText(m_ruleParts[i]));
+    }
+    params["ruleParts"] = ruleParts;
+    params["rulePartsText"] = rulePartsText;
+    params["nrNodes"] = m_nrNodes;
+    params["selfEdges"] = CommandOpts::selfEdges;
+    params["noMultiEdges"] = CommandOpts::noMultiEdges;
+    std::cout << params << std::endl;
 }
 
 //---------------
@@ -548,7 +564,7 @@ int main(const int argc, char* argv[]) {
     if (CommandOpts::writeDot) TSnap::SaveGViz(m->get_m_graph(), CommandOpts::outFile);
 
     // Write run statistics unless --no-write-info was present.
-    if (!CommandOpts::noWriteInfo) WriteInfo(m);
+    if (!CommandOpts::noWriteInfo) m->WriteInfo();
 
     delete m;
     exit(0);

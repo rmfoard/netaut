@@ -75,6 +75,8 @@ public:
     Rule(const int*);
     Rule(const char*);
 
+    const std::string RulePartText(const int);
+
     rulenr_t get_ruleNr();
     rulenr_t get_maxRuleNr();
     const int* get_ruleParts();
@@ -82,7 +84,6 @@ public:
 
 private:
     long long unsigned Raise(const int, const int);
-    const std::string RulePartText(const int);
     void CheckRuleNr(const rulenr_t);
     int dstIndex(const char*);
 
