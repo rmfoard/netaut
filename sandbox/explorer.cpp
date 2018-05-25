@@ -7,7 +7,6 @@
 #include <algorithm>
 #include <iostream>
 #include <string>
-#include <vector>
 #include <json/json.h>
 #include "rule.h"
 #include "machine.h"

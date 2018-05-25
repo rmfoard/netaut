@@ -1,11 +1,9 @@
 #include "Snap.h"
 #include <assert.h>
-#include <getopt.h>
 #include <inttypes.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <algorithm>
-#include <iostream>
 #include <string>
 #include "rule.h"
 #include "machine.h"
