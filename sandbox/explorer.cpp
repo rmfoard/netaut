@@ -49,6 +49,7 @@ struct CommandOpts {
     int selfEdges;
     int noMultiEdges;
     int noWriteInfo;
+    int shortInfo;
     int printTape;
     int nrNodes;
     bool rulePresent;
@@ -77,6 +78,7 @@ void ParseCommand(const int argc, char* argv[]) {
     cmdOpt.selfEdges = 0;
     cmdOpt.noMultiEdges = 0;
     cmdOpt.noWriteInfo = 0;
+    cmdOpt.shortInfo = 0;
     cmdOpt.printTape = 0;
     cmdOpt.nrNodes = 256;
     cmdOpt.rulePresent = false;
@@ -90,6 +92,7 @@ void ParseCommand(const int argc, char* argv[]) {
         {"self-edges", no_argument, &cmdOpt.selfEdges, 1},
         {"no-multi-edges", no_argument, &cmdOpt.noMultiEdges, 1},
         {"no-write-info", no_argument, &cmdOpt.noWriteInfo, 1},
+        {"short-info", no_argument, &cmdOpt.shortInfo, 1},
         {"print", no_argument, &cmdOpt.printTape, 1},
 
         {"machine", required_argument, 0, 'm'},
@@ -231,13 +234,15 @@ void WriteInfo(std::string runId, MachineS* machine) {
     info["runId"] = runId;
     info["version"] = VERSION;
     info["ruleNr"] = (Json::UInt64) machine->m_rule->get_ruleNr();
-    for (int i = 0; i < NR_TRIAD_STATES; i += 1) {
-        ruleParts.append(machine->m_ruleParts[i]);
-        rulePartsText.append(machine->m_rule->RulePartText(machine->m_ruleParts[i]));
+    if (!cmdOpt.shortInfo) {
+        for (int i = 0; i < NR_TRIAD_STATES; i += 1) {
+            ruleParts.append(machine->m_ruleParts[i]);
+            rulePartsText.append(machine->m_rule->RulePartText(machine->m_ruleParts[i]));
+        }
+        info["ruleParts"] = ruleParts;
+        info["ruleText"] = machine->m_rule->get_ruleText();
+        info["rulePartsText"] = rulePartsText;
     }
-    info["ruleParts"] = ruleParts;
-    info["ruleText"] = machine->m_rule->get_ruleText();
-    info["rulePartsText"] = rulePartsText;
     info["nrNodes"] = machine->m_nrNodes;
     info["nrIterations"] = cmdOpt.nrIterations;
     info["selfEdges"] = cmdOpt.selfEdges;
