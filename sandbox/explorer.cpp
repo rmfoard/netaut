@@ -250,24 +250,51 @@ int DoConversion() {
 // Write a file containing JSON-encoded run parameters and outcome statistics.
 //---------------
 void WriteInfo(MachineS* machine) {
-    Json::Value params;
+    // Capture the run parameters.
+    Json::Value info;
     Json::Value ruleParts;
     Json::Value rulePartsText;
 
-    params["version"] = VERSION;
-    params["ruleNr"] = (Json::UInt64) machine->m_rule->get_ruleNr();
+    info["version"] = VERSION;
+    info["ruleNr"] = (Json::UInt64) machine->m_rule->get_ruleNr();
     for (int i = 0; i < NR_TRIAD_STATES; i += 1) {
         ruleParts.append(machine->m_ruleParts[i]);
         rulePartsText.append(machine->m_rule->RulePartText(machine->m_ruleParts[i]));
     }
-    params["ruleParts"] = ruleParts;
-    params["ruleText"] = machine->m_rule->get_ruleText();
-    params["rulePartsText"] = rulePartsText;
-    params["nrNodes"] = machine->m_nrNodes;
-    params["iterations"] = cmdOpt.nrIterations;
-    params["selfEdges"] = cmdOpt.selfEdges;
-    params["noMultiEdges"] = cmdOpt.noMultiEdges;
-    std::cout << params << std::endl;
+    info["ruleParts"] = ruleParts;
+    info["ruleText"] = machine->m_rule->get_ruleText();
+    info["rulePartsText"] = rulePartsText;
+    info["nrNodes"] = machine->m_nrNodes;
+    info["nrIterations"] = cmdOpt.nrIterations;
+    info["selfEdges"] = cmdOpt.selfEdges;
+    info["noMultiEdges"] = cmdOpt.noMultiEdges;
+
+    // Develop and capture outcome measures.
+    Json::Value ccSizeCount;
+    TVec<TPair<TInt, TInt> > sizeCount;
+    TSnap::GetWccSzCnt(machine->get_m_graph(), sizeCount);
+    for (int i = 0; i < sizeCount.Len(); i += 1) {
+        Json::Value sizeCountPair;
+        sizeCountPair.append((int) sizeCount[i].Val1);
+        sizeCountPair.append((int) sizeCount[i].Val2);
+        ccSizeCount.append(sizeCountPair);
+    }
+    info["ccSizeCount"] = ccSizeCount;
+
+    TFltPrV DegCCfV;
+    int64 ClosedTriads, OpenTriads;
+    int FullDiam;
+    double EffDiam;
+    const double CCF = TSnap::GetClustCf(machine->get_m_graph(), DegCCfV, ClosedTriads, OpenTriads);
+    info["avgClustCoef"] = CCF;
+    info["nrClosedTriads"] = (long long unsigned) TUInt64(ClosedTriads);
+    info["nrOpenTriads"] = (long long unsigned) TUInt64(OpenTriads);
+
+    TSnap::GetBfsEffDiam(machine->get_m_graph(), 1000, false, EffDiam, FullDiam);
+    info["diameter"] = FullDiam;
+    info["effDiameter90Pctl"] = EffDiam;
+
+    std::cout << info << std::endl;
 }
 
 //---------------
@@ -310,25 +337,9 @@ int main(const int argc, char* argv[]) {
         m->Cycle(cmdOpt.selfEdges, cmdOpt.noMultiEdges);
 
     // Show graph characteristics.
-    // get distribution of connected components (component size, count)
-    TVec<TPair<TInt, TInt> > CntV; // vector of pairs of integers (size, count)
-    TSnap::GetWccSzCnt(m->get_m_graph(), CntV);
-    printf("size: count, connected components\n");
-    for (int i = 0; i < CntV.Len(); i += 1) printf("%d: %d\n", CntV[i].Val1, CntV[i].Val2);
-
-    TFltPrV DegCCfV;
-    int64 ClosedTriads, OpenTriads;
-    int FullDiam;
-    double EffDiam;
-    const double CCF = TSnap::GetClustCf(m->get_m_graph(), DegCCfV, ClosedTriads, OpenTriads);
-    printf("Average clustering coefficient\t%.4f\n", CCF);
-    printf("Number of triangles\t%s\n", TUInt64(ClosedTriads).GetStr().CStr());
-    printf("Fraction of closed triangles\t%.4g\n", ClosedTriads/double(ClosedTriads+OpenTriads));
-    TSnap::GetBfsEffDiam(m->get_m_graph(), 1000, false, EffDiam, FullDiam);
-    printf("Diameter (longest shortest path)\t%d\n", FullDiam);
-    printf("90-percentile effective diameter\t%.2g\n", EffDiam);
 
     // Show node values in tree order if requested.
+    // TODO: Refine or eliminate.
     if (cmdOpt.depthFirstRoot >= 0) {
         m->ShowDepthFirst(cmdOpt.depthFirstRoot);
     }
@@ -339,7 +350,7 @@ int main(const int argc, char* argv[]) {
     // Write the end-state graph if --write was present.
     if (cmdOpt.writeDot) TSnap::SaveGViz(m->get_m_graph(), cmdOpt.outFile);
 
-    // Write run statistics unless --no-write-info was present.
+    // Write run information unless --no-write-info was present.
     if (!cmdOpt.noWriteInfo) WriteInfo(m);
 
     delete m;
