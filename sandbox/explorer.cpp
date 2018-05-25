@@ -184,9 +184,6 @@ void ParseCommand(const int argc, char* argv[]) {
         delete r;
     }
 
-    // Fabricate a run id.
-    // (placeholder)
-
     if (errorFound) exit(1);
 
 
@@ -225,12 +222,13 @@ int DoConversion() {
 //
 // Write a file containing JSON-encoded run parameters and outcome statistics.
 //---------------
-void WriteInfo(MachineS* machine) {
+void WriteInfo(std::string runId, MachineS* machine) {
     // Capture the run parameters.
     Json::Value info;
     Json::Value ruleParts;
     Json::Value rulePartsText;
 
+    info["runId"] = runId;
     info["version"] = VERSION;
     info["ruleNr"] = (Json::UInt64) machine->m_rule->get_ruleNr();
     for (int i = 0; i < NR_TRIAD_STATES; i += 1) {
@@ -270,7 +268,9 @@ void WriteInfo(MachineS* machine) {
     info["diameter"] = FullDiam;
     info["effDiameter90Pctl"] = EffDiam;
 
-    std::cout << info << std::endl;
+    Json::FastWriter stringWriter;
+    std::string infoString = stringWriter.write(info);
+    std::cout << infoString << std::endl;
 }
 
 //---------------
@@ -287,6 +287,9 @@ int main(const int argc, char* argv[]) {
         + (rulenr_t)6  *72*72*72*72*72*72*72;
 
     ParseCommand(argc, argv);
+
+    // Fabricate a run identifier.
+    std::string runId = std::string("placeholderId");
 
     // Was the --convert-only option present?
     // If so, then either --text or --rule, but not both, must be present.
@@ -316,7 +319,7 @@ int main(const int argc, char* argv[]) {
     if (cmdOpt.writeDot) TSnap::SaveGViz(m->get_m_graph(), cmdOpt.outFile);
 
     // Write run information unless --no-write-info was present.
-    if (!cmdOpt.noWriteInfo) WriteInfo(m);
+    if (!cmdOpt.noWriteInfo) WriteInfo(runId, m);
 
     delete m;
     exit(0);
