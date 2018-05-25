@@ -265,8 +265,10 @@ void WriteInfo(std::string runId, MachineS* machine) {
         double EffDiam;
         const double CCF = TSnap::GetClustCf(machine->get_m_graph(), DegCCfV, ClosedTriads, OpenTriads);
         info["avgClustCoef"] = CCF;
-        info["nrClosedTriads"] = (long long unsigned) TUInt64(ClosedTriads);
-        info["nrOpenTriads"] = (long long unsigned) TUInt64(OpenTriads);
+        //info["nrClosedTriads"] = (long long unsigned) TUInt64(ClosedTriads);
+        //info["nrOpenTriads"] = (long long unsigned) TUInt64(OpenTriads);
+        info["nrClosedTriads"] = (uint64_t) TUInt64(ClosedTriads);
+        info["nrOpenTriads"] = (uint64_t) TUInt64(OpenTriads);
 
         TSnap::GetBfsEffDiam(machine->get_m_graph(), 1000, false, EffDiam, FullDiam);
         info["diameter"] = FullDiam;
