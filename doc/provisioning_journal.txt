@@ -58,6 +58,9 @@ To provision for generating netaut/hellosnap:
 
 - do not forget -std=c++11
 
-
+- set up virtualbox shared folders
+    - vbox Devices menu: mount Guest Additions, autoruns in VM
+    - vbox Settings: give host path to shared folder
+    - in Linux VM: sudo adduser richard vboxsf, shared folder appears under /media/...
 (Deferred enabling doxygen)
 (Deferred enabling googletest to run SNAP's tests)
