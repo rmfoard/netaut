@@ -14,7 +14,8 @@
 #define VERSION "25May2018"
 #define NR_CYCLES 40
 
-// TODO: Make 'CommandOptions' a structure.
+// TODO: Add --help
+// TODO: Remove or update the following comment block.
 //---------------
 // Command format:
 //
@@ -43,6 +44,7 @@
 static
 char* strAllocCpy(const char* src) { return strcpy(new char[strlen(src) + 1], src); }
 
+// TODO: Make 'CommandOptions' a structure.
 //---------------
 class CommandOpts {
 
