@@ -81,6 +81,8 @@ void MachineS::Cycle(int selfEdges, int noMultiEdges) {
         m_nextGraph->AddNode(nId);
     }
 
+    // TODO: Extend this loop to also build by-nodeId neighbor vectors
+    //   for use in 'AdvanceNode'. (middling opt)
     // Apply one generation of the loaded rule, creating the next generation
     // state in 'm_nextGraph' and 'm_nextNodeStates'.
     for (TNEGraph::TNodeI NIter = m_graph->BegNI(); NIter < m_graph->EndNI(); NIter++)
@@ -142,6 +144,8 @@ void MachineS::AdvanceNode(TNEGraph::TNodeI NIter, int selfEdges, int noMultiEdg
     const int rulePart = m_ruleParts[triadState];
     assert(0 <= rulePart && rulePart < NR_ACTIONS);
 
+    // TODO: (minor opt) Maintain unpacked structures built when
+    //   'ruleParts' is developed during initialization.
     // Unpack the rule part into left edge, right edge, and node actions
     const int lAction = (rulePart / 2) / NR_POSS_DSTS;
     const int rAction = (rulePart / 2) % NR_POSS_DSTS;
