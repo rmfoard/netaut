@@ -45,8 +45,6 @@ struct CommandOpts {
     rulenr_t ruleNr;
     int convertOnly;
     int nrIterations;
-    int breadthFirstRoot;
-    int depthFirstRoot;
     int randSeed;
     int selfEdges;
     int noMultiEdges;
@@ -73,11 +71,8 @@ void ParseCommand(const int argc, char* argv[]) {
     int c;
     bool errorFound = false;
 
-
     cmdOpt.convertOnly = 0;
     cmdOpt.nrIterations = 128;
-    cmdOpt.breadthFirstRoot = -1;
-    cmdOpt.depthFirstRoot = -1;
     cmdOpt.randSeed = -1;
     cmdOpt.selfEdges = 0;
     cmdOpt.noMultiEdges = 0;
@@ -99,8 +94,6 @@ void ParseCommand(const int argc, char* argv[]) {
 
         {"machine", required_argument, 0, 'm'},
         {"iterations", required_argument, 0, 'i'},
-        {"breadth-first-root", required_argument, 0, 'b'},
-        {"depth-first-root", required_argument, 0, 'd'},
         {"nodes", required_argument, 0, 'n'},
         {"rule", required_argument, 0, 'r'},
         {"random", required_argument, 0, 'a'},
@@ -126,14 +119,6 @@ void ParseCommand(const int argc, char* argv[]) {
 
           case 'i':
             cmdOpt.nrIterations = atoi(optarg);
-            break;
-
-          case 'b':
-            cmdOpt.breadthFirstRoot = atoi(optarg);
-            break;
-
-          case 'd':
-            cmdOpt.depthFirstRoot = atoi(optarg);
             break;
 
           case 'n':
@@ -189,19 +174,7 @@ void ParseCommand(const int argc, char* argv[]) {
        }
     }
 
-    // Check assembled options.
-    if (cmdOpt.breadthFirstRoot >= 0 && cmdOpt.depthFirstRoot >= 0) {
-        printf("error: only one of --breadth-first-root and --depth-first-root may be present\n");
-        errorFound = true;
-    }
-    else if (cmdOpt.breadthFirstRoot >= cmdOpt.nrNodes) {
-        printf("breadth-first-root is too large\n");
-        errorFound = true;
-    }
-    else if (cmdOpt.depthFirstRoot >= cmdOpt.nrNodes) {
-        printf("depth-first-root is too large\n");
-        errorFound = true;
-    }
+    // Check option consistency.
 
     // Create a random rule number if called for.
     if (cmdOpt.randSeed >= 0) {
@@ -210,6 +183,9 @@ void ParseCommand(const int argc, char* argv[]) {
         cmdOpt.ruleNr = ((unsigned long long) rand() * RAND_MAX + rand()) % r->get_maxRuleNr();
         delete r;
     }
+
+    // Fabricate a run id.
+    // (placeholder)
 
     if (errorFound) exit(1);
 
@@ -335,17 +311,6 @@ int main(const int argc, char* argv[]) {
 
     for (int i = 1; i <= cmdOpt.nrIterations; i += 1)
         m->Cycle(cmdOpt.selfEdges, cmdOpt.noMultiEdges);
-
-    // Show graph characteristics.
-
-    // Show node values in tree order if requested.
-    // TODO: Refine or eliminate.
-    if (cmdOpt.depthFirstRoot >= 0) {
-        m->ShowDepthFirst(cmdOpt.depthFirstRoot);
-    }
-    else if (cmdOpt.breadthFirstRoot >= 0) {
-        printf("error: breadth-first-root is not yet implemented.\n");
-    }
 
     // Write the end-state graph if --write was present.
     if (cmdOpt.writeDot) TSnap::SaveGViz(m->get_m_graph(), cmdOpt.outFile);
