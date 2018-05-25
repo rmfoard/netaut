@@ -48,7 +48,7 @@ struct CommandOpts {
     int randSeed;
     int selfEdges;
     int noMultiEdges;
-    int noWriteInfo;
+    int noInfo;
     int longInfo;
     int printTape;
     int nrNodes;
@@ -77,7 +77,7 @@ void ParseCommand(const int argc, char* argv[]) {
     cmdOpt.randSeed = -1;
     cmdOpt.selfEdges = 0;
     cmdOpt.noMultiEdges = 0;
-    cmdOpt.noWriteInfo = 0;
+    cmdOpt.noInfo = 0;
     cmdOpt.longInfo = 0;
     cmdOpt.printTape = 0;
     cmdOpt.nrNodes = 256;
@@ -91,7 +91,7 @@ void ParseCommand(const int argc, char* argv[]) {
         {"convert-only", no_argument, &cmdOpt.convertOnly, 1},
         {"self-edges", no_argument, &cmdOpt.selfEdges, 1},
         {"no-multi-edges", no_argument, &cmdOpt.noMultiEdges, 1},
-        {"no-write-info", no_argument, &cmdOpt.noWriteInfo, 1},
+        {"no-info", no_argument, &cmdOpt.noInfo, 1},
         {"long-info", no_argument, &cmdOpt.longInfo, 1},
         {"print", no_argument, &cmdOpt.printTape, 1},
 
@@ -324,7 +324,7 @@ int main(const int argc, char* argv[]) {
     if (cmdOpt.writeDot) TSnap::SaveGViz(m->get_m_graph(), cmdOpt.outFile);
 
     // Write run information unless --no-write-info was present.
-    if (!cmdOpt.noWriteInfo) WriteInfo(runId, m);
+    if (!cmdOpt.noInfo) WriteInfo(runId, m);
 
     delete m;
     exit(0);
