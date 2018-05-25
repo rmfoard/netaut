@@ -49,7 +49,7 @@ struct CommandOpts {
     int selfEdges;
     int noMultiEdges;
     int noWriteInfo;
-    int shortInfo;
+    int longInfo;
     int printTape;
     int nrNodes;
     bool rulePresent;
@@ -78,7 +78,7 @@ void ParseCommand(const int argc, char* argv[]) {
     cmdOpt.selfEdges = 0;
     cmdOpt.noMultiEdges = 0;
     cmdOpt.noWriteInfo = 0;
-    cmdOpt.shortInfo = 0;
+    cmdOpt.longInfo = 0;
     cmdOpt.printTape = 0;
     cmdOpt.nrNodes = 256;
     cmdOpt.rulePresent = false;
@@ -92,7 +92,7 @@ void ParseCommand(const int argc, char* argv[]) {
         {"self-edges", no_argument, &cmdOpt.selfEdges, 1},
         {"no-multi-edges", no_argument, &cmdOpt.noMultiEdges, 1},
         {"no-write-info", no_argument, &cmdOpt.noWriteInfo, 1},
-        {"short-info", no_argument, &cmdOpt.shortInfo, 1},
+        {"long-info", no_argument, &cmdOpt.longInfo, 1},
         {"print", no_argument, &cmdOpt.printTape, 1},
 
         {"machine", required_argument, 0, 'm'},
@@ -234,7 +234,11 @@ void WriteInfo(std::string runId, MachineS* machine) {
     info["runId"] = runId;
     info["version"] = VERSION;
     info["ruleNr"] = (Json::UInt64) machine->m_rule->get_ruleNr();
-    if (!cmdOpt.shortInfo) {
+    info["nrNodes"] = machine->m_nrNodes;
+    info["nrIterations"] = cmdOpt.nrIterations;
+    info["selfEdges"] = cmdOpt.selfEdges;
+    info["noMultiEdges"] = cmdOpt.noMultiEdges;
+    if (cmdOpt.longInfo) {
         for (int i = 0; i < NR_TRIAD_STATES; i += 1) {
             ruleParts.append(machine->m_ruleParts[i]);
             rulePartsText.append(machine->m_rule->RulePartText(machine->m_ruleParts[i]));
@@ -242,36 +246,32 @@ void WriteInfo(std::string runId, MachineS* machine) {
         info["ruleParts"] = ruleParts;
         info["ruleText"] = machine->m_rule->get_ruleText();
         info["rulePartsText"] = rulePartsText;
+
+        // Develop and capture outcome measures.
+        Json::Value ccSizeCount;
+        TVec<TPair<TInt, TInt> > sizeCount;
+        TSnap::GetWccSzCnt(machine->get_m_graph(), sizeCount);
+        for (int i = 0; i < sizeCount.Len(); i += 1) {
+            Json::Value sizeCountPair;
+            sizeCountPair.append((int) sizeCount[i].Val1);
+            sizeCountPair.append((int) sizeCount[i].Val2);
+            ccSizeCount.append(sizeCountPair);
+        }
+        info["ccSizeCount"] = ccSizeCount;
+
+        TFltPrV DegCCfV;
+        int64 ClosedTriads, OpenTriads;
+        int FullDiam;
+        double EffDiam;
+        const double CCF = TSnap::GetClustCf(machine->get_m_graph(), DegCCfV, ClosedTriads, OpenTriads);
+        info["avgClustCoef"] = CCF;
+        info["nrClosedTriads"] = (long long unsigned) TUInt64(ClosedTriads);
+        info["nrOpenTriads"] = (long long unsigned) TUInt64(OpenTriads);
+
+        TSnap::GetBfsEffDiam(machine->get_m_graph(), 1000, false, EffDiam, FullDiam);
+        info["diameter"] = FullDiam;
+        info["effDiameter90Pctl"] = EffDiam;
     }
-    info["nrNodes"] = machine->m_nrNodes;
-    info["nrIterations"] = cmdOpt.nrIterations;
-    info["selfEdges"] = cmdOpt.selfEdges;
-    info["noMultiEdges"] = cmdOpt.noMultiEdges;
-
-    // Develop and capture outcome measures.
-    Json::Value ccSizeCount;
-    TVec<TPair<TInt, TInt> > sizeCount;
-    TSnap::GetWccSzCnt(machine->get_m_graph(), sizeCount);
-    for (int i = 0; i < sizeCount.Len(); i += 1) {
-        Json::Value sizeCountPair;
-        sizeCountPair.append((int) sizeCount[i].Val1);
-        sizeCountPair.append((int) sizeCount[i].Val2);
-        ccSizeCount.append(sizeCountPair);
-    }
-    info["ccSizeCount"] = ccSizeCount;
-
-    TFltPrV DegCCfV;
-    int64 ClosedTriads, OpenTriads;
-    int FullDiam;
-    double EffDiam;
-    const double CCF = TSnap::GetClustCf(machine->get_m_graph(), DegCCfV, ClosedTriads, OpenTriads);
-    info["avgClustCoef"] = CCF;
-    info["nrClosedTriads"] = (long long unsigned) TUInt64(ClosedTriads);
-    info["nrOpenTriads"] = (long long unsigned) TUInt64(OpenTriads);
-
-    TSnap::GetBfsEffDiam(machine->get_m_graph(), 1000, false, EffDiam, FullDiam);
-    info["diameter"] = FullDiam;
-    info["effDiameter90Pctl"] = EffDiam;
 
     Json::FastWriter stringWriter;
     std::string infoString = stringWriter.write(info);
