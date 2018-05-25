@@ -11,7 +11,7 @@
 #include "rule.h"
 #include "machine.h"
 
-#define VERSION "25May2018"
+#define VERSION "25May2018.1"
 #define NR_CYCLES 40
 
 // TODO: Add --help
@@ -250,29 +250,43 @@ void WriteInfo(std::string runId, MachineS* machine) {
         Json::Value ccSizeCount;
         TVec<TPair<TInt, TInt> > sizeCount;
         TSnap::GetWccSzCnt(machine->get_m_graph(), sizeCount);
-        info["nrCcs"] = sizeCount.Len();
+        int nrCcs = 0;
         for (int i = 0; i < sizeCount.Len(); i += 1) {
             Json::Value sizeCountPair;
             sizeCountPair.append((int) sizeCount[i].Val1);
             sizeCountPair.append((int) sizeCount[i].Val2);
             ccSizeCount.append(sizeCountPair);
+            nrCcs += (int) sizeCount[i].Val2;
         }
         info["ccSizeCount"] = ccSizeCount;
+        info["nrCcSizes"] = sizeCount.Len();
+        info["nrCcs"] = nrCcs;
 
+        // TODO: Learn the meaning of DegCCfV, below.
         TFltPrV DegCCfV;
         int64 ClosedTriads, OpenTriads;
-        int FullDiam;
-        double EffDiam;
         const double CCF = TSnap::GetClustCf(machine->get_m_graph(), DegCCfV, ClosedTriads, OpenTriads);
         info["avgClustCoef"] = CCF;
-        //info["nrClosedTriads"] = (long long unsigned) TUInt64(ClosedTriads);
-        //info["nrOpenTriads"] = (long long unsigned) TUInt64(OpenTriads);
         info["nrClosedTriads"] = (uint64_t) TUInt64(ClosedTriads);
         info["nrOpenTriads"] = (uint64_t) TUInt64(OpenTriads);
 
+        int FullDiam;
+        double EffDiam;
         TSnap::GetBfsEffDiam(machine->get_m_graph(), 1000, false, EffDiam, FullDiam);
         info["diameter"] = FullDiam;
         info["effDiameter90Pctl"] = EffDiam;
+
+        Json::Value inDegreeCount;
+        TVec<TPair<TInt, TInt> > inDegCnt;
+        TSnap::GetInDegCnt(machine->get_m_graph(), inDegCnt); 
+        for (int i = 0; i < inDegCnt.Len(); i += 1) {
+            Json::Value inDegreeCountPair;
+            inDegreeCountPair.append((int) inDegCnt[i].Val1);
+            inDegreeCountPair.append((int) inDegCnt[i].Val2);
+            inDegreeCount.append(inDegreeCountPair);
+        }
+        info["inDegreeCount"] = inDegreeCount;
+        info["nrInDegrees"] = inDegCnt.Len();
     }
 
     Json::FastWriter stringWriter;
