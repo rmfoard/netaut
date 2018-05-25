@@ -165,7 +165,6 @@ void ParseCommand(const int argc, char* argv[]) {
           case 'w':
             cmdOpt.outFile = strAllocCpy(optarg);
             cmdOpt.writeDot = true;
-            printf("outFile: %s\n", cmdOpt.outFile);
             break;
 
           case '?':
@@ -251,6 +250,7 @@ void WriteInfo(std::string runId, MachineS* machine) {
         Json::Value ccSizeCount;
         TVec<TPair<TInt, TInt> > sizeCount;
         TSnap::GetWccSzCnt(machine->get_m_graph(), sizeCount);
+        info["nrCcs"] = sizeCount.Len();
         for (int i = 0; i < sizeCount.Len(); i += 1) {
             Json::Value sizeCountPair;
             sizeCountPair.append((int) sizeCount[i].Val1);
