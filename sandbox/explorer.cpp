@@ -41,44 +41,30 @@
 //---------------
 
 //---------------
-static
-char* strAllocCpy(const char* src) { return strcpy(new char[strlen(src) + 1], src); }
+struct CommandOpts {
+    rulenr_t ruleNr;
+    int convertOnly;
+    int nrIterations;
+    int breadthFirstRoot;
+    int depthFirstRoot;
+    int randSeed;
+    int selfEdges;
+    int noMultiEdges;
+    int noWriteInfo;
+    int printTape;
+    int nrNodes;
+    bool rulePresent;
+    bool textPresent;
+    bool writeDot;
+    char* outFile;
+    char* ruleText;
+};
+
+static CommandOpts cmdOpt;
 
 //---------------
-struct CommandOpts {
-    static int convertOnly;
-    static int nrIterations;
-    static rulenr_t ruleNr;
-    static int breadthFirstRoot;
-    static int depthFirstRoot;
-    static int randSeed;
-    static int selfEdges;
-    static int noMultiEdges;
-    static int noWriteInfo;
-    static int printTape;
-    static int nrNodes;
-    static bool rulePresent;
-    static bool textPresent;
-    static bool writeDot;
-    static char* outFile;
-    static char* ruleText;
-};
-int CommandOpts::convertOnly;
-int CommandOpts::nrIterations = 128;
-rulenr_t CommandOpts::ruleNr; // initial/default value is set at run-time
-int CommandOpts::breadthFirstRoot = -1;
-int CommandOpts::depthFirstRoot = -1;
-int CommandOpts::randSeed = -1;
-int CommandOpts::selfEdges = 0;
-int CommandOpts::noMultiEdges = 0;
-int CommandOpts::noWriteInfo = 0;
-int CommandOpts::printTape = 0;
-int CommandOpts::nrNodes = 256;
-bool CommandOpts::rulePresent = false;
-bool CommandOpts::textPresent = false;
-bool CommandOpts::writeDot = false;
-char* CommandOpts::outFile = NULL;
-char* CommandOpts::ruleText = NULL;
+static
+char* strAllocCpy(const char* src) { return strcpy(new char[strlen(src) + 1], src); }
 
 //---------------
 // TODO: Learn where the hell 'optind' came from.
@@ -87,12 +73,29 @@ void ParseCommand(const int argc, char* argv[]) {
     int c;
     bool errorFound = false;
 
+
+    cmdOpt.convertOnly = 0;
+    cmdOpt.nrIterations = 128;
+    cmdOpt.breadthFirstRoot = -1;
+    cmdOpt.depthFirstRoot = -1;
+    cmdOpt.randSeed = -1;
+    cmdOpt.selfEdges = 0;
+    cmdOpt.noMultiEdges = 0;
+    cmdOpt.noWriteInfo = 0;
+    cmdOpt.printTape = 0;
+    cmdOpt.nrNodes = 256;
+    cmdOpt.rulePresent = false;
+    cmdOpt.textPresent = false;
+    cmdOpt.writeDot = false;
+    cmdOpt.outFile = NULL;
+    cmdOpt.ruleText = NULL;
+
     static struct option long_options[] = {
-        {"convert-only", no_argument, &CommandOpts::convertOnly, 1},
-        {"self-edges", no_argument, &CommandOpts::selfEdges, 1},
-        {"no-multi-edges", no_argument, &CommandOpts::noMultiEdges, 1},
-        {"no-write-info", no_argument, &CommandOpts::noWriteInfo, 1},
-        {"print", no_argument, &CommandOpts::printTape, 1},
+        {"convert-only", no_argument, &cmdOpt.convertOnly, 1},
+        {"self-edges", no_argument, &cmdOpt.selfEdges, 1},
+        {"no-multi-edges", no_argument, &cmdOpt.noMultiEdges, 1},
+        {"no-write-info", no_argument, &cmdOpt.noWriteInfo, 1},
+        {"print", no_argument, &cmdOpt.printTape, 1},
 
         {"machine", required_argument, 0, 'm'},
         {"iterations", required_argument, 0, 'i'},
@@ -122,44 +125,44 @@ void ParseCommand(const int argc, char* argv[]) {
             assert(false);
 
           case 'i':
-            CommandOpts::nrIterations = atoi(optarg);
+            cmdOpt.nrIterations = atoi(optarg);
             break;
 
           case 'b':
-            CommandOpts::breadthFirstRoot = atoi(optarg);
+            cmdOpt.breadthFirstRoot = atoi(optarg);
             break;
 
           case 'd':
-            CommandOpts::depthFirstRoot = atoi(optarg);
+            cmdOpt.depthFirstRoot = atoi(optarg);
             break;
 
           case 'n':
-            CommandOpts::nrNodes = atoi(optarg);
+            cmdOpt.nrNodes = atoi(optarg);
             break;
 
           case 'a':
-            CommandOpts::randSeed = atoi(optarg);
+            cmdOpt.randSeed = atoi(optarg);
             break;
 
           case 't':
-            CommandOpts::textPresent = true;
-            if (CommandOpts::rulePresent) {
+            cmdOpt.textPresent = true;
+            if (cmdOpt.rulePresent) {
                 printf("error: can't specify both --text and --rule\n");
                 errorFound = true;
             } else {
-                CommandOpts::ruleText = strAllocCpy(optarg);
+                cmdOpt.ruleText = strAllocCpy(optarg);
             }
             break;
 
           case 'r':
-            CommandOpts::rulePresent = true;
-            if (CommandOpts::textPresent) {
+            cmdOpt.rulePresent = true;
+            if (cmdOpt.textPresent) {
                 printf("error: can't specify both --text and --rule\n");
                 errorFound = true;
             } else {
                 char* endPtr;
-                CommandOpts::ruleNr = strtoumax(optarg, &endPtr, 10); // radix 10
-                if (CommandOpts::ruleNr == 0) {
+                cmdOpt.ruleNr = strtoumax(optarg, &endPtr, 10); // radix 10
+                if (cmdOpt.ruleNr == 0) {
                     printf("error: invalid rule number\n");
                     errorFound = true;
                 }
@@ -172,9 +175,9 @@ void ParseCommand(const int argc, char* argv[]) {
             break;
 
           case 'w':
-            CommandOpts::outFile = strAllocCpy(optarg);
-            CommandOpts::writeDot = true;
-            printf("outFile: %s\n", CommandOpts::outFile);
+            cmdOpt.outFile = strAllocCpy(optarg);
+            cmdOpt.writeDot = true;
+            printf("outFile: %s\n", cmdOpt.outFile);
             break;
 
           case '?':
@@ -187,24 +190,24 @@ void ParseCommand(const int argc, char* argv[]) {
     }
 
     // Check assembled options.
-    if (CommandOpts::breadthFirstRoot >= 0 && CommandOpts::depthFirstRoot >= 0) {
+    if (cmdOpt.breadthFirstRoot >= 0 && cmdOpt.depthFirstRoot >= 0) {
         printf("error: only one of --breadth-first-root and --depth-first-root may be present\n");
         errorFound = true;
     }
-    else if (CommandOpts::breadthFirstRoot >= CommandOpts::nrNodes) {
+    else if (cmdOpt.breadthFirstRoot >= cmdOpt.nrNodes) {
         printf("breadth-first-root is too large\n");
         errorFound = true;
     }
-    else if (CommandOpts::depthFirstRoot >= CommandOpts::nrNodes) {
+    else if (cmdOpt.depthFirstRoot >= cmdOpt.nrNodes) {
         printf("depth-first-root is too large\n");
         errorFound = true;
     }
 
     // Create a random rule number if called for.
-    if (CommandOpts::randSeed >= 0) {
+    if (cmdOpt.randSeed >= 0) {
         Rule* r  = new Rule((rulenr_t) 0);
-        srand(CommandOpts::randSeed);
-        CommandOpts::ruleNr = ((unsigned long long) rand() * RAND_MAX + rand()) % r->get_maxRuleNr();
+        srand(cmdOpt.randSeed);
+        cmdOpt.ruleNr = ((unsigned long long) rand() * RAND_MAX + rand()) % r->get_maxRuleNr();
         delete r;
     }
 
@@ -227,14 +230,14 @@ void ParseCommand(const int argc, char* argv[]) {
 //---------------
 static
 int DoConversion() {
-    if (CommandOpts::textPresent) {
-        Rule* rule = new Rule(CommandOpts::ruleText);
+    if (cmdOpt.textPresent) {
+        Rule* rule = new Rule(cmdOpt.ruleText);
         printf("%llu\n", rule->get_ruleNr());
         delete rule;
         return 0; // failure
     }
     else { // rulePresent
-        Rule* rule = new Rule(CommandOpts::ruleNr);
+        Rule* rule = new Rule(cmdOpt.ruleNr);
         printf("%s\n", rule->get_ruleText().c_str());
         delete rule;
         return 0; // success
@@ -261,16 +264,16 @@ void WriteInfo(MachineS* machine) {
     params["ruleText"] = machine->m_rule->get_ruleText();
     params["rulePartsText"] = rulePartsText;
     params["nrNodes"] = machine->m_nrNodes;
-    params["iterations"] = CommandOpts::nrIterations;
-    params["selfEdges"] = CommandOpts::selfEdges;
-    params["noMultiEdges"] = CommandOpts::noMultiEdges;
+    params["iterations"] = cmdOpt.nrIterations;
+    params["selfEdges"] = cmdOpt.selfEdges;
+    params["noMultiEdges"] = cmdOpt.noMultiEdges;
     std::cout << params << std::endl;
 }
 
 //---------------
 int main(const int argc, char* argv[]) {
 
-    CommandOpts::ruleNr = 
+    cmdOpt.ruleNr = 
         (rulenr_t) 6
         + (rulenr_t) 6 *72
         + (rulenr_t)11 *72*72
@@ -284,9 +287,9 @@ int main(const int argc, char* argv[]) {
 
     // Was the --convert-only option present?
     // If so, then either --text or --rule, but not both, must be present.
-    if (CommandOpts::convertOnly) {
-        if ((CommandOpts::textPresent && !CommandOpts::rulePresent)
-          || (!CommandOpts::textPresent && CommandOpts::rulePresent)) {
+    if (cmdOpt.convertOnly) {
+        if ((cmdOpt.textPresent && !cmdOpt.rulePresent)
+          || (!cmdOpt.textPresent && cmdOpt.rulePresent)) {
             exit(DoConversion());
         } else {
             printf("error: must specify either --rule xor --text\n");
@@ -295,16 +298,16 @@ int main(const int argc, char* argv[]) {
     }
 
     // Convert-only was not selected, so build and run the machine.
-    if (CommandOpts::textPresent) {
-        Rule* tmpRule = new Rule(CommandOpts::ruleText);
-        CommandOpts::ruleNr = tmpRule->get_ruleNr();
+    if (cmdOpt.textPresent) {
+        Rule* tmpRule = new Rule(cmdOpt.ruleText);
+        cmdOpt.ruleNr = tmpRule->get_ruleNr();
         delete tmpRule;
     }
 
-    MachineS* m = new MachineS(CommandOpts::ruleNr, CommandOpts::nrNodes);
+    MachineS* m = new MachineS(cmdOpt.ruleNr, cmdOpt.nrNodes);
 
-    for (int i = 1; i <= CommandOpts::nrIterations; i += 1)
-        m->Cycle(CommandOpts::selfEdges, CommandOpts::noMultiEdges);
+    for (int i = 1; i <= cmdOpt.nrIterations; i += 1)
+        m->Cycle(cmdOpt.selfEdges, cmdOpt.noMultiEdges);
 
     // Show graph characteristics.
     // get distribution of connected components (component size, count)
@@ -326,18 +329,18 @@ int main(const int argc, char* argv[]) {
     printf("90-percentile effective diameter\t%.2g\n", EffDiam);
 
     // Show node values in tree order if requested.
-    if (CommandOpts::depthFirstRoot >= 0) {
-        m->ShowDepthFirst(CommandOpts::depthFirstRoot);
+    if (cmdOpt.depthFirstRoot >= 0) {
+        m->ShowDepthFirst(cmdOpt.depthFirstRoot);
     }
-    else if (CommandOpts::breadthFirstRoot >= 0) {
+    else if (cmdOpt.breadthFirstRoot >= 0) {
         printf("error: breadth-first-root is not yet implemented.\n");
     }
 
     // Write the end-state graph if --write was present.
-    if (CommandOpts::writeDot) TSnap::SaveGViz(m->get_m_graph(), CommandOpts::outFile);
+    if (cmdOpt.writeDot) TSnap::SaveGViz(m->get_m_graph(), cmdOpt.outFile);
 
     // Write run statistics unless --no-write-info was present.
-    if (!CommandOpts::noWriteInfo) WriteInfo(m);
+    if (!cmdOpt.noWriteInfo) WriteInfo(m);
 
     delete m;
     exit(0);
