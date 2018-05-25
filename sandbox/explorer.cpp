@@ -44,11 +44,8 @@
 static
 char* strAllocCpy(const char* src) { return strcpy(new char[strlen(src) + 1], src); }
 
-// TODO: Make 'CommandOptions' a structure.
 //---------------
-class CommandOpts {
-
-public:
+struct CommandOpts {
     static int convertOnly;
     static int nrIterations;
     static rulenr_t ruleNr;
