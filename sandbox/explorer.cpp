@@ -11,7 +11,7 @@
 #include "rule.h"
 #include "machine.h"
 
-#define VERSION "25May2018.1"
+#define VERSION "180525.1"
 #define NR_CYCLES 40
 
 // TODO: Add --help
