@@ -1,0 +1,5 @@
+count=1
+while [ $count -le $1 ]; do
+    ./explorer --random $RANDOM --no-multi-edges --long-info --nodes 256 --iterations 256 | python -mjson.tool >> $2.json
+    ((count++))
+done
