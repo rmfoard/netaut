@@ -60,7 +60,13 @@ To provision for generating netaut/hellosnap:
 
 - set up virtualbox shared folders
     - vbox Devices menu: mount Guest Additions, autoruns in VM
-    - vbox Settings: give host path to shared folder
-    - in Linux VM: sudo adduser richard vboxsf, shared folder appears under /media/...
+    - if no autorun, run autorun.sh in (uoob guest) /media/richard/VBox...
+    - restart uoob
+    - using Virtualbox on Win, create shared folder ~/netaut/xfer, check "permanent" and "auto-mount"
+    - restart uoob
+    - use /media/sf_xfer at will
+    - (was sudo adduser richard vboxsf necessary in there somewhere? unsure.)
+
+
 (Deferred enabling doxygen)
 (Deferred enabling googletest to run SNAP's tests)
