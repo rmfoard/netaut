@@ -74,6 +74,7 @@ public:
     Rule(const rulenr_t);
     Rule(const int*);
     Rule(const char*);
+    // TODO: Understand destructor declaration.
 
     const std::string RulePartText(const int);
 
@@ -89,5 +90,16 @@ private:
     rulenr_t m_ruleNr;
     static const char* dstNames[];
     static const char* nodeStateNames[];
+};
+
+//---------------
+class RuleMask {
+
+public:
+    // Constructors
+    RuleMask(const rulenr_t);
+
+private:
+    bool *mask;
 };
 #endif

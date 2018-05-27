@@ -159,3 +159,24 @@ const std::string Rule::RulePartText(const int rulePart) {
       + std::string("R-") + std::string(dstNames[rAction]) + std::string(",")
       + std::string("N-") + std::string(nodeStateNames[nAction]);
 }
+
+//---------------
+RuleMask::RuleMask(rulenr_t ruleNr) {
+    mask = new bool[NR_TRIAD_STATES * (NR_POSS_DSTS + NR_NODE_STATES)];
+}
+
+/*
+Need an RuleFilterMask class with a boolean vector with an entry for each possible rule part setting,
+i.e., (for triad state 0) : L LL LR R RL RR B W => 8 "bits" per part => 8*8 = 64 "bits" (elements in vector)
+
+concept:
+
+//---------------
+// PassesFilter
+//
+// Determines whether a rule passes the filter by matching any of the 'anyOf'
+// masks and not matching any of the 'butNoneOf' masks.
+//---------------
+boolean Rule::PassesFilter(RuleFilterMask* anyOf, RuleFilterMask* butNoneOf) {
+}
+*/
