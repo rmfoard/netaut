@@ -220,10 +220,22 @@ int DoConversion() {
 }
 
 //---------------
+// SaveMachine
+//
+// Write the current machine state to a file.
+//---------------
+static
+void SaveMachine(const char* runId, MachineS* m, const char* outFile) {
+    TSnap::SaveGViz(m->get_m_graph(), outFile, TStr(runId), false);
+    // (above, false => no node labels are provided)
+}
+
+//---------------
 // WriteInfo
 //
 // Write a file containing JSON-encoded run parameters and outcome statistics.
 //---------------
+static
 void WriteInfo(std::string runId, MachineS* machine) {
     // Capture the run parameters.
     Json::Value info;
@@ -336,8 +348,9 @@ int main(const int argc, char* argv[]) {
     for (int i = 1; i <= cmdOpt.nrIterations; i += 1)
         m->Cycle(cmdOpt.selfEdges, cmdOpt.noMultiEdges);
 
-    // Write the end-state graph if --write was present.
-    if (cmdOpt.writeDot) TSnap::SaveGViz(m->get_m_graph(), cmdOpt.outFile);
+    // Write the end-state machine if --write was present.
+    //if (cmdOpt.writeDot) TSnap::SaveGViz(m->get_m_graph(), cmdOpt.outFile);
+    if (cmdOpt.writeDot) SaveMachine(runId.c_str(), m, cmdOpt.outFile);
 
     // Write run information unless --no-write-info was present.
     if (!cmdOpt.noInfo) WriteInfo(runId, m);
