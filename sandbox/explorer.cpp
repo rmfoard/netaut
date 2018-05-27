@@ -49,7 +49,7 @@ struct CommandOpts {
     int selfEdges;
     int noMultiEdges;
     int noInfo;
-    int longInfo;
+    int shortInfo;
     int printTape;
     int nrNodes;
     bool rulePresent;
@@ -78,7 +78,7 @@ void ParseCommand(const int argc, char* argv[]) {
     cmdOpt.selfEdges = 0;
     cmdOpt.noMultiEdges = 0;
     cmdOpt.noInfo = 0;
-    cmdOpt.longInfo = 0;
+    cmdOpt.shortInfo = 0;
     cmdOpt.printTape = 0;
     cmdOpt.nrNodes = 256;
     cmdOpt.rulePresent = false;
@@ -92,7 +92,7 @@ void ParseCommand(const int argc, char* argv[]) {
         {"self-edges", no_argument, &cmdOpt.selfEdges, 1},
         {"no-multi-edges", no_argument, &cmdOpt.noMultiEdges, 1},
         {"no-info", no_argument, &cmdOpt.noInfo, 1},
-        {"long-info", no_argument, &cmdOpt.longInfo, 1},
+        {"short-info", no_argument, &cmdOpt.shortInfo, 1},
         {"print", no_argument, &cmdOpt.printTape, 1},
 
         {"machine", required_argument, 0, 'm'},
@@ -249,7 +249,7 @@ void WriteInfo(std::string runId, MachineS* machine) {
     info["nrIterations"] = cmdOpt.nrIterations;
     info["selfEdges"] = cmdOpt.selfEdges;
     info["noMultiEdges"] = cmdOpt.noMultiEdges;
-    if (cmdOpt.longInfo) {
+    if (!cmdOpt.shortInfo) {
         for (int i = 0; i < NR_TRIAD_STATES; i += 1) {
             ruleParts.append(machine->m_ruleParts[i]);
             rulePartsText.append(machine->m_rule->RulePartText(machine->m_ruleParts[i]));
