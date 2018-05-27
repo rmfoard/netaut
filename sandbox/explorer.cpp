@@ -11,35 +11,10 @@
 #include "rule.h"
 #include "machine.h"
 
-#define VERSION "180525.1"
+#define VERSION "180525.2"
 #define NR_CYCLES 40
 
 // TODO: Add --help
-// TODO: Remove or update the following comment block.
-//---------------
-// Command format:
-//
-//      machine --(m)achine <machine type> --(r)ule <rule number> ...
-//          --(t)ext <rule text> --(c)onvert-only --write --iterations <nr>
-//
-//      --machine type defaults to "S"
-//
-//      --iterations defaults to 40
-//
-//      --rule <rule number>
-//
-//      --text <rule text>
-//
-//      --self-edges [permitted] defaults to off/false
-//
-//      --rule xor --text must be specified.
-//
-//      Runs the specified machine for 'iterations' unless --convert-only
-//      is present.
-//
-// TODO: Explain actions string
-//---------------
-
 //---------------
 struct CommandOpts {
     rulenr_t ruleNr;
@@ -51,11 +26,11 @@ struct CommandOpts {
     int noInfo;
     int shortInfo;
     int printTape;
+    int noWriteState;
     int nrNodes;
     bool rulePresent;
     bool textPresent;
-    bool writeDot;
-    char* outFile;
+    std::string outFileSuffix;
     char* ruleText;
 };
 
@@ -83,8 +58,8 @@ void ParseCommand(const int argc, char* argv[]) {
     cmdOpt.nrNodes = 256;
     cmdOpt.rulePresent = false;
     cmdOpt.textPresent = false;
-    cmdOpt.writeDot = false;
-    cmdOpt.outFile = NULL;
+    cmdOpt.noWriteState = false;
+    cmdOpt.outFileSuffix = std::string("");
     cmdOpt.ruleText = NULL;
 
     static struct option long_options[] = {
@@ -94,6 +69,7 @@ void ParseCommand(const int argc, char* argv[]) {
         {"no-info", no_argument, &cmdOpt.noInfo, 1},
         {"short-info", no_argument, &cmdOpt.shortInfo, 1},
         {"print", no_argument, &cmdOpt.printTape, 1},
+        {"no-write-state", no_argument, &cmdOpt.noWriteState, 1},
 
         {"machine", required_argument, 0, 'm'},
         {"iterations", required_argument, 0, 'i'},
@@ -101,7 +77,7 @@ void ParseCommand(const int argc, char* argv[]) {
         {"rule", required_argument, 0, 'r'},
         {"random", required_argument, 0, 'a'},
         {"text", required_argument, 0, 't'},
-        {"write", required_argument, 0, 'w'},
+        {"suffix", required_argument, 0, 's'},
         {0, 0, 0, 0}
     };
 
@@ -162,9 +138,13 @@ void ParseCommand(const int argc, char* argv[]) {
             errorFound = true;
             break;
 
+          case 's':
+            cmdOpt.outFileSuffix = std::string(optarg);
+            cmdOpt.noWriteState = 0;
+            break;
+
           case 'w':
-            cmdOpt.outFile = strAllocCpy(optarg);
-            cmdOpt.writeDot = true;
+            cmdOpt.noWriteState = 1;
             break;
 
           case '?':
@@ -225,8 +205,10 @@ int DoConversion() {
 // Write the current machine state to a file.
 //---------------
 static
-void SaveMachine(const std::string runId, MachineS* m, const char* outFile) {
-    TSnap::SaveGViz(m->get_m_graph(), outFile, TStr(runId.c_str()), false);
+void SaveMachine(const std::string runId, MachineS* m, const std::string outFileSuffix) {
+    TSnap::SaveGViz(m->get_m_graph(),
+      (runId + std::string("_") + outFileSuffix + std::string(".dot")).c_str(),
+      TStr(runId.c_str()), false);
     // (above, false => no node labels are provided)
 }
 
@@ -349,8 +331,7 @@ int main(const int argc, char* argv[]) {
         m->Cycle(cmdOpt.selfEdges, cmdOpt.noMultiEdges);
 
     // Write the end-state machine if --write was present.
-    //if (cmdOpt.writeDot) TSnap::SaveGViz(m->get_m_graph(), cmdOpt.outFile);
-    if (cmdOpt.writeDot) SaveMachine(runId, m, cmdOpt.outFile);
+    if (!cmdOpt.noWriteState) SaveMachine(runId, m, cmdOpt.outFileSuffix);
 
     // Write run information unless --no-write-info was present.
     if (!cmdOpt.noInfo) WriteInfo(runId, m);
