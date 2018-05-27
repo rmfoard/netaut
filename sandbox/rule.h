@@ -83,7 +83,6 @@ public:
     std::string get_ruleText();
 
 private:
-    long long unsigned Raise(const int, const int);
     void CheckRuleNr(const rulenr_t);
     int dstIndex(const char*);
 

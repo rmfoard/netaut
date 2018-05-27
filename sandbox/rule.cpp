@@ -11,12 +11,30 @@ const char* Rule::dstNames[] = { "L", "LL", "LR", "R", "RL", "RR" };
 const char* Rule::nodeStateNames[] = { "W", "B" };
 
 //---------------
+// Raise (static helper)
+//
+// Performs integer exponentiation.
+//---------------
+static
+long long unsigned Raise(const int base, const int exponent) {
+    long long unsigned result = 1;
+    for (int i = 0; i < exponent; i += 1) result *= base;
+    return result;
+}
+
+//---------------
+// Rule constructor: from a ruleNr
+//
+//---------------
 Rule::Rule(const rulenr_t ruleNr) {
     static_assert(sizeof(rulenr_t) == sizeof(uintmax_t), "faulty type size assumption");
     CheckRuleNr(ruleNr);
     m_ruleNr = ruleNr;
 }
 
+//---------------
+// Rule constructor: from an int array of rule part numbers
+//
 //---------------
 Rule::Rule(const int* ruleParts) {
     rulenr_t ruleNr = 0;
@@ -31,6 +49,9 @@ Rule::Rule(const int* ruleParts) {
     m_ruleNr = ruleNr;
 }
 
+//---------------
+// Rule constructor: from a ruleText string
+//
 //---------------
 Rule::Rule(const char* ruleText) {
     char* text = new char[strlen(ruleText) + 1];
@@ -123,17 +144,6 @@ int Rule::dstIndex(const char* dstStr) {
 void Rule::CheckRuleNr(rulenr_t ruleNr) {
     if (ruleNr >= Raise(NR_ACTIONS, NR_TRIAD_STATES))
         throw std::runtime_error("rule number overflow");
-}
-
-//---------------
-// Raise
-//
-// Performs integer exponentiation.
-//---------------
-long long unsigned Rule::Raise(const int base, const int exponent) {
-    long long unsigned result = 1;
-    for (int i = 0; i < exponent; i += 1) result *= base;
-    return result;
 }
 
 //---------------
