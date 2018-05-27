@@ -225,8 +225,8 @@ int DoConversion() {
 // Write the current machine state to a file.
 //---------------
 static
-void SaveMachine(const char* runId, MachineS* m, const char* outFile) {
-    TSnap::SaveGViz(m->get_m_graph(), outFile, TStr(runId), false);
+void SaveMachine(const std::string runId, MachineS* m, const char* outFile) {
+    TSnap::SaveGViz(m->get_m_graph(), outFile, TStr(runId.c_str()), false);
     // (above, false => no node labels are provided)
 }
 
@@ -321,9 +321,6 @@ int main(const int argc, char* argv[]) {
 
     ParseCommand(argc, argv);
 
-    // Fabricate a run identifier.
-    std::string runId = std::string("placeholderId");
-
     // Was the --convert-only option present?
     // If so, then either --text or --rule, but not both, must be present.
     if (cmdOpt.convertOnly) {
@@ -343,6 +340,9 @@ int main(const int argc, char* argv[]) {
         delete tmpRule;
     }
 
+    // Fabricate a run identifier. (TODO: Enrich runId composition.)
+    std::string runId = std::string(std::to_string(cmdOpt.ruleNr));
+
     MachineS* m = new MachineS(cmdOpt.ruleNr, cmdOpt.nrNodes);
 
     for (int i = 1; i <= cmdOpt.nrIterations; i += 1)
@@ -350,7 +350,7 @@ int main(const int argc, char* argv[]) {
 
     // Write the end-state machine if --write was present.
     //if (cmdOpt.writeDot) TSnap::SaveGViz(m->get_m_graph(), cmdOpt.outFile);
-    if (cmdOpt.writeDot) SaveMachine(runId.c_str(), m, cmdOpt.outFile);
+    if (cmdOpt.writeDot) SaveMachine(runId, m, cmdOpt.outFile);
 
     // Write run information unless --no-write-info was present.
     if (!cmdOpt.noInfo) WriteInfo(runId, m);
