@@ -140,7 +140,6 @@ void ParseCommand(const int argc, char* argv[]) {
 
           case 's':
             cmdOpt.outFileSuffix = std::string(optarg);
-            cmdOpt.noWriteState = 0;
             break;
 
           case 'w':
