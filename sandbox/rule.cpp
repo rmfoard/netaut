@@ -180,23 +180,23 @@ bool Rule::PassesFilter(const RuleMask* anyOf, const RuleMask* butNoneOf) {
 // TODO: Document.
 //---------------
 static
-SetTopoActionMask(const char* lr, int baseIx, char* rmt, char* tok, bool* mask) {
+char* SetTopoActionMask(const char* lr, int baseIx, char* rmt, char* tok, bool* mask) {
     if (strcmp(tok, lr) != 0) throw std::runtime_error("rulemask text 3");
-    tok = strtok(rmt, " ,-;");
+    tok = strtok(NULL, " ,-;");
     for (int dst = 0; dst < NR_POSS_DSTS; dst += 1) {
         bool element = false;
         if (strcmp(tok, "*") == 0
-          || strcmp(tok, "L") == 0 && dst == LEDGE
-          || strcmp(tok, "LL") == 0 && dst == LLEDGE
-          || strcmp(tok, "LR") == 0 && dst == LREDGE
-          || strcmp(tok, "R") == 0 && dst == REDGE
-          || strcmp(tok, "RL") == 0 && dst == RLEDGE
-          || strcmp(tok, "RR") == 0 && dst == RREDGE) {
+          || (strcmp(tok, "L") == 0 && dst == LEDGE)
+          || (strcmp(tok, "LL") == 0 && dst == LLEDGE)
+          || (strcmp(tok, "LR") == 0 && dst == LREDGE)
+          || (strcmp(tok, "R") == 0 && dst == REDGE)
+          || (strcmp(tok, "RL") == 0 && dst == RLEDGE)
+          || (strcmp(tok, "RR") == 0 && dst == RREDGE)) {
             element = true;
         }
         mask[baseIx + dst] = element;
     }
-    tok = strtok(rmt, " ,-;");
+    return strtok(NULL, " ,-;");
 }
 
 //---------------
@@ -207,13 +207,14 @@ SetTopoActionMask(const char* lr, int baseIx, char* rmt, char* tok, bool* mask) 
 // RuleMask constructor: from rule number
 //---------------
 RuleMask::RuleMask(rulenr_t ruleNr) {
-    mask = new bool[NR_RULEMASK_ELEMENTS];
+    m_mask = new bool[NR_RULEMASK_ELEMENTS];
 }
 
+char* strAllocCpy(char*); // TODO: The obvious
 //---------------
 // RuleMask constructor: from rulemask text
 //---------------
-RuleMask::RuleMask(const char* ruleMaskText) {
+RuleMask::RuleMask(char* ruleMaskText) { // TODO: Should be const.
     m_mask = new bool[NR_RULEMASK_ELEMENTS];
     char* rmt = strAllocCpy(ruleMaskText);
     for (int i = 0; i < NR_RULEMASK_ELEMENTS; i += 1) m_mask[i] = false;
@@ -222,17 +223,18 @@ RuleMask::RuleMask(const char* ruleMaskText) {
     for (int partNr = 0; partNr < NR_TRIAD_STATES; partNr += 1) {
         int partBaseIx = partNr * (NR_POSS_DSTS * 2 + NR_NODE_STATES);
 
-        SetTopoActionMask("L", partBaseIx, rmt, tok, m_mask);
-        SetTopoActionMask("R", partBaseIx + NR_POSS_DSTS, rmt, tok, m_mask);
+        tok = SetTopoActionMask("L", partBaseIx, rmt, tok, m_mask);
+        tok = SetTopoActionMask("R", partBaseIx + NR_POSS_DSTS, rmt, tok, m_mask);
 
         if (strcmp(tok, "N") != 0) throw std::runtime_error("rulemask text 1");
-        tok = strtok(rmt, " ,-;");
+        tok = strtok(NULL, " ,-;");
         if (strcmp(tok, "W") == 0)
             m_mask[partBaseIx + NR_POSS_DSTS * 2] = true;
         else if (strcmp(tok, "B") == 0)
             m_mask[partBaseIx + NR_POSS_DSTS * 2 + 1] = true;
         else
             throw std::runtime_error("rulemask text 4");
+        tok = strtok(NULL, " ,-;");
     }
 }
 
@@ -244,7 +246,7 @@ bool* RuleMask::get_mask() {
 }
 
 int main() {
-    RuleMask* rm = RuleMask("L-*,R-*,N-B;L-*,R-*,N-B;L-*,R-*,N-B;L-*,R-*,N-B;L-*,R-*,N-B;L-*,R-*,N-B;L-*,R-*,N-B;L-*,R-*,N-B");
+    RuleMask* rm = new RuleMask("L-*,R-L,N-B;L-*,R-LL,N-B;L-*,R-LR,N-B;L-*,R-R,N-B;L-*,R-RL,N-B;L-*,R-RR,N-B;L-*,R-*,N-B;L-*,R-*,N-B");
     bool* mask = rm->get_mask();
     for (int i = 0; i < NR_RULEMASK_ELEMENTS; i += 1)
         printf("%s", (mask[i] ? "1" : "0"));

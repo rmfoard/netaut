@@ -74,7 +74,7 @@ class RuleMask {
 public:
     // Constructors
     RuleMask(const rulenr_t);
-    RuleMask(const char*);
+    RuleMask(char*);
 
     // Getters
     bool* get_mask();

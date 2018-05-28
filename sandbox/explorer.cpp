@@ -15,6 +15,7 @@
 #define NR_CYCLES 40
 
 // TODO: Add --help
+// TODO: Restore 'const' to arg in strAllocCpy.
 //---------------
 struct CommandOpts {
     rulenr_t ruleNr;
@@ -37,7 +38,7 @@ struct CommandOpts {
 static CommandOpts cmdOpt;
 
 //---------------
-char* strAllocCpy(const char* src) { return strcpy(new char[strlen(src) + 1], src); }
+char* strAllocCpy(char* src) { return strcpy(new char[strlen(src) + 1], src); }
 
 //---------------
 // TODO: Learn where the hell 'optind' came from.
@@ -285,7 +286,7 @@ void WriteInfo(std::string runId, MachineS* machine) {
     std::string infoString = stringWriter.write(info);
     std::cout << infoString << std::endl;
 }
-
+/*
 //---------------
 int main(const int argc, char* argv[]) {
 
@@ -337,3 +338,4 @@ int main(const int argc, char* argv[]) {
     delete m;
     exit(0);
 }
+*/
