@@ -23,6 +23,10 @@ long long unsigned Raise(const int base, const int exponent) {
 }
 
 //---------------
+// class Rule methods
+//---------------
+
+//---------------
 // Rule constructor: from a ruleNr
 //
 //---------------
@@ -161,6 +165,18 @@ const std::string Rule::RulePartText(const int rulePart) {
 }
 
 //---------------
+// PassesFilter
+//
+// Determines whether the rule passes the filter. A rule passes if its
+// mask matches any of the 'anyOf' masks and none of the 'butNoneOf' masks.
+//---------------
+bool Rule::PassesFilter(const RuleMask* anyOf, const RuleMask* butNoneOf) {
+    return true; // placeholder only
+}
+
+//---------------
+// class RuleMask methods
+//---------------
 RuleMask::RuleMask(rulenr_t ruleNr) {
     mask = new bool[NR_TRIAD_STATES * (NR_POSS_DSTS + NR_NODE_STATES)];
 }
@@ -171,12 +187,4 @@ i.e., (for triad state 0) : L LL LR R RL RR B W => 8 "bits" per part => 8*8 = 64
 
 concept:
 
-//---------------
-// PassesFilter
-//
-// Determines whether a rule passes the filter by matching any of the 'anyOf'
-// masks and not matching any of the 'butNoneOf' masks.
-//---------------
-boolean Rule::PassesFilter(RuleFilterMask* anyOf, RuleFilterMask* butNoneOf) {
-}
 */

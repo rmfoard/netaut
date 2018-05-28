@@ -67,6 +67,17 @@ typedef long long unsigned rulenr_t;
 //
 
 //---------------
+class RuleMask {
+
+public:
+    // Constructors
+    RuleMask(const rulenr_t);
+
+private:
+    bool *mask;
+};
+
+//---------------
 class Rule {
 
 public:
@@ -82,6 +93,7 @@ public:
     rulenr_t get_maxRuleNr();
     const int* get_ruleParts();
     std::string get_ruleText();
+    bool PassesFilter(const RuleMask* anyOf, const RuleMask* butNoneOf);
 
 private:
     void CheckRuleNr(const rulenr_t);
@@ -90,16 +102,5 @@ private:
     rulenr_t m_ruleNr;
     static const char* dstNames[];
     static const char* nodeStateNames[];
-};
-
-//---------------
-class RuleMask {
-
-public:
-    // Constructors
-    RuleMask(const rulenr_t);
-
-private:
-    bool *mask;
 };
 #endif
