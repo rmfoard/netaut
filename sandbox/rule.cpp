@@ -228,12 +228,13 @@ RuleMask::RuleMask(char* ruleMaskText) { // TODO: Should be const.
 
         if (strcmp(tok, "N") != 0) throw std::runtime_error("rulemask text 1");
         tok = strtok(NULL, " ,-;");
-        if (strcmp(tok, "W") == 0)
+
+        // TODO: Consider the invalid sequences this will pass.
+        if (strcmp(tok, "W") == 0 || strcmp(tok, "*") == 0)
             m_mask[partBaseIx + NR_POSS_DSTS * 2] = true;
-        else if (strcmp(tok, "B") == 0)
+        if (strcmp(tok, "B") == 0 || strcmp(tok, "*") == 0)
             m_mask[partBaseIx + NR_POSS_DSTS * 2 + 1] = true;
-        else
-            throw std::runtime_error("rulemask text 4");
+
         tok = strtok(NULL, " ,-;");
     }
 }
@@ -246,7 +247,7 @@ bool* RuleMask::get_mask() {
 }
 
 int main() {
-    RuleMask* rm = new RuleMask("L-*,R-L,N-B;L-*,R-LL,N-B;L-*,R-LR,N-B;L-*,R-R,N-B;L-*,R-RL,N-B;L-*,R-RR,N-B;L-*,R-*,N-B;L-*,R-*,N-B");
+    RuleMask* rm = new RuleMask("L-*,R-L,N-B;L-*,R-LL,N-B;L-*,R-LR,N-B;L-*,R-R,N-B;L-*,R-RL,N-B;L-*,R-RR,N-B;L-*,R-*,N-B;L-*,R-*,N-*");
     bool* mask = rm->get_mask();
     for (int i = 0; i < NR_RULEMASK_ELEMENTS; i += 1)
         printf("%s", (mask[i] ? "1" : "0"));
