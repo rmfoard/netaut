@@ -19,6 +19,7 @@
 
 #define NR_TRIAD_STATES (NR_NODE_STATES * NR_NODE_STATES * NR_NODE_STATES)
 #define NR_ACTIONS (NR_POSS_DSTS * NR_POSS_DSTS * NR_NODE_STATES)
+#define NR_RULEMASK_ELEMENTS (NR_TRIAD_STATES * (NR_POSS_DSTS * 2 + NR_NODE_STATES))
 
 typedef long long unsigned rulenr_t;
 
@@ -65,6 +66,7 @@ typedef long long unsigned rulenr_t;
 //
 // ruleNr: <"digit" for triad state NR_TRIAD_STATES-1> ... <"digit" for triad state 0>
 //
+// TODO: Document RuleMask objects.
 
 //---------------
 class RuleMask {
@@ -72,6 +74,7 @@ class RuleMask {
 public:
     // Constructors
     RuleMask(const rulenr_t);
+    RuleMask(const char*);
 
 private:
     bool *mask;

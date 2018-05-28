@@ -37,7 +37,6 @@ struct CommandOpts {
 static CommandOpts cmdOpt;
 
 //---------------
-static
 char* strAllocCpy(const char* src) { return strcpy(new char[strlen(src) + 1], src); }
 
 //---------------
