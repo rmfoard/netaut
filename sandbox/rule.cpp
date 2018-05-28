@@ -184,7 +184,7 @@ SetTopoActionMask(const char* lr, int baseIx, char* rmt, char* tok, bool* mask) 
     if (strcmp(tok, lr) != 0) throw std::runtime_error("rulemask text 3");
     tok = strtok(rmt, " ,-;");
     for (int dst = 0; dst < NR_POSS_DSTS; dst += 1) {
-        bool bit = false;
+        bool element = false;
         if (strcmp(tok, "*") == 0
           || strcmp(tok, "L") == 0 && dst == LEDGE
           || strcmp(tok, "LL") == 0 && dst == LLEDGE
@@ -192,9 +192,9 @@ SetTopoActionMask(const char* lr, int baseIx, char* rmt, char* tok, bool* mask) 
           || strcmp(tok, "R") == 0 && dst == REDGE
           || strcmp(tok, "RL") == 0 && dst == RLEDGE
           || strcmp(tok, "RR") == 0 && dst == RREDGE) {
-            bit = true;
+            element = true;
         }
-        mask[baseIx + dst] = bit;
+        mask[baseIx + dst] = element;
     }
     tok = strtok(rmt, " ,-;");
 }
@@ -202,28 +202,51 @@ SetTopoActionMask(const char* lr, int baseIx, char* rmt, char* tok, bool* mask) 
 //---------------
 // class RuleMask methods
 //---------------
+
+//---------------
+// RuleMask constructor: from rule number
+//---------------
 RuleMask::RuleMask(rulenr_t ruleNr) {
-    mask = new bool[NR_TRIAD_STATES * (NR_POSS_DSTS * 2 + NR_NODE_STATES)];
+    mask = new bool[NR_RULEMASK_ELEMENTS];
 }
 
+//---------------
+// RuleMask constructor: from rulemask text
+//---------------
 RuleMask::RuleMask(const char* ruleMaskText) {
-    mask = new bool[NR_RULEMASK_ELEMENTS];
+    m_mask = new bool[NR_RULEMASK_ELEMENTS];
     char* rmt = strAllocCpy(ruleMaskText);
-    for (int i = 0; i < NR_RULEMASK_ELEMENTS; i += 1) mask[i] = false;
+    for (int i = 0; i < NR_RULEMASK_ELEMENTS; i += 1) m_mask[i] = false;
 
     char* tok = strtok(rmt, " ,-;");
     for (int partNr = 0; partNr < NR_TRIAD_STATES; partNr += 1) {
         int partBaseIx = partNr * (NR_POSS_DSTS * 2 + NR_NODE_STATES);
-        SetTopoActionMask("L", partBaseIx, rmt, tok, mask);
-        SetTopoActionMask("R", partBaseIx + NR_POSS_DSTS, rmt, tok, mask);
-        /* watch scanner */
+
+        SetTopoActionMask("L", partBaseIx, rmt, tok, m_mask);
+        SetTopoActionMask("R", partBaseIx + NR_POSS_DSTS, rmt, tok, m_mask);
+
         if (strcmp(tok, "N") != 0) throw std::runtime_error("rulemask text 1");
         tok = strtok(rmt, " ,-;");
         if (strcmp(tok, "W") == 0)
-            mask[partBaseIx + NR_POSS_DSTS * 2] = true;
+            m_mask[partBaseIx + NR_POSS_DSTS * 2] = true;
         else if (strcmp(tok, "B") == 0)
-            mask[partBaseIx + NR_POSS_DSTS * 2 + 1] = true;
+            m_mask[partBaseIx + NR_POSS_DSTS * 2 + 1] = true;
         else
-            mask[partBaseIx + NR_POSS_DSTS * 2 + 1] = true;
+            throw std::runtime_error("rulemask text 4");
     }
+}
+
+//---------------
+// get_mask
+//---------------
+bool* RuleMask::get_mask() {
+    return m_mask;
+}
+
+int main() {
+    RuleMask* rm = RuleMask("L-*,R-*,N-B;L-*,R-*,N-B;L-*,R-*,N-B;L-*,R-*,N-B;L-*,R-*,N-B;L-*,R-*,N-B;L-*,R-*,N-B;L-*,R-*,N-B");
+    bool* mask = rm->get_mask();
+    for (int i = 0; i < NR_RULEMASK_ELEMENTS; i += 1)
+        printf("%s", (mask[i] ? "1" : "0"));
+    printf("\n");
 }

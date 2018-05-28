@@ -76,8 +76,11 @@ public:
     RuleMask(const rulenr_t);
     RuleMask(const char*);
 
+    // Getters
+    bool* get_mask();
+
 private:
-    bool *mask;
+    bool *m_mask;
 };
 
 //---------------
