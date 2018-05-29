@@ -15,11 +15,11 @@
 #define REDGE 3
 #define RLEDGE 4
 #define RREDGE 5
-#define NR_POSS_DSTS 6
+#define NR_DSTS 6
 
 #define NR_TRIAD_STATES (NR_NODE_STATES * NR_NODE_STATES * NR_NODE_STATES)
-#define NR_ACTIONS (NR_POSS_DSTS * NR_POSS_DSTS * NR_NODE_STATES)
-#define NR_RULEMASK_ELEMENTS (NR_TRIAD_STATES * (NR_POSS_DSTS * 2 + NR_NODE_STATES))
+#define NR_ACTIONS (NR_DSTS * NR_DSTS * NR_NODE_STATES)
+#define NR_RULEMASK_ELEMENTS (NR_TRIAD_STATES * (NR_DSTS * 2 + NR_NODE_STATES))
 
 typedef long long unsigned rulenr_t;
 
@@ -50,7 +50,7 @@ typedef long long unsigned rulenr_t;
 //
 // A rule part value is the packed representation:
 //
-//  ((<new edge dst for left edge> * NR_POSS_DSTS) + <new edge dst for right edge>) * 2 +
+//  ((<new edge dst for left edge> * NR_DSTS) + <new edge dst for right edge>) * 2 +
 //    <new state for node>
 //
 // in which the "new edge dst" codes are as defined above, under "Graph topology action

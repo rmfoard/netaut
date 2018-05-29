@@ -66,7 +66,7 @@ Rule::Rule(const char* ruleText) {
         int rulePart = 0;
         if (strcmp(tok, "L") != 0) throw std::runtime_error("rule text 1");
         tok = strtok(NULL, " ,-;");
-        rulePart += dstIndex(tok) * NR_POSS_DSTS * 2;
+        rulePart += dstIndex(tok) * NR_DSTS * 2;
         tok = strtok(NULL, " ,-;");
         if (strcmp(tok, "R") != 0) throw std::runtime_error("rule text 2");
         tok = strtok(NULL, " ,-;");
@@ -132,7 +132,7 @@ std::string Rule::get_ruleText() {
 // dstIndex
 //---------------
 int Rule::dstIndex(const char* dstStr) {
-    for (int i = 0; i < NR_POSS_DSTS; i += 1) {
+    for (int i = 0; i < NR_DSTS; i += 1) {
         if (strcmp(dstStr, dstNames[i]) == 0) return i;
     }
     throw std::runtime_error("rule text 5");
@@ -156,8 +156,8 @@ void Rule::CheckRuleNr(rulenr_t ruleNr) {
 // Returns a rule part in text form.
 //---------------
 const std::string Rule::RulePartText(const int rulePart) {
-    int lAction = (rulePart / 2) / NR_POSS_DSTS;
-    int rAction = (rulePart / 2) % NR_POSS_DSTS;
+    int lAction = (rulePart / 2) / NR_DSTS;
+    int rAction = (rulePart / 2) % NR_DSTS;
     int nAction = rulePart % 2;
     return std::string("L-") + std::string(dstNames[lAction]) + std::string(",")
       + std::string("R-") + std::string(dstNames[rAction]) + std::string(",")
@@ -183,7 +183,7 @@ static
 char* SetTopoActionMask(const char* lr, int baseIx, char* rmt, char* tok, bool* mask) {
     if (strcmp(tok, lr) != 0) throw std::runtime_error("rulemask text 3");
     tok = strtok(NULL, " ,-;");
-    for (int dst = 0; dst < NR_POSS_DSTS; dst += 1) {
+    for (int dst = 0; dst < NR_DSTS; dst += 1) {
         bool element = false;
         if (strcmp(tok, "*") == 0
           || (strcmp(tok, "L") == 0 && dst == LEDGE)
@@ -225,19 +225,19 @@ RuleMask::RuleMask(char* ruleMaskText) { // TODO: Should be const.
 
     char* tok = strtok(rmt, " ,-;");
     for (int partNr = 0; partNr < NR_TRIAD_STATES; partNr += 1) {
-        int partBaseIx = partNr * (NR_POSS_DSTS * 2 + NR_NODE_STATES);
+        int partBaseIx = partNr * (NR_DSTS * 2 + NR_NODE_STATES);
 
         tok = SetTopoActionMask("L", partBaseIx, rmt, tok, m_mask);
-        tok = SetTopoActionMask("R", partBaseIx + NR_POSS_DSTS, rmt, tok, m_mask);
+        tok = SetTopoActionMask("R", partBaseIx + NR_DSTS, rmt, tok, m_mask);
 
         if (strcmp(tok, "N") != 0) throw std::runtime_error("rulemask text 1");
         tok = strtok(NULL, " ,-;");
 
         // TODO: Consider the invalid sequences this will pass.
         if (strcmp(tok, "W") == 0 || strcmp(tok, "*") == 0)
-            m_mask[partBaseIx + NR_POSS_DSTS * 2] = true;
+            m_mask[partBaseIx + NR_DSTS * 2] = true;
         if (strcmp(tok, "B") == 0 || strcmp(tok, "*") == 0)
-            m_mask[partBaseIx + NR_POSS_DSTS * 2 + 1] = true;
+            m_mask[partBaseIx + NR_DSTS * 2 + 1] = true;
 
         tok = strtok(NULL, " ,-;");
     }

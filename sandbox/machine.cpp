@@ -132,7 +132,7 @@ void MachineS::AdvanceNode(TNEGraph::TNodeI NIter, int selfEdges, int noMultiEdg
     int rrNId = rNIter.GetOutNId(1);
 
     // Prepare an array of possible new destinations for edges
-    int* newDsts = new int[NR_POSS_DSTS];
+    int* newDsts = new int[NR_DSTS];
     newDsts[LEDGE] = lNId;
     newDsts[LLEDGE] = llNId;
     newDsts[LREDGE] = lrNId;
@@ -147,8 +147,8 @@ void MachineS::AdvanceNode(TNEGraph::TNodeI NIter, int selfEdges, int noMultiEdg
     // TODO: (minor opt) Maintain unpacked structures built when
     //   'ruleParts' is developed during initialization.
     // Unpack the rule part into left edge, right edge, and node actions
-    const int lAction = (rulePart / 2) / NR_POSS_DSTS;
-    const int rAction = (rulePart / 2) % NR_POSS_DSTS;
+    const int lAction = (rulePart / 2) / NR_DSTS;
+    const int rAction = (rulePart / 2) % NR_DSTS;
     const int nAction = rulePart % 2;
 
     // Confirm that topological invariants still hold.

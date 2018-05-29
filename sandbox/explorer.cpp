@@ -15,7 +15,6 @@
 #define NR_CYCLES 40
 
 // TODO: Add --help
-// TODO: Restore 'const' to arg in strAllocCpy.
 //---------------
 struct CommandOpts {
     rulenr_t ruleNr;
