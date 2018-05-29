@@ -227,18 +227,23 @@ RuleMask::RuleMask(char* ruleMaskText) { // TODO: Should be const.
     for (int partNr = 0; partNr < NR_TRIAD_STATES; partNr += 1) {
         int partBaseIx = partNr * (NR_DSTS * 2 + NR_NODE_STATES);
 
-        tok = SetTopoActionMask("L", partBaseIx, rmt, tok, m_mask);
-        tok = SetTopoActionMask("R", partBaseIx + NR_DSTS, rmt, tok, m_mask);
+        if (strcmp(tok, "*") == 0) {
+            for (int i = 0; i < (NR_DSTS * 2 + NR_NODE_STATES); i += 1)
+                m_mask[partBaseIx + i] = true;
+        }
+        else {
+            tok = SetTopoActionMask("L", partBaseIx, rmt, tok, m_mask);
+            tok = SetTopoActionMask("R", partBaseIx + NR_DSTS, rmt, tok, m_mask);
 
-        if (strcmp(tok, "N") != 0) throw std::runtime_error("rulemask text 1");
-        tok = strtok(NULL, " ,-;");
+            if (strcmp(tok, "N") != 0) throw std::runtime_error("rulemask text 1");
+            tok = strtok(NULL, " ,-;");
 
-        // TODO: Consider the invalid sequences this will pass.
-        if (strcmp(tok, "W") == 0 || strcmp(tok, "*") == 0)
-            m_mask[partBaseIx + NR_DSTS * 2] = true;
-        if (strcmp(tok, "B") == 0 || strcmp(tok, "*") == 0)
-            m_mask[partBaseIx + NR_DSTS * 2 + 1] = true;
-
+            // TODO: Consider the invalid sequences this will pass.
+            if (strcmp(tok, "W") == 0 || strcmp(tok, "*") == 0)
+                m_mask[partBaseIx + NR_DSTS * 2] = true;
+            if (strcmp(tok, "B") == 0 || strcmp(tok, "*") == 0)
+                m_mask[partBaseIx + NR_DSTS * 2 + 1] = true;
+        }
         tok = strtok(NULL, " ,-;");
     }
 }
@@ -251,8 +256,13 @@ bool* RuleMask::get_mask() {
 }
 
 int main() {
-    RuleMask* rm = new RuleMask("L-L,R-L,N-W;L-L,R-L,N-W;L-*,R-LR,N-B;L-*,R-R,N-B;L-*,R-RL,N-B;L-*,R-RR,N-B;L-*,R-*,N-B;L-*,R-*,N-*");
+    RuleMask* rm = new RuleMask("*;L-L,R-L,N-W;L-*,R-LR,N-B;L-*,R-R,N-B;L-*,R-RL,N-B;L-*,R-RR,N-B;L-*,R-*,N-B;L-*,R-*,N-*");
     bool* mask = rm->get_mask();
+    for (int i = 0; i < NR_RULEMASK_ELEMENTS; i += 1)
+        printf("%s", (mask[i] ? "1" : "0"));
+    printf("\n");
+    RuleMask* rm2 = new RuleMask("*;*;*;*;*;*;*;*");
+    mask = rm2->get_mask();
     for (int i = 0; i < NR_RULEMASK_ELEMENTS; i += 1)
         printf("%s", (mask[i] ? "1" : "0"));
     printf("\n");

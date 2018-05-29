@@ -29,11 +29,11 @@ typedef long long unsigned rulenr_t;
 #define RULENR_MAX UINTMAX_MAX
 
 //---------------
-// Rule Object
+// Rule Objects:
 //
 // For each possible set of node states in a left neighbor/node/right neighbor
-// triad, a rule encodes the action to be applied to yield the next
-// left neighbor/node state/right neighbor configuration, i.e., it specifies
+// triad, a rule encodes the action to be applied to yield the node's next
+// left neighbor/node state/right neighbor values, i.e., it specifies
 // replacement values for the node's left out-edge, state, and right out-edge.
 // By convention, the first out-edge is the "left," the second the "right."
 //
@@ -54,10 +54,25 @@ typedef long long unsigned rulenr_t;
 //    <new state for node>
 //
 // in which the "new edge dst" codes are as defined above, under "Graph topology action
-// components," and the "new state for node" codes are as defined under "Node states,i
+// components," and the "new state for node" codes are as defined under "Node states,
 // node action components."
 //
-// Rule encoding -- order of action specifications for triad states
+// Rule text strings:
+//
+// A rule text string is a human-readable rule specification. It comprises
+// a sequence of rule part specifications separated by semicolons. Each rule
+// part specification is a string of the form:
+//
+//      L-<new edge dst for left edge>,R-<new edge dst for right edge>,
+//      N-<new value for node state>
+//
+// An edge destination is specified as one of L, R, RL, RR, LL, or LR. Node
+// state is either W or B (white or black). Example substring of a rule text string
+// showing the first two rule parts:
+//
+//      L-L, R-RL, N-B; L-LL, R-LR, N-W; ...
+//
+// Rule encoding -- order of action specifications for triad states:
 //
 // The leftmost part specification in a ruleText string corresponds to the low-order "digit"
 // in the corresponding ruleNr integer; both encode the action for triad state 0, i.e.,
