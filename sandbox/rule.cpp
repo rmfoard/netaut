@@ -207,7 +207,11 @@ char* SetTopoActionMask(const char* lr, int baseIx, char* rmt, char* tok, bool* 
 // RuleMask constructor: from rule number
 //---------------
 RuleMask::RuleMask(rulenr_t ruleNr) {
-    m_mask = new bool[NR_RULEMASK_ELEMENTS];
+    // We can accomplish this by using Rule::get_ruleText to convert
+    // the rule number to a string, then passing the string to the
+    // other constructor's logic to generate the rulemask. (We'll need
+    // to move the guts of the other constructor into a separately
+    // callable method.)
 }
 
 char* strAllocCpy(char*); // TODO: The obvious
@@ -247,7 +251,7 @@ bool* RuleMask::get_mask() {
 }
 
 int main() {
-    RuleMask* rm = new RuleMask("L-*,R-L,N-B;L-*,R-LL,N-B;L-*,R-LR,N-B;L-*,R-R,N-B;L-*,R-RL,N-B;L-*,R-RR,N-B;L-*,R-*,N-B;L-*,R-*,N-*");
+    RuleMask* rm = new RuleMask("L-L,R-L,N-W;L-L,R-L,N-W;L-*,R-LR,N-B;L-*,R-R,N-B;L-*,R-RL,N-B;L-*,R-RR,N-B;L-*,R-*,N-B;L-*,R-*,N-*");
     bool* mask = rm->get_mask();
     for (int i = 0; i < NR_RULEMASK_ELEMENTS; i += 1)
         printf("%s", (mask[i] ? "1" : "0"));
