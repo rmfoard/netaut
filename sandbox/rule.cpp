@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include <string>
 #include "rule.h"
+#include "rulemask.h"
 
 const char* Rule::dstNames[] = { "L", "LL", "LR", "R", "RL", "RR" };
 
