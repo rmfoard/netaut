@@ -3,12 +3,12 @@
 #include <inttypes.h>
 #include <string>
 
-// Node states, node action components
+// Node states, node action specifiers
 #define NWHITE 0
 #define NBLACK 1
 #define NR_NODE_STATES 2
 
-// Graph topology action components
+// Graph topology action specifiers
 #define LEDGE 0
 #define LLEDGE 1
 #define LREDGE 2
@@ -40,7 +40,8 @@ typedef long long unsigned rulenr_t;
 // Rules may specify that an edge be replaced by the node's left out-edge,
 // its right out-edge, its left neighbor's left or right out-edges, or its
 // right neighbor's left or right out-edges. These new edge destinations are denoted
-// by prefixes L, R, RL, RR, LL, and LR, respectively.
+// by the action specifiers L, R, RL, RR, LL, and LR, respectively. New node
+// state values are denoted by the specifiers W (white) and B (black).
 //
 // A rule is represented internally as a "rule number."
 // A rule number is a radix NR_TRIAD_STATES number, each "digit" of which is
@@ -53,9 +54,9 @@ typedef long long unsigned rulenr_t;
 //  ((<new edge dst for left edge> * NR_DSTS) + <new edge dst for right edge>) * 2 +
 //    <new state for node>
 //
-// in which the "new edge dst" codes are as defined above, under "Graph topology action
-// components," and the "new state for node" codes are as defined under "Node states,
-// node action components."
+// in which the "new edge dst" codes are the specifiers defined above, under
+// "Graph topology action specifiers," and the "new state for node" codes are
+// as defined under "Node states, node action specifiers."
 //
 // Rule text strings:
 //
@@ -63,16 +64,15 @@ typedef long long unsigned rulenr_t;
 // a sequence of rule part specifications separated by semicolons. Each rule
 // part specification is a string of the form:
 //
-//      L-<new edge dst for left edge>,R-<new edge dst for right edge>,
-//      N-<new value for node state>
+//      <new edge dst for left edge>,<new edge dst for right edge>,<new value for node state>
 //
 // An edge destination is specified as one of L, R, RL, RR, LL, or LR. Node
 // state is either W or B (white or black). Example substring of a rule text string
 // showing the first two rule parts:
 //
-//      L-L, R-RL, N-B; L-LL, R-LR, N-W; ...
+//      L,RL,B; LL,LR,W; ...
 //
-// Rule encoding -- order of action specifications for triad states:
+// Order of action specifications in rules:
 //
 // The leftmost part specification in a ruleText string corresponds to the low-order "digit"
 // in the corresponding ruleNr integer; both encode the action for triad state 0, i.e.,
@@ -81,8 +81,32 @@ typedef long long unsigned rulenr_t;
 //
 // ruleNr: <"digit" for triad state NR_TRIAD_STATES-1> ... <"digit" for triad state 0>
 //
-// TODO: Document RuleMask objects.
-
+//
+// Rulemask objects:
+//
+// Rulemasks are objects that match classes of rules. They are typically constructed
+// based on human-readable rulemask text strings.
+//
+// A rulemask text string is similar to a rule text string, but allows the use of
+// wildcard characters to represent multiple possibilities for parts of rules. For
+// example, where the rule text snippet containing three action specifiers:
+//
+//      ... ; R,LL,W; ...
+//
+// indicates that a node's left edge is to be replaced by its right edge (R), and its right edge
+// is to be replaced by its left neighbor's left edge (LL), the rulemask snippet:
+//
+//      ... ; -,LL,W; ...
+//
+// will match any rule that has L, R, RL, RR, LL, or LR where the "-" appears in the mask.
+//
+// Similarly, if a rulemask has a "*" character in place of an entire rule part, as in:
+//
+//      ...; R,LL,W; *; RR,R,B; ...
+//
+// the mask will match rules with any combination of actions in the corresponding rule part.
+// Note that "-" and "*" wildcards are not interchageable -- "-" matches any individual
+// action specifier in a rule part; "*" matches any entire rule part.
 //---------------
 class RuleMask {
 

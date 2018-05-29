@@ -64,15 +64,9 @@ Rule::Rule(const char* ruleText) {
     m_ruleNr = 0;
     for (int partNr = 0; partNr < NR_TRIAD_STATES; partNr += 1) {
         int rulePart = 0;
-        if (strcmp(tok, "L") != 0) throw std::runtime_error("rule text 1");
+        rulePart += dstIndex(tok) * NR_DSTS * 2; // left edge action specifier (* 2 * NR_DSTS)
         tok = strtok(NULL, " ,-;");
-        rulePart += dstIndex(tok) * NR_DSTS * 2;
-        tok = strtok(NULL, " ,-;");
-        if (strcmp(tok, "R") != 0) throw std::runtime_error("rule text 2");
-        tok = strtok(NULL, " ,-;");
-        rulePart += dstIndex(tok) * 2;
-        tok = strtok(NULL, " ,-;");
-        if (strcmp(tok, "N") != 0) throw std::runtime_error("rule text 3");
+        rulePart += dstIndex(tok) * 2; // right edge action specifier (* 2)
         tok = strtok(NULL, " ,-;");
         if (strcmp(tok, "B") == 0) {
             rulePart += 1;
@@ -251,8 +245,20 @@ bool* RuleMask::get_mask() {
 }
 
 int main() {
+    Rule* r = new Rule("L,L,W; LL,LL,W; LR,LR,W; R,R,B; RL,RL,B; RR,RR,B; L,R,W; LL,RR,B");
+    printf("ruleNr: %llu\n", r->get_ruleNr());
+
+    RuleMask* rm0 = new RuleMask("L,L,W; LL,LL,W; LR,LR,W; R,R,B; RL,RL,B; RR,RR,B; L,R,W; LL,RR,B");
+    bool* mask = rm0->get_mask();
+    for (int i = 0; i < NR_RULEMASK_ELEMENTS; i += 1)
+        printf("%s", (mask[i] ? "1" : "0"));
+    printf("\n");
+    printf("llllllrrrrrrnnllllllrrrrrrnnllllllrrrrrrnnllllllrrrrrrnnllllllrrrrrrnnllllllrrrrrrnnllllllrrrrrrnnllllllrrrrrrnn\n");
+    printf("\n");
+    printf("\n");
+
     RuleMask* rm = new RuleMask("*;L,L,W;LL,LR,B;LR,R,B;R,RL,B;RL,RR,B;RR,-,B;-,-,-");
-    bool* mask = rm->get_mask();
+    mask = rm->get_mask();
     for (int i = 0; i < NR_RULEMASK_ELEMENTS; i += 1)
         printf("%s", (mask[i] ? "1" : "0"));
     printf("\n");
