@@ -256,14 +256,10 @@ bool* RuleMask::get_mask() {
 }
 
 int main() {
-    RuleMask* rm = new RuleMask("*;L-L,R-L,N-W;L-*,R-LR,N-B;L-*,R-R,N-B;L-*,R-RL,N-B;L-*,R-RR,N-B;L-*,R-*,N-B;L-*,R-*,N-*");
+    RuleMask* rm = new RuleMask("*;L-L,R-L,N-W;L-LL,R-LR,N-B;L-LR,R-R,N-B;L-R,R-RL,N-B;L-RL,R-RR,N-B;L-RR,R-*,N-B;L-*,R-*,N-*");
     bool* mask = rm->get_mask();
     for (int i = 0; i < NR_RULEMASK_ELEMENTS; i += 1)
         printf("%s", (mask[i] ? "1" : "0"));
     printf("\n");
-    RuleMask* rm2 = new RuleMask("*;*;*;*;*;*;*;*");
-    mask = rm2->get_mask();
-    for (int i = 0; i < NR_RULEMASK_ELEMENTS; i += 1)
-        printf("%s", (mask[i] ? "1" : "0"));
-    printf("\n");
+    printf("llllllrrrrrrnnllllllrrrrrrnnllllllrrrrrrnnllllllrrrrrrnnllllllrrrrrrnnllllllrrrrrrnnllllllrrrrrrnnllllllrrrrrrnn\n");
 }
