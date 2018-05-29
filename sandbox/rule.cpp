@@ -154,9 +154,9 @@ const std::string Rule::RulePartText(const int rulePart) {
     int lAction = (rulePart / 2) / NR_DSTS;
     int rAction = (rulePart / 2) % NR_DSTS;
     int nAction = rulePart % 2;
-    return std::string("L-") + std::string(dstNames[lAction]) + std::string(",")
-      + std::string("R-") + std::string(dstNames[rAction]) + std::string(",")
-      + std::string("N-") + std::string(nodeStateNames[nAction]);
+    return std::string(dstNames[lAction]) + std::string(",")
+      + std::string(dstNames[rAction]) + std::string(",")
+      + std::string(nodeStateNames[nAction]);
 }
 
 //---------------
@@ -192,29 +192,15 @@ char* SetTopoActionMask(int baseIx, char* rmt, char* tok, bool* mask) {
     return strtok(NULL, " ,;");
 }
 
+char* strAllocCpy(const char*); // TODO: The obvious
 //---------------
-// class RuleMask methods
+// CompileRuleMask (static helper)
 //---------------
-
-//---------------
-// RuleMask constructor: from rule number
-//---------------
-RuleMask::RuleMask(rulenr_t ruleNr) {
-    // We can accomplish this by using Rule::get_ruleText to convert
-    // the rule number to a string, then passing the string to the
-    // other constructor's logic to generate the rulemask. (We'll need
-    // to move the guts of the other constructor into a separately
-    // callable method.)
-}
-
-char* strAllocCpy(char*); // TODO: The obvious
-//---------------
-// RuleMask constructor: from rulemask text
-//---------------
-RuleMask::RuleMask(char* ruleMaskText) { // TODO: Should be const.
-    m_mask = new bool[NR_RULEMASK_ELEMENTS];
+static
+bool* CompileRuleMask(const char* ruleMaskText) {
+    bool* mask = new bool[NR_RULEMASK_ELEMENTS];
     char* rmt = strAllocCpy(ruleMaskText);
-    for (int i = 0; i < NR_RULEMASK_ELEMENTS; i += 1) m_mask[i] = false;
+    for (int i = 0; i < NR_RULEMASK_ELEMENTS; i += 1) mask[i] = false;
 
     char* tok = strtok(rmt, " ,;");
     for (int partNr = 0; partNr < NR_TRIAD_STATES; partNr += 1) {
@@ -222,20 +208,48 @@ RuleMask::RuleMask(char* ruleMaskText) { // TODO: Should be const.
 
         if (strcmp(tok, "*") == 0) {
             for (int i = 0; i < (NR_DSTS * 2 + NR_NODE_STATES); i += 1)
-                m_mask[partBaseIx + i] = true;
+                mask[partBaseIx + i] = true;
         }
         else {
-            tok = SetTopoActionMask(partBaseIx, rmt, tok, m_mask);
-            tok = SetTopoActionMask(partBaseIx + NR_DSTS, rmt, tok, m_mask);
+            tok = SetTopoActionMask(partBaseIx, rmt, tok, mask);
+            tok = SetTopoActionMask(partBaseIx + NR_DSTS, rmt, tok, mask);
 
             // TODO: Consider the invalid sequences this will pass.
             if (strcmp(tok, "W") == 0 || strcmp(tok, "-") == 0)
-                m_mask[partBaseIx + NR_DSTS * 2] = true;
+                mask[partBaseIx + NR_DSTS * 2] = true;
             if (strcmp(tok, "B") == 0 || strcmp(tok, "-") == 0)
-                m_mask[partBaseIx + NR_DSTS * 2 + 1] = true;
+                mask[partBaseIx + NR_DSTS * 2 + 1] = true;
         }
         tok = strtok(NULL, " ,;");
     }
+    delete rmt;
+    return mask;
+}
+
+//---------------
+// class RuleMask methods
+//---------------
+
+//---------------
+// RuleMask constructor: from rule number
+//---------------
+RuleMask::RuleMask(const rulenr_t ruleNr) {
+    Rule* r = new Rule(ruleNr);
+    const char* ruleText = strAllocCpy(r->get_ruleText().c_str());
+    printf("ruleText*: %s\n", ruleText);
+    delete r;
+
+    // The following works because rule text syntax is a subset of
+    // rule mask syntax.
+    m_mask = CompileRuleMask(ruleText);
+    delete ruleText;
+}
+
+//---------------
+// RuleMask constructor: from rulemask text
+//---------------
+RuleMask::RuleMask(char* ruleMaskText) { // TODO: Should be const.
+    m_mask = CompileRuleMask(ruleMaskText);
 }
 
 //---------------
@@ -247,19 +261,18 @@ bool* RuleMask::get_mask() {
 
 int main() {
     Rule* r = new Rule("L,L,W; LL,LL,W; LR,LR,W; R,R,B; RL,RL,B; RR,RR,B; L,R,W; LL,RR,B");
-    printf("ruleNr: %llu\n", r->get_ruleNr());
+    rulenr_t ruleNr = r->get_ruleNr();
+    printf("ruleNr: %llu\n", ruleNr);
+    printf("rule text: %s\n", r->get_ruleText().c_str());
 
-    RuleMask* rm0 = new RuleMask("L,L,W; LL,LL,W; LR,LR,W; R,R,B; RL,RL,B; RR,RR,B; L,R,W; LL,RR,B");
-    bool* mask = rm0->get_mask();
+    RuleMask* fromNr = new RuleMask(ruleNr);
+    bool* mask = fromNr->get_mask();
     for (int i = 0; i < NR_RULEMASK_ELEMENTS; i += 1)
         printf("%s", (mask[i] ? "1" : "0"));
     printf("\n");
-    printf("llllllrrrrrrnnllllllrrrrrrnnllllllrrrrrrnnllllllrrrrrrnnllllllrrrrrrnnllllllrrrrrrnnllllllrrrrrrnnllllllrrrrrrnn\n");
-    printf("\n");
-    printf("\n");
 
-    RuleMask* rm = new RuleMask("*;L,L,W;LL,LR,B;LR,R,B;R,RL,B;RL,RR,B;RR,-,B;-,-,-");
-    mask = rm->get_mask();
+    RuleMask* rm0 = new RuleMask("L,L,W; LL,LL,W; LR,LR,W; R,R,B; RL,RL,B; RR,RR,B; L,R,W; LL,RR,B");
+    mask = rm0->get_mask();
     for (int i = 0; i < NR_RULEMASK_ELEMENTS; i += 1)
         printf("%s", (mask[i] ? "1" : "0"));
     printf("\n");
