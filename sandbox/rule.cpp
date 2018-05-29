@@ -180,12 +180,10 @@ bool Rule::PassesFilter(const RuleMask* anyOf, const RuleMask* butNoneOf) {
 // TODO: Document.
 //---------------
 static
-char* SetTopoActionMask(const char* lr, int baseIx, char* rmt, char* tok, bool* mask) {
-    if (strcmp(tok, lr) != 0) throw std::runtime_error("rulemask text 3");
-    tok = strtok(NULL, " ,-;");
+char* SetTopoActionMask(int baseIx, char* rmt, char* tok, bool* mask) {
     for (int dst = 0; dst < NR_DSTS; dst += 1) {
         bool element = false;
-        if (strcmp(tok, "*") == 0
+        if (strcmp(tok, "-") == 0
           || (strcmp(tok, "L") == 0 && dst == LEDGE)
           || (strcmp(tok, "LL") == 0 && dst == LLEDGE)
           || (strcmp(tok, "LR") == 0 && dst == LREDGE)
@@ -196,7 +194,7 @@ char* SetTopoActionMask(const char* lr, int baseIx, char* rmt, char* tok, bool* 
         }
         mask[baseIx + dst] = element;
     }
-    return strtok(NULL, " ,-;");
+    return strtok(NULL, " ,;");
 }
 
 //---------------
@@ -223,7 +221,7 @@ RuleMask::RuleMask(char* ruleMaskText) { // TODO: Should be const.
     char* rmt = strAllocCpy(ruleMaskText);
     for (int i = 0; i < NR_RULEMASK_ELEMENTS; i += 1) m_mask[i] = false;
 
-    char* tok = strtok(rmt, " ,-;");
+    char* tok = strtok(rmt, " ,;");
     for (int partNr = 0; partNr < NR_TRIAD_STATES; partNr += 1) {
         int partBaseIx = partNr * (NR_DSTS * 2 + NR_NODE_STATES);
 
@@ -232,19 +230,16 @@ RuleMask::RuleMask(char* ruleMaskText) { // TODO: Should be const.
                 m_mask[partBaseIx + i] = true;
         }
         else {
-            tok = SetTopoActionMask("L", partBaseIx, rmt, tok, m_mask);
-            tok = SetTopoActionMask("R", partBaseIx + NR_DSTS, rmt, tok, m_mask);
-
-            if (strcmp(tok, "N") != 0) throw std::runtime_error("rulemask text 1");
-            tok = strtok(NULL, " ,-;");
+            tok = SetTopoActionMask(partBaseIx, rmt, tok, m_mask);
+            tok = SetTopoActionMask(partBaseIx + NR_DSTS, rmt, tok, m_mask);
 
             // TODO: Consider the invalid sequences this will pass.
-            if (strcmp(tok, "W") == 0 || strcmp(tok, "*") == 0)
+            if (strcmp(tok, "W") == 0 || strcmp(tok, "-") == 0)
                 m_mask[partBaseIx + NR_DSTS * 2] = true;
-            if (strcmp(tok, "B") == 0 || strcmp(tok, "*") == 0)
+            if (strcmp(tok, "B") == 0 || strcmp(tok, "-") == 0)
                 m_mask[partBaseIx + NR_DSTS * 2 + 1] = true;
         }
-        tok = strtok(NULL, " ,-;");
+        tok = strtok(NULL, " ,;");
     }
 }
 
@@ -256,7 +251,7 @@ bool* RuleMask::get_mask() {
 }
 
 int main() {
-    RuleMask* rm = new RuleMask("*;L-L,R-L,N-W;L-LL,R-LR,N-B;L-LR,R-R,N-B;L-R,R-RL,N-B;L-RL,R-RR,N-B;L-RR,R-*,N-B;L-*,R-*,N-*");
+    RuleMask* rm = new RuleMask("*;L,L,W;LL,LR,B;LR,R,B;R,RL,B;RL,RR,B;RR,-,B;-,-,-");
     bool* mask = rm->get_mask();
     for (int i = 0; i < NR_RULEMASK_ELEMENTS; i += 1)
         printf("%s", (mask[i] ? "1" : "0"));
