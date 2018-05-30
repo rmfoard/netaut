@@ -69,7 +69,7 @@ Rule::Rule(const char* ruleText) {
         tok = strtok(NULL, " ,-;");
         rulePart += dstIndex(tok) * 2; // right edge action specifier (* 2)
         tok = strtok(NULL, " ,-;");
-        if (strcmp(tok, "B") == 0) {
+        if (strcmp(tok, "B") == 0) { // + node action specifier
             rulePart += 1;
         }
         else {
@@ -141,7 +141,7 @@ int Rule::dstIndex(const char* dstStr) {
 // Checks for overlarge rule number.
 //---------------
 void Rule::CheckRuleNr(rulenr_t ruleNr) {
-    if (ruleNr >= Raise(NR_ACTIONS, NR_TRIAD_STATES))
+    if (ruleNr > get_maxRuleNr())
         throw std::runtime_error("rule number overflow");
 }
 
@@ -236,7 +236,6 @@ bool* CompileRuleMask(const char* ruleMaskText) {
 RuleMask::RuleMask(const rulenr_t ruleNr) {
     Rule* r = new Rule(ruleNr);
     const char* ruleText = strAllocCpy(r->get_ruleText().c_str());
-    printf("ruleText*: %s\n", ruleText);
     delete r;
 
     // The following works because rule text syntax is a subset of
@@ -248,9 +247,7 @@ RuleMask::RuleMask(const rulenr_t ruleNr) {
 //---------------
 // RuleMask constructor: from rulemask text
 //---------------
-RuleMask::RuleMask(char* ruleMaskText) { // TODO: Should be const.
-    m_mask = CompileRuleMask(ruleMaskText);
-}
+RuleMask::RuleMask(const char* ruleMaskText) : m_mask(CompileRuleMask(ruleMaskText)) {}
 
 //---------------
 // get_mask
