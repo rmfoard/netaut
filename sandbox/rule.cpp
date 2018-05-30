@@ -24,16 +24,19 @@ long long unsigned Raise(const int base, const int exponent) {
 }
 
 //---------------
-// MasksMatch (static helper)
+// MapMatchesMask (static helper)
 //
-// Determines whether a rule('s mask) matches a general rulemask.
+// Determines whether a rulemap matches a rulemask.
+// A map matches a mask if, for every 'true' entry in the
+// map, the corresponding entry in the mask is 'true'.
+// In Boolean terms, MasksMatch == ((map & mask) == map)
 //---------------
 static
-bool MasksMatch(RuleMask* rMask, RuleMask* gMask) {
-    bool* rm = rMask->get_mask();
-    bool* gm = gMask->get_mask();
+bool MapMatchesMask(RuleMask rMap, RuleMask gMask) {
+    bool* map = rMap.get_mask();
+    bool* mask = gMask.get_mask();
     for (int i = 0; i < NR_RULEMASK_ELEMENTS; i += 1)
-        if (rm[i] && !gm[i]) return false;
+        if (map[i] && !mask[i]) return false;
     return true;
 }
 
@@ -177,10 +180,20 @@ const std::string Rule::RulePartText(const int rulePart) {
 // PassesFilter
 //
 // Determines whether the rule passes the filter. A rule passes if its
-// mask matches any of the 'anyOf' masks and none of the 'butNoneOf' masks.
+// map matches any of the 'anyOf' masks and none of the 'butNoneOf' masks.
 //---------------
-bool Rule::PassesFilter(const RuleMask* anyOf, const RuleMask* butNoneOf) {
-    return true; // placeholder only
+bool Rule::PassesFilter(const Filter& filter) {
+    RuleMask ruleMap = RuleMask(m_ruleNr);
+
+    // The rulemap must match every "any" mask ...
+    for (int i = 0; i < filter.m_nrAny; i += 1)
+        if (!MapMatchesMask(ruleMap, *filter.m_any[i])) return false;
+
+    // ... and must not match any "none" mask.
+    for (int i = 0; i < filter.m_nrNone; i += 1)
+        if (MapMatchesMask(ruleMap, *filter.m_none[i])) return false;
+
+    return true;
 }
 
 //---------------
@@ -277,17 +290,20 @@ bool* RuleMask::get_mask() {
 }
 
 int main() {
-    Rule* r = new Rule("L,L,W; LL,LL,W; LR,LR,W; R,R,B; RL,RL,B; RR,RR,B; L,R,W; RR,RR,B");
-    rulenr_t ruleNr = r->get_ruleNr();
-    printf("ruleNr: %llu\n", ruleNr);
-    printf("rule text: %s\n", r->get_ruleText().c_str());
+    Rule r1 = Rule("L,L,W; LL,LL,W; LR,LR,W; R,R,B; RL,RL,B; RR,RR,B; L,R,W; L,R,B");
+    Rule r2 = Rule("L,L,W; LL,LL,W; LR,LR,W; R,R,B; RL,RL,B; RR,RR,B; L,R,W; L,R,W");
 
-    RuleMask* fromNr = new RuleMask(ruleNr);
+    RuleMask m1 = RuleMask(r1.get_ruleNr());
+    RuleMask m2 = RuleMask(r2.get_ruleNr());
 
-    RuleMask* rm0 = new RuleMask("L,L,-; LL,LL,W; *; R,R,B; RL,RL,B; RR,RR,B; L,R,W; -,RR,B");
+    RuleMask** any = new RuleMask*[1];
+    RuleMask** none = new RuleMask*[1];
 
-    if (MasksMatch(fromNr, rm0))
-        printf("match!\n");
-    else
-        printf("no match.\n");
+    any[0] = &m1;
+    none[0] = &m2;
+
+    Filter f = Filter(any, 1, none, 1);
+
+    assert(r1.PassesFilter(f));
+    assert(!r2.PassesFilter(f));
 }
