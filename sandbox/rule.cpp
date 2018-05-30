@@ -37,9 +37,9 @@ bool MasksMatch(RuleMask* rMask, RuleMask* gMask) {
     return true;
 }
 
-//---------------
+//===============
 // class Rule methods
-//---------------
+//===============
 
 //---------------
 // Rule constructor: from a ruleNr
@@ -209,6 +209,12 @@ char* SetTopoActionMask(int baseIx, char* rmt, char* tok, bool* mask) {
 char* strAllocCpy(const char*); // TODO: The obvious
 //---------------
 // CompileRuleMask (static helper)
+//
+// Accepts a rulemask text string and returns a boolean array
+// in which each entry indicates whether the topo or node state
+// action corresponding to the entry's position is included
+// in the mask. (Rules that do not contain actions matching
+// the 'true' entries in the array do not match the mask.)
 //---------------
 static
 bool* CompileRuleMask(const char* ruleMaskText) {
@@ -240,9 +246,9 @@ bool* CompileRuleMask(const char* ruleMaskText) {
     return mask;
 }
 
-//---------------
+//===============
 // class RuleMask methods
-//---------------
+//===============
 
 //---------------
 // RuleMask constructor: from rule number
