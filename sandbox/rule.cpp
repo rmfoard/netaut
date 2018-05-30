@@ -24,6 +24,20 @@ long long unsigned Raise(const int base, const int exponent) {
 }
 
 //---------------
+// MasksMatch (static helper)
+//
+// Determines whether a rule('s mask) matches a general rulemask.
+//---------------
+static
+bool MasksMatch(RuleMask* rMask, RuleMask* gMask) {
+    bool* rm = rMask->get_mask();
+    bool* gm = gMask->get_mask();
+    for (int i = 0; i < NR_RULEMASK_ELEMENTS; i += 1)
+        if (rm[i] && !gm[i]) return false;
+    return true;
+}
+
+//---------------
 // class Rule methods
 //---------------
 
@@ -257,21 +271,17 @@ bool* RuleMask::get_mask() {
 }
 
 int main() {
-    Rule* r = new Rule("L,L,W; LL,LL,W; LR,LR,W; R,R,B; RL,RL,B; RR,RR,B; L,R,W; LL,RR,B");
+    Rule* r = new Rule("L,L,W; LL,LL,W; LR,LR,W; R,R,B; RL,RL,B; RR,RR,B; L,R,W; RR,RR,B");
     rulenr_t ruleNr = r->get_ruleNr();
     printf("ruleNr: %llu\n", ruleNr);
     printf("rule text: %s\n", r->get_ruleText().c_str());
 
     RuleMask* fromNr = new RuleMask(ruleNr);
-    bool* mask = fromNr->get_mask();
-    for (int i = 0; i < NR_RULEMASK_ELEMENTS; i += 1)
-        printf("%s", (mask[i] ? "1" : "0"));
-    printf("\n");
 
-    RuleMask* rm0 = new RuleMask("L,L,W; LL,LL,W; LR,LR,W; R,R,B; RL,RL,B; RR,RR,B; L,R,W; LL,RR,B");
-    mask = rm0->get_mask();
-    for (int i = 0; i < NR_RULEMASK_ELEMENTS; i += 1)
-        printf("%s", (mask[i] ? "1" : "0"));
-    printf("\n");
-    printf("llllllrrrrrrnnllllllrrrrrrnnllllllrrrrrrnnllllllrrrrrrnnllllllrrrrrrnnllllllrrrrrrnnllllllrrrrrrnnllllllrrrrrrnn\n");
+    RuleMask* rm0 = new RuleMask("L,L,-; LL,LL,W; *; R,R,B; RL,RL,B; RR,RR,B; L,R,W; -,RR,B");
+
+    if (MasksMatch(fromNr, rm0))
+        printf("match!\n");
+    else
+        printf("no match.\n");
 }
