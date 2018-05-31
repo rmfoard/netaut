@@ -285,7 +285,7 @@ void WriteInfo(std::string runId, MachineS* machine) {
     std::string infoString = stringWriter.write(info);
     std::cout << infoString << std::endl;
 }
-/*
+///*
 //---------------
 int main(const int argc, char* argv[]) {
 
@@ -337,4 +337,4 @@ int main(const int argc, char* argv[]) {
     delete m;
     exit(0);
 }
-*/
+//*/

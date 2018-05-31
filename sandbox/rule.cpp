@@ -259,6 +259,7 @@ bool* RuleMask::get_mask() {
     return m_mask;
 }
 
+/*
 int main() {
     Rule* r = new Rule("L,L,W; LL,LL,W; LR,LR,W; R,R,B; RL,RL,B; RR,RR,B; L,R,W; LL,RR,B");
     rulenr_t ruleNr = r->get_ruleNr();
@@ -278,3 +279,4 @@ int main() {
     printf("\n");
     printf("llllllrrrrrrnnllllllrrrrrrnnllllllrrrrrrnnllllllrrrrrrnnllllllrrrrrrnnllllllrrrrrrnnllllllrrrrrrnnllllllrrrrrrnn\n");
 }
+*/
