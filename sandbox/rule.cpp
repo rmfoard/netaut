@@ -24,8 +24,25 @@ long long unsigned Raise(const int base, const int exponent) {
 }
 
 //---------------
-// class Rule methods
+// MapMatchesMask (static helper)
+//
+// Determines whether a rulemap matches a rulemask.
+// A map matches a mask if, for every 'true' entry in the
+// map, the corresponding entry in the mask is 'true'.
+// In Boolean terms, MasksMatch == ((map & mask) == map)
 //---------------
+static
+bool MapMatchesMask(RuleMask rMap, RuleMask gMask) {
+    bool* map = rMap.get_mask();
+    bool* mask = gMask.get_mask();
+    for (int i = 0; i < NR_RULEMASK_ELEMENTS; i += 1)
+        if (map[i] && !mask[i]) return false;
+    return true;
+}
+
+//===============
+// class Rule methods
+//===============
 
 //---------------
 // Rule constructor: from a ruleNr
@@ -69,7 +86,7 @@ Rule::Rule(const char* ruleText) {
         tok = strtok(NULL, " ,-;");
         rulePart += dstIndex(tok) * 2; // right edge action specifier (* 2)
         tok = strtok(NULL, " ,-;");
-        if (strcmp(tok, "B") == 0) {
+        if (strcmp(tok, "B") == 0) { // + node action specifier
             rulePart += 1;
         }
         else {
@@ -141,7 +158,7 @@ int Rule::dstIndex(const char* dstStr) {
 // Checks for overlarge rule number.
 //---------------
 void Rule::CheckRuleNr(rulenr_t ruleNr) {
-    if (ruleNr >= Raise(NR_ACTIONS, NR_TRIAD_STATES))
+    if (ruleNr > get_maxRuleNr())
         throw std::runtime_error("rule number overflow");
 }
 
@@ -163,10 +180,20 @@ const std::string Rule::RulePartText(const int rulePart) {
 // PassesFilter
 //
 // Determines whether the rule passes the filter. A rule passes if its
-// mask matches any of the 'anyOf' masks and none of the 'butNoneOf' masks.
+// map matches any of the 'anyOf' masks and none of the 'butNoneOf' masks.
 //---------------
-bool Rule::PassesFilter(const RuleMask* anyOf, const RuleMask* butNoneOf) {
-    return true; // placeholder only
+bool Rule::PassesFilter(const Filter& filter) {
+    RuleMask ruleMap = RuleMask(m_ruleNr);
+
+    // The rulemap must match every "any" mask ...
+    for (int i = 0; i < filter.m_nrAny; i += 1)
+        if (!MapMatchesMask(ruleMap, *filter.m_any[i])) return false;
+
+    // ... and must not match any "none" mask.
+    for (int i = 0; i < filter.m_nrNone; i += 1)
+        if (MapMatchesMask(ruleMap, *filter.m_none[i])) return false;
+
+    return true;
 }
 
 //---------------
@@ -195,6 +222,12 @@ char* SetTopoActionMask(int baseIx, char* rmt, char* tok, bool* mask) {
 char* strAllocCpy(const char*); // TODO: The obvious
 //---------------
 // CompileRuleMask (static helper)
+//
+// Accepts a rulemask text string and returns a boolean array
+// in which each entry indicates whether the topo or node state
+// action corresponding to the entry's position is included
+// in the mask. (Rules that do not contain actions matching
+// the 'true' entries in the array do not match the mask.)
 //---------------
 static
 bool* CompileRuleMask(const char* ruleMaskText) {
@@ -226,9 +259,9 @@ bool* CompileRuleMask(const char* ruleMaskText) {
     return mask;
 }
 
-//---------------
+//===============
 // class RuleMask methods
-//---------------
+//===============
 
 //---------------
 // RuleMask constructor: from rule number
@@ -236,7 +269,6 @@ bool* CompileRuleMask(const char* ruleMaskText) {
 RuleMask::RuleMask(const rulenr_t ruleNr) {
     Rule* r = new Rule(ruleNr);
     const char* ruleText = strAllocCpy(r->get_ruleText().c_str());
-    printf("ruleText*: %s\n", ruleText);
     delete r;
 
     // The following works because rule text syntax is a subset of
@@ -248,9 +280,7 @@ RuleMask::RuleMask(const rulenr_t ruleNr) {
 //---------------
 // RuleMask constructor: from rulemask text
 //---------------
-RuleMask::RuleMask(char* ruleMaskText) { // TODO: Should be const.
-    m_mask = CompileRuleMask(ruleMaskText);
-}
+RuleMask::RuleMask(const char* ruleMaskText) : m_mask(CompileRuleMask(ruleMaskText)) {}
 
 //---------------
 // get_mask
@@ -261,22 +291,21 @@ bool* RuleMask::get_mask() {
 
 /*
 int main() {
-    Rule* r = new Rule("L,L,W; LL,LL,W; LR,LR,W; R,R,B; RL,RL,B; RR,RR,B; L,R,W; LL,RR,B");
-    rulenr_t ruleNr = r->get_ruleNr();
-    printf("ruleNr: %llu\n", ruleNr);
-    printf("rule text: %s\n", r->get_ruleText().c_str());
+    Rule r1 = Rule("L,L,W; LL,LL,W; LR,LR,W; R,R,B; RL,RL,B; RR,RR,B; L,R,W; L,R,B");
+    Rule r2 = Rule("L,L,W; LL,LL,W; LR,LR,W; R,R,B; RL,RL,B; RR,RR,B; L,R,W; L,R,W");
 
-    RuleMask* fromNr = new RuleMask(ruleNr);
-    bool* mask = fromNr->get_mask();
-    for (int i = 0; i < NR_RULEMASK_ELEMENTS; i += 1)
-        printf("%s", (mask[i] ? "1" : "0"));
-    printf("\n");
+    RuleMask m1 = RuleMask(r1.get_ruleNr());
+    RuleMask m2 = RuleMask(r2.get_ruleNr());
 
-    RuleMask* rm0 = new RuleMask("L,L,W; LL,LL,W; LR,LR,W; R,R,B; RL,RL,B; RR,RR,B; L,R,W; LL,RR,B");
-    mask = rm0->get_mask();
-    for (int i = 0; i < NR_RULEMASK_ELEMENTS; i += 1)
-        printf("%s", (mask[i] ? "1" : "0"));
-    printf("\n");
-    printf("llllllrrrrrrnnllllllrrrrrrnnllllllrrrrrrnnllllllrrrrrrnnllllllrrrrrrnnllllllrrrrrrnnllllllrrrrrrnnllllllrrrrrrnn\n");
+    RuleMask** any = new RuleMask*[1];
+    RuleMask** none = new RuleMask*[1];
+
+    any[0] = &m1;
+    none[0] = &m2;
+
+    Filter f = Filter(any, 1, none, 1);
+
+    assert(r1.PassesFilter(f));
+    assert(!r2.PassesFilter(f));
 }
 */

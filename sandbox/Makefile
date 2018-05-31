@@ -42,8 +42,8 @@ ldtoy: ldtoy.o
 $(CSNAP)/Snap.o:
 	$(MAKE) -C $(CSNAP)
 
-explorer: explorer.cpp machine.cpp rule.o $(CSNAP)/Snap.o
-	$(CC) $(CXXFLAGS) -o $@ $@.cpp machine.cpp rule.o $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
+explorer: explorer.cpp machine.cpp filter.o rule.o $(CSNAP)/Snap.o
+	$(CC) $(CXXFLAGS) -o $@ $@.cpp machine.cpp filter.o rule.o $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
 
 rule: rule.o
 

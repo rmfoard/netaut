@@ -4,6 +4,7 @@
 #include <string>
 #include "netaut.h"
 #include "rulemask.h"
+#include "filter.h"
 
 // Node states, node action specifiers
 #define NWHITE 0
@@ -98,7 +99,7 @@ public:
     rulenr_t get_maxRuleNr();
     const int* get_ruleParts();
     std::string get_ruleText();
-    bool PassesFilter(const RuleMask* anyOf, const RuleMask* butNoneOf);
+    bool PassesFilter(const Filter& filter);
 
 private:
     void CheckRuleNr(const rulenr_t);

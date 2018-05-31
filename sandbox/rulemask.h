@@ -28,12 +28,16 @@
 // Note that "-" and "*" wildcards are not interchageable -- "-" matches any individual
 // action specifier in a rule part; "*" matches any entire rule part.
 //---------------
+
+//---------------
+// class RuleMask
+//---------------
 class RuleMask {
 
 public:
     // Constructors
     RuleMask(const rulenr_t);
-    RuleMask(char*);
+    RuleMask(const char*);
 
     // Getters
     bool* get_mask();
