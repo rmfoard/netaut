@@ -185,6 +185,9 @@ const std::string Rule::RulePartText(const int rulePart) {
 bool Rule::PassesFilter(const Filter& filter) {
     RuleMask ruleMap = RuleMask(m_ruleNr);
 
+    // TODO: Review the following. I think the "any" comment is wrong,
+    // and that we should move on to check the "none of"s as soon as
+    // the first "any" match occurs. (Any==disjunction, None=conjunction)
     // The rulemap must match every "any" mask ...
     for (int i = 0; i < filter.m_nrAny; i += 1)
         if (!MapMatchesMask(ruleMap, *filter.m_any[i])) return false;

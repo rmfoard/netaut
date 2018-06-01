@@ -67,6 +67,21 @@ To provision for generating netaut/hellosnap:
     - use /media/sf_xfer at will
     - (was sudo adduser richard vboxsf necessary in there somewhere? unsure.)
 
+- install postgres
+    - sudo echo 'deb http://apt.postgresql.org/pub/repos/apt/ xenial-pgdg main' >> /etc/apt/sources.list.d/pgdg.list
+    – Import the repository signing key, and update the package lists
+    sudo? wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+    # sudo apt-get update
+    # sudo apt-get install postgresql-10
+    - You can now start the database server using:
+    /usr/lib/postgresql/10/bin/pg_ctl -D /var/lib/postgresql/10/main -l logfile start
+    – After installing PostgreSQL database server, by default PostgreSQL, will create a
+    system account user ‘postgres’ and a user named ‘postgres’ with role ‘postgres’.
+    – To connect use the following commands:
+    # sudo su - postgres
+    # psql 
+    - usage examples and more at ref:
+    http://yallalabs.com/linux/how-to-install-and-use-postgresql-10-on-ubuntu-16-04/
 
 (Deferred enabling doxygen)
 (Deferred enabling googletest to run SNAP's tests)
