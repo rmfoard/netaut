@@ -1,0 +1,236 @@
+{
+    "avgClustCoef": 0.2268486682893787,
+    "ccSizeCount": [
+        [
+            7,
+            1
+        ],
+        [
+            9,
+            3
+        ],
+        [
+            10,
+            1
+        ],
+        [
+            11,
+            2
+        ],
+        [
+            14,
+            2
+        ],
+        [
+            15,
+            1
+        ],
+        [
+            22,
+            1
+        ],
+        [
+            23,
+            2
+        ],
+        [
+            25,
+            1
+        ],
+        [
+            32,
+            2
+        ],
+        [
+            48,
+            1
+        ],
+        [
+            54,
+            1
+        ],
+        [
+            57,
+            1
+        ],
+        [
+            87,
+            1
+        ]
+    ],
+    "diameter": 11,
+    "effDiameter90Pctl": 7.394621026894867,
+    "inDegreeCount": [
+        [
+            0,
+            229
+        ],
+        [
+            1,
+            97
+        ],
+        [
+            2,
+            54
+        ],
+        [
+            3,
+            39
+        ],
+        [
+            4,
+            24
+        ],
+        [
+            5,
+            19
+        ],
+        [
+            6,
+            8
+        ],
+        [
+            7,
+            18
+        ],
+        [
+            8,
+            3
+        ],
+        [
+            9,
+            2
+        ],
+        [
+            10,
+            3
+        ],
+        [
+            11,
+            3
+        ],
+        [
+            12,
+            1
+        ],
+        [
+            14,
+            2
+        ],
+        [
+            15,
+            2
+        ],
+        [
+            17,
+            1
+        ],
+        [
+            18,
+            2
+        ],
+        [
+            19,
+            1
+        ],
+        [
+            22,
+            2
+        ],
+        [
+            23,
+            2
+        ]
+    ],
+    "noMultiEdges": 1,
+    "nrCcSizes": 14,
+    "nrCcs": 20,
+    "nrClosedTriads": 221,
+    "nrInDegrees": 20,
+    "nrIterations": 512,
+    "nrNodes": 512,
+    "nrOpenTriads": 4037,
+    "ruleNr": 264856914075423,
+    "ruleParts": [
+        39,
+        71,
+        4,
+        37,
+        56,
+        10,
+        29,
+        26
+    ],
+    "rulePartsText": [
+        "R,LL,B",
+        "RR,RR,B",
+        "L,LR,W",
+        "R,L,B",
+        "RL,RL,W",
+        "L,RR,W",
+        "LR,LR,B",
+        "LR,LL,W"
+    ],
+    "ruleText": "R,LL,B;RR,RR,B;L,LR,W;R,L,B;RL,RL,W;L,RR,W;LR,LR,B;LR,LL,W",
+    "runId": "264856914075423",
+    "selfEdges": 0,
+    "version": "180525.2"
+}
+{
+    "avgClustCoef": 0.08346354166666668,
+    "ccSizeCount": [
+        [
+            512,
+            1
+        ]
+    ],
+    "diameter": 66,
+    "effDiameter90Pctl": 58.321960784313724,
+    "inDegreeCount": [
+        [
+            0,
+            255
+        ],
+        [
+            3,
+            4
+        ],
+        [
+            4,
+            253
+        ]
+    ],
+    "noMultiEdges": 1,
+    "nrCcSizes": 1,
+    "nrCcs": 1,
+    "nrClosedTriads": 212,
+    "nrInDegrees": 3,
+    "nrIterations": 512,
+    "nrNodes": 512,
+    "nrOpenTriads": 3452,
+    "ruleNr": 12,
+    "ruleParts": [
+        12,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+    ],
+    "rulePartsText": [
+        "LL,L,W",
+        "L,L,W",
+        "L,L,W",
+        "L,L,W",
+        "L,L,W",
+        "L,L,W",
+        "L,L,W",
+        "L,L,W"
+    ],
+    "ruleText": "LL,L,W;L,L,W;L,L,W;L,L,W;L,L,W;L,L,W;L,L,W;L,L,W",
+    "runId": "12",
+    "selfEdges": 0,
+    "version": "180525.2"
+}

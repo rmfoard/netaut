@@ -1,0 +1,2 @@
+./explorer --rule 264856914075423 --no-multi-edges --no-write-state --nodes 512 --iterations 512 | python -mjson.tool > integrity_ref.txt
+./explorer --rule 12 --no-multi-edges --no-write-state --nodes 512 --iterations 512 | python -mjson.tool >> integrity_ref.txt

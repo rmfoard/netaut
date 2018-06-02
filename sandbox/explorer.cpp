@@ -83,7 +83,7 @@ void ParseCommand(const int argc, char* argv[]) {
     while (true) {
 
         int option_index = 0;
-        c = getopt_long (argc, argv, "m:i:b:d:n:r:a:t:w:",
+        c = getopt_long (argc, argv, "m:i:n:r:a:t:s:",
           long_options, &option_index);
 
         if (c == -1) // end of options?
