@@ -3,10 +3,6 @@ import json
 import sys
 
 
-def qwrap(s):
-    return '"' + str(s) + '"'
-
-
 def main():
     if len(sys.argv) != 3:
         print "usage: python json_to_csv.py <jsonfile> <csvfile>"
@@ -39,7 +35,7 @@ def main():
             writer.writeheader()
             for line in jsonfile:
                 dct = json.loads(line)
-                dct['runid'] = str(dct['runId'])
+                dct['runid'] = dct['runId']
                 dct['version'] = dct['version']
                 writer.writerow(dct)
 
