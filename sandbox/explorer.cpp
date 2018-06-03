@@ -11,7 +11,7 @@
 #include "rule.h"
 #include "machine.h"
 
-#define VERSION "180602.0"
+#define VERSION "V180602.0"
 #define NR_CYCLES 40
 
 // TODO: Add --help
@@ -321,7 +321,7 @@ int main(const int argc, char* argv[]) {
     }
 
     // Fabricate a run identifier. (TODO: Enrich runId composition.)
-    std::string runId = std::string(std::to_string(cmdOpt.ruleNr));
+    std::string runId = std::string("R") + std::string(std::to_string(cmdOpt.ruleNr));
 
     MachineS* m = new MachineS(cmdOpt.ruleNr, cmdOpt.nrNodes);
 
