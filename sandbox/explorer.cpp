@@ -209,6 +209,7 @@ void SaveMachine(const std::string runId, MachineS* m, const std::string outFile
     for (TNEGraph::TNodeI NIter = m->get_m_graph()->BegNI(); NIter < m->get_m_graph()->EndNI(); NIter++) {
         int nId = NIter.GetId();
         nodeColorHash.AddDat(nId, (*(nodeStates + nId) == NBLACK) ? "black" : "white");
+        printf("nId %d <- %d\n", nId, *(nodeStates + nId));
     }
     TSnap::SaveGViz(m->get_m_graph(),
       (runId + std::string("_") + outFileSuffix + std::string(".dot")).c_str(),
