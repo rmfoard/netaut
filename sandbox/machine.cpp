@@ -43,7 +43,7 @@ MachineS::~MachineS() {
 //---------------
 // TODO: Use the proper form for "getters."
 //---------------
-PNEGraph MachineS::get_m_graph() { return m_graph; }
+PNEGraph MachineS::get_graph() { return m_graph; }
 int* MachineS::get_nodeStates() { return m_nodeStates; }
 
 //---------------

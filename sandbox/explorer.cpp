@@ -206,12 +206,12 @@ static
 void SaveMachine(const std::string runId, MachineS* m, const std::string outFileSuffix) {
     TIntStrH nodeColorHash = THash<TInt, TStr>();
     int* nodeStates = m->get_nodeStates();
-    for (TNEGraph::TNodeI NIter = m->get_m_graph()->BegNI(); NIter < m->get_m_graph()->EndNI(); NIter++) {
+    for (TNEGraph::TNodeI NIter = m->get_graph()->BegNI(); NIter < m->get_graph()->EndNI(); NIter++) {
         int nId = NIter.GetId();
         nodeColorHash.AddDat(nId, (*(nodeStates + nId) == NBLACK) ? "black" : "white");
         printf("nId %d <- %d\n", nId, *(nodeStates + nId));
     }
-    TSnap::SaveGViz(m->get_m_graph(),
+    TSnap::SaveGViz(m->get_graph(),
       (runId + std::string("_") + outFileSuffix + std::string(".dot")).c_str(),
       TStr(runId.c_str()), false, nodeColorHash);
     // (above, false => no node labels are provided)
@@ -248,7 +248,7 @@ void WriteInfo(std::string runId, MachineS* machine) {
         // Develop and capture outcome measures.
         Json::Value ccSizeCount;
         TVec<TPair<TInt, TInt> > sizeCount;
-        TSnap::GetWccSzCnt(machine->get_m_graph(), sizeCount);
+        TSnap::GetWccSzCnt(machine->get_graph(), sizeCount);
         int nrCcs = 0;
         for (int i = 0; i < sizeCount.Len(); i += 1) {
             Json::Value sizeCountPair;
@@ -264,20 +264,20 @@ void WriteInfo(std::string runId, MachineS* machine) {
         // TODO: Learn the meaning of DegCCfV, below.
         TFltPrV DegCCfV;
         int64 ClosedTriads, OpenTriads;
-        const double CCF = TSnap::GetClustCf(machine->get_m_graph(), DegCCfV, ClosedTriads, OpenTriads);
+        const double CCF = TSnap::GetClustCf(machine->get_graph(), DegCCfV, ClosedTriads, OpenTriads);
         info["avgClustCoef"] = CCF;
         info["nrClosedTriads"] = (uint64_t) TUInt64(ClosedTriads);
         info["nrOpenTriads"] = (uint64_t) TUInt64(OpenTriads);
 
         int FullDiam;
         double EffDiam;
-        TSnap::GetBfsEffDiam(machine->get_m_graph(), 1000, false, EffDiam, FullDiam);
+        TSnap::GetBfsEffDiam(machine->get_graph(), 1000, false, EffDiam, FullDiam);
         info["diameter"] = FullDiam;
         info["effDiameter90Pctl"] = EffDiam;
 
         Json::Value inDegreeCount;
         TVec<TPair<TInt, TInt> > inDegCnt;
-        TSnap::GetInDegCnt(machine->get_m_graph(), inDegCnt); 
+        TSnap::GetInDegCnt(machine->get_graph(), inDegCnt); 
         for (int i = 0; i < inDegCnt.Len(); i += 1) {
             Json::Value inDegreeCountPair;
             inDegreeCountPair.append((int) inDegCnt[i].Val1);
