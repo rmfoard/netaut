@@ -204,9 +204,15 @@ int DoConversion() {
 //---------------
 static
 void SaveMachine(const std::string runId, MachineS* m, const std::string outFileSuffix) {
+    TIntStrH nodeColorHash = THash<TInt, TStr>();
+    int* nodeStates = m->get_nodeStates();
+    for (TNEGraph::TNodeI NIter = m->get_m_graph()->BegNI(); NIter < m->get_m_graph()->EndNI(); NIter++) {
+        int nId = NIter.GetId();
+        nodeColorHash.AddDat(nId, (*(nodeStates + nId) == NBLACK) ? "black" : "white");
+    }
     TSnap::SaveGViz(m->get_m_graph(),
       (runId + std::string("_") + outFileSuffix + std::string(".dot")).c_str(),
-      TStr(runId.c_str()), false);
+      TStr(runId.c_str()), false, nodeColorHash);
     // (above, false => no node labels are provided)
 }
 

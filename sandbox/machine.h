@@ -6,7 +6,9 @@ class MachineS {
 public:
     MachineS(rulenr_t, int);
     ~MachineS();
+    // TODO: Remove 'm_' from the following getter.
     PNEGraph get_m_graph();
+    int* get_nodeStates();
     void Cycle(int, int);
     void ShowDepthFirst(int);
 
