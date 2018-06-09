@@ -235,16 +235,15 @@ void WriteState(const std::string runId, MachineS* m, const std::string outFileS
     }
 
     // Compose the file name.
+    std::string suffix = std::string("");
+    if (outFileSuffix != std::string("")) suffix = std::string("_") + outFileSuffix;
+
     std::string stateFName = std::string("");
-    if (numTag < 0) {
-        stateFName = runId + std::string("_") + outFileSuffix
-          + std::string(".dot");
-    }
-    else {
-        stateFName = runId + std::string("_") + outFileSuffix
-          + std::string(".") + std::to_string(numTag)
-          + std::string(".dot");
-    }
+    if (numTag < 0)
+        stateFName = runId + suffix;
+    else
+        stateFName = runId + suffix + std::string(".") + std::to_string(numTag);
+    stateFName += std::string(".dot");
 
     // Compose the description string.
     std::string description = runId + std::string(" @")
