@@ -26,8 +26,10 @@ struct CommandOpts {
     int noInfo;
     int shortInfo;
     int printTape;
-    int noWriteState;
+    int noWriteEndState;
     int nrNodes;
+    int writeStart;
+    int writeStride;
     bool rulePresent;
     bool textPresent;
     std::string outFileSuffix;
@@ -55,11 +57,16 @@ void ParseCommand(const int argc, char* argv[]) {
     cmdOpt.shortInfo = 0;
     cmdOpt.printTape = 0;
     cmdOpt.nrNodes = 256;
+    cmdOpt.writeStart = -1;
+    cmdOpt.writeStride = -1;
     cmdOpt.rulePresent = false;
     cmdOpt.textPresent = false;
-    cmdOpt.noWriteState = false;
+    cmdOpt.noWriteEndState = false;
     cmdOpt.outFileSuffix = std::string("");
     cmdOpt.ruleText = NULL;
+
+#define CO_WRITE_START 1000
+#define CO_WRITE_STRIDE 1001
 
     static struct option long_options[] = {
         {"convert-only", no_argument, &cmdOpt.convertOnly, 1},
@@ -68,7 +75,7 @@ void ParseCommand(const int argc, char* argv[]) {
         {"no-info", no_argument, &cmdOpt.noInfo, 1},
         {"short-info", no_argument, &cmdOpt.shortInfo, 1},
         {"print", no_argument, &cmdOpt.printTape, 1},
-        {"no-write-state", no_argument, &cmdOpt.noWriteState, 1},
+        {"no-write-end-state", no_argument, &cmdOpt.noWriteEndState, 1},
 
         {"machine", required_argument, 0, 'm'},
         {"iterations", required_argument, 0, 'i'},
@@ -77,6 +84,8 @@ void ParseCommand(const int argc, char* argv[]) {
         {"random", required_argument, 0, 'a'},
         {"text", required_argument, 0, 't'},
         {"suffix", required_argument, 0, 's'},
+        {"write-start", required_argument, 0, CO_WRITE_START},
+        {"write-stride", required_argument, 0, CO_WRITE_STRIDE},
         {0, 0, 0, 0}
     };
 
@@ -142,7 +151,15 @@ void ParseCommand(const int argc, char* argv[]) {
             break;
 
           case 'w':
-            cmdOpt.noWriteState = 1;
+            cmdOpt.noWriteEndState = 1;
+            break;
+
+          case CO_WRITE_START:
+            cmdOpt.writeStart = atoi(optarg);
+            break;
+
+          case CO_WRITE_STRIDE:
+            cmdOpt.writeStride = atoi(optarg);
             break;
 
           case '?':
@@ -162,6 +179,12 @@ void ParseCommand(const int argc, char* argv[]) {
         srand(cmdOpt.randSeed);
         cmdOpt.ruleNr = ((unsigned long long) rand() * RAND_MAX + rand()) % r->get_maxRuleNr();
         delete r;
+    }
+
+    if ((cmdOpt.writeStart >= 0 && cmdOpt.writeStride < 0)
+      || (cmdOpt.writeStart < 0 && cmdOpt.writeStride >= 0)) {
+        printf("error: --write-start and --write-stride must both be specified\n");
+        errorFound = true;
     }
 
     if (errorFound) exit(1);
@@ -203,18 +226,32 @@ int DoConversion() {
 // Write the current machine state to a file.
 //---------------
 static
-void WriteState(const std::string runId, MachineS* m, const std::string outFileSuffix) {
+void WriteState(const std::string runId, MachineS* m, const std::string outFileSuffix, const int numTag) {
     TIntStrH nodeColorHash = THash<TInt, TStr>();
     int* nodeStates = m->get_nodeStates();
     for (TNEGraph::TNodeI NIter = m->get_graph()->BegNI(); NIter < m->get_graph()->EndNI(); NIter++) {
         int nId = NIter.GetId();
         nodeColorHash.AddDat(nId, (nodeStates[nId] == NBLACK) ? "black" : "white");
     }
-    TSnap::SaveGViz(m->get_graph(),
-      (runId + std::string("_") + outFileSuffix + std::string(".dot")).c_str(),
-      TStr(runId.c_str()),
-      false, // no node labels are provided
-      nodeColorHash);
+
+    // Compose the file name.
+    std::string stateFName = std::string("");
+    if (numTag < 0) {
+        stateFName = runId + std::string("_") + outFileSuffix
+          + std::string(".dot");
+    }
+    else {
+        stateFName = runId + std::string("_") + outFileSuffix
+          + std::string(".") + std::to_string(numTag)
+          + std::string(".dot");
+    }
+
+    // Compose the description string.
+    std::string description = runId + std::string(" @")
+      + (numTag < 0 ? std::to_string(cmdOpt.nrIterations) : std::to_string(numTag));
+
+    // Write state to the file (false => no labels provided).
+    TSnap::SaveGViz(m->get_graph(), stateFName.c_str(), TStr(description.c_str()), false, nodeColorHash);
 }
 
 //---------------
@@ -330,13 +367,22 @@ int main(const int argc, char* argv[]) {
     // Fabricate a run identifier. (TODO: Enrich runId composition.)
     std::string runId = std::string("R") + std::string(std::to_string(cmdOpt.ruleNr));
 
+    // Create the machine.
     MachineS* m = new MachineS(cmdOpt.ruleNr, cmdOpt.nrNodes);
 
-    for (int i = 1; i <= cmdOpt.nrIterations; i += 1)
+    // Run it, saving state periodically if specified.
+    for (int i = 0; i < cmdOpt.nrIterations; i += 1) {
+        if (cmdOpt.writeStart >= 0) {
+            if (i >= cmdOpt.writeStart && (i - cmdOpt.writeStart) % cmdOpt.writeStride == 0) {
+                WriteState(runId, m, cmdOpt.outFileSuffix, i);
+            }
+        }
         m->Cycle(cmdOpt.selfEdges, cmdOpt.multiEdges);
+    }
 
-    // Write the end-state machine unless --no-write-state was present.
-    if (!cmdOpt.noWriteState) WriteState(runId, m, cmdOpt.outFileSuffix);
+    // Write the end-state machine unless --no-write-end-state was present.
+    //   (-1 => no numeric tag for inclusion in file name)
+    if (!cmdOpt.noWriteEndState) WriteState(runId, m, cmdOpt.outFileSuffix, -1);
 
     // Write run information unless --no-write-info was present.
     if (!cmdOpt.noInfo) WriteInfo(runId, m);
