@@ -198,12 +198,12 @@ int DoConversion() {
 }
 
 //---------------
-// SaveMachine
+// WriteState
 //
 // Write the current machine state to a file.
 //---------------
 static
-void SaveMachine(const std::string runId, MachineS* m, const std::string outFileSuffix) {
+void WriteState(const std::string runId, MachineS* m, const std::string outFileSuffix) {
     TIntStrH nodeColorHash = THash<TInt, TStr>();
     int* nodeStates = m->get_nodeStates();
     for (TNEGraph::TNodeI NIter = m->get_graph()->BegNI(); NIter < m->get_graph()->EndNI(); NIter++) {
@@ -335,8 +335,8 @@ int main(const int argc, char* argv[]) {
     for (int i = 1; i <= cmdOpt.nrIterations; i += 1)
         m->Cycle(cmdOpt.selfEdges, cmdOpt.multiEdges);
 
-    // Write the end-state machine if --write was present.
-    if (!cmdOpt.noWriteState) SaveMachine(runId, m, cmdOpt.outFileSuffix);
+    // Write the end-state machine unless --no-write-state was present.
+    if (!cmdOpt.noWriteState) WriteState(runId, m, cmdOpt.outFileSuffix);
 
     // Write run information unless --no-write-info was present.
     if (!cmdOpt.noInfo) WriteInfo(runId, m);
