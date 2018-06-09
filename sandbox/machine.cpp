@@ -58,7 +58,7 @@ void MachineS::InitNodeStates() {
 //
 // Run one step of the loaded rule.
 //---------------
-void MachineS::Cycle(int selfEdges, int noMultiEdges) {
+void MachineS::Cycle(int selfEdges, int multiEdges) {
 
     // Show node states at the beginning of the cycle.
     /* temporarily hold aside
@@ -87,7 +87,7 @@ void MachineS::Cycle(int selfEdges, int noMultiEdges) {
     // Apply one generation of the loaded rule, creating the next generation
     // state in 'm_nextGraph' and 'm_nextNodeStates'.
     for (TNEGraph::TNodeI NIter = m_graph->BegNI(); NIter < m_graph->EndNI(); NIter++)
-        AdvanceNode(NIter, selfEdges, noMultiEdges);
+        AdvanceNode(NIter, selfEdges, multiEdges);
 
     // Cycling finished, replace "current" structures with "next" counterparts.
     // (Abandoning m->graph to garbage collection.)
@@ -107,9 +107,8 @@ void MachineS::Cycle(int selfEdges, int noMultiEdges) {
 // structures.  Every action must put appropriate edges in place
 // for the node being advanced.
 //---------------
-void MachineS::AdvanceNode(TNEGraph::TNodeI NIter, int selfEdges, int noMultiEdges) {
+void MachineS::AdvanceNode(TNEGraph::TNodeI NIter, int selfEdges, int multiEdges) {
     bool selfEdge = selfEdges;
-    bool multiEdge = !noMultiEdges;
 
     // Get node ids of neighbors.
     int nNId = NIter.GetId();
@@ -153,7 +152,7 @@ void MachineS::AdvanceNode(TNEGraph::TNodeI NIter, int selfEdges, int noMultiEdg
     const int nAction = rulePart % 2;
 
     // Confirm that topological invariants still hold.
-    assert(lNId != rNId || multiEdge);
+    assert(lNId != rNId || multiEdges);
     assert((lNId != nNId && rNId != nNId) || selfEdge);
 
     // TODO: Keep running stats on action use.
@@ -167,7 +166,7 @@ void MachineS::AdvanceNode(TNEGraph::TNodeI NIter, int selfEdges, int noMultiEdg
 
     // ...only if they preserve the topo invariants.
     if (((lNewDst != nNId && rNewDst != nNId) || selfEdge)
-      && ((lNewDst != rNewDst) || multiEdge)) {
+      && ((lNewDst != rNewDst) || multiEdges)) {
         m_nextGraph->AddEdge(nNId, lNewDst);
         m_nextGraph->AddEdge(nNId, rNewDst);
     }

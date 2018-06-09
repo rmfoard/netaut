@@ -13,7 +13,7 @@ def main():
         'runId',
         'ruleNr',
         'ruleText',
-        'noMultiEdges',
+        'multiEdges',
         'selfEdges',
         'nrNodes',
         'nrIterations',
@@ -34,10 +34,11 @@ def main():
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames, extrasaction='ignore')
             writer.writeheader()
             for line in jsonfile:
-                dct = json.loads(line)
-                dct['runid'] = dct['runId']
-                dct['version'] = dct['version']
-                writer.writerow(dct)
+                if len(line) > 1:
+                    dct = json.loads(line)
+                    if 'noMultiEdges' in dct:  # need to invert legacy item?
+                        dct['multiEdges'] = 1 - dct['noMultiEdges']
+                    writer.writerow(dct)
 
 
 if __name__ == '__main__':

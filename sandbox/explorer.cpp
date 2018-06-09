@@ -22,7 +22,7 @@ struct CommandOpts {
     int nrIterations;
     int randSeed;
     int selfEdges;
-    int noMultiEdges;
+    int multiEdges;
     int noInfo;
     int shortInfo;
     int printTape;
@@ -50,7 +50,7 @@ void ParseCommand(const int argc, char* argv[]) {
     cmdOpt.nrIterations = 128;
     cmdOpt.randSeed = -1;
     cmdOpt.selfEdges = 0;
-    cmdOpt.noMultiEdges = 0;
+    cmdOpt.multiEdges = 0;
     cmdOpt.noInfo = 0;
     cmdOpt.shortInfo = 0;
     cmdOpt.printTape = 0;
@@ -64,7 +64,7 @@ void ParseCommand(const int argc, char* argv[]) {
     static struct option long_options[] = {
         {"convert-only", no_argument, &cmdOpt.convertOnly, 1},
         {"self-edges", no_argument, &cmdOpt.selfEdges, 1},
-        {"no-multi-edges", no_argument, &cmdOpt.noMultiEdges, 1},
+        {"multi-edges", no_argument, &cmdOpt.multiEdges, 1},
         {"no-info", no_argument, &cmdOpt.noInfo, 1},
         {"short-info", no_argument, &cmdOpt.shortInfo, 1},
         {"print", no_argument, &cmdOpt.printTape, 1},
@@ -235,7 +235,7 @@ void WriteInfo(std::string runId, MachineS* machine) {
     info["nrNodes"] = machine->m_nrNodes;
     info["nrIterations"] = cmdOpt.nrIterations;
     info["selfEdges"] = cmdOpt.selfEdges;
-    info["noMultiEdges"] = cmdOpt.noMultiEdges;
+    info["multiEdges"] = cmdOpt.multiEdges;
     if (!cmdOpt.shortInfo) {
         for (int i = 0; i < NR_TRIAD_STATES; i += 1) {
             ruleParts.append(machine->m_ruleParts[i]);
@@ -333,7 +333,7 @@ int main(const int argc, char* argv[]) {
     MachineS* m = new MachineS(cmdOpt.ruleNr, cmdOpt.nrNodes);
 
     for (int i = 1; i <= cmdOpt.nrIterations; i += 1)
-        m->Cycle(cmdOpt.selfEdges, cmdOpt.noMultiEdges);
+        m->Cycle(cmdOpt.selfEdges, cmdOpt.multiEdges);
 
     // Write the end-state machine if --write was present.
     if (!cmdOpt.noWriteState) SaveMachine(runId, m, cmdOpt.outFileSuffix);
