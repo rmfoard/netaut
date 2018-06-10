@@ -229,7 +229,7 @@ static
 void WriteState(const std::string runId, MachineS* m, const std::string outFileSuffix, const int numTag) {
     TIntStrH nodeColorHash = THash<TInt, TStr>();
     int* nodeStates = m->get_nodeStates();
-    for (TNEGraph::TNodeI NIter = m->get_graph()->BegNI(); NIter < m->get_graph()->EndNI(); NIter++) {
+    for (TNGraph::TNodeI NIter = m->get_graph()->BegNI(); NIter < m->get_graph()->EndNI(); NIter++) {
         int nId = NIter.GetId();
         nodeColorHash.AddDat(nId, (nodeStates[nId] == NBLACK) ? "black" : "white");
     }

@@ -7,7 +7,7 @@ public:
     MachineS(rulenr_t, int);
     ~MachineS();
     // TODO: Remove 'm_' from the following getter.
-    PNEGraph get_graph();
+    PNGraph get_graph();
     int* get_nodeStates();
     void Cycle(int, int);
     void ShowDepthFirst(int);
@@ -17,12 +17,12 @@ public:
     const int* m_ruleParts;
 
 private:
-    PNEGraph m_graph;
-    PNEGraph m_nextGraph;
+    PNGraph m_graph;
+    PNGraph m_nextGraph;
     int* m_nodeStates;
     int* m_nextNodeStates;
 
-    void AdvanceNode(TNEGraph::TNodeI, int, int);
+    void AdvanceNode(TNGraph::TNodeI, int, int);
     void InitNodeStates();
     void ShowDF(int, bool*);
 };

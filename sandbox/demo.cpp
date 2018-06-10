@@ -13,7 +13,7 @@ void PrintGStats(const char s[], PGraph Graph) {
 
 // AHA!! It's their pointer management scheme!
 //template <class TGraph>
-//TPt<TGraph> NewGraph() { // instantiates into equivalents of PUNGraph, PNGraph, PNEGraph, etc.
+//TPt<TGraph> NewGraph() { // instantiates into equivalents of PUNGraph, PNGraph, PNGraph, etc.
 //  return TPt<TGraph>::New();
 //}
 template <class TGraph>

@@ -11,7 +11,7 @@
 //---------------
 // TODO: Consider moving this to a 'graph_factory' module.
 static
-void BuildRing(int nrNodes, PNEGraph graph) {
+void BuildRing(int nrNodes, PNGraph graph) {
     assert(nrNodes > 1);
 
     for (int n = 0; n < nrNodes; n += 1) graph->AddNode(n);
@@ -26,7 +26,7 @@ MachineS::MachineS(rulenr_t ruleNr, int nrNodes) {
     m_rule = new Rule(ruleNr);
     m_ruleParts = m_rule->get_ruleParts();
     m_nrNodes = nrNodes;
-    m_graph = TNEGraph::New();
+    m_graph = TNGraph::New();
     m_nodeStates = new int[m_nrNodes];
     m_nextNodeStates = new int[m_nrNodes];
     BuildRing(m_nrNodes, m_graph);
@@ -43,7 +43,7 @@ MachineS::~MachineS() {
 //---------------
 // TODO: Use the proper form for "getters."
 //---------------
-PNEGraph MachineS::get_graph() { return m_graph; }
+PNGraph MachineS::get_graph() { return m_graph; }
 int* MachineS::get_nodeStates() { return m_nodeStates; }
 
 //---------------
@@ -71,13 +71,13 @@ void MachineS::Cycle(int selfEdges, int multiEdges) {
     */
 
     // Create the seed of the graph's next generation.
-    m_nextGraph = TNEGraph::New();
+    m_nextGraph = TNGraph::New();
 
     // Copy all nodes from current to next graph (added edges will "forward
     // reference" them). Rule actions in 'AdvanceNode' are responsible for
     // [re-]creating all edges in the new graph -- those that have been changed
     // and those that remain the same.
-    for (TNEGraph::TNodeI NIter = m_graph->BegNI(); NIter < m_graph->EndNI(); NIter++) {
+    for (TNGraph::TNodeI NIter = m_graph->BegNI(); NIter < m_graph->EndNI(); NIter++) {
         int nId = NIter.GetId();
         m_nextGraph->AddNode(nId);
     }
@@ -86,7 +86,7 @@ void MachineS::Cycle(int selfEdges, int multiEdges) {
     //   for use in 'AdvanceNode'. (middling opt)
     // Apply one generation of the loaded rule, creating the next generation
     // state in 'm_nextGraph' and 'm_nextNodeStates'.
-    for (TNEGraph::TNodeI NIter = m_graph->BegNI(); NIter < m_graph->EndNI(); NIter++)
+    for (TNGraph::TNodeI NIter = m_graph->BegNI(); NIter < m_graph->EndNI(); NIter++)
         AdvanceNode(NIter, selfEdges, multiEdges);
 
     // Cycling finished, replace "current" structures with "next" counterparts.
@@ -107,7 +107,7 @@ void MachineS::Cycle(int selfEdges, int multiEdges) {
 // structures.  Every action must put appropriate edges in place
 // for the node being advanced.
 //---------------
-void MachineS::AdvanceNode(TNEGraph::TNodeI NIter, int selfEdges, int multiEdges) {
+void MachineS::AdvanceNode(TNGraph::TNodeI NIter, int selfEdges, int multiEdges) {
     bool selfEdge = selfEdges;
 
     // Get node ids of neighbors.
@@ -124,8 +124,8 @@ void MachineS::AdvanceNode(TNEGraph::TNodeI NIter, int selfEdges, int multiEdges
     int triadState = lState * 4 + nState * 2 + rState;
 
     // Gather info on neighbors' neighbors.
-    TNEGraph::TNodeI lNIter = m_graph->GetNI(lNId); // iterator for left neighbor
-    TNEGraph::TNodeI rNIter = m_graph->GetNI(rNId); // iterator for right neighbor
+    TNGraph::TNodeI lNIter = m_graph->GetNI(lNId); // iterator for left neighbor
+    TNGraph::TNodeI rNIter = m_graph->GetNI(rNId); // iterator for right neighbor
     int llNId = lNIter.GetOutNId(0);
     int lrNId = lNIter.GetOutNId(1);
     int rlNId = rNIter.GetOutNId(0);
@@ -198,7 +198,7 @@ void MachineS::ShowDF(int rootNId, bool *visited) {
     if (!visited[rootNId]) {
         visited[rootNId] = true;
         printf("%s", (m_nodeStates[rootNId] == NBLACK) ? "+" : " ");
-        TNEGraph::TNodeI rootIter = m_graph->GetNI(rootNId);
+        TNGraph::TNodeI rootIter = m_graph->GetNI(rootNId);
         int lNId = rootIter.GetOutNId(0);
         int rNId = rootIter.GetOutNId(1);
         ShowDF(lNId, visited);
