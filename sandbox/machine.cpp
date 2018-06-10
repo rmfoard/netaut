@@ -97,7 +97,6 @@ void MachineS::Cycle(int selfEdges, int multiEdges, int iterationNr) {
         sameStates = false;
         break;
     }
-    printf("\n");
     if (sameStates) {
         printf("node states unchanged at iteration %d\n", iterationNr);
         exit(0);
