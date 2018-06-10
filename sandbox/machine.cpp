@@ -93,10 +93,13 @@ void MachineS::Cycle(int selfEdges, int multiEdges, int iterationNr) {
     //---------------------------------------------------
     // See if node states have changed.
     bool sameStates = true;
+    int totalNodeState = 0;
     for (int i = 0; i < m_nrNodes; i += 1) if (m_nodeStates[i] != m_nextNodeStates[i]) {
+        totalNodeState += m_nodeStates[i];
         sameStates = false;
         break;
     }
+    printf("%d ", totalNodeState); ////temporary
     if (sameStates) {
         printf("node states unchanged at iteration %d\n", iterationNr);
         exit(0);
