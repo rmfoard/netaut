@@ -376,7 +376,7 @@ int main(const int argc, char* argv[]) {
                 WriteState(runId, m, cmdOpt.outFileSuffix, i);
             }
         }
-        m->Cycle(cmdOpt.selfEdges, cmdOpt.multiEdges);
+        m->Cycle(cmdOpt.selfEdges, cmdOpt.multiEdges, i);
     }
 
     // Write the end-state machine unless --no-write-end-state was present.

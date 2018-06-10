@@ -9,7 +9,7 @@ public:
     // TODO: Remove 'm_' from the following getter.
     PNGraph get_graph();
     int* get_nodeStates();
-    void Cycle(int, int);
+    void Cycle(int, int, int);
     void ShowDepthFirst(int);
 
     Rule* m_rule;

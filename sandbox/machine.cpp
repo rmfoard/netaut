@@ -58,7 +58,7 @@ void MachineS::InitNodeStates() {
 //
 // Run one step of the loaded rule.
 //---------------
-void MachineS::Cycle(int selfEdges, int multiEdges) {
+void MachineS::Cycle(int selfEdges, int multiEdges, int iterationNr) {
 
     // Show node states at the beginning of the cycle.
     /* temporarily hold aside
@@ -86,8 +86,24 @@ void MachineS::Cycle(int selfEdges, int multiEdges) {
     //   for use in 'AdvanceNode'. (middling opt)
     // Apply one generation of the loaded rule, creating the next generation
     // state in 'm_nextGraph' and 'm_nextNodeStates'.
-    for (TNGraph::TNodeI NIter = m_graph->BegNI(); NIter < m_graph->EndNI(); NIter++)
+    for (TNGraph::TNodeI NIter = m_graph->BegNI(); NIter < m_graph->EndNI(); NIter++) {
         AdvanceNode(NIter, selfEdges, multiEdges);
+    }
+
+    //---------------------------------------------------
+    // See if node states have changed.
+    bool sameStates = true;
+    for (int i = 0; i < m_nrNodes; i += 1) if (m_nodeStates[i] != m_nextNodeStates[i]) {
+        sameStates = false;
+        break;
+    }
+    printf("\n");
+    if (sameStates) {
+        printf("node states unchanged at iteration %d\n", iterationNr);
+        exit(0);
+    }
+
+    //---------------------------------------------------
 
     // Cycling finished, replace "current" structures with "next" counterparts.
     // (Abandoning m->graph to garbage collection.)
