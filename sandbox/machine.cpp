@@ -54,11 +54,11 @@ void MachineS::InitNodeStates() {
 }
 
 //---------------
-// Cycle
+// IterateMachine
 //
 // Run one step of the loaded rule.
 //---------------
-bool MachineS::Cycle(int selfEdges, int multiEdges, int iterationNr) {
+bool MachineS::IterateMachine(int selfEdges, int multiEdges, int iterationNr) {
 
     // Show node states at the beginning of the cycle.
     /* temporarily hold aside
@@ -89,23 +89,6 @@ bool MachineS::Cycle(int selfEdges, int multiEdges, int iterationNr) {
     for (TNGraph::TNodeI NIter = m_graph->BegNI(); NIter < m_graph->EndNI(); NIter++) {
         AdvanceNode(NIter, selfEdges, multiEdges);
     }
-
-    //---------------------------------------------------
-    // See if node states have changed.
-    bool sameStates = true;
-    int totalNodeState = 0;
-    for (int i = 0; i < m_nrNodes; i += 1) if (m_nodeStates[i] != m_nextNodeStates[i]) {
-        totalNodeState += m_nodeStates[i];
-        sameStates = false;
-        break;
-    }
-    printf("%d ", totalNodeState); ////temporary
-    if (sameStates) {
-        printf("node states unchanged at iteration %d\n", iterationNr);
-        return false; // report early termination
-    }
-
-    //---------------------------------------------------
 
     // Cycling finished, replace "current" structures with "next" counterparts.
     // (Abandoning m->graph to garbage collection.)

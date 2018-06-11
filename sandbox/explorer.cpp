@@ -377,8 +377,8 @@ int main(const int argc, char* argv[]) {
                 WriteState(runId, m, cmdOpt.outFileSuffix, iter);
             }
         }
-        // Stop iteration if 'Cycle' signaled early termination.
-        if (!m->Cycle(cmdOpt.selfEdges, cmdOpt.multiEdges, iter)) break;
+        // Stop iteration if 'IterateMachine' signaled early termination.
+        if (!m->IterateMachine(cmdOpt.selfEdges, cmdOpt.multiEdges, iter)) break;
     } // The residual value of 'iter' is the actual number of iterations performed.
 
     // Write the end-state machine unless --no-write-end-state was present.
