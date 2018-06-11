@@ -47,6 +47,17 @@ PNGraph MachineS::get_graph() { return m_graph; }
 int* MachineS::get_nodeStates() { return m_nodeStates; }
 
 //---------------
+// Cycling
+//
+// Compare the current machine state (node states and graph topology) to
+// determine whether it is identical to one of the preceding 'cycleCheckDepth'
+// states. Return true if so, false otherwise.
+//---------------
+bool MachineS::Cycling() {
+    return false;
+}
+
+//---------------
 void MachineS::InitNodeStates() {
     for (int i = 0; i < m_nrNodes; i += 1) m_nodeStates[i] = 0;
     m_nodeStates[m_nrNodes / 2] = 1;
@@ -69,6 +80,8 @@ bool MachineS::IterateMachine(int selfEdges, int multiEdges, int iterationNr) {
         ShowDepthFirst(0);
     }
     */
+    // Stop and report if the machine is cycling.
+    if (Cycling()) return false; // report early termination
 
     // Create the seed of the graph's next generation.
     m_nextGraph = TNGraph::New();

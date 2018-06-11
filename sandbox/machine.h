@@ -6,7 +6,6 @@ class MachineS {
 public:
     MachineS(rulenr_t, int);
     ~MachineS();
-    // TODO: Remove 'm_' from the following getter.
     PNGraph get_graph();
     int* get_nodeStates();
     bool IterateMachine(int, int, int);
@@ -23,6 +22,7 @@ private:
     int* m_nextNodeStates;
 
     void AdvanceNode(TNGraph::TNodeI, int, int);
+    bool Cycling();
     void InitNodeStates();
     void ShowDF(int, bool*);
 };
