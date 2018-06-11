@@ -259,7 +259,7 @@ void WriteState(const std::string runId, MachineS* m, const std::string outFileS
 // Write a file containing JSON-encoded run parameters and outcome statistics.
 //---------------
 static
-void WriteInfo(std::string runId, MachineS* machine) {
+void WriteInfo(std::string runId, MachineS* machine, int nrActualIterations) {
     // Capture the run parameters.
     Json::Value info;
     Json::Value ruleParts;
@@ -370,21 +370,23 @@ int main(const int argc, char* argv[]) {
     MachineS* m = new MachineS(cmdOpt.ruleNr, cmdOpt.nrNodes);
 
     // Run it, saving state periodically if specified.
-    for (int i = 0; i < cmdOpt.nrIterations; i += 1) {
+    int iter;
+    for (iter = 0; iter < cmdOpt.nrIterations; iter += 1) {
         if (cmdOpt.writeStart >= 0) {
-            if (i >= cmdOpt.writeStart && (i - cmdOpt.writeStart) % cmdOpt.writeStride == 0) {
-                WriteState(runId, m, cmdOpt.outFileSuffix, i);
+            if (iter >= cmdOpt.writeStart && (iter - cmdOpt.writeStart) % cmdOpt.writeStride == 0) {
+                WriteState(runId, m, cmdOpt.outFileSuffix, iter);
             }
         }
-        m->Cycle(cmdOpt.selfEdges, cmdOpt.multiEdges, i);
-    }
+        // Stop iteration if 'Cycle' signaled early termination.
+        if (!m->Cycle(cmdOpt.selfEdges, cmdOpt.multiEdges, iter)) break;
+    } // The residual value of 'iter' is the actual number of iterations performed.
 
     // Write the end-state machine unless --no-write-end-state was present.
     //   (-1 => no numeric tag for inclusion in file name)
     if (!cmdOpt.noWriteEndState) WriteState(runId, m, cmdOpt.outFileSuffix, -1);
 
     // Write run information unless --no-write-info was present.
-    if (!cmdOpt.noInfo) WriteInfo(runId, m);
+    if (!cmdOpt.noInfo) WriteInfo(runId, m, iter);
 
     delete m;
     exit(0);

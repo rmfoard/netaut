@@ -58,7 +58,7 @@ void MachineS::InitNodeStates() {
 //
 // Run one step of the loaded rule.
 //---------------
-void MachineS::Cycle(int selfEdges, int multiEdges, int iterationNr) {
+bool MachineS::Cycle(int selfEdges, int multiEdges, int iterationNr) {
 
     // Show node states at the beginning of the cycle.
     /* temporarily hold aside
@@ -102,7 +102,7 @@ void MachineS::Cycle(int selfEdges, int multiEdges, int iterationNr) {
     printf("%d ", totalNodeState); ////temporary
     if (sameStates) {
         printf("node states unchanged at iteration %d\n", iterationNr);
-        exit(0);
+        return false; // report early termination
     }
 
     //---------------------------------------------------
@@ -116,6 +116,7 @@ void MachineS::Cycle(int selfEdges, int multiEdges, int iterationNr) {
     int* swap = m_nodeStates;
     m_nodeStates = m_nextNodeStates;
     m_nextNodeStates = swap;
+    return true; // report normal termination
 }
 
 //---------------
