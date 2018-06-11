@@ -30,6 +30,7 @@ struct CommandOpts {
     int nrNodes;
     int writeStart;
     int writeStride;
+    int cycleCheckDepth;
     bool rulePresent;
     bool textPresent;
     std::string outFileSuffix;
@@ -59,6 +60,7 @@ void ParseCommand(const int argc, char* argv[]) {
     cmdOpt.nrNodes = 256;
     cmdOpt.writeStart = -1;
     cmdOpt.writeStride = -1;
+    cmdOpt.cycleCheckDepth = 20;
     cmdOpt.rulePresent = false;
     cmdOpt.textPresent = false;
     cmdOpt.noWriteEndState = false;
@@ -67,6 +69,7 @@ void ParseCommand(const int argc, char* argv[]) {
 
 #define CO_WRITE_START 1000
 #define CO_WRITE_STRIDE 1001
+#define CO_CYCLE_CHECK_DEPTH 1002
 
     static struct option long_options[] = {
         {"convert-only", no_argument, &cmdOpt.convertOnly, 1},
@@ -86,6 +89,7 @@ void ParseCommand(const int argc, char* argv[]) {
         {"suffix", required_argument, 0, 's'},
         {"write-start", required_argument, 0, CO_WRITE_START},
         {"write-stride", required_argument, 0, CO_WRITE_STRIDE},
+        {"cycle-check-depth", required_argument, 0, CO_CYCLE_CHECK_DEPTH},
         {0, 0, 0, 0}
     };
 
@@ -160,6 +164,10 @@ void ParseCommand(const int argc, char* argv[]) {
 
           case CO_WRITE_STRIDE:
             cmdOpt.writeStride = atoi(optarg);
+            break;
+
+          case CO_CYCLE_CHECK_DEPTH:
+            cmdOpt.cycleCheckDepth = atoi(optarg);
             break;
 
           case '?':
@@ -270,8 +278,10 @@ void WriteInfo(std::string runId, MachineS* machine, int nrActualIterations) {
     info["ruleNr"] = (Json::UInt64) machine->m_rule->get_ruleNr();
     info["nrNodes"] = machine->m_nrNodes;
     info["nrIterations"] = cmdOpt.nrIterations;
+    info["nrActualIterations"] = nrActualIterations;
     info["selfEdges"] = cmdOpt.selfEdges;
     info["multiEdges"] = cmdOpt.multiEdges;
+    info["cycleCheckDepth"] = cmdOpt.cycleCheckDepth;
     if (!cmdOpt.shortInfo) {
         for (int i = 0; i < NR_TRIAD_STATES; i += 1) {
             ruleParts.append(machine->m_ruleParts[i]);
@@ -367,7 +377,7 @@ int main(const int argc, char* argv[]) {
     std::string runId = std::string("R") + std::string(std::to_string(cmdOpt.ruleNr));
 
     // Create the machine.
-    MachineS* m = new MachineS(cmdOpt.ruleNr, cmdOpt.nrNodes);
+    MachineS* m = new MachineS(cmdOpt.ruleNr, cmdOpt.nrNodes, cmdOpt.cycleCheckDepth);
 
     // Run it, saving state periodically if specified.
     int iter;

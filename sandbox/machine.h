@@ -1,10 +1,18 @@
 #ifndef MACHINE_H
 #define MACHINE_H
+
+#include <queue>
+
 //---------------
 class MachineS {
 
+struct MachineState {
+    int* nodeStates;
+    PNGraph graph;
+};
+
 public:
-    MachineS(rulenr_t, int);
+    MachineS(rulenr_t, int, int);
     ~MachineS();
     PNGraph get_graph();
     int* get_nodeStates();
@@ -20,6 +28,8 @@ private:
     PNGraph m_nextGraph;
     int* m_nodeStates;
     int* m_nextNodeStates;
+    int m_cycleCheckDepth;
+    std::queue<MachineState> m_stateHistory;
 
     void AdvanceNode(TNGraph::TNodeI, int, int);
     bool Cycling();

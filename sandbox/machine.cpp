@@ -22,10 +22,11 @@ void BuildRing(int nrNodes, PNGraph graph) {
 }
 
 //---------------
-MachineS::MachineS(rulenr_t ruleNr, int nrNodes) {
+MachineS::MachineS(rulenr_t ruleNr, int nrNodes, int cycleCheckDepth) {
     m_rule = new Rule(ruleNr);
     m_ruleParts = m_rule->get_ruleParts();
     m_nrNodes = nrNodes;
+    m_cycleCheckDepth = cycleCheckDepth;
     m_graph = TNGraph::New();
     m_nodeStates = new int[m_nrNodes];
     m_nextNodeStates = new int[m_nrNodes];
@@ -82,6 +83,19 @@ bool MachineS::IterateMachine(int selfEdges, int multiEdges, int iterationNr) {
     */
     // Stop and report if the machine is cycling.
     if (Cycling()) return false; // report early termination
+
+    // Shift the current state into history.
+    MachineState discard;
+    if (m_stateHistory.size() == m_cycleCheckDepth) {
+        discard = m_stateHistory.front();
+        // TODO: delete the constituent structure(s)
+        m_stateHistory.pop();
+    }
+    MachineState newEntry;
+    // TODO: populate the new entry
+    m_stateHistory.push(newEntry);
+    // this can't be right, though, because a local dynamic will go away!
+    // or... are members copied???
 
     // Create the seed of the graph's next generation.
     m_nextGraph = TNGraph::New();
