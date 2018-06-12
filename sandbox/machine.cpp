@@ -48,14 +48,36 @@ PNGraph MachineS::get_graph() { return m_graph; }
 int* MachineS::get_nodeStates() { return m_nodeStates; }
 
 //---------------
+// StateMatchesCurrent
+//
+// Return true if the machine state in the parameter is identical
+// to the machine's current state.
+//---------------
+bool MachineS::StateMatchesCurrent(MachineState otherMs) {
+    return false;
+}
+
+//---------------
 // Cycling
 //
 // Compare the current machine state (node states and graph topology) to
 // determine whether it is identical to one of the preceding 'cycleCheckDepth'
-// states. Return true if so, false otherwise.
+// states. Return the cycle length if so, zero otherwise.
 //---------------
-bool MachineS::Cycling() {
-    return false;
+int MachineS::Cycling() {
+    MachineState eoq = {nullptr, nullptr};
+    m_stateHistory.push(eoq);
+    MachineState candidate = m_stateHistory.front();
+    m_stateHistory.pop();
+    while (candidate.nodeStates != nullptr) {
+        if (StateMatchesCurrent(candidate)) {
+            ; // return depth
+        }
+        m_stateHistory.push(candidate);
+        candidate = m_stateHistory.front();
+        m_stateHistory.pop();
+    }
+    return 0; // 0 indicates that no cycle was found.
 }
 
 //---------------
@@ -82,22 +104,21 @@ bool MachineS::IterateMachine(int selfEdges, int multiEdges, int iterationNr) {
     }
     */
     // Stop and report if the machine is cycling.
-    if (Cycling()) return false; // report early termination
+    if (Cycling() > 0) return false; // report early termination
 
     // Shift the current state into history.
+    // Discard the head of the queue if it's full.
     MachineState discard;
     if (m_stateHistory.size() == m_cycleCheckDepth) {
         discard = m_stateHistory.front();
-        printf("discarding history entry %d\n", discard.nodeStates[0]);
         delete discard.nodeStates;
         // (We leave discard.graph for Snap's reclamation scheme.)
         m_stateHistory.pop();
     }
     MachineState newEntry;
+    newEntry.graph = m_graph;
     newEntry.nodeStates = new int[m_nrNodes];
-    // TODO: populate the new entry
-    newEntry.nodeStates[0] = iterationNr;
-    printf("pushing history entry %d\n", iterationNr);
+    for (int i = 0; i < m_nrNodes; i += 1) newEntry.nodeStates[i] = m_nodeStates[i];
     m_stateHistory.push(newEntry);
     // TODO: Clean up the leftover queue entries in the destructor.
 

@@ -32,8 +32,9 @@ private:
     std::queue<MachineState> m_stateHistory;
 
     void AdvanceNode(TNGraph::TNodeI, int, int);
-    bool Cycling();
+    int Cycling();
     void InitNodeStates();
     void ShowDF(int, bool*);
+    bool StateMatchesCurrent(MachineState);
 };
 #endif
