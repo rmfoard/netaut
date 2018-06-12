@@ -88,14 +88,18 @@ bool MachineS::IterateMachine(int selfEdges, int multiEdges, int iterationNr) {
     MachineState discard;
     if (m_stateHistory.size() == m_cycleCheckDepth) {
         discard = m_stateHistory.front();
-        // TODO: delete the constituent structure(s)
+        printf("discarding history entry %d\n", discard.nodeStates[0]);
+        delete discard.nodeStates;
+        // (We leave discard.graph for Snap's reclamation scheme.)
         m_stateHistory.pop();
     }
     MachineState newEntry;
+    newEntry.nodeStates = new int[m_nrNodes];
     // TODO: populate the new entry
+    newEntry.nodeStates[0] = iterationNr;
+    printf("pushing history entry %d\n", iterationNr);
     m_stateHistory.push(newEntry);
-    // this can't be right, though, because a local dynamic will go away!
-    // or... are members copied???
+    // TODO: Clean up the leftover queue entries in the destructor.
 
     // Create the seed of the graph's next generation.
     m_nextGraph = TNGraph::New();

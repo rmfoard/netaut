@@ -7,7 +7,7 @@
 class MachineS {
 
 struct MachineState {
-    int* nodeStates;
+    int *nodeStates;
     PNGraph graph;
 };
 
