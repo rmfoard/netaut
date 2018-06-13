@@ -267,7 +267,7 @@ void WriteState(const std::string runId, MachineS* m, const std::string outFileS
 // Write a file containing JSON-encoded run parameters and outcome statistics.
 //---------------
 static
-void WriteInfo(std::string runId, MachineS* machine, int nrActualIterations) {
+void WriteInfo(std::string runId, MachineS* machine, int nrActualIterations, int cycleLength) {
     // Capture the run parameters.
     Json::Value info;
     Json::Value ruleParts;
@@ -282,6 +282,7 @@ void WriteInfo(std::string runId, MachineS* machine, int nrActualIterations) {
     info["selfEdges"] = cmdOpt.selfEdges;
     info["multiEdges"] = cmdOpt.multiEdges;
     info["cycleCheckDepth"] = cmdOpt.cycleCheckDepth;
+    info["cycleLength"] = cycleLength;
     if (!cmdOpt.shortInfo) {
         for (int i = 0; i < NR_TRIAD_STATES; i += 1) {
             ruleParts.append(machine->m_ruleParts[i]);
@@ -399,7 +400,7 @@ int main(const int argc, char* argv[]) {
     if (!cmdOpt.noWriteEndState) WriteState(runId, m, cmdOpt.outFileSuffix, -1);
 
     // Write run information unless --no-write-info was present.
-    if (!cmdOpt.noInfo) WriteInfo(runId, m, iter);
+    if (!cmdOpt.noInfo) WriteInfo(runId, m, iter, cycleLength);
 
     delete m;
     exit(0);
