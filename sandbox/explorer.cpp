@@ -24,7 +24,6 @@ struct CommandOpts {
     int selfEdges;
     int multiEdges;
     int noInfo;
-    int shortInfo;
     int printTape;
     int noWriteEndState;
     int nrNodes;
@@ -55,7 +54,6 @@ void ParseCommand(const int argc, char* argv[]) {
     cmdOpt.selfEdges = 0;
     cmdOpt.multiEdges = 0;
     cmdOpt.noInfo = 0;
-    cmdOpt.shortInfo = 0;
     cmdOpt.printTape = 0;
     cmdOpt.nrNodes = 256;
     cmdOpt.writeStart = -1;
@@ -76,7 +74,6 @@ void ParseCommand(const int argc, char* argv[]) {
         {"self-edges", no_argument, &cmdOpt.selfEdges, 1},
         {"multi-edges", no_argument, &cmdOpt.multiEdges, 1},
         {"no-info", no_argument, &cmdOpt.noInfo, 1},
-        {"short-info", no_argument, &cmdOpt.shortInfo, 1},
         {"print", no_argument, &cmdOpt.printTape, 1},
         {"no-write-end-state", no_argument, &cmdOpt.noWriteEndState, 1},
 
@@ -283,57 +280,56 @@ void WriteInfo(std::string runId, MachineS* machine, int nrActualIterations, int
     info["multiEdges"] = cmdOpt.multiEdges;
     info["cycleCheckDepth"] = cmdOpt.cycleCheckDepth;
     info["cycleLength"] = cycleLength;
-    if (!cmdOpt.shortInfo) {
-        for (int i = 0; i < NR_TRIAD_STATES; i += 1) {
-            ruleParts.append(machine->m_ruleParts[i]);
-            rulePartsText.append(machine->m_rule->RulePartText(machine->m_ruleParts[i]));
-        }
-        info["ruleParts"] = ruleParts;
-        info["ruleText"] = machine->m_rule->get_ruleText();
-        info["rulePartsText"] = rulePartsText;
 
-        // Develop and capture outcome measures.
-        Json::Value ccSizeCount;
-        TVec<TPair<TInt, TInt> > sizeCount;
-        TSnap::GetWccSzCnt(machine->get_graph(), sizeCount);
-        int nrCcs = 0;
-        for (int i = 0; i < sizeCount.Len(); i += 1) {
-            Json::Value sizeCountPair;
-            sizeCountPair.append((int) sizeCount[i].Val1);
-            sizeCountPair.append((int) sizeCount[i].Val2);
-            ccSizeCount.append(sizeCountPair);
-            nrCcs += (int) sizeCount[i].Val2;
-        }
-        info["ccSizeCount"] = ccSizeCount;
-        info["nrCcSizes"] = sizeCount.Len();
-        info["nrCcs"] = nrCcs;
-
-        // TODO: Learn the meaning of DegCCfV, below.
-        TFltPrV DegCCfV;
-        int64 ClosedTriads, OpenTriads;
-        const double CCF = TSnap::GetClustCf(machine->get_graph(), DegCCfV, ClosedTriads, OpenTriads);
-        info["avgClustCoef"] = CCF;
-        info["nrClosedTriads"] = (uint64_t) TUInt64(ClosedTriads);
-        info["nrOpenTriads"] = (uint64_t) TUInt64(OpenTriads);
-
-        int FullDiam;
-        double EffDiam;
-        TSnap::GetBfsEffDiam(machine->get_graph(), 1000, false, EffDiam, FullDiam);
-        info["diameter"] = FullDiam;
-        info["effDiameter90Pctl"] = EffDiam;
-
-        Json::Value inDegreeCount;
-        TVec<TPair<TInt, TInt> > inDegCnt;
-        TSnap::GetInDegCnt(machine->get_graph(), inDegCnt); 
-        for (int i = 0; i < inDegCnt.Len(); i += 1) {
-            Json::Value inDegreeCountPair;
-            inDegreeCountPair.append((int) inDegCnt[i].Val1);
-            inDegreeCountPair.append((int) inDegCnt[i].Val2);
-            inDegreeCount.append(inDegreeCountPair);
-        }
-        info["inDegreeCount"] = inDegreeCount;
-        info["nrInDegrees"] = inDegCnt.Len();
+    for (int i = 0; i < NR_TRIAD_STATES; i += 1) {
+        ruleParts.append(machine->m_ruleParts[i]);
+        rulePartsText.append(machine->m_rule->RulePartText(machine->m_ruleParts[i]));
     }
+    info["ruleParts"] = ruleParts;
+    info["ruleText"] = machine->m_rule->get_ruleText();
+    info["rulePartsText"] = rulePartsText;
+
+    // Develop and capture outcome measures.
+    Json::Value ccSizeCount;
+    TVec<TPair<TInt, TInt> > sizeCount;
+    TSnap::GetWccSzCnt(machine->get_graph(), sizeCount);
+    int nrCcs = 0;
+    for (int i = 0; i < sizeCount.Len(); i += 1) {
+        Json::Value sizeCountPair;
+        sizeCountPair.append((int) sizeCount[i].Val1);
+        sizeCountPair.append((int) sizeCount[i].Val2);
+        ccSizeCount.append(sizeCountPair);
+        nrCcs += (int) sizeCount[i].Val2;
+    }
+    info["ccSizeCount"] = ccSizeCount;
+    info["nrCcSizes"] = sizeCount.Len();
+    info["nrCcs"] = nrCcs;
+
+    // TODO: Learn the meaning of DegCCfV, below.
+    TFltPrV DegCCfV;
+    int64 ClosedTriads, OpenTriads;
+    const double CCF = TSnap::GetClustCf(machine->get_graph(), DegCCfV, ClosedTriads, OpenTriads);
+    info["avgClustCoef"] = CCF;
+    info["nrClosedTriads"] = (uint64_t) TUInt64(ClosedTriads);
+    info["nrOpenTriads"] = (uint64_t) TUInt64(OpenTriads);
+
+    int FullDiam;
+    double EffDiam;
+    TSnap::GetBfsEffDiam(machine->get_graph(), 1000, false, EffDiam, FullDiam);
+    info["diameter"] = FullDiam;
+    info["effDiameter90Pctl"] = EffDiam;
+
+    Json::Value inDegreeCount;
+    TVec<TPair<TInt, TInt> > inDegCnt;
+    TSnap::GetInDegCnt(machine->get_graph(), inDegCnt); 
+    for (int i = 0; i < inDegCnt.Len(); i += 1) {
+        Json::Value inDegreeCountPair;
+        inDegreeCountPair.append((int) inDegCnt[i].Val1);
+        inDegreeCountPair.append((int) inDegCnt[i].Val2);
+        inDegreeCount.append(inDegreeCountPair);
+    }
+    info["inDegreeCount"] = inDegreeCount;
+    info["nrInDegrees"] = inDegCnt.Len();
 
     Json::FastWriter stringWriter;
     std::string infoString = stringWriter.write(info);
