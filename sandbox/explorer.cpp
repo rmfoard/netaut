@@ -380,16 +380,19 @@ int main(const int argc, char* argv[]) {
     MachineS* m = new MachineS(cmdOpt.ruleNr, cmdOpt.nrNodes, cmdOpt.cycleCheckDepth);
 
     // Run it, saving state periodically if specified.
-    int iter;
+    int iter, cycleLength;
     for (iter = 0; iter < cmdOpt.nrIterations; iter += 1) {
         if (cmdOpt.writeStart >= 0) {
             if (iter >= cmdOpt.writeStart && (iter - cmdOpt.writeStart) % cmdOpt.writeStride == 0) {
                 WriteState(runId, m, cmdOpt.outFileSuffix, iter);
             }
         }
-        // Stop iteration if 'IterateMachine' signaled early termination.
-        if (!m->IterateMachine(cmdOpt.selfEdges, cmdOpt.multiEdges, iter)) break;
+
+        // Stop iteration if 'IterateMachine' reported a state cycle.
+        cycleLength = m->IterateMachine(cmdOpt.selfEdges, cmdOpt.multiEdges, iter);
+        if (cycleLength > 0) break;
     } // The residual value of 'iter' is the actual number of iterations performed.
+    if (cycleLength > 0) printf("A cycle of length %d was detected.\n", cycleLength);
 
     // Write the end-state machine unless --no-write-end-state was present.
     //   (-1 => no numeric tag for inclusion in file name)

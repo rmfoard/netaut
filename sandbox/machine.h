@@ -16,7 +16,7 @@ public:
     ~MachineS();
     PNGraph get_graph();
     int* get_nodeStates();
-    bool IterateMachine(int, int, int);
+    int IterateMachine(int, int, int);
     void ShowDepthFirst(int);
 
     Rule* m_rule;

@@ -53,8 +53,23 @@ int* MachineS::get_nodeStates() { return m_nodeStates; }
 // Return true if the machine state in the parameter is identical
 // to the machine's current state.
 //---------------
-bool MachineS::StateMatchesCurrent(MachineState otherMs) {
-    return false;
+bool MachineS::StateMatchesCurrent(MachineState other) {
+    // Compare node states.
+    for (int i = 0; i < m_nrNodes; i += 1)
+        if (m_nodeStates[i] != other.nodeStates[i]) return false;
+
+    // Compare topologies.
+    TNGraph::TNodeI graphNodeIter = m_graph->BegNI();
+    TNGraph::TNodeI otherGraphNodeIter = other.graph->BegNI();
+    while (graphNodeIter < m_graph->EndNI()) {
+        if (graphNodeIter.GetId() != otherGraphNodeIter.GetId()) return false;
+        if (graphNodeIter.GetOutNId(0) != otherGraphNodeIter.GetOutNId(0)) return false;
+        if (graphNodeIter.GetOutNId(1) != otherGraphNodeIter.GetOutNId(1)) return false;
+        graphNodeIter++;
+        otherGraphNodeIter++;
+    }
+
+    return true;
 }
 
 //---------------
@@ -71,7 +86,7 @@ int MachineS::Cycling() {
     m_stateHistory.pop();
     while (candidate.nodeStates != nullptr) {
         if (StateMatchesCurrent(candidate)) {
-            ; // return depth
+            return 1; // TODO: Return actual cycle length
         }
         m_stateHistory.push(candidate);
         candidate = m_stateHistory.front();
@@ -91,8 +106,9 @@ void MachineS::InitNodeStates() {
 // IterateMachine
 //
 // Run one step of the loaded rule.
+// Return the length of any detected state cycle (0 => no cycle found)
 //---------------
-bool MachineS::IterateMachine(int selfEdges, int multiEdges, int iterationNr) {
+int MachineS::IterateMachine(int selfEdges, int multiEdges, int iterationNr) {
 
     // Show node states at the beginning of the cycle.
     /* temporarily hold aside
@@ -104,7 +120,8 @@ bool MachineS::IterateMachine(int selfEdges, int multiEdges, int iterationNr) {
     }
     */
     // Stop and report if the machine is cycling.
-    if (Cycling() > 0) return false; // report early termination
+    int cycleLength = Cycling();
+    if (cycleLength > 0) return cycleLength; // report early termination
 
     // Shift the current state into history.
     // Discard the head of the queue if it's full.
@@ -151,7 +168,7 @@ bool MachineS::IterateMachine(int selfEdges, int multiEdges, int iterationNr) {
     int* swap = m_nodeStates;
     m_nodeStates = m_nextNodeStates;
     m_nextNodeStates = swap;
-    return true; // report normal termination
+    return 0; // report no state cycle found
 }
 
 //---------------
