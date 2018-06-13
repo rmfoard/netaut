@@ -1,2 +1,2 @@
 iter=$2
-while [ $iter -lt $3 ]; do xdot -f circo R$1.$iter.dot;iter=$(expr $iter + 1); done
+while [ $iter -le $3 ]; do xdot -f circo R$1.$iter.dot;iter=$(expr $iter + 1); done

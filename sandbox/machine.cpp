@@ -82,15 +82,17 @@ bool MachineS::StateMatchesCurrent(MachineState other) {
 int MachineS::Cycling() {
     MachineState eoq = {nullptr, nullptr};
     m_stateHistory.push(eoq);
+    int cycleLength = m_stateHistory.size(); // invariant: <=
     MachineState candidate = m_stateHistory.front();
     m_stateHistory.pop();
     while (candidate.nodeStates != nullptr) {
         if (StateMatchesCurrent(candidate)) {
-            return 1; // TODO: Return actual cycle length
+            return cycleLength;
         }
         m_stateHistory.push(candidate);
         candidate = m_stateHistory.front();
         m_stateHistory.pop();
+        cycleLength -= 1;
     }
     return 0; // 0 indicates that no cycle was found.
 }
