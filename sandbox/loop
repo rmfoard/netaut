@@ -1,5 +1,8 @@
+echo "[" >> $3.json
 count=1
 while [ $count -le $2 ]; do
     ./explorer --random $RANDOM --no-write-end-state --nodes $1 --iterations $1 >> $3.json
     ((count++))
+    echo "," >> $3.json
 done
+echo '{"end":"end"}]' >> $3.json
