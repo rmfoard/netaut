@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <algorithm>
+#include <chrono>
 #include <iostream>
 #include <string>
 #include <json/json.h>
@@ -264,7 +265,7 @@ void WriteState(const std::string runId, MachineS* m, const std::string outFileS
 // Write a file containing JSON-encoded run parameters and outcome statistics.
 //---------------
 static
-void WriteInfo(std::string runId, MachineS* machine, int nrActualIterations, int cycleLength) {
+void WriteInfo(std::string runId, MachineS* machine, int nrActualIterations, int cycleLength, int runTimeMs) {
     // Capture the run parameters.
     Json::Value info;
     Json::Value ruleParts;
@@ -280,6 +281,7 @@ void WriteInfo(std::string runId, MachineS* machine, int nrActualIterations, int
     info["multiEdges"] = cmdOpt.multiEdges;
     info["cycleCheckDepth"] = cmdOpt.cycleCheckDepth;
     info["cycleLength"] = cycleLength;
+    info["runTimeMs"] = runTimeMs;
 
     for (int i = 0; i < NR_TRIAD_STATES; i += 1) {
         ruleParts.append(machine->m_ruleParts[i]);
@@ -377,6 +379,7 @@ int main(const int argc, char* argv[]) {
     MachineS* m = new MachineS(cmdOpt.ruleNr, cmdOpt.nrNodes, cmdOpt.cycleCheckDepth);
 
     // Run it, saving state periodically if specified.
+    auto start_time = std::chrono::high_resolution_clock::now();
     int iter, cycleLength;
     for (iter = 0; iter < cmdOpt.nrIterations; iter += 1) {
         if (cmdOpt.writeStart >= 0) {
@@ -390,13 +393,16 @@ int main(const int argc, char* argv[]) {
         if (cycleLength > 0) break;
     } // The residual value of 'iter' is the actual number of iterations performed.
     if (cycleLength > 0) printf("A cycle of length %d was detected.\n", cycleLength);
+    auto stop_time = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed_secs = stop_time - start_time;
+    int runTimeMs = elapsed_secs.count() * 1000;
 
     // Write the end-state machine unless --no-write-end-state was present.
     //   (-1 => no numeric tag for inclusion in file name)
     if (!cmdOpt.noWriteEndState) WriteState(runId, m, cmdOpt.outFileSuffix, -1);
 
     // Write run information unless --no-write-info was present.
-    if (!cmdOpt.noInfo) WriteInfo(runId, m, iter, cycleLength);
+    if (!cmdOpt.noInfo) WriteInfo(runId, m, iter, cycleLength, runTimeMs);
 
     delete m;
     exit(0);
