@@ -392,7 +392,6 @@ int main(const int argc, char* argv[]) {
         cycleLength = m->IterateMachine(cmdOpt.selfEdges, cmdOpt.multiEdges, iter);
         if (cycleLength > 0) break;
     } // The residual value of 'iter' is the actual number of iterations performed.
-    if (cycleLength > 0) printf("A cycle of length %d was detected.\n", cycleLength);
     auto stop_time = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed_secs = stop_time - start_time;
     int runTimeMs = elapsed_secs.count() * 1000;
