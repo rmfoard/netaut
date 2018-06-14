@@ -13,10 +13,11 @@ def main():
         'runId',
         'ruleNr',
         'ruleText',
-        'multiEdges',
         'selfEdges',
         'nrNodes',
         'nrIterations',
+        'nrActualIterations',
+        'cycleLength',
         'nrCcSizes',
         'nrCcs',
         'nrInDegrees',
@@ -25,6 +26,7 @@ def main():
         'nrClosedTriads',
         'nrOpenTriads',
         'avgClustCoef',
+        'runTimeMs',
         'version'
     ]
 
