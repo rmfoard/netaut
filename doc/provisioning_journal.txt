@@ -84,5 +84,9 @@ To provision for generating netaut/hellosnap:
     - usage examples and more at ref:
     http://yallalabs.com/linux/how-to-install-and-use-postgresql-10-on-ubuntu-16-04/
 
+- install mhash library
+    - downloaded mhash from sourceforge
+    - gunzip, tar xvf, ./configure, make
+
 (Deferred enabling doxygen)
 (Deferred enabling googletest to run SNAP's tests)
