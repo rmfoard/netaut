@@ -12,7 +12,7 @@
 #include "rule.h"
 #include "machine.h"
 
-#define VERSION "V180610.0"
+#define VERSION "V180614.0"
 #define NR_CYCLES 40
 
 // TODO: Add --help
@@ -23,7 +23,6 @@ struct CommandOpts {
     int nrIterations;
     int randSeed;
     int selfEdges;
-    int multiEdges;
     int noInfo;
     int printTape;
     int noWriteEndState;
@@ -53,7 +52,6 @@ void ParseCommand(const int argc, char* argv[]) {
     cmdOpt.nrIterations = 128;
     cmdOpt.randSeed = -1;
     cmdOpt.selfEdges = 0;
-    cmdOpt.multiEdges = 0;
     cmdOpt.noInfo = 0;
     cmdOpt.printTape = 0;
     cmdOpt.nrNodes = 256;
@@ -73,7 +71,6 @@ void ParseCommand(const int argc, char* argv[]) {
     static struct option long_options[] = {
         {"convert-only", no_argument, &cmdOpt.convertOnly, 1},
         {"self-edges", no_argument, &cmdOpt.selfEdges, 1},
-        {"multi-edges", no_argument, &cmdOpt.multiEdges, 1},
         {"no-info", no_argument, &cmdOpt.noInfo, 1},
         {"print", no_argument, &cmdOpt.printTape, 1},
         {"no-write-end-state", no_argument, &cmdOpt.noWriteEndState, 1},
@@ -278,7 +275,6 @@ void WriteInfo(std::string runId, MachineS* machine, int nrActualIterations, int
     info["nrIterations"] = cmdOpt.nrIterations;
     info["nrActualIterations"] = nrActualIterations;
     info["selfEdges"] = cmdOpt.selfEdges;
-    info["multiEdges"] = cmdOpt.multiEdges;
     info["cycleCheckDepth"] = cmdOpt.cycleCheckDepth;
     info["cycleLength"] = cycleLength;
     info["runTimeMs"] = runTimeMs;
@@ -389,7 +385,7 @@ int main(const int argc, char* argv[]) {
         }
 
         // Stop iteration if 'IterateMachine' reported a state cycle.
-        cycleLength = m->IterateMachine(cmdOpt.selfEdges, cmdOpt.multiEdges, iter);
+        cycleLength = m->IterateMachine(cmdOpt.selfEdges, iter);
         if (cycleLength > 0) break;
     } // The residual value of 'iter' is the actual number of iterations performed.
     auto stop_time = std::chrono::high_resolution_clock::now();
