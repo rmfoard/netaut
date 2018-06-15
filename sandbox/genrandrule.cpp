@@ -3,6 +3,7 @@
 #include <inttypes.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -93,7 +94,16 @@ void ParseCommand(const int argc, char* argv[]) {
 //---------------
 static
 rulenr_t GenRandRule() {
-    return 1;
+    rulenr_t rr = 0;
+    for (int i = 0; i < 8; i += 1) {
+        int lAction = rand() % 6;
+        int rAction;
+        do {
+            rAction = rand() % 6;
+        } while (rAction == lAction);
+        rr = (72 * rr) + ((6 * lAction + rAction) * 2) + rand() % 2;
+    }
+    return rr;
 }
 
 //---------------
@@ -102,6 +112,7 @@ int main(const int argc, char* argv[]) {
     ParseCommand(argc, argv);
 
     // Do it.
+    srand(cmdOpt.randSeed);
     if (cmdOpt.acceptFile != std::string(""))
         ; //printf("process acceptFile: %s\n", cmdOpt.acceptFile.c_str());
     if (cmdOpt.rejectFile != std::string(""))
@@ -109,3 +120,22 @@ int main(const int argc, char* argv[]) {
     std::cout << std::to_string(GenRandRule());
     exit(0);
 }
+
+/* Reference:
+int main () {
+  string line;
+  ifstream myfile ("example.txt");
+  if (myfile.is_open())
+  {
+      while ( getline (myfile,line) )
+      {
+          cout << line << '\n';
+      }
+      myfile.close();
+  }
+
+  else cout << "Unable to open file"; 
+
+  return 0;
+}
+*/
