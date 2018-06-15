@@ -45,6 +45,11 @@ $(CSNAP)/Snap.o:
 explorer: explorer.cpp machine.cpp filter.o rule.o $(CSNAP)/Snap.o
 	$(CC) $(CXXFLAGS) -o $@ $@.cpp machine.cpp filter.o rule.o $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
 
+genrandrule:	genrandrule.o
+	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(LDFLAGS) $(LIBS)
+
+#genrandrule.o:	genrandrule.cpp
+
 rule: rule.o
 
 rule.o: rule.cpp rule.h
