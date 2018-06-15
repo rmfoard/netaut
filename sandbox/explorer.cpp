@@ -331,6 +331,10 @@ void WriteInfo(std::string runId, MachineS* machine, int nrActualIterations, int
 
     Json::FastWriter stringWriter;
     std::string infoString = stringWriter.write(info);
+    assert(!infoString.empty());
+    if (infoString[infoString.length() - 1] == '\n')
+        infoString.erase(infoString.length() - 1);
+
     std::cout << infoString;
 }
 ///*
