@@ -265,8 +265,6 @@ static
 void WriteInfo(std::string runId, MachineS* machine, int nrActualIterations, int cycleLength, int runTimeMs) {
     // Capture the run parameters.
     Json::Value info;
-    Json::Value ruleParts;
-    Json::Value rulePartsText;
 
     info["runId"] = runId;
     info["version"] = VERSION;
@@ -278,14 +276,6 @@ void WriteInfo(std::string runId, MachineS* machine, int nrActualIterations, int
     info["cycleCheckDepth"] = cmdOpt.cycleCheckDepth;
     info["cycleLength"] = cycleLength;
     info["runTimeMs"] = runTimeMs;
-
-    for (int i = 0; i < NR_TRIAD_STATES; i += 1) {
-        ruleParts.append(machine->m_ruleParts[i]);
-        rulePartsText.append(machine->m_rule->RulePartText(machine->m_ruleParts[i]));
-    }
-    info["ruleParts"] = ruleParts;
-    info["ruleText"] = machine->m_rule->get_ruleText();
-    info["rulePartsText"] = rulePartsText;
 
     // Develop and capture outcome measures.
     Json::Value ccSizeCount;
@@ -329,6 +319,7 @@ void WriteInfo(std::string runId, MachineS* machine, int nrActualIterations, int
     info["inDegreeCount"] = inDegreeCount;
     info["nrInDegrees"] = inDegCnt.Len();
 
+    // TODO: Replace with non-deprecated equivalent.
     Json::FastWriter stringWriter;
     std::string infoString = stringWriter.write(info);
     assert(!infoString.empty());
