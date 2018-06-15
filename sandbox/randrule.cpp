@@ -33,7 +33,7 @@ void ParseCommand(const int argc, char* argv[]) {
 
     static struct option long_options[] = {
         // Boolean options, e.g.,
-        //{"convert-only", no_argument, &cmdOpt.convertOnly, 1},
+        //{"option-name", no_argument, &cmdOpt.optionVarName, 1},
 
         // Other options
         {"accept", required_argument, 0, 'a'},
@@ -92,16 +92,29 @@ void ParseCommand(const int argc, char* argv[]) {
 }
 
 //---------------
+// GenRandRule
+//
+// Generate a random MachineS rule.
+//---------------
 static
 rulenr_t GenRandRule() {
     rulenr_t rr = 0;
+
+    // For each of the 8 triad-state rule parts...
     for (int i = 0; i < 8; i += 1) {
-        int lAction = rand() % 6;
-        int rAction;
+        int leftAction = rand() % 6;
+        int rightAction;
+
+        // Disallow identical left- and right-actions (that would
+        // create multi-edges).
         do {
-            rAction = rand() % 6;
-        } while (rAction == lAction);
-        rr = (72 * rr) + ((6 * lAction + rAction) * 2) + rand() % 2;
+            rightAction = rand() % 6;
+        } while (rightAction == leftAction);
+
+        // Shift in the rule part, encoded as a mixed-radix (6, 6, 2) number,
+        // to develop the radix 72 (6*6*2) rule number.
+        int nodeAction = rand() % 2;
+        rr = (72 * rr) + ((leftAction * 6 + rightAction) * 2) + nodeAction;
     }
     return rr;
 }
@@ -117,7 +130,7 @@ int main(const int argc, char* argv[]) {
         ; //printf("process acceptFile: %s\n", cmdOpt.acceptFile.c_str());
     if (cmdOpt.rejectFile != std::string(""))
         ; //printf("process rejectFile: %s\n", cmdOpt.rejectFile.c_str());
-    std::cout << std::to_string(GenRandRule());
+    std::cout << GenRandRule();
     exit(0);
 }
 
