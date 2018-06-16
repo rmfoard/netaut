@@ -15,7 +15,6 @@
 #define VERSION "V180614.0"
 #define NR_CYCLES 40
 
-// TODO: Add --help
 //---------------
 struct CommandOpts {
     rulenr_t ruleNr;
@@ -67,10 +66,11 @@ void ParseCommand(const int argc, char* argv[]) {
 #define CO_WRITE_START 1000
 #define CO_WRITE_STRIDE 1001
 #define CO_CYCLE_CHECK_DEPTH 1002
+#define CO_HELP 1003
 
     static struct option long_options[] = {
         {"convert-only", no_argument, &cmdOpt.convertOnly, 1},
-        {"self-edges", no_argument, &cmdOpt.selfEdges, 1},
+        {"allow-self-edges", no_argument, &cmdOpt.selfEdges, 1},
         {"no-info", no_argument, &cmdOpt.noInfo, 1},
         {"print", no_argument, &cmdOpt.printTape, 1},
         {"no-write-end-state", no_argument, &cmdOpt.noWriteEndState, 1},
@@ -85,13 +85,14 @@ void ParseCommand(const int argc, char* argv[]) {
         {"write-start", required_argument, 0, CO_WRITE_START},
         {"write-stride", required_argument, 0, CO_WRITE_STRIDE},
         {"cycle-check-depth", required_argument, 0, CO_CYCLE_CHECK_DEPTH},
+        {"help", no_argument, 0, CO_HELP},
         {0, 0, 0, 0}
     };
 
     while (true) {
 
         int option_index = 0;
-        c = getopt_long (argc, argv, "m:i:n:r:a:t:s:",
+        c = getopt_long(argc, argv, "m:i:n:r:a:t:s:",
           long_options, &option_index);
 
         if (c == -1) // end of options?
@@ -113,6 +114,7 @@ void ParseCommand(const int argc, char* argv[]) {
 
           case 'a':
             cmdOpt.randSeed = atoi(optarg);
+            srand(cmdOpt.randSeed); // plant seed at this first opportunity
             break;
 
           case 't':
@@ -165,6 +167,15 @@ void ParseCommand(const int argc, char* argv[]) {
             cmdOpt.cycleCheckDepth = atoi(optarg);
             break;
 
+          case CO_HELP:
+            printf("Command options:\n");
+            for (auto entry : long_options) if (entry.name != NULL) {
+                printf("  --%s", entry.name);
+                if (entry.has_arg) printf(" <value>");
+                printf("\n");
+            }
+            exit(0);
+
           case '?':
             errorFound = true;
             break;
@@ -179,7 +190,6 @@ void ParseCommand(const int argc, char* argv[]) {
     // Create a random rule number if called for.
     if (cmdOpt.randSeed >= 0) {
         Rule* r  = new Rule((rulenr_t) 0);
-        srand(cmdOpt.randSeed);
         cmdOpt.ruleNr = ((unsigned long long) rand() * RAND_MAX + rand()) % r->get_maxRuleNr();
         delete r;
     }
