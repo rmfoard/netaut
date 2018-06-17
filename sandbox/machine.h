@@ -11,11 +11,17 @@ struct MachineState {
     PNGraph graph;
 };
 
+struct Statistics {
+    long unsigned int multiEdgesAvoided;
+    long unsigned int selfEdgesAvoided;
+};
+
 public:
     MachineS(rulenr_t, int, int);
     ~MachineS();
     PNGraph get_graph();
     int* get_nodeStates();
+    Statistics* get_stats();
     int IterateMachine(int, int);
     void ShowDepthFirst(int);
 
@@ -24,6 +30,7 @@ public:
     const int* m_ruleParts;
 
 private:
+    Statistics m_stats;
     PNGraph m_graph;
     PNGraph m_nextGraph;
     int* m_nodeStates;

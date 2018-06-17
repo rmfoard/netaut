@@ -30,6 +30,8 @@ MachineS::MachineS(rulenr_t ruleNr, int nrNodes, int cycleCheckDepth) {
     m_graph = TNGraph::New();
     m_nodeStates = new int[m_nrNodes];
     m_nextNodeStates = new int[m_nrNodes];
+    m_stats.multiEdgesAvoided = 0;
+    m_stats.selfEdgesAvoided = 0;
     BuildRing(m_nrNodes, m_graph);
     InitNodeStates();
 }
@@ -233,11 +235,11 @@ void MachineS::AdvanceNode(TNGraph::TNodeI NIter, int selfEdges) {
     // Apply the node action unconditionally.
     m_nextNodeStates[nNId] = nAction;
 
-    // Apply the topological actions...
+    // Apply the topological action...
     int lNewDst = newDsts[lAction];
     int rNewDst = newDsts[rAction];
 
-    // ...only if they preserve the topo invariants.
+    // ...only if it preserves the topo invariants.
     if (((lNewDst != nNId && rNewDst != nNId) || selfEdge) && lNewDst != rNewDst) {
         m_nextGraph->AddEdge(nNId, lNewDst);
         m_nextGraph->AddEdge(nNId, rNewDst);
@@ -245,6 +247,9 @@ void MachineS::AdvanceNode(TNGraph::TNodeI NIter, int selfEdges) {
     else { // Otherwise, re-create the previous edges.
         m_nextGraph->AddEdge(nNId, lNId);
         m_nextGraph->AddEdge(nNId, rNId);
+
+        if (lNewDst == rNewDst) m_stats.multiEdgesAvoided += 1;
+        if (lNewDst == nNId || rNewDst == nNId) m_stats.selfEdgesAvoided += 1;
     }
 
     delete newDsts;
