@@ -30,7 +30,7 @@ struct CommandOpts {
     int writeStride;
     int cycleCheckDepth;
     bool rulePresent;
-    bool textPresent;
+    bool ruletextPresent;
     std::string outFileSuffix;
     char* ruleText;
 };
@@ -58,7 +58,7 @@ void ParseCommand(const int argc, char* argv[]) {
     cmdOpt.writeStride = -1;
     cmdOpt.cycleCheckDepth = 20;
     cmdOpt.rulePresent = false;
-    cmdOpt.textPresent = false;
+    cmdOpt.ruletextPresent = false;
     cmdOpt.noWriteEndState = false;
     cmdOpt.outFileSuffix = std::string("");
     cmdOpt.ruleText = NULL;
@@ -80,7 +80,7 @@ void ParseCommand(const int argc, char* argv[]) {
         {"nodes", required_argument, 0, 'n'},
         {"rule", required_argument, 0, 'r'},
         {"random", required_argument, 0, 'a'},
-        {"text", required_argument, 0, 't'},
+        {"ruletext", required_argument, 0, 't'},
         {"suffix", required_argument, 0, 's'},
         {"write-start", required_argument, 0, CO_WRITE_START},
         {"write-stride", required_argument, 0, CO_WRITE_STRIDE},
@@ -118,7 +118,7 @@ void ParseCommand(const int argc, char* argv[]) {
             break;
 
           case 't':
-            cmdOpt.textPresent = true;
+            cmdOpt.ruletextPresent = true;
             if (cmdOpt.rulePresent) {
                 printf("error: can't specify both --text and --rule\n");
                 errorFound = true;
@@ -129,7 +129,7 @@ void ParseCommand(const int argc, char* argv[]) {
 
           case 'r':
             cmdOpt.rulePresent = true;
-            if (cmdOpt.textPresent) {
+            if (cmdOpt.ruletextPresent) {
                 printf("error: can't specify both --text and --rule\n");
                 errorFound = true;
             } else {
@@ -219,7 +219,7 @@ void ParseCommand(const int argc, char* argv[]) {
 //---------------
 static
 int DoConversion() {
-    if (cmdOpt.textPresent) {
+    if (cmdOpt.ruletextPresent) {
         Rule* rule = new Rule(cmdOpt.ruleText);
         printf("%llu\n", rule->get_ruleNr());
         delete rule;
@@ -366,8 +366,8 @@ int main(const int argc, char* argv[]) {
     // Was the --convert-only option present?
     // If so, then either --text or --rule, but not both, must be present.
     if (cmdOpt.convertOnly) {
-        if ((cmdOpt.textPresent && !cmdOpt.rulePresent)
-          || (!cmdOpt.textPresent && cmdOpt.rulePresent)) {
+        if ((cmdOpt.ruletextPresent && !cmdOpt.rulePresent)
+          || (!cmdOpt.ruletextPresent && cmdOpt.rulePresent)) {
             exit(DoConversion());
         } else {
             printf("error: must specify either --rule xor --text\n");
@@ -376,7 +376,7 @@ int main(const int argc, char* argv[]) {
     }
 
     // Convert-only was not selected, so build and run the machine.
-    if (cmdOpt.textPresent) {
+    if (cmdOpt.ruletextPresent) {
         Rule* tmpRule = new Rule(cmdOpt.ruleText);
         cmdOpt.ruleNr = tmpRule->get_ruleNr();
         delete tmpRule;
