@@ -20,6 +20,7 @@ struct CommandOpts {
     rulenr_t ruleNr;
     int convertOnly;
     int nrIterations;
+    int randSeed;
     int selfEdges;
     int noInfo;
     int printTape;
@@ -51,6 +52,7 @@ void ParseCommand(const int argc, char* argv[]) {
     // Set command options to default values.
     cmdOpt.convertOnly = 0;
     cmdOpt.nrIterations = 128;
+    cmdOpt.randSeed = -1;
     cmdOpt.selfEdges = 0;
     cmdOpt.noInfo = 0;
     cmdOpt.printTape = 0;
@@ -86,6 +88,7 @@ void ParseCommand(const int argc, char* argv[]) {
         {"iterations", required_argument, 0, 'i'},
         {"machine", required_argument, 0, 'm'},
         {"nodes", required_argument, 0, 'n'},
+        {"randseed", required_argument, 0, 'a'},
         {"rule", required_argument, 0, 'r'},
         {"ruletext", required_argument, 0, 't'},
         {"suffix", required_argument, 0, 's'},
@@ -117,6 +120,11 @@ void ParseCommand(const int argc, char* argv[]) {
 
           case 'n':
             cmdOpt.nrNodes = atoi(optarg);
+            break;
+
+          case 'a':
+            cmdOpt.randSeed = atoi(optarg);
+            srand(cmdOpt.randSeed); // plant seed at this first opportunity
             break;
 
           case 't':
