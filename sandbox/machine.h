@@ -46,6 +46,7 @@ private:
     void InitNodeStates();
     void InitTape(std::string);
     void InitTopo(std::string);
+    void RandomizeTapeState();
     void ShowDF(int, bool*);
     bool StateMatchesCurrent(MachineState);
 };

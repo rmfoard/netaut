@@ -195,6 +195,8 @@ void MachineS::InitNodeStates() {
 void MachineS::InitTape(std::string tapeStructure) {
     if (tapeStructure == "single")
         InitNodeStates();
+    else if (tapeStructure == "random")
+        RandomizeTapeState();
     else
         throw std::runtime_error("--init-tape type is not recognized");
 }
@@ -279,6 +281,13 @@ int MachineS::IterateMachine(int selfEdges, int iterationNr) {
     m_nodeStates = m_nextNodeStates;
     m_nextNodeStates = swap;
     return 0; // report no state cycle found
+}
+
+//---------------
+// RandomizeTapeState
+//---------------
+void MachineS::RandomizeTapeState() {
+    for (int i = 0; i < m_nrNodes; i += 1) m_nodeStates[i] = rand() % 2;
 }
 
 //---------------
