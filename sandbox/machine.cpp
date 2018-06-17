@@ -185,7 +185,8 @@ int MachineS::Cycling() {
 //---------------
 void MachineS::InitNodeStates() {
     for (int i = 0; i < m_nrNodes; i += 1) m_nodeStates[i] = 0;
-    m_nodeStates[m_nrNodes / 2] = 1;
+    ////m_nodeStates[m_nrNodes / 2] = 1;
+    m_nodeStates[0] = 1; ////temporary, for examining trees more easily
 }
 
 //---------------
@@ -194,9 +195,8 @@ void MachineS::InitNodeStates() {
 void MachineS::InitTape(std::string tapeStructure) {
     if (tapeStructure == "single")
         InitNodeStates();
-    else {
-        ; // TODO: throw exception
-    }
+    else
+        throw std::runtime_error("--init-tape type is not recognized");
 }
 
 //---------------
@@ -207,11 +207,8 @@ void MachineS::InitTopo(std::string topoStructure) {
         BuildRing();
     else if (topoStructure == "tree")
         BuildTree();
-    else {
-        ; // TODO: throw exception
-        printf("Bad topo init\n"); ////
-        exit(1); ////
-    }
+    else
+        throw std::runtime_error("--init-topo type is not recognized");
 }
 
 
