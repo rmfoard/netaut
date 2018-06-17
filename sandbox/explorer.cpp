@@ -286,6 +286,15 @@ void WriteInfo(std::string runId, MachineS* machine, int nrActualIterations, int
     info["cycleCheckDepth"] = cmdOpt.cycleCheckDepth;
     info["cycleLength"] = cycleLength;
     info["runTimeMs"] = runTimeMs;
+    MachineS::Statistics* stats = machine->get_stats();
+    info["multiEdgesAvoided"] = (Json::Value::UInt64) stats->multiEdgesAvoided;
+    info["selfEdgesAvoided"] = (Json::Value::UInt64) stats->selfEdgesAvoided;
+    Json::Value triadOccurrences;
+    for (int i = 0; i < NR_TRIAD_STATES; i += 1) {
+        auto occurrences = stats->triadOccurrences[i];
+        triadOccurrences.append((Json::Value::UInt64) occurrences);
+    }
+    info["triadOccurrences"] = triadOccurrences;
 
     // Develop and capture outcome measures.
     Json::Value ccSizeCount;
@@ -338,7 +347,7 @@ void WriteInfo(std::string runId, MachineS* machine, int nrActualIterations, int
 
     std::cout << infoString;
 }
-///*
+
 //---------------
 int main(const int argc, char* argv[]) {
 
@@ -407,4 +416,3 @@ int main(const int argc, char* argv[]) {
     delete m;
     exit(0);
 }
-//*/

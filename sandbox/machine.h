@@ -11,12 +11,13 @@ struct MachineState {
     PNGraph graph;
 };
 
-struct Statistics {
-    long unsigned int multiEdgesAvoided;
-    long unsigned int selfEdgesAvoided;
-};
-
 public:
+    struct Statistics {
+        long unsigned int multiEdgesAvoided;
+        long unsigned int selfEdgesAvoided;
+        long unsigned int triadOccurrences[NR_TRIAD_STATES];
+    };
+
     MachineS(rulenr_t, int, int);
     ~MachineS();
     PNGraph get_graph();
@@ -28,9 +29,9 @@ public:
     Rule* m_rule;
     int m_nrNodes;
     const int* m_ruleParts;
+    Statistics m_stats;
 
 private:
-    Statistics m_stats;
     PNGraph m_graph;
     PNGraph m_nextGraph;
     int* m_nodeStates;

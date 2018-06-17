@@ -32,6 +32,7 @@ MachineS::MachineS(rulenr_t ruleNr, int nrNodes, int cycleCheckDepth) {
     m_nextNodeStates = new int[m_nrNodes];
     m_stats.multiEdgesAvoided = 0;
     m_stats.selfEdgesAvoided = 0;
+    for (int i = 0; i < NR_TRIAD_STATES; i += 1) m_stats.triadOccurrences[i] = 0;
     BuildRing(m_nrNodes, m_graph);
     InitNodeStates();
 }
@@ -48,6 +49,7 @@ MachineS::~MachineS() {
 //---------------
 PNGraph MachineS::get_graph() { return m_graph; }
 int* MachineS::get_nodeStates() { return m_nodeStates; }
+MachineS::Statistics* MachineS::get_stats() { return &m_stats; }
 
 //---------------
 // StateMatchesCurrent
@@ -197,6 +199,7 @@ void MachineS::AdvanceNode(TNGraph::TNodeI NIter, int selfEdges) {
     int rState = m_nodeStates[rNId];
 
     int triadState = lState * 4 + nState * 2 + rState;
+    m_stats.triadOccurrences[triadState] += 1;
 
     // Gather info on neighbors' neighbors.
     TNGraph::TNodeI lNIter = m_graph->GetNI(lNId); // iterator for left neighbor
