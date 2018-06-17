@@ -20,7 +20,6 @@ struct CommandOpts {
     rulenr_t ruleNr;
     int convertOnly;
     int nrIterations;
-    int randSeed;
     int selfEdges;
     int noInfo;
     int printTape;
@@ -33,6 +32,8 @@ struct CommandOpts {
     bool ruletextPresent;
     std::string outFileSuffix;
     char* ruleText;
+    std::string tapeStructure;
+    std::string topoStructure;
 };
 
 static CommandOpts cmdOpt;
@@ -47,9 +48,9 @@ void ParseCommand(const int argc, char* argv[]) {
     int c;
     bool errorFound = false;
 
+    // Set command options to default values.
     cmdOpt.convertOnly = 0;
     cmdOpt.nrIterations = 128;
-    cmdOpt.randSeed = -1;
     cmdOpt.selfEdges = 0;
     cmdOpt.noInfo = 0;
     cmdOpt.printTape = 0;
@@ -62,29 +63,35 @@ void ParseCommand(const int argc, char* argv[]) {
     cmdOpt.noWriteEndState = false;
     cmdOpt.outFileSuffix = std::string("");
     cmdOpt.ruleText = NULL;
+    cmdOpt.tapeStructure = std::string("single");
+    cmdOpt.topoStructure = std::string("ring");
 
 #define CO_WRITE_START 1000
 #define CO_WRITE_STRIDE 1001
 #define CO_CYCLE_CHECK_DEPTH 1002
 #define CO_HELP 1003
+#define CO_INIT_TAPE 1004
+#define CO_INIT_TOPO 1005
 
     static struct option long_options[] = {
-        {"convert-only", no_argument, &cmdOpt.convertOnly, 1},
         {"allow-self-edges", no_argument, &cmdOpt.selfEdges, 1},
+        {"convert-only", no_argument, &cmdOpt.convertOnly, 1},
         {"no-info", no_argument, &cmdOpt.noInfo, 1},
-        {"print", no_argument, &cmdOpt.printTape, 1},
         {"no-write-end-state", no_argument, &cmdOpt.noWriteEndState, 1},
+        {"print", no_argument, &cmdOpt.printTape, 1},
 
-        {"machine", required_argument, 0, 'm'},
+        {"cycle-check-depth", required_argument, 0, CO_CYCLE_CHECK_DEPTH},
+        {"init-tape", required_argument, 0, CO_INIT_TAPE},
+        {"init-topo", required_argument, 0, CO_INIT_TOPO},
         {"iterations", required_argument, 0, 'i'},
+        {"machine", required_argument, 0, 'm'},
         {"nodes", required_argument, 0, 'n'},
         {"rule", required_argument, 0, 'r'},
-        {"random", required_argument, 0, 'a'},
         {"ruletext", required_argument, 0, 't'},
         {"suffix", required_argument, 0, 's'},
         {"write-start", required_argument, 0, CO_WRITE_START},
         {"write-stride", required_argument, 0, CO_WRITE_STRIDE},
-        {"cycle-check-depth", required_argument, 0, CO_CYCLE_CHECK_DEPTH},
+
         {"help", no_argument, 0, CO_HELP},
         {0, 0, 0, 0}
     };
@@ -110,11 +117,6 @@ void ParseCommand(const int argc, char* argv[]) {
 
           case 'n':
             cmdOpt.nrNodes = atoi(optarg);
-            break;
-
-          case 'a':
-            cmdOpt.randSeed = atoi(optarg);
-            srand(cmdOpt.randSeed); // plant seed at this first opportunity
             break;
 
           case 't':
@@ -176,6 +178,14 @@ void ParseCommand(const int argc, char* argv[]) {
             }
             exit(0);
 
+          case CO_INIT_TAPE:
+            cmdOpt.tapeStructure = std::string(optarg);
+            break;
+
+          case CO_INIT_TOPO:
+            cmdOpt.topoStructure = std::string(optarg);
+            break;
+
           case '?':
             errorFound = true;
             break;
@@ -186,13 +196,6 @@ void ParseCommand(const int argc, char* argv[]) {
     }
 
     // Check option consistency.
-
-    // Create a random rule number if called for.
-    if (cmdOpt.randSeed >= 0) {
-        Rule* r  = new Rule((rulenr_t) 0);
-        cmdOpt.ruleNr = ((unsigned long long) rand() * RAND_MAX + rand()) % r->get_maxRuleNr();
-        delete r;
-    }
 
     if ((cmdOpt.writeStart >= 0 && cmdOpt.writeStride < 0)
       || (cmdOpt.writeStart < 0 && cmdOpt.writeStride >= 0)) {
@@ -281,9 +284,11 @@ void WriteInfo(std::string runId, MachineS* machine, int nrActualIterations, int
     info["ruleNr"] = (Json::UInt64) machine->m_rule->get_ruleNr();
     info["nrNodes"] = machine->m_nrNodes;
     info["nrIterations"] = cmdOpt.nrIterations;
-    info["nrActualIterations"] = nrActualIterations;
     info["selfEdges"] = cmdOpt.selfEdges;
     info["cycleCheckDepth"] = cmdOpt.cycleCheckDepth;
+    info["tapeStructure"] = cmdOpt.tapeStructure;
+    info["topoStructure"] = cmdOpt.topoStructure;
+    info["nrActualIterations"] = nrActualIterations;
     info["cycleLength"] = cycleLength;
     info["runTimeMs"] = runTimeMs;
     MachineS::Statistics* stats = machine->get_stats();
@@ -386,7 +391,8 @@ int main(const int argc, char* argv[]) {
     std::string runId = std::string("R") + std::string(std::to_string(cmdOpt.ruleNr));
 
     // Create the machine.
-    MachineS* m = new MachineS(cmdOpt.ruleNr, cmdOpt.nrNodes, cmdOpt.cycleCheckDepth);
+    MachineS* m = new MachineS(cmdOpt.ruleNr, cmdOpt.nrNodes, cmdOpt.cycleCheckDepth,
+      cmdOpt.tapeStructure, cmdOpt.topoStructure);
 
     // Run it, saving state periodically if specified.
     auto start_time = std::chrono::high_resolution_clock::now();
