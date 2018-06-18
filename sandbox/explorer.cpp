@@ -279,12 +279,20 @@ void WriteInfo(std::string runId, MachineS* machine, int nrActualIterations, int
     info["cycleCheckDepth"] = cmdOpt.cycleCheckDepth;
     info["tapeStructure"] = cmdOpt.tapeStructure;
     info["topoStructure"] = cmdOpt.topoStructure;
+
+    if (cmdOpt.tapeStructure == "random")
+        info["tapePctBlack"] = cmdOpt.tapePctBlack;
+    else
+        info["tapePctBlack"] = -1;
+
+    // Capture outcome measures.
     info["nrActualIterations"] = nrActualIterations;
     info["cycleLength"] = cycleLength;
     info["runTimeMs"] = runTimeMs;
     MachineS::Statistics* stats = machine->get_stats();
     info["multiEdgesAvoided"] = (Json::Value::UInt64) stats->multiEdgesAvoided;
     info["selfEdgesAvoided"] = (Json::Value::UInt64) stats->selfEdgesAvoided;
+
     Json::Value triadOccurrences;
     for (int i = 0; i < NR_TRIAD_STATES; i += 1) {
         auto occurrences = stats->triadOccurrences[i];
@@ -292,7 +300,6 @@ void WriteInfo(std::string runId, MachineS* machine, int nrActualIterations, int
     }
     info["triadOccurrences"] = triadOccurrences;
 
-    // Develop and capture outcome measures.
     Json::Value ccSizeCount;
     TVec<TPair<TInt, TInt> > sizeCount;
     TSnap::GetWccSzCnt(machine->get_graph(), sizeCount);
