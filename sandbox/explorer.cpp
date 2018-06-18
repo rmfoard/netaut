@@ -29,6 +29,7 @@ struct CommandOpts {
     int writeStart;
     int writeStride;
     int cycleCheckDepth;
+    int tapePctBlack;
     bool rulePresent;
     bool ruletextPresent;
     std::string outFileSuffix;
@@ -60,6 +61,7 @@ void ParseCommand(const int argc, char* argv[]) {
     cmdOpt.writeStart = -1;
     cmdOpt.writeStride = -1;
     cmdOpt.cycleCheckDepth = 20;
+    cmdOpt.tapePctBlack = 50;
     cmdOpt.rulePresent = false;
     cmdOpt.ruletextPresent = false;
     cmdOpt.noWriteEndState = false;
@@ -74,6 +76,7 @@ void ParseCommand(const int argc, char* argv[]) {
 #define CO_HELP 1003
 #define CO_INIT_TAPE 1004
 #define CO_INIT_TOPO 1005
+#define CO_TAPE_PCT_BLACK 1006
 
     static struct option long_options[] = {
         {"allow-self-edges", no_argument, &cmdOpt.selfEdges, 1},
@@ -92,6 +95,7 @@ void ParseCommand(const int argc, char* argv[]) {
         {"rule", required_argument, 0, 'r'},
         {"ruletext", required_argument, 0, 't'},
         {"suffix", required_argument, 0, 's'},
+        {"tape-pct-black", required_argument, 0, CO_TAPE_PCT_BLACK},
         {"write-start", required_argument, 0, CO_WRITE_START},
         {"write-stride", required_argument, 0, CO_WRITE_STRIDE},
 
@@ -192,6 +196,10 @@ void ParseCommand(const int argc, char* argv[]) {
 
           case CO_INIT_TOPO:
             cmdOpt.topoStructure = std::string(optarg);
+            break;
+
+          case CO_TAPE_PCT_BLACK:
+            cmdOpt.tapePctBlack = atoi(optarg);
             break;
 
           case '?':
@@ -400,7 +408,7 @@ int main(const int argc, char* argv[]) {
 
     // Create the machine.
     MachineS* m = new MachineS(cmdOpt.ruleNr, cmdOpt.nrNodes, cmdOpt.cycleCheckDepth,
-      cmdOpt.tapeStructure, cmdOpt.topoStructure);
+      cmdOpt.tapeStructure, cmdOpt.tapePctBlack,cmdOpt.topoStructure);
 
     // Run it, saving state periodically if specified.
     auto start_time = std::chrono::high_resolution_clock::now();

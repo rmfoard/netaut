@@ -10,7 +10,7 @@
 
 //---------------
 MachineS::MachineS(rulenr_t ruleNr, int nrNodes, int cycleCheckDepth,
-  std::string tapeStructure, std::string topoStructure) {
+  std::string tapeStructure, int tapePctBlack, std::string topoStructure) {
     m_rule = new Rule(ruleNr);
     m_ruleParts = m_rule->get_ruleParts();
     m_nrNodes = nrNodes;
@@ -21,7 +21,7 @@ MachineS::MachineS(rulenr_t ruleNr, int nrNodes, int cycleCheckDepth,
     m_stats.multiEdgesAvoided = 0;
     m_stats.selfEdgesAvoided = 0;
     for (int i = 0; i < NR_TRIAD_STATES; i += 1) m_stats.triadOccurrences[i] = 0;
-    InitTape(tapeStructure);
+    InitTape(tapeStructure, tapePctBlack);
     InitTopo(topoStructure);
 }
 
@@ -192,11 +192,11 @@ void MachineS::InitNodeStates() {
 //---------------
 // InitTape
 //---------------
-void MachineS::InitTape(std::string tapeStructure) {
+void MachineS::InitTape(std::string tapeStructure, int tapePctBlack) {
     if (tapeStructure == "single")
         InitNodeStates();
     else if (tapeStructure == "random")
-        RandomizeTapeState();
+        RandomizeTapeState(tapePctBlack);
     else
         throw std::runtime_error("--init-tape type is not recognized");
 }
@@ -286,8 +286,12 @@ int MachineS::IterateMachine(int selfEdges, int iterationNr) {
 //---------------
 // RandomizeTapeState
 //---------------
-void MachineS::RandomizeTapeState() {
-    for (int i = 0; i < m_nrNodes; i += 1) m_nodeStates[i] = rand() % 2;
+void MachineS::RandomizeTapeState(int tapePctBlack) {
+    for (int i = 0; i < m_nrNodes; i += 1)
+        if (rand() % 100 <= tapePctBlack)
+            m_nodeStates[i] = NBLACK;
+        else
+            m_nodeStates[i] = NWHITE;
 }
 
 //---------------

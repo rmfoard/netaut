@@ -13,7 +13,7 @@ public:
         long unsigned int triadOccurrences[NR_TRIAD_STATES];
     };
 
-    MachineS(rulenr_t, int, int, std::string, std::string);
+    MachineS(rulenr_t, int, int, std::string, int, std::string);
     ~MachineS();
     PNGraph get_graph();
     int* get_nodeStates();
@@ -44,9 +44,9 @@ private:
     void BuildTree();
     int Cycling();
     void InitNodeStates();
-    void InitTape(std::string);
+    void InitTape(std::string, int);
     void InitTopo(std::string);
-    void RandomizeTapeState();
+    void RandomizeTapeState(int);
     void ShowDF(int, bool*);
     bool StateMatchesCurrent(MachineState);
 };
