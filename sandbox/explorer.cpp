@@ -80,7 +80,7 @@ void ParseCommand(const int argc, char* argv[]) {
         {"allow-self-edges", no_argument, &cmdOpt.selfEdges, 1},
         {"no-info", no_argument, &cmdOpt.noInfo, 1},
         {"no-write-end-state", no_argument, &cmdOpt.noWriteEndState, 1},
-        {"print", no_argument, &cmdOpt.printTape, 1},
+        {"print-tape", no_argument, &cmdOpt.printTape, 1},
 
         {"cycle-check-depth", required_argument, 0, CO_CYCLE_CHECK_DEPTH},
         {"init-tape", required_argument, 0, CO_INIT_TAPE},
