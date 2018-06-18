@@ -43,7 +43,6 @@ private:
     void BuildRing();
     void BuildTree();
     int Cycling();
-    void InitNodeStates();
     void InitTape(std::string, int);
     void InitTopo(std::string);
     void RandomizeTapeState(int);

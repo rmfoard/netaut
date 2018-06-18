@@ -180,22 +180,19 @@ int MachineS::Cycling() {
 }
 
 //---------------
-// InitNodeStates
-//---------------
-void MachineS::InitNodeStates() {
-    for (int i = 0; i < m_nrNodes; i += 1) m_nodeStates[i] = 0;
-    ////m_nodeStates[m_nrNodes / 2] = 1;
-    m_nodeStates[0] = 1; ////temporary, for examining trees more easily
-}
-
-//---------------
 // InitTape
 //---------------
 void MachineS::InitTape(std::string tapeStructure, int tapePctBlack) {
-    if (tapeStructure == "single")
-        InitNodeStates();
+    for (int i = 0; i < m_nrNodes; i += 1) m_nodeStates[i] = NWHITE;
+    if (tapeStructure == "single-center")
+        m_nodeStates[m_nrNodes/2] = NBLACK;
+
+    else if (tapeStructure == "single-end")
+        m_nodeStates[0] = NBLACK;
+
     else if (tapeStructure == "random")
         RandomizeTapeState(tapePctBlack);
+
     else
         throw std::runtime_error("--init-tape type is not recognized");
 }

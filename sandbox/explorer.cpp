@@ -388,7 +388,8 @@ int main(const int argc, char* argv[]) {
 
     // Run it, saving state periodically if specified.
     auto start_time = std::chrono::high_resolution_clock::now();
-    int iter, cycleLength;
+    int iter;
+    int cycleLength = 0;
     for (iter = 0; iter < cmdOpt.nrIterations; iter += 1) {
         if (cmdOpt.writeStart >= 0) {
             if (iter >= cmdOpt.writeStart && (iter - cmdOpt.writeStart) % cmdOpt.writeStride == 0) {
