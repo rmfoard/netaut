@@ -18,7 +18,6 @@
 //---------------
 struct CommandOpts {
     rulenr_t ruleNr;
-    int convertOnly;
     int nrIterations;
     int randSeed;
     int selfEdges;
@@ -51,7 +50,6 @@ void ParseCommand(const int argc, char* argv[]) {
     bool errorFound = false;
 
     // Set command options to default values.
-    cmdOpt.convertOnly = 0;
     cmdOpt.nrIterations = 128;
     cmdOpt.randSeed = -1;
     cmdOpt.selfEdges = 0;
@@ -80,7 +78,6 @@ void ParseCommand(const int argc, char* argv[]) {
 
     static struct option long_options[] = {
         {"allow-self-edges", no_argument, &cmdOpt.selfEdges, 1},
-        {"convert-only", no_argument, &cmdOpt.convertOnly, 1},
         {"no-info", no_argument, &cmdOpt.noInfo, 1},
         {"no-write-end-state", no_argument, &cmdOpt.noWriteEndState, 1},
         {"print", no_argument, &cmdOpt.printTape, 1},
@@ -231,28 +228,6 @@ void ParseCommand(const int argc, char* argv[]) {
 }
 
 //---------------
-// DoConversion
-//
-// Convert from rule number to rule parts or vice versa, depending on
-// command line options present.
-//---------------
-static
-int DoConversion() {
-    if (cmdOpt.ruletextPresent) {
-        Rule* rule = new Rule(cmdOpt.ruleText);
-        printf("%llu\n", rule->get_ruleNr());
-        delete rule;
-        return 0; // failure
-    }
-    else { // rulePresent
-        Rule* rule = new Rule(cmdOpt.ruleNr);
-        printf("%s\n", rule->get_ruleText().c_str());
-        delete rule;
-        return 0; // success
-    }
-}
-
-//---------------
 // WriteState
 //
 // Write the current machine state to a file.
@@ -384,19 +359,7 @@ int main(const int argc, char* argv[]) {
 
     ParseCommand(argc, argv);
 
-    // Was the --convert-only option present?
-    // If so, then either --text or --rule, but not both, must be present.
-    if (cmdOpt.convertOnly) {
-        if ((cmdOpt.ruletextPresent && !cmdOpt.rulePresent)
-          || (!cmdOpt.ruletextPresent && cmdOpt.rulePresent)) {
-            exit(DoConversion());
-        } else {
-            printf("error: must specify either --rule xor --text\n");
-            exit(1);
-        }
-    }
-
-    // Convert-only was not selected, so build and run the machine.
+    // Build and run the machine.
     if (cmdOpt.ruletextPresent) {
         Rule* tmpRule = new Rule(cmdOpt.ruleText);
         cmdOpt.ruleNr = tmpRule->get_ruleNr();
