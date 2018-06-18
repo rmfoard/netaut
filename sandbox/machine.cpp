@@ -134,10 +134,12 @@ void MachineS::BuildRing() {
 //---------------
 void MachineS::BuildTree() {
     assert(m_nrNodes > 1);
-    // assert nrNodes is 2^a - 1
 
+    // Create all the nodes.
     for (int n = 0; n < m_nrNodes; n += 1) m_graph->AddNode(n);
-    for (int n = 0; n < m_nrNodes/2; n += 1) {
+
+    // Add edges to create a regular binary tree.
+    for (int n = 0; n < m_nrNodes; n += 1) {
         // Set left child; leaves link to root.
         if (n*2 + 1 < m_nrNodes)
             m_graph->AddEdge(n, n*2 + 1);
@@ -150,13 +152,6 @@ void MachineS::BuildTree() {
         else
             m_graph->AddEdge(n, n/2 + 1);
     }
-
-/*
-    for (int n = 1; n < m_nrNodes; n += 1) m_graph->AddEdge(n, n - 1);
-    m_graph->AddEdge(0, m_nrNodes - 1);
-    for (int n = 0; n < m_nrNodes - 1; n += 1) m_graph->AddEdge(n, n + 1);
-    m_graph->AddEdge(m_nrNodes - 1, 0);
-*/
 }
 
 //---------------
