@@ -138,21 +138,26 @@ void MachineS::BuildTree() {
 
     for (int n = 0; n < m_nrNodes; n += 1) m_graph->AddNode(n);
     for (int n = 0; n < m_nrNodes/2; n += 1) {
+        // Set left child; leaves link to root.
         if (n*2 + 1 < m_nrNodes)
             m_graph->AddEdge(n, n*2 + 1);
         else
             m_graph->AddEdge(n, 0);
 
+        // Set right child; leaves link to right "uncle."
         if ((n+1) * 2 < m_nrNodes)
             m_graph->AddEdge(n, (n+1) * 2);
         else
             m_graph->AddEdge(n, n/2 + 1);
     }
 
+/* left in place accidentally -- how did it affect browsed results??
+ * ...perhaps not at all because only first two edges are processed.
     for (int n = 1; n < m_nrNodes; n += 1) m_graph->AddEdge(n, n - 1);
     m_graph->AddEdge(0, m_nrNodes - 1);
     for (int n = 0; n < m_nrNodes - 1; n += 1) m_graph->AddEdge(n, n + 1);
     m_graph->AddEdge(m_nrNodes - 1, 0);
+*/
 }
 
 //---------------
@@ -292,34 +297,6 @@ void MachineS::RandomizeTapeState(int tapePctBlack) {
             m_nodeStates[i] = NBLACK;
         else
             m_nodeStates[i] = NWHITE;
-}
-
-//---------------
-// ShowDepthFirst
-//
-// Print a string representing node values traversed in depth-first order from 'root'.
-//---------------
-void MachineS::ShowDepthFirst(int rootNId) {
-    bool *visited = new bool[m_nrNodes];
-    for (int i = 0; i < m_nrNodes; i += 1) visited[i] = false;
-
-    ShowDF(rootNId, visited);
-    printf("\n");
-
-    delete visited;
-}
-
-//---------------
-void MachineS::ShowDF(int rootNId, bool *visited) {
-    if (!visited[rootNId]) {
-        visited[rootNId] = true;
-        printf("%s", (m_nodeStates[rootNId] == NBLACK) ? "+" : " ");
-        TNGraph::TNodeI rootIter = m_graph->GetNI(rootNId);
-        int lNId = rootIter.GetOutNId(0);
-        int rNId = rootIter.GetOutNId(1);
-        ShowDF(lNId, visited);
-        ShowDF(rNId, visited);
-    }
 }
 
 //---------------
