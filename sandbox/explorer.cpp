@@ -100,6 +100,8 @@ void ParseCommand(const int argc, char* argv[]) {
         {0, 0, 0, 0}
     };
 
+    bool tapePctBlackSpecified = false;
+
     while (true) {
 
         int option_index = 0;
@@ -197,6 +199,7 @@ void ParseCommand(const int argc, char* argv[]) {
 
           case CO_TAPE_PCT_BLACK:
             cmdOpt.tapePctBlack = atoi(optarg);
+            tapePctBlackSpecified = true;
             break;
 
           case '?':
@@ -209,7 +212,6 @@ void ParseCommand(const int argc, char* argv[]) {
     }
 
     // Check option consistency.
-
     if ((cmdOpt.writeStart >= 0 && cmdOpt.writeStride < 0)
       || (cmdOpt.writeStart < 0 && cmdOpt.writeStride >= 0)) {
         printf("error: --write-start and --write-stride must both be specified\n");
@@ -217,6 +219,10 @@ void ParseCommand(const int argc, char* argv[]) {
     }
 
     if (errorFound) exit(1);
+
+    // Warn of odd selections.
+    if (tapePctBlackSpecified && cmdOpt.tapeStructure != "random")
+        std::cerr << "warning: --tape-pct-black with non-random init-tape structure has no effect" << std::endl;
 
 
     // Warn if any non-option command arguments are present.
