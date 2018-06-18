@@ -151,8 +151,7 @@ void MachineS::BuildTree() {
             m_graph->AddEdge(n, n/2 + 1);
     }
 
-/* left in place accidentally -- how did it affect browsed results??
- * ...perhaps not at all because only first two edges are processed.
+/*
     for (int n = 1; n < m_nrNodes; n += 1) m_graph->AddEdge(n, n - 1);
     m_graph->AddEdge(0, m_nrNodes - 1);
     for (int n = 0; n < m_nrNodes - 1; n += 1) m_graph->AddEdge(n, n + 1);
