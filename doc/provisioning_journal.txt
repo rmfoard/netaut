@@ -83,6 +83,7 @@ To provision for generating netaut/hellosnap:
     # psql 
     - usage examples and more at ref:
     http://yallalabs.com/linux/how-to-install-and-use-postgresql-10-on-ubuntu-16-04/
+    - found I also ?needed sudo apt-get libpq-dev and libpq++-dev
 
 - install mhash library
     - downloaded mhash from sourceforge
