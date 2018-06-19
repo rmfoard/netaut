@@ -33,6 +33,7 @@ struct CommandOpts {
     bool rulePresent;
     bool ruletextPresent;
     std::string outFileSuffix;
+    std::string writeAsName;
     char* ruleText;
     std::string tapeStructure;
     std::string topoStructure;
@@ -82,6 +83,7 @@ void ParseCommand(const int argc, char* argv[]) {
     cmdOpt.ruletextPresent = false;
     cmdOpt.noWriteEndState = false;
     cmdOpt.outFileSuffix = std::string("");
+    cmdOpt.writeAsName = std::string("");
     cmdOpt.ruleText = NULL;
     cmdOpt.tapeStructure = std::string("single-center");
     cmdOpt.topoStructure = std::string("ring");
@@ -93,6 +95,7 @@ void ParseCommand(const int argc, char* argv[]) {
 #define CO_INIT_TAPE 1004
 #define CO_INIT_TOPO 1005
 #define CO_TAPE_PCT_BLACK 1006
+#define CO_WRITE_AS 1007
 
     static struct option long_options[] = {
         {"allow-self-edges", no_argument, &cmdOpt.selfEdges, 1},
@@ -113,6 +116,7 @@ void ParseCommand(const int argc, char* argv[]) {
         {"tape-pct-black", required_argument, 0, CO_TAPE_PCT_BLACK},
         {"write-start", required_argument, 0, CO_WRITE_START},
         {"write-stride", required_argument, 0, CO_WRITE_STRIDE},
+	{"write-as", required_argument, 0, CO_WRITE_AS},
 
         {"help", no_argument, 0, CO_HELP},
         {0, 0, 0, 0}
@@ -220,6 +224,10 @@ void ParseCommand(const int argc, char* argv[]) {
             tapePctBlackSpecified = true;
             break;
 
+	  case CO_WRITE_AS:
+	    cmdOpt.writeAsName = std::string(optarg);
+	    break;
+
           case '?':
             errorFound = true;
             break;
@@ -241,7 +249,6 @@ void ParseCommand(const int argc, char* argv[]) {
     // Warn of odd selections.
     if (tapePctBlackSpecified && cmdOpt.tapeStructure != "random")
         std::cerr << "warning: --tape-pct-black with non-random init-tape structure has no effect" << std::endl;
-
 
     // Warn if any non-option command arguments are present.
     if (optind < argc) {
@@ -270,10 +277,17 @@ void WriteState(const std::string runId, MachineS* m, const std::string outFileS
     if (outFileSuffix != std::string("")) suffix = std::string("_") + outFileSuffix;
 
     std::string stateFName = std::string("");
-    if (numTag < 0)
-        stateFName = runId + suffix;
+    std::string baseName = std::string("");
+    if (cmdOpt.writeAsName == std::string(""))
+	basename = runId;
     else
-        stateFName = runId + suffix + std::string(".") + std::to_string(numTag);
+	basename = writeAsName;
+
+    if (numTag < 0)
+        stateFName = baseName + suffix;
+    else
+        stateFName = baseName + suffix + std::string(".") + std::to_string(numTag);
+
     stateFName += std::string(".dot");
 
     // Compose the description string.
