@@ -65,7 +65,7 @@ void ParseCommand(const int argc, char* argv[]) {
     cmdOpt.noWriteEndState = false;
     cmdOpt.outFileSuffix = std::string("");
     cmdOpt.ruleText = NULL;
-    cmdOpt.tapeStructure = std::string("single");
+    cmdOpt.tapeStructure = std::string("single-center");
     cmdOpt.topoStructure = std::string("ring");
 
 #define CO_WRITE_START 1000
@@ -285,6 +285,7 @@ void WriteInfo(std::string runId, MachineS* machine, int nrActualIterations, int
     info["cycleCheckDepth"] = cmdOpt.cycleCheckDepth;
     info["tapeStructure"] = cmdOpt.tapeStructure;
     info["topoStructure"] = cmdOpt.topoStructure;
+    info["randseed"] = cmdOpt.randSeed;
 
     if (cmdOpt.tapeStructure == "random")
         info["tapePctBlack"] = cmdOpt.tapePctBlack;
