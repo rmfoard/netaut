@@ -27,7 +27,7 @@ struct CommandOpts {
     int nrNodes;
     int writeStart;
     int writeStride;
-    int cycleCheckDepth;
+    unsigned int cycleCheckDepth;
     int tapePctBlack;
     bool rulePresent;
     bool ruletextPresent;
