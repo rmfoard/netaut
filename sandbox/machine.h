@@ -36,7 +36,7 @@ private:
     PNGraph m_nextGraph;
     int* m_nodeStates;
     int* m_nextNodeStates;
-    int m_cycleCheckDepth;
+    unsigned int m_cycleCheckDepth;
     std::queue<MachineState> m_stateHistory;
 
     void AdvanceNode(TNGraph::TNodeI, int);
