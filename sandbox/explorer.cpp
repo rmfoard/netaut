@@ -55,7 +55,6 @@ std::string RunId(std::string machineType, rulenr_t ruleNr) {
     snprintf(nowStr, strlen(nowStr) + 1, "%02d%02d%02d%02d%02d%02d",
       now->tm_year % 100, now->tm_mon+1, now->tm_mday,
       now->tm_hour, now->tm_min, now->tm_sec);
-    printf("%s\n", nowStr);
     return machineType
       + "-" + std::to_string(ruleNr)
       + "-" + std::string(nowStr);
@@ -116,7 +115,7 @@ void ParseCommand(const int argc, char* argv[]) {
         {"tape-pct-black", required_argument, 0, CO_TAPE_PCT_BLACK},
         {"write-start", required_argument, 0, CO_WRITE_START},
         {"write-stride", required_argument, 0, CO_WRITE_STRIDE},
-	{"write-as", required_argument, 0, CO_WRITE_AS},
+    {"write-as", required_argument, 0, CO_WRITE_AS},
 
         {"help", no_argument, 0, CO_HELP},
         {0, 0, 0, 0}
@@ -224,9 +223,9 @@ void ParseCommand(const int argc, char* argv[]) {
             tapePctBlackSpecified = true;
             break;
 
-	  case CO_WRITE_AS:
-	    cmdOpt.writeAsName = std::string(optarg);
-	    break;
+      case CO_WRITE_AS:
+        cmdOpt.writeAsName = std::string(optarg);
+        break;
 
           case '?':
             errorFound = true;
@@ -279,9 +278,9 @@ void WriteState(const std::string runId, MachineS* m, const std::string outFileS
     std::string stateFName = std::string("");
     std::string baseName = std::string("");
     if (cmdOpt.writeAsName == std::string(""))
-	basename = runId;
+        baseName = runId;
     else
-	basename = writeAsName;
+        baseName = cmdOpt.writeAsName;
 
     if (numTag < 0)
         stateFName = baseName + suffix;
