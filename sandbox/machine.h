@@ -15,6 +15,7 @@ public:
 
     MachineS(rulenr_t, int, int, std::string, int, std::string);
     ~MachineS();
+    std::string get_machineType();
     PNGraph get_graph();
     int* get_nodeStates();
     Statistics* get_stats();
@@ -32,6 +33,7 @@ private:
         PNGraph graph;
     };
 
+    std::string m_machineType;
     PNGraph m_graph;
     PNGraph m_nextGraph;
     int* m_nodeStates;

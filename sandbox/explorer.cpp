@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <algorithm>
+#include <ctime>
 #include <chrono>
 #include <iostream>
 #include <string>
@@ -41,6 +42,23 @@ static CommandOpts cmdOpt;
 
 //---------------
 char* strAllocCpy(const char* src) { return strcpy(new char[strlen(src) + 1], src); }
+
+//---------------
+// RunId
+//---------------
+static
+std::string RunId(std::string machineType, rulenr_t ruleNr) {
+    std::time_t t = std::time(0);
+    std::tm* now = std::localtime(&t);
+    char* nowStr = strAllocCpy("yymmddhhmmss");
+    snprintf(nowStr, strlen(nowStr) + 1, "%02d%02d%02d%02d%02d%02d",
+      now->tm_year % 100, now->tm_mon+1, now->tm_mday,
+      now->tm_hour, now->tm_min, now->tm_sec);
+    printf("%s\n", nowStr);
+    return machineType
+      + "-" + std::to_string(ruleNr)
+      + "-" + std::string(nowStr);
+}
 
 //---------------
 // TODO: Learn where the hell 'optind' came from.
@@ -380,12 +398,13 @@ int main(const int argc, char* argv[]) {
         delete tmpRule;
     }
 
-    // Fabricate a run identifier. (TODO: Enrich runId composition.)
-    std::string runId = std::string("R") + std::string(std::to_string(cmdOpt.ruleNr));
-
     // Create the machine.
     MachineS* m = new MachineS(cmdOpt.ruleNr, cmdOpt.nrNodes, cmdOpt.cycleCheckDepth,
       cmdOpt.tapeStructure, cmdOpt.tapePctBlack,cmdOpt.topoStructure);
+
+    // Fabricate a run identifier.
+    //std::string runId = std::string("R") + std::string(std::to_string(cmdOpt.ruleNr));
+    std::string runId = RunId(m->get_machineType(), cmdOpt.ruleNr);
 
     // Run it, saving state periodically if specified.
     auto start_time = std::chrono::high_resolution_clock::now();

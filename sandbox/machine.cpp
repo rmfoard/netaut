@@ -11,6 +11,7 @@
 //---------------
 MachineS::MachineS(rulenr_t ruleNr, int nrNodes, int cycleCheckDepth,
   std::string tapeStructure, int tapePctBlack, std::string topoStructure) {
+    m_machineType = std::string("S");
     m_rule = new Rule(ruleNr);
     m_ruleParts = m_rule->get_ruleParts();
     m_nrNodes = nrNodes;
@@ -35,6 +36,7 @@ MachineS::~MachineS() {
 //---------------
 // TODO: Use the proper form for "getters."
 //---------------
+std::string MachineS::get_machineType() { return m_machineType; }
 PNGraph MachineS::get_graph() { return m_graph; }
 int* MachineS::get_nodeStates() { return m_nodeStates; }
 MachineS::Statistics* MachineS::get_stats() { return &m_stats; }
