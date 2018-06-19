@@ -44,6 +44,7 @@ private:
     void AdvanceNode(TNGraph::TNodeI, int);
     void BuildRing();
     void BuildTree();
+    void BuildRandomGraph();
     int Cycling();
     void InitTape(std::string, int);
     void InitTopo(std::string);

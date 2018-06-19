@@ -126,7 +126,9 @@ void MachineS::AdvanceNode(TNGraph::TNodeI NIter, int selfEdges) {
 void MachineS::BuildRing() {
     assert(m_nrNodes > 1);
 
+    // Create all the nodes.
     for (int n = 0; n < m_nrNodes; n += 1) m_graph->AddNode(n);
+
     for (int n = 1; n < m_nrNodes; n += 1) m_graph->AddEdge(n, n - 1);
     m_graph->AddEdge(0, m_nrNodes - 1);
     for (int n = 0; n < m_nrNodes - 1; n += 1) m_graph->AddEdge(n, n + 1);
@@ -153,6 +155,26 @@ void MachineS::BuildTree() {
             m_graph->AddEdge(n, (n+1) * 2);
         else
             m_graph->AddEdge(n, n/2 + 1);
+    }
+}
+
+//---------------
+void MachineS::BuildRandomGraph() {
+    assert(m_nrNodes > 1);
+
+    // Create all the nodes.
+    for (int i = 0; i < m_nrNodes; i += 1) m_graph->AddNode(i);
+
+    // Create two random edges on each node.
+    // TODO: Conditionally allow self-edges.
+    for (int i = 0; i < m_nrNodes; i += 1) {
+        int j;
+        do j = rand() % m_nrNodes; while (j == i);
+        m_graph->AddEdge(i, j);
+
+        int k;
+        do k = rand() % m_nrNodes; while (k == i || k == j);
+        m_graph->AddEdge(i, k);
     }
 }
 
@@ -207,6 +229,8 @@ void MachineS::InitTopo(std::string topoStructure) {
         BuildRing();
     else if (topoStructure == "tree")
         BuildTree();
+    else if (topoStructure == "random")
+        BuildRandomGraph();
     else
         throw std::runtime_error("--init-topo type is not recognized");
 }
