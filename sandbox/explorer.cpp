@@ -81,11 +81,11 @@ void ParseCommand(const int argc, char* argv[]) {
     cmdOpt.rulePresent = false;
     cmdOpt.ruletextPresent = false;
     cmdOpt.noWriteEndState = false;
-    cmdOpt.outFileSuffix = std::string("");
-    cmdOpt.writeAsName = std::string("");
+    cmdOpt.outFileSuffix = "";
+    cmdOpt.writeAsName = "";
     cmdOpt.ruleText = NULL;
-    cmdOpt.tapeStructure = std::string("single-center");
-    cmdOpt.topoStructure = std::string("ring");
+    cmdOpt.tapeStructure = "single-center";
+    cmdOpt.topoStructure = "ring";
 
 #define CO_WRITE_START 1000
 #define CO_WRITE_STRIDE 1001
@@ -182,7 +182,7 @@ void ParseCommand(const int argc, char* argv[]) {
             break;
 
           case 's':
-            cmdOpt.outFileSuffix = std::string(optarg);
+            cmdOpt.outFileSuffix = optarg;
             break;
 
           case 'w':
@@ -211,11 +211,11 @@ void ParseCommand(const int argc, char* argv[]) {
             exit(0);
 
           case CO_INIT_TAPE:
-            cmdOpt.tapeStructure = std::string(optarg);
+            cmdOpt.tapeStructure = optarg;
             break;
 
           case CO_INIT_TOPO:
-            cmdOpt.topoStructure = std::string(optarg);
+            cmdOpt.topoStructure = optarg;
             break;
 
           case CO_TAPE_PCT_BLACK:
@@ -224,7 +224,7 @@ void ParseCommand(const int argc, char* argv[]) {
             break;
 
       case CO_WRITE_AS:
-        cmdOpt.writeAsName = std::string(optarg);
+        cmdOpt.writeAsName = optarg;
         break;
 
           case '?':
@@ -272,12 +272,12 @@ void WriteState(const std::string runId, MachineS* m, const std::string outFileS
     }
 
     // Compose the file name.
-    std::string suffix = std::string("");
-    if (outFileSuffix != std::string("")) suffix = std::string("_") + outFileSuffix;
+    std::string suffix = "";
+    if (outFileSuffix != "") suffix = "_" + outFileSuffix;
 
-    std::string stateFName = std::string("");
-    std::string baseName = std::string("");
-    if (cmdOpt.writeAsName == std::string(""))
+    std::string stateFName = "";
+    std::string baseName = "";
+    if (cmdOpt.writeAsName == "")
         baseName = runId;
     else
         baseName = cmdOpt.writeAsName;
@@ -285,12 +285,12 @@ void WriteState(const std::string runId, MachineS* m, const std::string outFileS
     if (numTag < 0)
         stateFName = baseName + suffix;
     else
-        stateFName = baseName + suffix + std::string(".") + std::to_string(numTag);
+        stateFName = baseName + suffix + "." + std::to_string(numTag);
 
-    stateFName += std::string(".dot");
+    stateFName += ".dot";
 
     // Compose the description string.
-    std::string description = runId + std::string(" @")
+    std::string description = runId + " @"
       + (numTag < 0 ? std::to_string(cmdOpt.nrIterations) : std::to_string(numTag));
 
     // Write state to the file (false => no labels provided).
@@ -416,7 +416,6 @@ int main(const int argc, char* argv[]) {
       cmdOpt.tapeStructure, cmdOpt.tapePctBlack,cmdOpt.topoStructure);
 
     // Fabricate a run identifier.
-    //std::string runId = std::string("R") + std::string(std::to_string(cmdOpt.ruleNr));
     std::string runId = RunId(m->get_machineType(), cmdOpt.ruleNr);
 
     // Run it, saving state periodically if specified.
