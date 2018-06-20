@@ -39,11 +39,10 @@ def main():
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames, extrasaction='ignore')
             writer.writeheader()
             for line in jsonfile:
-                if len(line) > 1:
-                    dct = json.loads(line)
-                    if 'noMultiEdges' in dct:  # need to invert legacy item?
-                        dct['multiEdges'] = 1 - dct['noMultiEdges']
-                    writer.writerow(dct)
+                dct = json.loads(line)
+                if 'noMultiEdges' in dct:  # need to invert legacy item?
+                    dct['multiEdges'] = 1 - dct['noMultiEdges']
+                writer.writerow(dct)
 
 
 if __name__ == '__main__':
