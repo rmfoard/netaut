@@ -76,7 +76,7 @@ void ParseCommand(const int argc, char* argv[]) {
     cmdOpt.nrNodes = 256;
     cmdOpt.writeStart = -1;
     cmdOpt.writeStride = -1;
-    cmdOpt.cycleCheckDepth = 20;
+    cmdOpt.cycleCheckDepth = 0;
     cmdOpt.tapePctBlack = 50;
     cmdOpt.rulePresent = false;
     cmdOpt.ruletextPresent = false;
@@ -199,6 +199,8 @@ void ParseCommand(const int argc, char* argv[]) {
 
           case CO_CYCLE_CHECK_DEPTH:
             cmdOpt.cycleCheckDepth = atoi(optarg);
+            if (cmdOpt.cycleCheckDepth == 0)
+                std::cerr << "warning: 0 cycle-check-depth is replaced with nrNodes" << std::endl;
             break;
 
           case CO_HELP:
@@ -255,6 +257,9 @@ void ParseCommand(const int argc, char* argv[]) {
         while (optind < argc) printf ("%s ", argv[optind++]);
         putchar ('\n');
     }
+
+    // Check 'nrNodes' generations for cycles unless depth was set explicitly.
+    if (cmdOpt.cycleCheckDepth == 0) cmdOpt.cycleCheckDepth = cmdOpt.nrNodes;
 }
 
 //---------------
