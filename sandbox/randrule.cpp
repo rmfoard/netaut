@@ -5,11 +5,14 @@
 #include <stdint.h>
 #include <algorithm>
 #include <fstream>
+#include <functional>
 #include <iostream>
+#include <random>
 #include <string>
 #include "rule.h"
 
 #define VERSION "V180614.0"
+
 
 // TODO: Add --help
 //---------------
@@ -98,22 +101,27 @@ void ParseCommand(const int argc, char* argv[]) {
 //---------------
 static
 rulenr_t GenRandRule() {
+
+    // Set up the Mersenne Twister random number generator.
+    std::mt19937::result_type seed = cmdOpt.randSeed;
+    auto r6 = std::bind(std::uniform_int_distribution<int>(0, 5), std::mt19937(seed));
+
     rulenr_t rr = 0;
 
     // For each of the 8 triad-state rule parts...
     for (int i = 0; i < 8; i += 1) {
-        int leftAction = rand() % 6;
+        int leftAction = r6();
         int rightAction;
 
         // Disallow identical left- and right-actions (that would
         // create multi-edges).
         do {
-            rightAction = rand() % 6;
+            rightAction = r6();
         } while (rightAction == leftAction);
 
         // Shift in the rule part, encoded as a mixed-radix (6, 6, 2) number,
         // to develop the radix 72 (6*6*2) rule number.
-        int nodeAction = rand() % 2;
+        int nodeAction = r6() % 2;
         rr = (72 * rr) + ((leftAction * 6 + rightAction) * 2) + nodeAction;
     }
     return rr;
@@ -124,31 +132,10 @@ int main(const int argc, char* argv[]) {
 
     ParseCommand(argc, argv);
 
-    // Do it.
-    srand(cmdOpt.randSeed);
-    if (cmdOpt.acceptFile != std::string(""))
+    if (cmdOpt.acceptFile != "")
         ; //printf("process acceptFile: %s\n", cmdOpt.acceptFile.c_str());
     if (cmdOpt.rejectFile != std::string(""))
         ; //printf("process rejectFile: %s\n", cmdOpt.rejectFile.c_str());
     std::cout << GenRandRule();
     exit(0);
 }
-
-/* Reference:
-int main () {
-  string line;
-  ifstream myfile ("example.txt");
-  if (myfile.is_open())
-  {
-      while ( getline (myfile,line) )
-      {
-          cout << line << '\n';
-      }
-      myfile.close();
-  }
-
-  else cout << "Unable to open file"; 
-
-  return 0;
-}
-*/
