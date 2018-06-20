@@ -48,6 +48,9 @@ explorer: explorer.cpp machine.cpp machine.h rule.h filter.o rule.o $(CSNAP)/Sna
 randrule:	randrule.o
 	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(LDFLAGS) $(LIBS)
 
+toy:	toy.o
+	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(LDFLAGS) $(LIBS)
+
 txrule:	txrule.o
 	$(CC) $(CXXFLAGS) -o $@ $@.cpp rule.o $(LDFLAGS) $(LIBS)
 
