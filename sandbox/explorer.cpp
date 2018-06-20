@@ -268,7 +268,8 @@ void ParseCommand(const int argc, char* argv[]) {
 // Write the current machine state to a file.
 //---------------
 static
-void WriteState(const std::string runId, MachineS* m, const std::string outFileSuffix, const int numTag) {
+void WriteState(const std::string runId, MachineS* m, const std::string outFileSuffix,
+  const int numTag, int actualNrIterations) {
     TIntStrH nodeColorHash = THash<TInt, TStr>();
     int* nodeStates = m->get_nodeStates();
     for (TNGraph::TNodeI NIter = m->get_graph()->BegNI(); NIter < m->get_graph()->EndNI(); NIter++) {
@@ -296,7 +297,7 @@ void WriteState(const std::string runId, MachineS* m, const std::string outFileS
 
     // Compose the description string.
     std::string description = runId + " @"
-      + (numTag < 0 ? std::to_string(cmdOpt.nrIterations) : std::to_string(numTag));
+      + (numTag < 0 ? std::to_string(actualNrIterations) : std::to_string(numTag));
 
     // Write state to the file (false => no labels provided).
     TSnap::SaveGViz(m->get_graph(), stateFName.c_str(), TStr(description.c_str()), false, nodeColorHash);
@@ -430,7 +431,7 @@ int main(const int argc, char* argv[]) {
     for (iter = 0; iter < cmdOpt.nrIterations; iter += 1) {
         if (cmdOpt.writeStart >= 0) {
             if (iter >= cmdOpt.writeStart && (iter - cmdOpt.writeStart) % cmdOpt.writeStride == 0) {
-                WriteState(runId, m, cmdOpt.outFileSuffix, iter);
+                WriteState(runId, m, cmdOpt.outFileSuffix, iter, iter);
             }
         }
 
@@ -444,7 +445,7 @@ int main(const int argc, char* argv[]) {
 
     // Write the end-state machine unless --no-write-end-state was present.
     //   (-1 => no numeric tag for inclusion in file name)
-    if (!cmdOpt.noWriteEndState) WriteState(runId, m, cmdOpt.outFileSuffix, -1);
+    if (!cmdOpt.noWriteEndState) WriteState(runId, m, cmdOpt.outFileSuffix, -1, iter);
 
     // Write run information unless --no-write-info was present.
     if (!cmdOpt.noInfo) WriteInfo(runId, m, iter, cycleLength, runTimeMs);
