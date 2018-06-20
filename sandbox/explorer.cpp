@@ -21,7 +21,7 @@ struct CommandOpts {
     rulenr_t ruleNr;
     int nrIterations;
     int randSeed;
-    int selfEdges;
+    int allowSelfEdges;
     int noInfo;
     int printTape;
     int noWriteEndState;
@@ -70,7 +70,7 @@ void ParseCommand(const int argc, char* argv[]) {
     // Set command options to default values.
     cmdOpt.nrIterations = 128;
     cmdOpt.randSeed = -1;
-    cmdOpt.selfEdges = 0;
+    cmdOpt.allowSelfEdges = 0;
     cmdOpt.noInfo = 0;
     cmdOpt.printTape = 0;
     cmdOpt.nrNodes = 256;
@@ -97,7 +97,7 @@ void ParseCommand(const int argc, char* argv[]) {
 #define CO_WRITE_AS 1007
 
     static struct option long_options[] = {
-        {"allow-self-edges", no_argument, &cmdOpt.selfEdges, 1},
+        {"allow-self-edges", no_argument, &cmdOpt.allowSelfEdges, 1},
         {"no-info", no_argument, &cmdOpt.noInfo, 1},
         {"no-write-end-state", no_argument, &cmdOpt.noWriteEndState, 1},
         {"print-tape", no_argument, &cmdOpt.printTape, 1},
@@ -106,7 +106,7 @@ void ParseCommand(const int argc, char* argv[]) {
         {"init-tape", required_argument, 0, CO_INIT_TAPE},
         {"init-topo", required_argument, 0, CO_INIT_TOPO},
         {"iterations", required_argument, 0, 'i'},
-        {"machine", required_argument, 0, 'm'},
+        /*{"machine", required_argument, 0, 'm'},*/
         {"nodes", required_argument, 0, 'n'},
         {"randseed", required_argument, 0, 'a'},
         {"rule", required_argument, 0, 'r'},
@@ -176,10 +176,10 @@ void ParseCommand(const int argc, char* argv[]) {
             }
             break;
 
-          case 'm':
+          /*case 'm':
             printf("--machine option is not yet supported.\n");
             errorFound = true;
-            break;
+            break;*/
 
           case 's':
             cmdOpt.outFileSuffix = optarg;
@@ -312,7 +312,7 @@ void WriteInfo(std::string runId, MachineS* machine, int nrActualIterations, int
     info["ruleNr"] = (Json::UInt64) machine->m_rule->get_ruleNr();
     info["nrNodes"] = machine->m_nrNodes;
     info["nrIterations"] = cmdOpt.nrIterations;
-    info["selfEdges"] = cmdOpt.selfEdges;
+    info["allowSelfEdges"] = cmdOpt.allowSelfEdges;
     info["cycleCheckDepth"] = cmdOpt.cycleCheckDepth;
     info["tapeStructure"] = cmdOpt.tapeStructure;
     info["topoStructure"] = cmdOpt.topoStructure;
@@ -430,7 +430,7 @@ int main(const int argc, char* argv[]) {
         }
 
         // Stop iteration if 'IterateMachine' reported a state cycle.
-        cycleLength = m->IterateMachine(cmdOpt.selfEdges, iter);
+        cycleLength = m->IterateMachine(cmdOpt.allowSelfEdges, iter);
         if (cycleLength > 0) break;
     } // The residual value of 'iter' is the actual number of iterations performed.
     auto stop_time = std::chrono::high_resolution_clock::now();
