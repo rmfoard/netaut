@@ -14,7 +14,13 @@
 #define VERSION "V180614.0"
 
 
-// TODO: Add --help
+// Set up the Mersenne Twister random number generator.
+// 'pMersenne' will point to a seeded instantiation of the generator.
+// 'rn05' is an instantiated wrapper that yields uniform [0, 5] when called with
+// a generator.
+static std::mt19937* pMersenne;
+static std::uniform_int_distribution<int> rn05(0, 5);
+
 //---------------
 struct CommandOpts {
     int randSeed;
@@ -113,11 +119,17 @@ void ParseCommand(const int argc, char* argv[]) {
     }
 
     // Check option consistency.
+    if ((cmdOpt.cacheFile != "" && cmdOpt.reserve == 0)
+      || (cmdOpt.cacheFile == "" && cmdOpt.reserve > 0)) {
+        std::cerr << "error: --reserve and --cacheFile must both be specified" << std::endl;
+        errorFound = true;
+    }
+
     if (errorFound) exit(1);
 
     // Warn if any non-option command arguments are present.
     if (optind < argc) {
-        printf ("warning: there are extraneous command arguments: ");
+        std::cerr << "warning: there are extraneous command arguments: " << std::endl;
         while (optind < argc) printf ("%s ", argv[optind++]);
         putchar ('\n');
     }
@@ -131,29 +143,57 @@ void ParseCommand(const int argc, char* argv[]) {
 static
 rulenr_t GenRandRule() {
 
-    // Set up the Mersenne Twister random number generator.
-    std::mt19937::result_type seed = cmdOpt.randSeed;
-    auto r6 = std::bind(std::uniform_int_distribution<int>(0, 5), std::mt19937(seed));
-
     rulenr_t rr = 0;
 
     // For each of the 8 triad-state rule parts...
     for (int i = 0; i < 8; i += 1) {
-        int leftAction = r6();
+        int leftAction = rn05(*pMersenne);
         int rightAction;
 
         // Disallow identical left- and right-actions (that would
         // create multi-edges).
         do {
-            rightAction = r6();
+            rightAction = rn05(*pMersenne);
         } while (rightAction == leftAction);
 
         // Shift in the rule part, encoded as a mixed-radix (6, 6, 2) number,
         // to develop the radix 72 (6*6*2) rule number.
-        int nodeAction = r6() % 2;
+        int nodeAction = rn05(*pMersenne) % 2;
         rr = (72 * rr) + ((leftAction * 6 + rightAction) * 2) + nodeAction;
     }
     return rr;
+}
+
+//---------------
+// ProcessCacheFile
+//
+// Draw next entry from the cache file, first generating it if necessary.
+//---------------
+void ProcessCacheFile() {
+
+    // Create and fill the cache file if we're just starting.
+    std::ifstream cfileIn;
+    cfileIn.open(cmdOpt.cacheFile, std::ios::in);
+    if (!cfileIn.is_open()) { // if there is no cache file
+        std::ofstream cfileOut;
+        cfileOut.open(cmdOpt.cacheFile, std::ios::out);
+        if (!cfileOut.is_open()) {
+            std::cerr << "error: can't create cache file" << std::endl;
+            exit(1);
+        }
+
+        // Instantiate the seeded random number generator.
+        pMersenne = new std::mt19937((std::mt19937::result_type) cmdOpt.randSeed);
+
+        // Fill the cache file.
+        for (int i = 0; i < cmdOpt.reserve; i += 1) {
+            cfileOut << GenRandRule() << std::endl;
+        }
+        cfileOut.close();
+        exit(0); ////
+    }
+    
+    cfileIn.close();
 }
 
 //---------------
@@ -169,6 +209,7 @@ int main(const int argc, char* argv[]) {
 
     // Generate and draw from a cache file if specified.
     if (cmdOpt.cacheFile != "") { // if a cache file is specified
+        ProcessCacheFile();
         // if it does not exist
             // create and fill it, set position to the beginning
         // endif
@@ -183,6 +224,6 @@ int main(const int argc, char* argv[]) {
         // endif
     }
     
-    std::cout << GenRandRule();
+    //std::cout << GenRandRule();
     exit(0);
 }
