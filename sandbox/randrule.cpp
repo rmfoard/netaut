@@ -138,7 +138,7 @@ void ParseCommand(const int argc, char* argv[]) {
         int s1 = std::remove(cmdOpt.cacheFile.c_str());
         int s2 = std::remove((cmdOpt.cacheFile + ".mkr").c_str());
         if (s1 != 0 || s2 != 0)
-            std::cerr << "warning: all deletions were not successtul" << std::endl;
+            std::cerr << "warning: all cache file deletions were not successtul" << std::endl;
         exit(0);
     }
 
