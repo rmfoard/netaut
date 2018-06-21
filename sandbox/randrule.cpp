@@ -61,6 +61,7 @@ void ParseCommand(const int argc, char* argv[]) {
 
     int c;
     bool errorFound = false;
+    bool resetting = false;
     while (true) {
 
         int option_index = 0;
@@ -98,7 +99,7 @@ void ParseCommand(const int argc, char* argv[]) {
             break;
 
           case 't': // --reset
-            // Eradicate the cache
+            resetting = true;
             break;
 
           case 'h': // --help
@@ -119,15 +120,27 @@ void ParseCommand(const int argc, char* argv[]) {
             abort();
        }
     }
+    if (errorFound) exit(1);
 
     // Check option consistency.
-    if ((cmdOpt.cacheFile != "" && cmdOpt.reserve == 0)
-      || (cmdOpt.cacheFile == "" && cmdOpt.reserve > 0)) {
+    if (((cmdOpt.cacheFile != "" && cmdOpt.reserve == 0)
+      || (cmdOpt.cacheFile == "" && cmdOpt.reserve > 0))
+      && !resetting) {
         std::cerr << "error: --reserve and --cacheFile must both be specified" << std::endl;
-        errorFound = true;
+        exit(1);
     }
 
-    if (errorFound) exit(1);
+    if (resetting) {
+        if (cmdOpt.cacheFile == "") {
+            std::cerr << "error: a cache file name must be supplied using --cache" << std::endl;
+            errorFound = true;
+        }
+        int s1 = std::remove(cmdOpt.cacheFile.c_str());
+        int s2 = std::remove((cmdOpt.cacheFile + ".mkr").c_str());
+        if (s1 != 0 || s2 != 0)
+            std::cerr << "warning: all deletions were not successtul" << std::endl;
+        exit(0);
+    }
 
     // Warn if any non-option command arguments are present.
     if (optind < argc) {
@@ -171,8 +184,8 @@ rulenr_t GenRandRule() {
 //
 // Draw next entry from the cache file, first generating it if necessary.
 //---------------
-void ProcessCacheFile() {
-// TODO: Pare down error checks.
+static
+rulenr_t ProcessCacheFile() {
 
     // Create and fill the cache file if we're just starting.
     std::ifstream cfileIn;
@@ -227,8 +240,7 @@ void ProcessCacheFile() {
     mfstreamOut.close();
     cfileIn.close();
 
-    std::cout << nextRuleNr << std::endl;
-    exit(0); ////
+    return nextRuleNr;
 }
 
 //---------------
@@ -248,22 +260,10 @@ int main(const int argc, char* argv[]) {
         ; //printf("process rejectFile: %s\n", cmdOpt.rejectFile.c_str());
 
     // Generate and draw from a cache file if specified.
-    if (cmdOpt.cacheFile != "") { // if a cache file is specified
-        ProcessCacheFile();
-        // if it does not exist
-            // create and fill it, set position to the beginning
-        // endif
-        // read the next position
-        // if it's not at the end
-            // read the next entry
-            // advance and record the position
-            // return the next entry
-            // exit(0)
-        // else
-            // show a warning (and fall to generate a "singleton")
-        // endif
-    }
+    if (cmdOpt.cacheFile != "")
+        std::cout << ProcessCacheFile();
+    else
+        std::cout << GenRandRule();
 
-    //std::cout << GenRandRule();
     exit(0);
 }
