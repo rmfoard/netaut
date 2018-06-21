@@ -76,31 +76,34 @@ void ParseCommand(const int argc, char* argv[]) {
                 break;
             assert(false);
 
-          case 'a':
+          case 'a': // --accept <filename>
             cmdOpt.acceptFile = std::string(optarg);
             break;
 
-          case 'r':
+          case 'r': // --reject <filename>
             cmdOpt.rejectFile = std::string(optarg);
             break;
 
-          case 'c':
+          case 'c': // --cache <filename>
             cmdOpt.cacheFile = std::string(optarg);
             break;
 
-          case 's':
+          case 's': // --randseed <numeric_seed>
+            // Instantiate the seeded random number generator.
             cmdOpt.randSeed = atoi(optarg);
+            pMersenne = new std::mt19937((std::mt19937::result_type) cmdOpt.randSeed);
             break;
 
-          case 'e':
+          case 'e': // --reserve <cache_size>
             cmdOpt.reserve = atoi(optarg);
             break;
 
-          case 't':
-            // eradicate the cache
+          case 't': // --reset
+            // Eradicate the cache
             break;
 
-          case 'h':
+          case 'h': // --help
+            // Show help.
             printf("Command options:\n");
             for (auto entry : long_options) if (entry.name != NULL) {
                 printf("  --%s", entry.name);
@@ -181,9 +184,6 @@ void ProcessCacheFile() {
             std::cerr << "error: can't create cache file" << std::endl;
             exit(1);
         }
-
-        // Instantiate the seeded random number generator.
-        pMersenne = new std::mt19937((std::mt19937::result_type) cmdOpt.randSeed);
 
         // Fill the cache file.
         for (int i = 0; i < cmdOpt.reserve; i += 1) {
