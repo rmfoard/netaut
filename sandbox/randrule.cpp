@@ -190,35 +190,46 @@ void ProcessCacheFile() {
         for (int i = 0; i < cmdOpt.reserve; i += 1) {
             cfileOut << GenRandRule() << std::endl;
         }
+
+        // Close it, then reopen for downstream use.
         cfileOut.close();
+        cfileIn.open(cmdOpt.cacheFile, std::ios::in);
 
         // Mark position zero.
-        std::ofstream mfstream;
-        mfstream.open(cmdOpt.cacheFile + ".mkr", std::ios::out);
-        if (!mfstream.is_open()) {
+        std::ofstream mfstreamOut;
+        mfstreamOut.open(cmdOpt.cacheFile + ".mkr", std::ios::out);
+        if (!mfstreamOut.is_open()) {
             std::cerr << "error: can't create marker file" << std::endl;
             exit(1);
         }
-        mfstream << "0" << std::endl;
-        mfstream.close();
+        mfstreamOut << "0" << std::endl;
+        mfstreamOut.close();
     }
 
     // Read the marker to learn the current position in the cache file.
-    std::ifstream mfstream;
-    mfstream.open(cmdOpt.cacheFile + ".mkr", std::ios::in);
-    if (!mfstream.is_open()) {
+    std::ifstream mfstreamIn;
+    mfstreamIn.open(cmdOpt.cacheFile + ".mkr", std::ios::in);
+    if (!mfstreamIn.is_open()) {
         std::cerr << "error: can't open marker file" << std::endl;
         exit(1);
     }
-    long unsigned int pos;
-    mfstream >> pos;
+    unsigned int pos;
+    mfstreamIn >> pos;
     std::streampos streamPos = pos;
-    mfstream.close();
+    mfstreamIn.close();
 
     // Set the position in the cache and read the next entry.
     cfileIn.seekg(streamPos, std::ios::beg);
     rulenr_t nextRuleNr;
     cfileIn >> nextRuleNr;
+
+    // Replace the marker with the new file position.
+    std::ofstream  mfstreamOut;
+    mfstreamOut.open(cmdOpt.cacheFile + ".mkr", std::ios::out);
+    streamPos = cfileIn.tellg();
+    pos = streamPos;
+    mfstreamOut << std::to_string(pos) << std::endl;
+    mfstreamOut.close();
     cfileIn.close();
 
     std::cout << nextRuleNr << std::endl;
