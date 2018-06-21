@@ -190,9 +190,34 @@ void ProcessCacheFile() {
             cfileOut << GenRandRule() << std::endl;
         }
         cfileOut.close();
-        exit(0); ////
+
+        // Mark position zero.
+        std::ofstream mfstream;
+        mfstream.open(cmdOpt.cacheFile + ".mkr", std::ios::out);
+        if (!mfstream.is_open()) {
+            std::cerr << "error: can't create marker file" << std::endl;
+            exit(1);
+        }
+        mfstream << "0" << std::endl;
+        mfstream.close();
     }
-    
+
+    // Read the marker to learn the current position in the cache file.
+    std::ifstream mfstream;
+    mfstream.open(cmdOpt.cacheFile + ".mkr", std::ios::in);
+    if (!mfstream.is_open()) {
+        std::cerr << "error: can't open marker file" << std::endl;
+        exit(1);
+    }
+    unsigned int pos << mfstream;
+
+    // Open the cache, set the position, and read the next entry.
+    cfileIn.open(cmdOpt.cacheFile, std::ios::in);
+    if (!cfileIn.is_open()) {
+        std::cerr << "error: can't open cache file" << std::endl;
+        exit(1);
+    }
+
     cfileIn.close();
 }
 
