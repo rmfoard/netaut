@@ -173,6 +173,7 @@ rulenr_t GenRandRule() {
 // Draw next entry from the cache file, first generating it if necessary.
 //---------------
 void ProcessCacheFile() {
+// TODO: Pare down error checks.
 
     // Create and fill the cache file if we're just starting.
     std::ifstream cfileIn;
@@ -209,16 +210,19 @@ void ProcessCacheFile() {
         std::cerr << "error: can't open marker file" << std::endl;
         exit(1);
     }
-    unsigned int pos << mfstream;
+    long unsigned int pos;
+    mfstream >> pos;
+    std::streampos streamPos = pos;
+    mfstream.close();
 
-    // Open the cache, set the position, and read the next entry.
-    cfileIn.open(cmdOpt.cacheFile, std::ios::in);
-    if (!cfileIn.is_open()) {
-        std::cerr << "error: can't open cache file" << std::endl;
-        exit(1);
-    }
-
+    // Set the position in the cache and read the next entry.
+    cfileIn.seekg(streamPos, std::ios::beg);
+    rulenr_t nextRuleNr;
+    cfileIn >> nextRuleNr;
     cfileIn.close();
+
+    std::cout << nextRuleNr << std::endl;
+    exit(0); ////
 }
 
 //---------------
