@@ -91,7 +91,6 @@ void ParseCommand(const int argc, char* argv[]) {
           case 's': // --randseed <numeric_seed>
             // Instantiate the seeded random number generator.
             cmdOpt.randSeed = atoi(optarg);
-            pMersenne = new std::mt19937((std::mt19937::result_type) cmdOpt.randSeed);
             break;
 
           case 'e': // --reserve <cache_size>
@@ -187,21 +186,16 @@ void ProcessCacheFile() {
         }
 
         // Fill the cache file.
-        for (int i = 0; i < cmdOpt.reserve; i += 1) {
+        for (int i = 0; i < cmdOpt.reserve; i += 1)
             cfileOut << GenRandRule() << std::endl;
-        }
 
-        // Close it, then reopen for downstream use.
+        // Close it, then reopen it for downstream use.
         cfileOut.close();
         cfileIn.open(cmdOpt.cacheFile, std::ios::in);
 
         // Mark position zero.
         std::ofstream mfstreamOut;
         mfstreamOut.open(cmdOpt.cacheFile + ".mkr", std::ios::out);
-        if (!mfstreamOut.is_open()) {
-            std::cerr << "error: can't create marker file" << std::endl;
-            exit(1);
-        }
         mfstreamOut << "0" << std::endl;
         mfstreamOut.close();
     }
@@ -209,17 +203,19 @@ void ProcessCacheFile() {
     // Read the marker to learn the current position in the cache file.
     std::ifstream mfstreamIn;
     mfstreamIn.open(cmdOpt.cacheFile + ".mkr", std::ios::in);
-    if (!mfstreamIn.is_open()) {
-        std::cerr << "error: can't open marker file" << std::endl;
-        exit(1);
-    }
-    unsigned int pos;
-    mfstreamIn >> pos;
-    std::streampos streamPos = pos;
+    unsigned int streamPos;
+    mfstreamIn >> streamPos;
     mfstreamIn.close();
 
-    // Set the position in the cache and read the next entry.
-    cfileIn.seekg(streamPos, std::ios::beg);
+    // Note the cache's end position.
+    cfileIn.seekg(0, cfileIn.end);
+    unsigned int endPos = cfileIn.tellg();
+
+    // Position to and read the next entry in the cache
+    // unless we're at the end.
+    assert(streamPos < endPos);
+    if (streamPos  == endPos - 1) throw std::runtime_error("rule number cache exhausted");
+    cfileIn.seekg(streamPos, cfileIn.beg);
     rulenr_t nextRuleNr;
     cfileIn >> nextRuleNr;
 
@@ -227,8 +223,7 @@ void ProcessCacheFile() {
     std::ofstream  mfstreamOut;
     mfstreamOut.open(cmdOpt.cacheFile + ".mkr", std::ios::out);
     streamPos = cfileIn.tellg();
-    pos = streamPos;
-    mfstreamOut << std::to_string(pos) << std::endl;
+    mfstreamOut << std::to_string(streamPos) << std::endl;
     mfstreamOut.close();
     cfileIn.close();
 
@@ -240,6 +235,11 @@ void ProcessCacheFile() {
 int main(const int argc, char* argv[]) {
 
     ParseCommand(argc, argv);
+
+    // Instantiate a seeded Mersenne random number generator.
+    // Use seed 1 unless a seed was specified in the command.
+    if (cmdOpt.randSeed == -1) cmdOpt.randSeed = 1;
+    pMersenne = new std::mt19937((std::mt19937::result_type) cmdOpt.randSeed);
 
     // Process filter specification files if they're present.
     if (cmdOpt.acceptFile != "")
@@ -263,7 +263,7 @@ int main(const int argc, char* argv[]) {
             // show a warning (and fall to generate a "singleton")
         // endif
     }
-    
+
     //std::cout << GenRandRule();
     exit(0);
 }
