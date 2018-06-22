@@ -95,6 +95,7 @@ void ParseCommand(const int argc, char* argv[]) {
 #define CO_INIT_TOPO 1005
 #define CO_TAPE_PCT_BLACK 1006
 #define CO_WRITE_AS 1007
+#define CO_NOOP 1008
 
     static struct option long_options[] = {
         {"allow-self-edges", no_argument, &cmdOpt.allowSelfEdges, 1},
@@ -108,6 +109,7 @@ void ParseCommand(const int argc, char* argv[]) {
         {"iterations", required_argument, 0, 'i'},
         /*{"machine", required_argument, 0, 'm'},*/
         {"nodes", required_argument, 0, 'n'},
+        {"noop", no_argument, 0, CO_NOOP},
         {"randseed", required_argument, 0, 'a'},
         {"rule", required_argument, 0, 'r'},
         {"ruletext", required_argument, 0, 't'},
@@ -225,9 +227,12 @@ void ParseCommand(const int argc, char* argv[]) {
             tapePctBlackSpecified = true;
             break;
 
-      case CO_WRITE_AS:
-        cmdOpt.writeAsName = optarg;
-        break;
+          case CO_WRITE_AS:
+            cmdOpt.writeAsName = optarg;
+            break;
+
+          case CO_NOOP:
+            break;
 
           case '?':
             errorFound = true;
