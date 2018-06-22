@@ -1,0 +1,15 @@
+../randrule --reset --cache "$8.cache"
+runnr=1
+while [ $runnr -le $2 ]; do
+    ../explorer \
+    --rule `../randrule --randseed $RANDOM --reserve $2 --cache "$8.cache"` \
+    --no-write-end-state \
+    --nodes $1 \
+    --iterations $3 \
+    --init-tape $4 \
+    --init-topo $5 \
+    --cycle-check-depth $6 \
+    $7 >> $8.json
+    echo "" >> $8.json
+    ((runnr++))
+done
