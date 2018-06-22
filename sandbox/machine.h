@@ -19,6 +19,7 @@ public:
     PNGraph get_graph();
     int* get_nodeStates();
     Statistics* get_stats();
+    unsigned int CreateKey();
     int IterateMachine(int, int);
     void ShowDepthFirst(int);
 

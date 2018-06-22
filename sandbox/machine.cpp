@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <algorithm>
+#include <iostream>
 #include <string>
 #include "rule.h"
 #include "machine.h"
@@ -253,6 +254,7 @@ int MachineS::IterateMachine(int selfEdges, int iterationNr) {
         ShowDepthFirst(0);
     }
     */
+std::cout << CreateKey() << std::endl; ////
     // Stop and report if the machine is cycling.
     int cycleLength = Cycling();
     if (cycleLength > 0) return cycleLength; // report early termination
@@ -292,7 +294,6 @@ int MachineS::IterateMachine(int selfEdges, int iterationNr) {
     for (TNGraph::TNodeI NIter = m_graph->BegNI(); NIter < m_graph->EndNI(); NIter++) {
         AdvanceNode(NIter, selfEdges);
     }
-
     // Cycling finished, replace "current" structures with "next" counterparts.
     // (Abandoning m->graph to garbage collection.)
     m_graph = m_nextGraph;
@@ -317,12 +318,32 @@ void MachineS::RandomizeTapeState(int tapePctBlack) {
 }
 
 //---------------
+// CreateKey
+//---------------
+unsigned int MachineS::CreateKey() {
+    unsigned int multiplier = 641;
+    unsigned int modulus = 65521;
+    unsigned int key = 0;
+
+    for (int i = 0; i < m_nrNodes; i += 1)
+        key = (key * multiplier + m_nodeStates[i]) % modulus;
+    TNGraph::TNodeI graphNodeIter = m_graph->BegNI();
+    while (graphNodeIter < m_graph->EndNI()) {
+        key = (key * multiplier + graphNodeIter.GetOutNId(0)) % modulus;
+        key = (key * multiplier + graphNodeIter.GetOutNId(1)) % modulus;
+        graphNodeIter++;
+    }
+    return key;
+}
+
+//---------------
 // StateMatchesCurrent
 //
 // Return true if the machine state in the parameter is identical
 // to the machine's current state.
 //---------------
 bool MachineS::StateMatchesCurrent(MachineState other) {
+
     // Compare node states.
     for (int i = 0; i < m_nrNodes; i += 1)
         if (m_nodeStates[i] != other.nodeStates[i]) return false;
