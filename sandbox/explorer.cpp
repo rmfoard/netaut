@@ -13,7 +13,7 @@
 #include "rule.h"
 #include "machine.h"
 
-#define VERSION "V180621.0"
+#define VERSION "V180622.0"
 
 //---------------
 struct CommandOpts {
@@ -340,6 +340,7 @@ void WriteInfo(std::string runId, MachineS* machine, int nrActualIterations, int
     MachineS::Statistics* stats = machine->get_stats();
     info["multiEdgesAvoided"] = (Json::Value::UInt64) stats->multiEdgesAvoided;
     info["selfEdgesAvoided"] = (Json::Value::UInt64) stats->selfEdgesAvoided;
+    info["hashCollisions"] = (Json::Value::UInt64) stats->hashCollisions;
 
     Json::Value triadOccurrences;
     for (int i = 0; i < NR_TRIAD_STATES; i += 1) {

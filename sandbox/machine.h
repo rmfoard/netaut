@@ -11,6 +11,7 @@ public:
         long unsigned int multiEdgesAvoided;
         long unsigned int selfEdgesAvoided;
         long unsigned int triadOccurrences[NR_TRIAD_STATES];
+        long unsigned int hashCollisions;
     };
 
     MachineS(rulenr_t, int, int, std::string, int, std::string);

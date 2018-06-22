@@ -23,6 +23,7 @@ MachineS::MachineS(rulenr_t ruleNr, int nrNodes, int cycleCheckDepth,
     m_stateHistoryHashTable = new unsigned char[STATE_HISTORY_HASH_TABLE_LEN]();
     m_stats.multiEdgesAvoided = 0;
     m_stats.selfEdgesAvoided = 0;
+    m_stats.hashCollisions = 0;
     for (int i = 0; i < NR_TRIAD_STATES; i += 1) m_stats.triadOccurrences[i] = 0;
     InitTape(tapeStructure, tapePctBlack);
     InitTopo(topoStructure);
@@ -290,6 +291,7 @@ int MachineS::IterateMachine(int selfEdges, int iterationNr) {
     newEntry.nodeStates = new int[m_nrNodes];
     newEntry.stateHash = curStateHash;
     m_stateHistoryHashTable[curStateHash] += 1;
+    if (m_stateHistoryHashTable[curStateHash] > 1) m_stats.hashCollisions += 1;
     for (int i = 0; i < m_nrNodes; i += 1) newEntry.nodeStates[i] = m_nodeStates[i];
     m_stateHistory.push(newEntry);
     // TODO: Clean up the leftover queue entries in the destructor.
