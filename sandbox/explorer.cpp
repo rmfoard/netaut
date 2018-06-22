@@ -13,13 +13,12 @@
 #include "rule.h"
 #include "machine.h"
 
-#define VERSION "V180614.0"
-#define NR_CYCLES 40
+#define VERSION "V180621.0"
 
 //---------------
 struct CommandOpts {
     rulenr_t ruleNr;
-    int nrIterations;
+    int maxIterations;
     int randSeed;
     int allowSelfEdges;
     int noInfo;
@@ -68,7 +67,7 @@ void ParseCommand(const int argc, char* argv[]) {
     bool errorFound = false;
 
     // Set command options to default values.
-    cmdOpt.nrIterations = 128;
+    cmdOpt.maxIterations = 128;
     cmdOpt.randSeed = -1;
     cmdOpt.allowSelfEdges = 0;
     cmdOpt.noInfo = 0;
@@ -141,7 +140,7 @@ void ParseCommand(const int argc, char* argv[]) {
             assert(false);
 
           case 'i':
-            cmdOpt.nrIterations = atoi(optarg);
+            cmdOpt.maxIterations = atoi(optarg);
             break;
 
           case 'n':
@@ -322,7 +321,7 @@ void WriteInfo(std::string runId, MachineS* machine, int nrActualIterations, int
     info["version"] = VERSION;
     info["ruleNr"] = (Json::UInt64) machine->m_rule->get_ruleNr();
     info["nrNodes"] = machine->m_nrNodes;
-    info["nrIterations"] = cmdOpt.nrIterations;
+    info["maxIterations"] = cmdOpt.maxIterations;
     info["allowSelfEdges"] = cmdOpt.allowSelfEdges;
     info["cycleCheckDepth"] = cmdOpt.cycleCheckDepth;
     info["tapeStructure"] = cmdOpt.tapeStructure;
@@ -433,7 +432,7 @@ int main(const int argc, char* argv[]) {
     auto start_time = std::chrono::high_resolution_clock::now();
     int iter;
     int cycleLength = 0;
-    for (iter = 0; iter < cmdOpt.nrIterations; iter += 1) {
+    for (iter = 0; iter < cmdOpt.maxIterations; iter += 1) {
         if (cmdOpt.writeStart >= 0) {
             if (iter >= cmdOpt.writeStart && (iter - cmdOpt.writeStart) % cmdOpt.writeStride == 0) {
                 WriteState(runId, m, cmdOpt.outFileSuffix, iter, iter);

@@ -14,7 +14,7 @@ def main():
         'ruleNr',
         'selfEdges',
         'nrNodes',
-        'nrIterations',
+        'maxIterations',
         'cycleCheckDepth',
         'tapeStructure',
         'tapePctBlack',
