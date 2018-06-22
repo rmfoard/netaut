@@ -20,6 +20,7 @@ MachineS::MachineS(rulenr_t ruleNr, int nrNodes, int cycleCheckDepth,
     m_graph = TNGraph::New();
     m_nodeStates = new int[m_nrNodes];
     m_nextNodeStates = new int[m_nrNodes];
+    m_stateHistoryHashTable = new unsigned char[STATE_HISTORY_HASH_TABLE_LEN]();
     m_stats.multiEdgesAvoided = 0;
     m_stats.selfEdgesAvoided = 0;
     for (int i = 0; i < NR_TRIAD_STATES; i += 1) m_stats.triadOccurrences[i] = 0;
@@ -186,13 +187,23 @@ void MachineS::BuildRandomGraph() {
 // determine whether it is identical to one of the preceding 'cycleCheckDepth'
 // states. Return the cycle length if so, zero otherwise.
 //---------------
-int MachineS::Cycling() {
-    MachineState eoq = {nullptr, nullptr};
+int MachineS::Cycling(unsigned int curStateHash) {
+
+    // If the current state's hash is not in the table,
+    // no cycle is detected. (The check is not perfect, though,
+    // unless we're keeping the entire history of the run.
+    if (m_stateHistoryHashTable[curStateHash] == 0) return 0;
+
+    // There was a hit in the hash table, so an exhaustive
+    // comparison is necessary. Spin through the entire history
+    // queue.
+    MachineState eoq = {nullptr, nullptr, 0};
     m_stateHistory.push(eoq);
     int cycleLength = m_stateHistory.size(); // invariant: <=
     MachineState candidate = m_stateHistory.front();
     m_stateHistory.pop();
-    while (candidate.nodeStates != nullptr) {
+
+    while (candidate.nodeStates != nullptr) { // while not <end marker>
         if (StateMatchesCurrent(candidate)) {
             return cycleLength;
         }
@@ -254,23 +265,31 @@ int MachineS::IterateMachine(int selfEdges, int iterationNr) {
         ShowDepthFirst(0);
     }
     */
-std::cout << CreateKey() << std::endl; ////
+
     // Stop and report if the machine is cycling.
-    int cycleLength = Cycling();
+    unsigned int curStateHash = CurStateHash();
+    int cycleLength = Cycling(curStateHash);
     if (cycleLength > 0) return cycleLength; // report early termination
 
-    // Shift the current state into history.
-    // Discard the head of the queue if it's full.
+    // Shift the current state into history and mark the hash table.
+    // Discard the head of the queue if the queue is full, releasing
+    // resources and removing from the history hash.
     MachineState discard;
     if (m_stateHistory.size() == m_cycleCheckDepth) {
         discard = m_stateHistory.front();
         delete discard.nodeStates;
+        m_stateHistoryHashTable[discard.stateHash] -= 1;
+        assert(m_stateHistoryHashTable[discard.stateHash] >= 0);
         // (We leave discard.graph for Snap's reclamation scheme.)
         m_stateHistory.pop();
     }
+
+    // Add the current state to the history queue and mark the hash table.
     MachineState newEntry;
     newEntry.graph = m_graph;
     newEntry.nodeStates = new int[m_nrNodes];
+    newEntry.stateHash = curStateHash;
+    m_stateHistoryHashTable[curStateHash] += 1;
     for (int i = 0; i < m_nrNodes; i += 1) newEntry.nodeStates[i] = m_nodeStates[i];
     m_stateHistory.push(newEntry);
     // TODO: Clean up the leftover queue entries in the destructor.
@@ -318,22 +337,29 @@ void MachineS::RandomizeTapeState(int tapePctBlack) {
 }
 
 //---------------
-// CreateKey
+// CurStateHash
+//
+// Return a hash of the current machine state.
 //---------------
-unsigned int MachineS::CreateKey() {
-    unsigned int multiplier = 641;
-    unsigned int modulus = 65521;
-    unsigned int key = 0;
+unsigned int MachineS::CurStateHash() {
+    unsigned int hash = 0;
 
-    for (int i = 0; i < m_nrNodes; i += 1)
-        key = (key * multiplier + m_nodeStates[i]) % modulus;
+    // Incorporate node states...
+    for (int i = 0; i < m_nrNodes; i += 1) {
+        hash = (hash * HASH_MULTIPLIER + m_nodeStates[i])
+          % STATE_HISTORY_HASH_TABLE_LEN;
+    }
+
+    // ...and topology.
     TNGraph::TNodeI graphNodeIter = m_graph->BegNI();
     while (graphNodeIter < m_graph->EndNI()) {
-        key = (key * multiplier + graphNodeIter.GetOutNId(0)) % modulus;
-        key = (key * multiplier + graphNodeIter.GetOutNId(1)) % modulus;
+        hash = (hash * HASH_MULTIPLIER + graphNodeIter.GetOutNId(0))
+          % STATE_HISTORY_HASH_TABLE_LEN;
+        hash = (hash * HASH_MULTIPLIER + graphNodeIter.GetOutNId(1))
+          % STATE_HISTORY_HASH_TABLE_LEN;
         graphNodeIter++;
     }
-    return key;
+    return hash;
 }
 
 //---------------

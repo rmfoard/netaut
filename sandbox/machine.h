@@ -19,7 +19,6 @@ public:
     PNGraph get_graph();
     int* get_nodeStates();
     Statistics* get_stats();
-    unsigned int CreateKey();
     int IterateMachine(int, int);
     void ShowDepthFirst(int);
 
@@ -32,6 +31,7 @@ private:
     struct MachineState {
         int *nodeStates;
         PNGraph graph;
+        unsigned int stateHash;
     };
 
     std::string m_machineType;
@@ -39,6 +39,7 @@ private:
     PNGraph m_nextGraph;
     int* m_nodeStates;
     int* m_nextNodeStates;
+    unsigned char* m_stateHistoryHashTable;
     unsigned int m_cycleCheckDepth;
     std::queue<MachineState> m_stateHistory;
 
@@ -46,10 +47,14 @@ private:
     void BuildRing();
     void BuildTree();
     void BuildRandomGraph();
-    int Cycling();
+    int Cycling(unsigned int);
     void InitTape(std::string, int);
     void InitTopo(std::string);
     void RandomizeTapeState(int);
+    unsigned int CurStateHash();
     bool StateMatchesCurrent(MachineState);
 };
+
+#define STATE_HISTORY_HASH_TABLE_LEN 65521
+#define HASH_MULTIPLIER 641
 #endif
