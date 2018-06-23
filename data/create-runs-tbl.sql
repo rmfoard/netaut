@@ -21,7 +21,7 @@ CREATE TABLE runs (
     runTimeMs           integer,
     selfEdgesAvoided    integer,
     tapePctBlack        integer,
-    tapeStructure       integer,
-    topoStructure       integer,
+    tapeStructure       varchar(32),
+    topoStructure       varchar(32),
     version             varchar(64)
 );
