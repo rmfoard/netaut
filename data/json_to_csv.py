@@ -10,26 +10,30 @@ def main():
 
     # List of fields to be included in the csv file (in order)
     fieldnames = [
-        'runId',
-        'ruleNr',
-        'selfEdges',
-        'nrNodes',
-        'maxIterations',
+        'allowSelfEdges',
+        'avgClustCoef',
         'cycleCheckDepth',
-        'tapeStructure',
-        'tapePctBlack',
-        'topoStructure',
-        'nrActualIterations',
         'cycleLength',
-        'nrCcSizes',
-        'nrCcs',
-        'nrInDegrees',
         'diameter',
         'effDiameter90Pctl',
+        'hashCollisions',
+        'maxIterations',
+        'multiEdgesAvoided',
+        'nrActualIterations',
+        'nrCcSizes',
+        'nrCcs',
         'nrClosedTriads',
+        'nrInDegrees',
+        'nrNodes',
         'nrOpenTriads',
-        'avgClustCoef',
+        'randseed',
+        'ruleNr',
+        'runId',
         'runTimeMs',
+        'selfEdgesAvoided',
+        'tapePctBlack',
+        'tapeStructure',
+        'topoStructure',
         'version'
     ]
 
@@ -40,8 +44,6 @@ def main():
             writer.writeheader()
             for line in jsonfile:
                 dct = json.loads(line)
-                if 'noMultiEdges' in dct:  # need to invert legacy item?
-                    dct['multiEdges'] = 1 - dct['noMultiEdges']
                 writer.writerow(dct)
 
 
