@@ -34,6 +34,15 @@ MachineS::~MachineS() {
     delete m_ruleParts;
     delete m_nodeStates;
     delete m_nextNodeStates;
+    delete m_stateHistoryHashTable;
+
+    // Clear any remaining storage in the state history queue.
+    int queueLength = m_stateHistory.size(); // invariant: <=
+    for (int i = 1; i <= queueLength; i += 1) {
+        MachineState entry = m_stateHistory.front();
+        delete entry.nodeStates;
+        m_stateHistory.pop();
+    }
 }
 
 //---------------
