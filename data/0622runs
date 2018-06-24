@@ -1,4 +1,0 @@
-./loop 1024 10000 2048 single-end tree 256 "--noop" "0622-1024x2048-e-t"
-./loop 1024 10000 2048 single-end tree 256 "--allow-self-edges" "0622-1024x2048-e-t-se"
-./loop 1024 10000 2048 random tree 256 "--noop" "0622-1024x2048-r-t"
-./loop 1024 10000 2048 random tree 256 "--allow-self-edges" "0622-1024x2048-r-t-se"
