@@ -93,6 +93,8 @@ To provision for generating netaut/hellosnap:
         sudo su - postgres
         psql richard
         CREATE EXTENSION plr;
+    - additional useful advice may be in: http://www.joeconway.com/plr/doc/plr-install.html (I did
+        NOT, though, install from source as it details.)
     - (useful background information might be had by examining:
         /usr/share/postgresql/10/extensions/plr.sql)
 
