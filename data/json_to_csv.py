@@ -77,7 +77,11 @@ def main():
                         tr_writer = csv.DictWriter(tr_f, fieldnames=tr_names, extrasaction='ignore')
                         tr_writer.writeheader()
 
+                        line_number = 1
                         for line in jsonfile:
+                            line_number += 1
+                            if len(line) < 2:
+                                continue
                             main_dct = json.loads(line)
                             run_id = main_dct['runId']
                             main_writer.writerow(main_dct)
