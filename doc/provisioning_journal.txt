@@ -45,8 +45,9 @@ To provision for generating netaut/hellosnap:
 -   use, e.g., #include <leveldb/db.h>
 
 - install jsoncpp
--   clone from github
--   using the 'amalgamated' approach did not go smoothly (my err omitting -std=c++11, maybe)
+-   clone from github into ~/jsoncpp
+-   cd jsoncpp
+-   mkdir build && cd build
 -   generate lib with:
     cmake -DCMAKE_BUILD_TYPE=release -DBUILD_STATIC_LIBS=ON -DBUILD_SHARED_LIBS=OFF -DARCHIVE_INSTALL_DIR=. -G "Unix Makefiles" ..
     make
