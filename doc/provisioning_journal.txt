@@ -15,7 +15,9 @@ To provision for generating netaut/hellosnap:
 -   ./configure
 -   make
 -   sudo make install
+
 - clone SNAP from Github into ~/snap
+-   cd snap
 -   make all
 
 - sudo apt install gnuplot
@@ -32,6 +34,7 @@ To provision for generating netaut/hellosnap:
 -   next time try sudo ...sh and place in /usr/bin?)
 
 - install cmake >= v3.9
+-   usually can simply sudo apt install cmake; if not:
 -   (uninstall < v3.9 if necessary)
 -   from current source .tar: gunzip, tar xvf
 -   make, sudo make install
