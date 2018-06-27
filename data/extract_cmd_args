@@ -1,0 +1,46 @@
+#! /usr/bin/env python
+#
+# Script taking as its single command line argument a JSON-encoded
+# "run summary" as produced by the "explorer" network automaton simu-
+# lator.
+
+import json
+import sys
+
+key_to_opt = {
+    'cycleCheckDepth':  '--cycle-check-depth',
+    'maxIterations':    '--max-iterations',
+    'nrNodes':          '--nodes',
+    'randseed':         '--randseed',
+    'ruleNr':           '--rule',
+    'tapePctBlack':     '--tape-pct-black',
+    'tapeStructure':    '--init-tape',
+    'topoStructure':    '--init-topo'
+}
+
+
+def main():
+    if len(sys.argv) == 2 and sys.argv[1] == '--help':
+        print 'usage: extract_cmd_args <"explorer" run json>'
+        print '  or <"explorer" run json> | python extract_cmd_args'
+        sys.exit(1)
+
+    if len(sys.argv) == 2:
+        run_dct = json.loads(sys.argv[1])
+    else:
+        run_dct = json.loads(sys.stdin.read())
+
+    arg_string = ''
+    for json_key, cmd_opt in key_to_opt.iteritems():
+        arg_string += key_to_opt[json_key] + ' ' + str(run_dct[json_key]) + ' '
+
+    # A straight translation will not work right for 'allowSelfEdges',
+    # whose command option is present only if its value is 1.
+    if run_dct['allowSelfEdges'] == 1:
+        arg_string += '--allow-self-edges '
+
+    print arg_string,
+
+
+if __name__ == '__main__':
+    main()
