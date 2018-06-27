@@ -1,2 +1,0 @@
-# netaut
-Network automata research
