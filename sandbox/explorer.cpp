@@ -105,7 +105,7 @@ void ParseCommand(const int argc, char* argv[]) {
         {"cycle-check-depth", required_argument, 0, CO_CYCLE_CHECK_DEPTH},
         {"init-tape", required_argument, 0, CO_INIT_TAPE},
         {"init-topo", required_argument, 0, CO_INIT_TOPO},
-        {"iterations", required_argument, 0, 'i'},
+        {"max-iterations", required_argument, 0, 'i'},
         /*{"machine", required_argument, 0, 'm'},*/
         {"nodes", required_argument, 0, 'n'},
         {"noop", no_argument, 0, CO_NOOP},
