@@ -1,0 +1,10 @@
+iter=$2
+while [ $iter -le $3 ]; do
+    if [ -e $1.$iter.dot ]; then
+        xdot -f $4 $1.$iter.dot
+    else
+        echo file: $1.$iter.dot was not found.
+        exit 1
+    fi
+    iter=$(expr $iter + 1);
+done

@@ -1,4 +1,0 @@
-./loop 4096 10000 4096 single-center ring 4096 --noop 0624-4096x4096-m-c
-./loop 4096 10000 4096 single-end tree 4096 --noop 0624-4096x4096-e-t
-./loop 4096 10000 4096 single-center ring 4096 --allow-self-edges 0624-4096x4096-m-c-se
-./loop 4096 10000 4096 single-end tree 4096 --allow-self-edges 0624-4096x4096-e-t-se
