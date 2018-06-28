@@ -8,7 +8,7 @@ def main():
         print 'usage: python make_list.py <infile>'
         sys.exit(1)
 
-    # Pass the json file writing csv rows.
+    # Pass the json file building a [json] list.
     firstline = True
     with open(sys.argv[1], 'r') as infile:
         for line in infile:
