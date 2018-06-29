@@ -109,8 +109,6 @@ void MachineS::AdvanceNode(TNGraph::TNodeI NIter, int selfEdges) {
     assert(lNId != rNId);
     assert((lNId != nNId && rNId != nNId) || selfEdge);
 
-    // TODO: Keep running stats on action use.
-
     // Apply the node action unconditionally.
     m_nextNodeStates[nNId] = nAction;
 
@@ -303,7 +301,6 @@ int MachineS::IterateMachine(int selfEdges, int iterationNr) {
     if (m_stateHistoryHashTable[curStateHash] > 1) m_stats.hashCollisions += 1;
     for (int i = 0; i < m_nrNodes; i += 1) newEntry.nodeStates[i] = m_nodeStates[i];
     m_stateHistory.push(newEntry);
-    // TODO: Clean up the leftover queue entries in the destructor.
 
     // Create the seed of the graph's next generation.
     m_nextGraph = TNGraph::New();
