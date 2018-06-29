@@ -73,16 +73,22 @@ To provision for generating netaut/hellosnap:
 
 - install postgres
     - sudo echo 'deb http://apt.postgresql.org/pub/repos/apt/ xenial-pgdg main' >> /etc/apt/sources.list.d/pgdg.list
-    (NOTE: I HAD TO USE SUDO VIM... TO ACCOMPLISH THE FOREGOING.)
+    (NOTE: I HAD TO USE SUDO VIM... TO ACCOMPLISH THE FOREGOING (remember to lose the redirection part when copy/pasting.)
     – Import the repository signing key, and update the package lists
-    sudo? wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+    wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
     # sudo apt-get update
     # sudo apt-get install postgresql-10
+    sudo su - postgres
+    createuser richard
+    createdb richard
+
+    (Unused advice, so far) {
     - You can now start the database server using:
     /usr/lib/postgresql/10/bin/pg_ctl -D /var/lib/postgresql/10/main -l logfile start
     – After installing PostgreSQL database server, by default PostgreSQL, will create a
     system account user ‘postgres’ and a user named ‘postgres’ with role ‘postgres’.
-    – To connect use the following commands:
+    }
+    – To connect as superuser, use the following commands:
     # sudo su - postgres
     # psql 
     - usage examples and more at ref:
