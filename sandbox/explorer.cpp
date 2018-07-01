@@ -69,7 +69,7 @@ void ParseCommand(const int argc, char* argv[]) {
     // Set command options to default values.
     cmdOpt.maxIterations = 128;
     cmdOpt.randSeed = -1;
-    cmdOpt.allowSelfEdges = 0;
+    cmdOpt.allowSelfEdges = 1;
     cmdOpt.noInfo = 0;
     cmdOpt.printTape = 0;
     cmdOpt.nrNodes = 256;
@@ -97,7 +97,6 @@ void ParseCommand(const int argc, char* argv[]) {
 #define CO_NOOP 1008
 
     static struct option long_options[] = {
-        {"allow-self-edges", no_argument, &cmdOpt.allowSelfEdges, 1},
         {"no-info", no_argument, &cmdOpt.noInfo, 1},
         {"no-write-end-state", no_argument, &cmdOpt.noWriteEndState, 1},
         {"print-tape", no_argument, &cmdOpt.printTape, 1},
@@ -441,7 +440,7 @@ int main(const int argc, char* argv[]) {
         }
 
         // Stop iteration if 'IterateMachine' reported a state cycle.
-        cycleLength = m->IterateMachine(cmdOpt.allowSelfEdges, iter);
+        cycleLength = m->IterateMachine(iter);
         if (cycleLength > 0) break;
     } // The residual value of 'iter' is the actual number of iterations performed.
     auto stop_time = std::chrono::high_resolution_clock::now();

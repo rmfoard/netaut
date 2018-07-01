@@ -60,8 +60,7 @@ MachineS::Statistics* MachineS::get_stats() { return &m_stats; }
 // structures.  Every action must put appropriate edges in place
 // for the node being advanced.
 //---------------
-void MachineS::AdvanceNode(TNGraph::TNodeI NIter, int selfEdges) {
-    bool selfEdge = selfEdges;
+void MachineS::AdvanceNode(TNGraph::TNodeI NIter) {
 
     // Get node ids of neighbors.
     int nNId = NIter.GetId();
@@ -107,7 +106,6 @@ void MachineS::AdvanceNode(TNGraph::TNodeI NIter, int selfEdges) {
 
     // Confirm that topological invariants still hold.
     assert(lNId != rNId);
-    assert((lNId != nNId && rNId != nNId) || selfEdge);
 
     // Apply the node action unconditionally.
     m_nextNodeStates[nNId] = nAction;
@@ -117,7 +115,7 @@ void MachineS::AdvanceNode(TNGraph::TNodeI NIter, int selfEdges) {
     int rNewDst = newDsts[rAction];
 
     // ...only if it preserves the topo invariants.
-    if (((lNewDst != nNId && rNewDst != nNId) || selfEdge) && lNewDst != rNewDst) {
+    if (((lNewDst != nNId && rNewDst != nNId)) && lNewDst != rNewDst) {
         m_nextGraph->AddEdge(nNId, lNewDst);
         m_nextGraph->AddEdge(nNId, rNewDst);
     }
@@ -176,7 +174,6 @@ void MachineS::BuildRandomGraph() {
     for (int i = 0; i < m_nrNodes; i += 1) m_graph->AddNode(i);
 
     // Create two random edges on each node.
-    // TODO: Conditionally allow self-edges.
     for (int i = 0; i < m_nrNodes; i += 1) {
         int j;
         do j = rand() % m_nrNodes; while (j == i);
@@ -257,12 +254,10 @@ void MachineS::InitTopo(std::string topoStructure) {
 
 
 //---------------
-// IterateMachine
-//
 // Run one step of the loaded rule.
 // Return the length of any detected state cycle (0 => no cycle found)
 //---------------
-int MachineS::IterateMachine(int selfEdges, int iterationNr) {
+int MachineS::IterateMachine(int iterationNr) {
 
     // Show node states at the beginning of the cycle.
     /* temporarily hold aside
@@ -319,7 +314,7 @@ int MachineS::IterateMachine(int selfEdges, int iterationNr) {
     // Apply one generation of the loaded rule, creating the next generation
     // state in 'm_nextGraph' and 'm_nextNodeStates'.
     for (TNGraph::TNodeI NIter = m_graph->BegNI(); NIter < m_graph->EndNI(); NIter++) {
-        AdvanceNode(NIter, selfEdges);
+        AdvanceNode(NIter);
     }
     // Cycling finished, replace "current" structures with "next" counterparts.
     // (Abandoning m->graph to garbage collection.)

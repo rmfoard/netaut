@@ -20,7 +20,7 @@ public:
     PNGraph get_graph();
     int* get_nodeStates();
     Statistics* get_stats();
-    int IterateMachine(int, int);
+    int IterateMachine(int);
     void ShowDepthFirst(int);
 
     Rule* m_rule;
@@ -44,7 +44,7 @@ private:
     unsigned int m_cycleCheckDepth;
     std::queue<MachineState> m_stateHistory;
 
-    void AdvanceNode(TNGraph::TNodeI, int);
+    void AdvanceNode(TNGraph::TNodeI);
     void BuildRing();
     void BuildTree();
     void BuildRandomGraph();
