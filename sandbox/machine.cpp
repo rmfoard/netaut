@@ -20,6 +20,8 @@ MachineS::MachineS(rulenr_t ruleNr, int nrNodes, int cycleCheckDepth,
     m_graph = TNGraph::New();
     m_nodeStates = new int[m_nrNodes];
     m_nextNodeStates = new int[m_nrNodes];
+    m_nextL = new int[m_nrNodes];
+    m_nextR = new int[m_nrNodes];
     m_stateHistoryHashTable = new unsigned char[STATE_HISTORY_HASH_TABLE_LEN]();
     m_stats.multiEdgesAvoided = 0;
     m_stats.selfEdgesAvoided = 0;
@@ -56,9 +58,9 @@ MachineS::Statistics* MachineS::get_stats() { return &m_stats; }
 //---------------
 // AdvanceNode
 //
-// Apply the loaded rule to the indicated node, adjusting "next"
-// structures.  Every action must put appropriate edges in place
-// for the node being advanced.
+// Apply the loaded rule to the indicated node, recording new edge
+// destinations in the scratchpad. At this step, it's okay to create
+// multi-edges; they'll be removed in post-processing.
 //---------------
 void MachineS::AdvanceNode(TNGraph::TNodeI NIter) {
 
@@ -104,28 +106,16 @@ void MachineS::AdvanceNode(TNGraph::TNodeI NIter) {
     const int rAction = (rulePart / 2) % NR_DSTS;
     const int nAction = rulePart % 2;
 
-    // Confirm that topological invariants still hold.
+    // Confirm that the multi-edge invariant still holds.
     assert(lNId != rNId);
 
-    // Apply the node action unconditionally.
+    // Apply the node action.
     m_nextNodeStates[nNId] = nAction;
 
-    // Apply the topological action...
-    int lNewDst = newDsts[lAction];
-    int rNewDst = newDsts[rAction];
-
-    // ...only if it preserves the topo invariants.
-    if (((lNewDst != nNId && rNewDst != nNId)) && lNewDst != rNewDst) {
-        m_nextGraph->AddEdge(nNId, lNewDst);
-        m_nextGraph->AddEdge(nNId, rNewDst);
-    }
-    else { // Otherwise, re-create the previous edges.
-        m_nextGraph->AddEdge(nNId, lNId);
-        m_nextGraph->AddEdge(nNId, rNId);
-
-        if (lNewDst == rNewDst) m_stats.multiEdgesAvoided += 1;
-        if (lNewDst == nNId || rNewDst == nNId) m_stats.selfEdgesAvoided += 1;
-    }
+    // Note the provisional topological action in the scratchpad.
+    assert(m_nextL[nNId] == -1 && m_nextR[nNId] == -1);
+    m_nextL[nNId] = newDsts[lAction];
+    m_nextR[nNId] = newDsts[rAction];
 
     delete newDsts;
 }
@@ -254,20 +244,12 @@ void MachineS::InitTopo(std::string topoStructure) {
 
 
 //---------------
+// IterateMachine
+//
 // Run one step of the loaded rule.
 // Return the length of any detected state cycle (0 => no cycle found)
 //---------------
 int MachineS::IterateMachine(int iterationNr) {
-
-    // Show node states at the beginning of the cycle.
-    /* temporarily hold aside
-    if (CommandOpts::printTape) {
-        for (int i = m_nrNodes/2 - std::min(64, m_nrNodes/2); i <= m_nrNodes/2 + std::min(64, m_nrNodes/2); i += 1)
-            printf("%s", (m_nodeStates[i] == 1) ? "X" : " ");
-        printf("\n");
-        ShowDepthFirst(0);
-    }
-    */
 
     // Stop and report if the machine is cycling.
     unsigned int curStateHash = CurStateHash();
@@ -297,25 +279,34 @@ int MachineS::IterateMachine(int iterationNr) {
     for (int i = 0; i < m_nrNodes; i += 1) newEntry.nodeStates[i] = m_nodeStates[i];
     m_stateHistory.push(newEntry);
 
-    // Create the seed of the graph's next generation.
+    // Initialize the next generation's "scratchpad" arrays.
+    for (int i = 0; i < m_nrNodes; i += 1) {
+        m_nextL[i] = -1;
+        m_nextR[i] = -1;
+    }
+
+    // Apply one iteration of the loaded rule, creating the next generation's
+    // provisional state in the scratchpad. This step also creates the next
+    // generation's node states.
+    for (TNGraph::TNodeI NIter = m_graph->BegNI(); NIter < m_graph->EndNI(); NIter++)
+        AdvanceNode(NIter);
+
+    // Post-process the scratchpad to eliminate multi-edges.
+    EliminateMultiEdges();
+
+    // Create the next generation's graph from the scratchpad.
+    // Make an empty graph.
     m_nextGraph = TNGraph::New();
 
     // Copy all nodes from current to next graph (added edges will "forward
-    // reference" them). Rule actions in 'AdvanceNode' are responsible for
-    // [re-]creating all edges in the new graph -- those that have been changed
-    // and those that remain the same.
+    // reference" them).
     for (TNGraph::TNodeI NIter = m_graph->BegNI(); NIter < m_graph->EndNI(); NIter++) {
         int nId = NIter.GetId();
         m_nextGraph->AddNode(nId);
     }
 
-    // TODO: Extend this loop to also build by-nodeId neighbor vectors
-    //   for use in 'AdvanceNode'. (middling opt)
-    // Apply one generation of the loaded rule, creating the next generation
-    // state in 'm_nextGraph' and 'm_nextNodeStates'.
-    for (TNGraph::TNodeI NIter = m_graph->BegNI(); NIter < m_graph->EndNI(); NIter++) {
-        AdvanceNode(NIter);
-    }
+    // <Here's where the graph is built from the scratchpad.>
+
     // Cycling finished, replace "current" structures with "next" counterparts.
     // (Abandoning m->graph to garbage collection.)
     m_graph = m_nextGraph;
@@ -326,6 +317,49 @@ int MachineS::IterateMachine(int iterationNr) {
     m_nodeStates = m_nextNodeStates;
     m_nextNodeStates = swap;
     return 0; // report no state cycle found
+}
+
+//---------------
+// EliminateMultiEdges
+//
+// Transform the scratchpad encoding of the provisional next generation topology
+// into a proper state with no multi-edges.
+//
+// Make multiple passes over the scratchpad arrays until a pass is completed
+// without encountering a multi-edge.
+//
+// When a multi-edge is encountered, eliminate the node by setting its scratchpad
+// entries to -1's, then pass the entire scratchpad redirecting any edge termi-
+// nating at the eliminated node to instead terminate at the node to which its
+// multi-edges both linked.
+//---------------
+void MachineS::EliminateMultiEdges() {
+    bool makingChanges = true;
+    while (makingChanges) {
+        makingChanges = false;
+
+        bool nodesPresent = false;
+        int newDst = -1; // properly placed?
+        int src;
+        for (src = 0; src < m_nrNodes; src += 1) {
+            if (m_nextL[src] != -1) {
+                nodesPresent = true;
+                if (m_nextL[src] == m_nextR[src]) {
+                    // This is a multi-edge, eliminate it.
+                    makingChanges = true;
+                    if (m_nextL[src] == src) {
+                        return 0000; // handle...
+                    }
+                    newDst = m_nextL[src];
+                    m_nextL[src] = -1;
+                    m_nextR[src] = -1;
+                    break;
+                }
+            }
+        }
+        if (!nodesPresent) return 0000; // handle...
+        if (!makingChanges) return 0000; // handle...
+    }
 }
 
 //---------------

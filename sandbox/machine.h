@@ -40,6 +40,8 @@ private:
     PNGraph m_nextGraph;
     int* m_nodeStates;
     int* m_nextNodeStates;
+    int* m_nextL;
+    int* m_nextR;
     unsigned char* m_stateHistoryHashTable;
     unsigned int m_cycleCheckDepth;
     std::queue<MachineState> m_stateHistory;
@@ -49,6 +51,7 @@ private:
     void BuildTree();
     void BuildRandomGraph();
     int Cycling(unsigned int);
+    void EliminateMultiEdges();
     void InitTape(std::string, int);
     void InitTopo(std::string);
     void RandomizeTapeState(int);
