@@ -294,31 +294,20 @@ int MachineS::IterateMachine(int iterationNr) {
         AdvanceNode(NIter);
 
     // Post-process the scratchpad to eliminate multi-edges.
-    printf("IterateMachine: <EliminateMultiEdges, iter: %d\n", iterationNr); ////
     int termIndicator = EliminateMultiEdges();
-    printf("IterateMachine: >EliminateMultiEdges, iter: %d termIndicator: %d\n",
-      iterationNr, termIndicator); ////
     if (termIndicator < 0) return termIndicator;
 
     // Create the next generation's graph from the scratchpad; initialize an empty graph
     // and create all the next generation's surviving nodes.
     m_nextGraph = TNGraph::New();
-    for (int nId = 0; nId < m_nrNodes; nId += 1) if (m_nextL[nId] != -1) {
+    for (int nId = 0; nId < m_nrNodes; nId += 1) if (m_nextL[nId] != -1)
         m_nextGraph->AddNode(nId);
-        printf("IterateMachine: AddNode(%d)\n", nId); ////
-    }
-    printf(">adding nodes\n"); ////
 
     // Add the edges.
     for (int nId = 0; nId < m_nrNodes; nId += 1) if (m_nextL[nId] != -1) {
             m_nextGraph->AddEdge(nId, m_nextL[nId]);
-            printf("IterateMachine: AddEdge(%d -> %d)\n",
-              nId, m_nextL[nId]); ////
             m_nextGraph->AddEdge(nId, m_nextR[nId]);
-            printf("IterateMachine: AddEdge(%d -> %d)\n",
-              nId, m_nextR[nId]); ////
     }
-    printf(">adding edges\n"); ////
 
     // Replace "current" structures with "next" counterparts.
     // (Abandoning m_graph to garbage collection.)
@@ -406,7 +395,6 @@ void MachineS::RandomizeTapeState(int tapePctBlack) {
 // Return a hash of the current machine state.
 //---------------
 unsigned int MachineS::CurStateHash() {
-    printf("enter CurStateHash\n"); ////
     unsigned int hash = 0;
 
     // Incorporate node states...
@@ -424,7 +412,6 @@ unsigned int MachineS::CurStateHash() {
           % STATE_HISTORY_HASH_TABLE_LEN;
         graphNodeIter++;
     }
-    printf("exit CurStateHash\n"); ////
     return hash;
 }
 
@@ -436,7 +423,6 @@ unsigned int MachineS::CurStateHash() {
 //---------------
 bool MachineS::StateMatchesCurrent(MachineState other) {
 
-    printf("enter StateMatchesCurrent\n"); ////
     // Compare node states.
     for (int i = 0; i < m_nrNodes; i += 1)
         if (m_nodeStates[i] != other.nodeStates[i]) return false;
@@ -452,6 +438,5 @@ bool MachineS::StateMatchesCurrent(MachineState other) {
         otherGraphNodeIter++;
     }
 
-    printf("exit StateMatchesCurrent\n"); ////
     return true;
 }
