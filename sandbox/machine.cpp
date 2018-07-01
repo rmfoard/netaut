@@ -37,6 +37,8 @@ MachineS::~MachineS() {
     delete m_nodeStates;
     delete m_nextNodeStates;
     delete m_stateHistoryHashTable;
+    delete m_nextL;
+    delete m_nextR;
 
     // Clear any remaining storage in the state history queue.
     int queueLength = m_stateHistory.size(); // invariant: <=
@@ -292,23 +294,34 @@ int MachineS::IterateMachine(int iterationNr) {
         AdvanceNode(NIter);
 
     // Post-process the scratchpad to eliminate multi-edges.
-    EliminateMultiEdges();
+    printf("IterateMachine: <EliminateMultiEdges, iter: %d\n", iterationNr); ////
+    int termIndicator = EliminateMultiEdges();
+    printf("IterateMachine: >EliminateMultiEdges, iter: %d termIndicator: %d\n",
+      iterationNr, termIndicator); ////
+    if (termIndicator < 0) return termIndicator;
 
-    // Create the next generation's graph from the scratchpad.
-    // Make an empty graph.
+    // Create the next generation's graph from the scratchpad; initialize an empty graph
+    // and create all the next generation's surviving nodes.
     m_nextGraph = TNGraph::New();
-
-    // Copy all nodes from current to next graph (added edges will "forward
-    // reference" them).
-    for (TNGraph::TNodeI NIter = m_graph->BegNI(); NIter < m_graph->EndNI(); NIter++) {
-        int nId = NIter.GetId();
+    for (int nId = 0; nId < m_nrNodes; nId += 1) if (m_nextL[nId] != -1) {
         m_nextGraph->AddNode(nId);
+        printf("IterateMachine: AddNode(%d)\n", nId); ////
     }
+    printf(">adding nodes\n"); ////
 
-    // <Here's where the graph is built from the scratchpad.>
+    // Add the edges.
+    for (int nId = 0; nId < m_nrNodes; nId += 1) if (m_nextL[nId] != -1) {
+            m_nextGraph->AddEdge(nId, m_nextL[nId]);
+            printf("IterateMachine: AddEdge(%d -> %d)\n",
+              nId, m_nextL[nId]); ////
+            m_nextGraph->AddEdge(nId, m_nextR[nId]);
+            printf("IterateMachine: AddEdge(%d -> %d)\n",
+              nId, m_nextR[nId]); ////
+    }
+    printf(">adding edges\n"); ////
 
-    // Cycling finished, replace "current" structures with "next" counterparts.
-    // (Abandoning m->graph to garbage collection.)
+    // Replace "current" structures with "next" counterparts.
+    // (Abandoning m_graph to garbage collection.)
     m_graph = m_nextGraph;
 
     // Unlike with the graph, avoid de- and re-allocating state storage.
@@ -316,7 +329,9 @@ int MachineS::IterateMachine(int iterationNr) {
     int* swap = m_nodeStates;
     m_nodeStates = m_nextNodeStates;
     m_nextNodeStates = swap;
-    return 0; // report no state cycle found
+
+    // Report no terminal condition found.
+    return 0;
 }
 
 //---------------
@@ -326,29 +341,33 @@ int MachineS::IterateMachine(int iterationNr) {
 // into a proper state with no multi-edges.
 //
 // Make multiple passes over the scratchpad arrays until a pass is completed
-// without encountering a multi-edge.
+// without encountering a multi-edge or a termination condition arises. Termina-
+// tion conditions are (-1) collapse to an empty graph, or (-2) occurrence of
+// "multi-self-edges." Return 0 in the normal case in which the scratchpad
+// encodes a non-empty graph with no multi-edges.
 //
 // When a multi-edge is encountered, eliminate the node by setting its scratchpad
 // entries to -1's, then pass the entire scratchpad redirecting any edge termi-
 // nating at the eliminated node to instead terminate at the node to which its
 // multi-edges both linked.
 //---------------
-void MachineS::EliminateMultiEdges() {
+int MachineS::EliminateMultiEdges() {
     bool makingChanges = true;
     while (makingChanges) {
         makingChanges = false;
 
-        bool nodesPresent = false;
-        int newDst = -1; // properly placed?
+        int newDst = -1;
         int src;
+        bool nodesPresent = false;
         for (src = 0; src < m_nrNodes; src += 1) {
-            if (m_nextL[src] != -1) {
+            if (m_nextL[src] != -1) { // node not eliminated?
                 nodesPresent = true;
                 if (m_nextL[src] == m_nextR[src]) {
                     // This is a multi-edge, eliminate it.
                     makingChanges = true;
-                    if (m_nextL[src] == src) {
-                        return 0000; // handle...
+                    m_stats.multiEdgesAvoided += 1;
+                    if (m_nextL[src] == src) { // "multi-self-edges"?
+                        return -2;
                     }
                     newDst = m_nextL[src];
                     m_nextL[src] = -1;
@@ -357,9 +376,17 @@ void MachineS::EliminateMultiEdges() {
                 }
             }
         }
-        if (!nodesPresent) return 0000; // handle...
-        if (!makingChanges) return 0000; // handle...
+        if (!nodesPresent) return -1; // graph collapsed -> 0 nodes?
+        if (!makingChanges) return 0; // normal case
+
+        // We found and eliminated a multi-edge node; pass the scratchpad,
+        // redirecting edges into src to newDst.
+        for (int i = 0; i < m_nrNodes; i += 1) {
+            if (m_nextL[i] == src) m_nextL[i] = newDst;
+            if (m_nextR[i] == src) m_nextR[i] = newDst;
+        }
     }
+    assert(false);
 }
 
 //---------------
@@ -379,6 +406,7 @@ void MachineS::RandomizeTapeState(int tapePctBlack) {
 // Return a hash of the current machine state.
 //---------------
 unsigned int MachineS::CurStateHash() {
+    printf("enter CurStateHash\n"); ////
     unsigned int hash = 0;
 
     // Incorporate node states...
@@ -396,6 +424,7 @@ unsigned int MachineS::CurStateHash() {
           % STATE_HISTORY_HASH_TABLE_LEN;
         graphNodeIter++;
     }
+    printf("exit CurStateHash\n"); ////
     return hash;
 }
 
@@ -407,6 +436,7 @@ unsigned int MachineS::CurStateHash() {
 //---------------
 bool MachineS::StateMatchesCurrent(MachineState other) {
 
+    printf("enter StateMatchesCurrent\n"); ////
     // Compare node states.
     for (int i = 0; i < m_nrNodes; i += 1)
         if (m_nodeStates[i] != other.nodeStates[i]) return false;
@@ -422,5 +452,6 @@ bool MachineS::StateMatchesCurrent(MachineState other) {
         otherGraphNodeIter++;
     }
 
+    printf("exit StateMatchesCurrent\n"); ////
     return true;
 }

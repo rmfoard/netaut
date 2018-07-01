@@ -13,7 +13,7 @@
 #include "rule.h"
 #include "machine.h"
 
-#define VERSION "V180622.0"
+#define VERSION "V180701.0"
 
 //---------------
 struct CommandOpts {
@@ -441,7 +441,8 @@ int main(const int argc, char* argv[]) {
 
         // Stop iteration if 'IterateMachine' reported a state cycle.
         cycleLength = m->IterateMachine(iter);
-        if (cycleLength > 0) break;
+        printf(">IterateMachine, cycleLength: %d\n", cycleLength);
+        if (cycleLength > 0 || cycleLength < 0) break;
     } // The residual value of 'iter' is the actual number of iterations performed.
     auto stop_time = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed_secs = stop_time - start_time;
