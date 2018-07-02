@@ -1,5 +1,5 @@
 w avoids b neighbors
 L,R,W; L,RR,W; L,R,B; L,R,B; LL,R,W; LL,RR,W; L,R,B; L,R,B
 
-w avoids b neighbors, "no-op" = swap R and L
-R,L,W; L,RR,W; R,L,B; R,L,B; LL,R,W; LL,RR,W; R,L,B; R,L,B
+w avoids b neighbors, b avoids w neighbors
+L,R,W; L,RR,W; LL,RR,B; LL,R,B; LL,R,W; LL,RR,W; L,RR,B; L,R,B
