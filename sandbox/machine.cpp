@@ -12,7 +12,7 @@
 //---------------
 MachineS::MachineS(rulenr_t ruleNr, int nrNodes, int cycleCheckDepth,
   std::string tapeStructure, int tapePctBlack, std::string topoStructure) {
-    m_machineType = std::string("S");
+    m_machineType = std::string("T");
     m_rule = new Rule(ruleNr);
     m_ruleParts = m_rule->get_ruleParts();
     m_nrNodes = nrNodes;

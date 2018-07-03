@@ -317,6 +317,7 @@ void WriteInfo(std::string runId, MachineS* machine, int nrActualIterations, int
     Json::Value info;
 
     info["runId"] = runId;
+    info["machineType"] = machine->get_machineType();
     info["version"] = VERSION;
     info["ruleNr"] = (Json::UInt64) machine->m_rule->get_ruleNr();
     info["nrNodes"] = machine->m_nrNodes;

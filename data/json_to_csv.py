@@ -19,6 +19,7 @@ def main():
         'effDiameter90Pctl',
         'hashCollisions',
         'maxIterations',
+        'machineType',
         'multiEdgesAvoided',
         'nrActualIterations',
         'nrCcSizes',
