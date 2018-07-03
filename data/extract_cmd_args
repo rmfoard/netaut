@@ -34,11 +34,6 @@ def main():
     for json_key, cmd_opt in key_to_opt.iteritems():
         arg_string += key_to_opt[json_key] + ' ' + str(run_dct[json_key]) + ' '
 
-    # A straight translation will not work right for 'allowSelfEdges',
-    # whose command option is present only if its value is 1.
-    if run_dct['allowSelfEdges'] == 1:
-        arg_string += '--allow-self-edges '
-
     print arg_string,
 
 
