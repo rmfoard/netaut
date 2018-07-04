@@ -95,9 +95,15 @@ To provision for generating netaut/hellosnap:
     http://yallalabs.com/linux/how-to-install-and-use-postgresql-10-on-ubuntu-16-04/
     - found I also ?needed sudo apt-get libpq-dev and libpq++-dev
 
-- install R using instructions from: https://www.r-bloggers.com/how-to-install-r-ubuntu-16-04-xenial/
-    - (did not install R-Studio because of the daunting instructions given for 32-bitness in:
-        https://mikewilliamson.wordpress.com/2016/11/14/installing-r-studio-on-ubuntu-16-10/ because of 32-bitness
+-install R
+    - sudo apt-get install r-base
+
+- to use Postgresql "under" R:
+    - sudo apt-get install libpq-dev
+    - R> install.packages("RPostgreSQL")
+    - (See OneNote 'NetworkAutomata' journal for session setup advice.)
+
+- to use R from within Postgresql (32-bit Ubuntu only?):
     - install PL/R using 32-bit deb package: 1.8.3.0.17-3.pgdg16.04+1
     - make it accessible for use in R (as supervisor only, I think):
         sudo su - postgres
