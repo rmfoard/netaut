@@ -97,6 +97,10 @@ To provision for generating netaut/hellosnap:
 
 -install R
     - sudo apt-get install r-base
+    - install tidyverse package
+        - sudo apt-get install -y libxml2-dev libcurl4-openssl-dev libssl-dev
+        - R> install.packages("tidyverse") /* extensive work */
+        - (?might it also need libpq-dev? (I previously installed RPostgreSQL first))
 
 - to use Postgresql "under" R:
     - sudo apt-get install libpq-dev
