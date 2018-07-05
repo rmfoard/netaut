@@ -13,7 +13,7 @@
 #include "rule.h"
 #include "machine.h"
 
-#define VERSION "V180701.0"
+#define VERSION "V180705.0"
 
 //---------------
 struct CommandOpts {
