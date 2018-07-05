@@ -52,6 +52,7 @@ private:
     void BuildRandomGraph();
     int Cycling(unsigned int);
     int EliminateMultiEdges();
+    void EliminateNode(int);
     void InitTape(std::string, int);
     void InitTopo(std::string);
     void RandomizeTapeState(int);

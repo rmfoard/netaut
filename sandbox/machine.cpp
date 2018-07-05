@@ -323,6 +323,23 @@ int MachineS::IterateMachine(int iterationNr) {
 }
 
 //---------------
+// EliminateNode
+//---------------
+void MachineS::EliminateNode(int node) {
+    assert(m_nextL[node] != -1);
+    m_nextL[node] = -1;
+    m_nextR[node] = -1;
+
+    printf("eliminating node %d\n", node);
+    for (int in = 0; in < m_nrNodes; in += 1) if (m_nextL[in] != -1) {
+        if (m_nextL[in] == node || m_nextR[in] == node) {
+            printf("  and %d -> %d\n", in, node);
+            EliminateNode(in);
+        }
+    }
+}
+
+//---------------
 // EliminateMultiEdges
 //
 // Transform the scratchpad encoding of the provisional next generation topology
@@ -347,32 +364,35 @@ int MachineS::EliminateMultiEdges() {
         int newDst = -1;
         int src;
         bool nodesPresent = false;
-        for (src = 0; src < m_nrNodes; src += 1) {
-            if (m_nextL[src] != -1) { // node not eliminated?
-                nodesPresent = true;
-                if (m_nextL[src] == m_nextR[src]) {
-                    // This is a multi-edge, eliminate it.
-                    makingChanges = true;
-                    m_stats.multiEdgesAvoided += 1;
-                    if (m_nextL[src] == src) { // "multi-self-edges"?
-                        return -2;
-                    }
-                    newDst = m_nextL[src];
-                    m_nextL[src] = -1;
-                    m_nextR[src] = -1;
-                    break;
+        for (src = 0; src < m_nrNodes; src += 1) if (m_nextL[src] != -1) {
+            nodesPresent = true;
+            if (m_nextL[src] == m_nextR[src] && m_nextL[src] != src) {
+                printf("bypassing and eliminating node %d\n", src);
+                // This is a simple multi-edge, eliminate and bypass it.
+                makingChanges = true;
+                m_stats.multiEdgesAvoided += 1;
+                newDst = m_nextL[src];
+                m_nextL[src] = -1;
+                m_nextR[src] = -1;
+
+                // We found and eliminated a simple multi-edge node; pass the scratchpad,
+                // redirecting its inbound edges to newDst.
+                for (int i = 0; i < m_nrNodes; i += 1) {
+                    if (m_nextL[i] == src) m_nextL[i] = newDst;
+                    if (m_nextR[i] == src) m_nextR[i] = newDst;
                 }
+                break;
+            }
+
+            else if (m_nextL[src] == m_nextR[src] && m_nextL[src] == src) {
+                // This is a multi-self-edge; eliminate it and all its in-linking nodes.
+                makingChanges = true;
+                EliminateNode(src);
+                break;
             }
         }
         if (!nodesPresent) return -1; // graph collapsed -> 0 nodes?
         if (!makingChanges) return 0; // normal case
-
-        // We found and eliminated a multi-edge node; pass the scratchpad,
-        // redirecting edges into src to newDst.
-        for (int i = 0; i < m_nrNodes; i += 1) {
-            if (m_nextL[i] == src) m_nextL[i] = newDst;
-            if (m_nextR[i] == src) m_nextR[i] = newDst;
-        }
     }
     assert(false);
 }
