@@ -167,12 +167,11 @@ void MachineS::BuildRandomGraph() {
 
     // Create two random edges on each node.
     for (int i = 0; i < m_nrNodes; i += 1) {
-        int j;
-        do j = rand() % m_nrNodes; while (j == i);
+        int j = rand() % m_nrNodes;
         m_graph->AddEdge(i, j);
 
         int k;
-        do k = rand() % m_nrNodes; while (k == i || k == j);
+        do k = rand() % m_nrNodes; while (k == j);
         m_graph->AddEdge(i, k);
     }
 }
