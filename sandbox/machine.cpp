@@ -330,10 +330,10 @@ void MachineS::EliminateNode(int node) {
     m_nextL[node] = -1;
     m_nextR[node] = -1;
 
-    printf("eliminating node %d\n", node);
+    //printf("eliminating node %d\n", node);
     for (int in = 0; in < m_nrNodes; in += 1) if (m_nextL[in] != -1) {
         if (m_nextL[in] == node || m_nextR[in] == node) {
-            printf("  and %d -> %d\n", in, node);
+            //printf("  and %d -> %d\n", in, node);
             EliminateNode(in);
         }
     }
@@ -367,7 +367,7 @@ int MachineS::EliminateMultiEdges() {
         for (src = 0; src < m_nrNodes; src += 1) if (m_nextL[src] != -1) {
             nodesPresent = true;
             if (m_nextL[src] == m_nextR[src] && m_nextL[src] != src) {
-                printf("bypassing and eliminating node %d\n", src);
+                //printf("bypassing and eliminating node %d\n", src);
                 // This is a simple multi-edge, eliminate and bypass it.
                 makingChanges = true;
                 m_stats.multiEdgesAvoided += 1;
