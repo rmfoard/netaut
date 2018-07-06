@@ -6,6 +6,7 @@ CREATE TABLE runs (
     diameter            integer,
     effDiameter90Pctl   double precision,
     hashCollisions      integer,
+    machineType         varchar(4),
     maxIterations       integer,
     multiEdgesAvoided   integer,
     nrActualIterations  integer,

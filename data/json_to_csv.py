@@ -18,6 +18,7 @@ def main():
         'diameter',
         'effDiameter90Pctl',
         'hashCollisions',
+        'machineType',
         'maxIterations',
         'multiEdgesAvoided',
         'nrActualIterations',
@@ -35,8 +36,7 @@ def main():
         'tapePctBlack',
         'tapeStructure',
         'topoStructure',
-        'version',
-        'machineType'
+        'version'
     ]
 
     cc_names = [

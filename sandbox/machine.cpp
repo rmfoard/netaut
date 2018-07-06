@@ -12,7 +12,7 @@
 //---------------
 MachineS::MachineS(rulenr_t ruleNr, int nrNodes, int cycleCheckDepth,
   std::string tapeStructure, int tapePctBlack, std::string topoStructure) {
-    m_machineType = std::string("T");
+    m_machineType = std::string("A");
     m_rule = new Rule(ruleNr);
     m_ruleParts = m_rule->get_ruleParts();
     m_nrNodes = nrNodes;
@@ -331,11 +331,14 @@ void MachineS::EliminateNode(int node) {
     m_nextR[node] = -1;
 
     //printf("eliminating node %d\n", node);
-    for (int in = 0; in < m_nrNodes; in += 1) if (m_nextL[in] != -1) {
-        if (m_nextL[in] == node || m_nextR[in] == node) {
-            //printf("  and %d -> %d\n", in, node);
+    assert(node != -1);
+    for (int in = 0; in < m_nrNodes; in += 1) {
+        if (m_nextL[in] == node && m_nextR[in] == node)
             EliminateNode(in);
-        }
+        else if (m_nextL[in] == node)
+            m_nextL[in] = m_nextR[in];
+        else if (m_nextR[in] == node)
+            m_nextR[in] = m_nextL[in];
     }
 }
 
@@ -345,6 +348,7 @@ void MachineS::EliminateNode(int node) {
 // Transform the scratchpad encoding of the provisional next generation topology
 // into a proper state with no multi-edges.
 //
+// TODO: Correct this comment.
 // Make multiple passes over the scratchpad arrays until a pass is completed
 // without encountering a multi-edge or a termination condition arises. Termina-
 // tion conditions are (-1) collapse to an empty graph, or (-2) occurrence of
