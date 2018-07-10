@@ -1,5 +1,6 @@
 #include "Snap.h"
 #include <assert.h>
+#include <getopt.h>
 #include <inttypes.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -10,8 +11,87 @@
 #include "machine.h"
 
 //---------------
+// ParseCommand
+//---------------
+static
+void ParseCommand(const int argc, char* argv[]) {
+    int c;
+    bool errorFound = false;
+
+    int switchArg;
+
+    // Set command options to default values.
+
+    static struct option long_options[] = {
+        {"switch-arg", no_argument, &switchArg, 1},
+
+        {"string-arg", required_argument, 0, 's'},
+
+        {"help", no_argument, 0, 'h'},
+        {0, 0, 0, 0}
+    };
+
+    bool tapePctBlackSpecified = false;
+
+    while (true) {
+
+        int option_index = 0;
+        c = getopt_long(argc, argv, "s:",
+          long_options, &option_index);
+
+        if (c == -1) // end of options?
+            break;
+
+        switch (c) {
+          case 0: // flag setting only, no further processing required
+            if (long_options[option_index].flag != 0)
+                break;
+            assert(false);
+
+          case 's':
+            printf("--string-arg was seen\n");
+            break;
+
+          case 'h':
+            printf("--help!\n");
+            exit(0);
+
+          case '?':
+            errorFound = true;
+            break;
+
+          default:
+            /*abort()*/;
+       }
+    }
+
+    // Check option consistency.
+    if (switchArg)
+        printf("switchArg: %d\n", switchArg);
+    else
+        printf("switchArg: %d\n", switchArg);
+
+    if (errorFound) exit(1);
+
+    // Warn of odd selections.
+    if (false)
+        std::cerr << "warning: <odd selection>" << std::endl;
+
+    // Warn if any non-option command arguments are present.
+    if (optind < argc) {
+        printf ("warning: there are extraneous command arguments: ");
+        while (optind < argc) printf ("%s ", argv[optind++]);
+        putchar ('\n');
+    }
+}
+
+//---------------
 MachineS::MachineS(rulenr_t ruleNr, int nrNodes, int cycleCheckDepth,
-  std::string tapeStructure, int tapePctBlack, std::string topoStructure) {
+  std::string tapeStructure, int tapePctBlack, std::string topoStructure,
+  int argc, char* argv[], struct option long_options[]) {
+    printf("MachineS: argc: %d\n", argc);
+    for (int i = 0; i < argc; i += 1)
+        printf("  arg %d: %s\n", i, argv[i]);
     m_machineType = std::string("B");
     m_rule = new Rule(ruleNr);
     m_ruleParts = m_rule->get_ruleParts();

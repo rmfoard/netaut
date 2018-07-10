@@ -41,6 +41,46 @@ struct CommandOpts {
 static CommandOpts cmdOpt;
 
 //---------------
+// Command line parsing structure
+//
+#define MAX_COMMAND_OPTIONS 128
+
+#define CO_WRITE_START 1000
+#define CO_WRITE_STRIDE 1001
+#define CO_CYCLE_CHECK_DEPTH 1002
+#define CO_HELP 1003
+#define CO_INIT_TAPE 1004
+#define CO_INIT_TOPO 1005
+#define CO_TAPE_PCT_BLACK 1006
+#define CO_WRITE_AS 1007
+#define CO_NOOP 1008
+
+static struct option long_options[MAX_COMMAND_OPTIONS] = {
+    {"no-info", no_argument, &cmdOpt.noInfo, 1},
+    {"no-write-end-state", no_argument, &cmdOpt.noWriteEndState, 1},
+    {"print-tape", no_argument, &cmdOpt.printTape, 1},
+
+    {"cycle-check-depth", required_argument, 0, CO_CYCLE_CHECK_DEPTH},
+    {"init-tape", required_argument, 0, CO_INIT_TAPE},
+    {"init-topo", required_argument, 0, CO_INIT_TOPO},
+    {"max-iterations", required_argument, 0, 'i'},
+    /*{"machine", required_argument, 0, 'm'},*/
+    {"nodes", required_argument, 0, 'n'},
+    {"noop", no_argument, 0, CO_NOOP},
+    {"randseed", required_argument, 0, 'a'},
+    {"rule", required_argument, 0, 'r'},
+    {"ruletext", required_argument, 0, 't'},
+    {"suffix", required_argument, 0, 's'},
+    {"tape-pct-black", required_argument, 0, CO_TAPE_PCT_BLACK},
+    {"write-start", required_argument, 0, CO_WRITE_START},
+    {"write-stride", required_argument, 0, CO_WRITE_STRIDE},
+    {"write-as", required_argument, 0, CO_WRITE_AS},
+
+    {"help", no_argument, 0, CO_HELP},
+    {0, 0, 0, 0}
+};
+
+//---------------
 char* strAllocCpy(const char* src) { return strcpy(new char[strlen(src) + 1], src); }
 
 //---------------
@@ -85,41 +125,6 @@ void ParseCommand(const int argc, char* argv[]) {
     cmdOpt.ruleText = NULL;
     cmdOpt.tapeStructure = "single-center";
     cmdOpt.topoStructure = "ring";
-
-#define CO_WRITE_START 1000
-#define CO_WRITE_STRIDE 1001
-#define CO_CYCLE_CHECK_DEPTH 1002
-#define CO_HELP 1003
-#define CO_INIT_TAPE 1004
-#define CO_INIT_TOPO 1005
-#define CO_TAPE_PCT_BLACK 1006
-#define CO_WRITE_AS 1007
-#define CO_NOOP 1008
-
-    static struct option long_options[] = {
-        {"no-info", no_argument, &cmdOpt.noInfo, 1},
-        {"no-write-end-state", no_argument, &cmdOpt.noWriteEndState, 1},
-        {"print-tape", no_argument, &cmdOpt.printTape, 1},
-
-        {"cycle-check-depth", required_argument, 0, CO_CYCLE_CHECK_DEPTH},
-        {"init-tape", required_argument, 0, CO_INIT_TAPE},
-        {"init-topo", required_argument, 0, CO_INIT_TOPO},
-        {"max-iterations", required_argument, 0, 'i'},
-        /*{"machine", required_argument, 0, 'm'},*/
-        {"nodes", required_argument, 0, 'n'},
-        {"noop", no_argument, 0, CO_NOOP},
-        {"randseed", required_argument, 0, 'a'},
-        {"rule", required_argument, 0, 'r'},
-        {"ruletext", required_argument, 0, 't'},
-        {"suffix", required_argument, 0, 's'},
-        {"tape-pct-black", required_argument, 0, CO_TAPE_PCT_BLACK},
-        {"write-start", required_argument, 0, CO_WRITE_START},
-        {"write-stride", required_argument, 0, CO_WRITE_STRIDE},
-    {"write-as", required_argument, 0, CO_WRITE_AS},
-
-        {"help", no_argument, 0, CO_HELP},
-        {0, 0, 0, 0}
-    };
 
     bool tapePctBlackSpecified = false;
 
@@ -237,7 +242,7 @@ void ParseCommand(const int argc, char* argv[]) {
             break;
 
           default:
-            abort();
+            /*abort()*/;
        }
     }
 
@@ -403,17 +408,17 @@ void WriteInfo(std::string runId, MachineS* machine, int nrActualIterations, int
 //---------------
 int main(const int argc, char* argv[]) {
 
-    cmdOpt.ruleNr = 
-        (rulenr_t) 6
-        + (rulenr_t) 6 *72
-        + (rulenr_t)11 *72*72
-        + (rulenr_t)10 *72*72*72
-        + (rulenr_t)7  *72*72*72*72
-        + (rulenr_t)11 *72*72*72*72*72
-        + (rulenr_t)10 *72*72*72*72*72*72
-        + (rulenr_t)6  *72*72*72*72*72*72*72;
+    cmdOpt.ruleNr = 15;
 
+    // Instantiate the machine.
+
+    // Augment the command parsing structure with options specific to
+    // the current machine.
+
+    // Parse the base command.
     ParseCommand(argc, argv);
+
+    // Finish building the machine.
 
     // Build and run the machine.
     if (cmdOpt.ruletextPresent) {
@@ -424,7 +429,7 @@ int main(const int argc, char* argv[]) {
 
     // Create the machine.
     MachineS* m = new MachineS(cmdOpt.ruleNr, cmdOpt.nrNodes, cmdOpt.cycleCheckDepth,
-      cmdOpt.tapeStructure, cmdOpt.tapePctBlack,cmdOpt.topoStructure);
+      cmdOpt.tapeStructure, cmdOpt.tapePctBlack,cmdOpt.topoStructure, argc, argv, long_options);
 
     // Fabricate a run identifier.
     std::string runId = RunId(m->get_machineType(), cmdOpt.ruleNr);

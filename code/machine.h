@@ -1,6 +1,7 @@
 #ifndef MACHINE_H
 #define MACHINE_H
 
+#include <getopt.h>
 #include <queue>
 
 //---------------
@@ -14,7 +15,7 @@ public:
         long unsigned int hashCollisions;
     };
 
-    MachineS(rulenr_t, int, int, std::string, int, std::string);
+    MachineS(rulenr_t, int, int, std::string, int, std::string, int, char* argv[], struct option[]);
     ~MachineS();
     std::string get_machineType();
     PNGraph get_graph();
