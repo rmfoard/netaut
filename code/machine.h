@@ -16,8 +16,9 @@ public:
     };
 
     Machine2D();
-    void BuildMachine2D(rulenr_t, int, int, std::string, int, std::string, int, char* argv[], struct option[]);
+    void BuildMachine2D(rulenr_t, int, int, std::string, int, std::string, int, char* argv[]);
     ~Machine2D();
+    void AddMachineCommandOptions(struct option[], int);
     std::string get_machineType();
     PNGraph get_graph();
     int* get_nodeStates();

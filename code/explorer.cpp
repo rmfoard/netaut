@@ -16,6 +16,8 @@
 #define VERSION "V180708.0"
 
 //---------------
+// Command option settings
+//
 struct CommandOpts {
     rulenr_t ruleNr;
     int maxIterations;
@@ -415,6 +417,7 @@ int main(const int argc, char* argv[]) {
 
     // Augment the command parsing structure with options specific to
     // the current machine.
+    m->AddMachineCommandOptions(long_options, MAX_COMMAND_OPTIONS);
 
     // Parse the base command.
     ParseCommand(argc, argv);
@@ -430,7 +433,7 @@ int main(const int argc, char* argv[]) {
 
     // Create the machine.
     m->BuildMachine2D(cmdOpt.ruleNr, cmdOpt.nrNodes, cmdOpt.cycleCheckDepth,
-      cmdOpt.tapeStructure, cmdOpt.tapePctBlack,cmdOpt.topoStructure, argc, argv, long_options);
+      cmdOpt.tapeStructure, cmdOpt.tapePctBlack,cmdOpt.topoStructure, argc, argv);
 
     // Fabricate a run identifier.
     std::string runId = RunId(m->get_machineType(), cmdOpt.ruleNr);

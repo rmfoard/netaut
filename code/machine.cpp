@@ -11,78 +11,18 @@
 #include "machine.h"
 
 //---------------
-// ParseCommand
-//---------------
-void Machine2D::ParseCommand(const int argc, char* argv[]) {
-    int c;
-    bool errorFound = false;
+// Additional, machine-specific command options
+//
+static struct option* mainOptions = nullptr;
 
-    int switchArg;
+static int switchArg = false;
 
-    // Set command options to default values.
+static struct option additional_command_options[] = {
+    {"switch-arg", no_argument, &switchArg, 1},
 
-    static struct option long_options[] = {
-        {"switch-arg", no_argument, &switchArg, 1},
-
-        {"string-arg", required_argument, 0, 's'},
-
-        {"help", no_argument, 0, 'h'},
-        {0, 0, 0, 0}
-    };
-
-    bool tapePctBlackSpecified = false;
-
-    while (true) {
-
-        int option_index = 0;
-        c = getopt_long(argc, argv, "s:",
-          long_options, &option_index);
-
-        if (c == -1) // end of options?
-            break;
-
-        switch (c) {
-          case 0: // flag setting only, no further processing required
-            if (long_options[option_index].flag != 0)
-                break;
-            assert(false);
-
-          case 's':
-            printf("--string-arg was seen\n");
-            break;
-
-          case 'h':
-            printf("--help!\n");
-            exit(0);
-
-          case '?':
-            errorFound = true;
-            break;
-
-          default:
-            /*abort()*/;
-       }
-    }
-
-    // Check option consistency.
-    if (switchArg)
-        printf("switchArg: %d\n", switchArg);
-    else
-        printf("switchArg: %d\n", switchArg);
-
-    if (errorFound) exit(1);
-
-    // Warn of odd selections.
-    if (false)
-        std::cerr << "warning: <odd selection>" << std::endl;
-
-    // Warn if any non-option command arguments are present.
-    if (optind < argc) {
-        printf ("warning: there are extraneous command arguments: ");
-        while (optind < argc) printf ("%s ", argv[optind++]);
-        putchar ('\n');
-    }
-}
+    {"string-arg", required_argument, 0, 's'},
+    {0, 0, 0, 0}
+};
 
 //---------------
 Machine2D::Machine2D() {
@@ -91,7 +31,7 @@ Machine2D::Machine2D() {
 //---------------
 void Machine2D::BuildMachine2D(rulenr_t ruleNr, int nrNodes, int cycleCheckDepth,
   std::string tapeStructure, int tapePctBlack, std::string topoStructure,
-  int argc, char* argv[], struct option long_options[]) {
+  int argc, char* argv[]) {
     printf("Machine2D: argc: %d\n", argc);
     for (int i = 0; i < argc; i += 1)
         printf("  arg %d: %s\n", i, argv[i]);
@@ -546,3 +486,83 @@ bool Machine2D::StateMatchesCurrent(MachineState other) {
 
     return true;
 }
+
+//---------------
+// AddMachineCommandOptions
+//---------------
+void Machine2D::AddMachineCommandOptions(struct option* options, int maxOptions) {
+
+    // Retain a pointer to 'getopt's' structure.
+    mainOptions = options;
+
+    // Locate the end of the main structure.
+    int optIx = 0;
+    while (optIx < maxOptions && options[optIx].name != 0) optIx += 1;
+    if (optIx == maxOptions) throw std::runtime_error("command option overflow");
+    struct option endMark = options[optIx];
+    for (int addIx = 0; additional_command_options[addIx].name != 0; addIx += 1) {
+        options[optIx] = additional_command_options[addIx];
+        optIx += 1;
+    }
+    options[optIx] = endMark;
+}
+
+//---------------
+// ParseCommand
+//---------------
+void Machine2D::ParseCommand(const int argc, char* argv[]) {
+    int c;
+    bool errorFound = false;
+    int switchArg;
+
+    // Set command options to default values.
+
+    bool tapePctBlackSpecified = false;
+
+    while (true) {
+
+        int option_index = 0;
+        c = getopt_long(argc, argv, "s:", mainOptions, &option_index);
+
+        if (c == -1) // end of options?
+            break;
+
+        switch (c) {
+          case 0: // flag setting only, no further processing required
+            if (mainOptions[option_index].flag != 0)
+                break;
+            assert(false);
+
+          case 's':
+            printf("--string-arg was seen\n");
+            break;
+
+          case '?':
+            errorFound = true;
+            break;
+
+          default:
+            /*abort()*/;
+       }
+    }
+
+    // Check option consistency.
+    if (switchArg)
+        printf("switchArg: %d\n", switchArg);
+    else
+        printf("switchArg: %d\n", switchArg);
+
+    if (errorFound) exit(1);
+
+    // Warn of odd selections.
+    if (false)
+        std::cerr << "warning: <odd selection>" << std::endl;
+
+    // Warn if any non-option command arguments are present.
+    if (optind < argc) {
+        printf ("warning: there are extraneous command arguments: ");
+        while (optind < argc) printf ("%s ", argv[optind++]);
+        putchar ('\n');
+    }
+}
+
