@@ -5,7 +5,7 @@
 #include <queue>
 
 //---------------
-class MachineS {
+class Machine2D {
 
 public:
     struct Statistics {
@@ -15,8 +15,9 @@ public:
         long unsigned int hashCollisions;
     };
 
-    MachineS(rulenr_t, int, int, std::string, int, std::string, int, char* argv[], struct option[]);
-    ~MachineS();
+    Machine2D();
+    void BuildMachine2D(rulenr_t, int, int, std::string, int, std::string, int, char* argv[], struct option[]);
+    ~Machine2D();
     std::string get_machineType();
     PNGraph get_graph();
     int* get_nodeStates();
@@ -56,6 +57,7 @@ private:
     void EliminateNode(int);
     void InitTape(std::string, int);
     void InitTopo(std::string);
+    void ParseCommand(int, char**);
     void RandomizeTapeState(int);
     unsigned int CurStateHash();
     bool StateMatchesCurrent(MachineState);

@@ -276,7 +276,7 @@ void ParseCommand(const int argc, char* argv[]) {
 // Write the current machine state to a file.
 //---------------
 static
-void WriteState(const std::string runId, MachineS* m, const std::string outFileSuffix,
+void WriteState(const std::string runId, Machine2D* m, const std::string outFileSuffix,
   const int numTag, int actualNrIterations) {
     TIntStrH nodeColorHash = THash<TInt, TStr>();
     int* nodeStates = m->get_nodeStates();
@@ -317,7 +317,7 @@ void WriteState(const std::string runId, MachineS* m, const std::string outFileS
 // Write a file containing JSON-encoded run parameters and outcome statistics.
 //---------------
 static
-void WriteInfo(std::string runId, MachineS* machine, int nrActualIterations, int cycleLength, int runTimeMs) {
+void WriteInfo(std::string runId, Machine2D* machine, int nrActualIterations, int cycleLength, int runTimeMs) {
     // Capture the run parameters.
     Json::Value info;
 
@@ -342,7 +342,7 @@ void WriteInfo(std::string runId, MachineS* machine, int nrActualIterations, int
     info["nrActualIterations"] = nrActualIterations;
     info["cycleLength"] = cycleLength;
     info["runTimeMs"] = runTimeMs;
-    MachineS::Statistics* stats = machine->get_stats();
+    Machine2D::Statistics* stats = machine->get_stats();
     info["multiEdgesAvoided"] = (Json::Value::UInt64) stats->multiEdgesAvoided;
     info["selfEdgesAvoided"] = (Json::Value::UInt64) stats->selfEdgesAvoided;
     info["hashCollisions"] = (Json::Value::UInt64) stats->hashCollisions;
@@ -410,7 +410,8 @@ int main(const int argc, char* argv[]) {
 
     cmdOpt.ruleNr = 15;
 
-    // Instantiate the machine.
+    // Instantiate the "2D" (2 degree) machine.
+    Machine2D* m = new Machine2D();
 
     // Augment the command parsing structure with options specific to
     // the current machine.
@@ -428,7 +429,7 @@ int main(const int argc, char* argv[]) {
     }
 
     // Create the machine.
-    MachineS* m = new MachineS(cmdOpt.ruleNr, cmdOpt.nrNodes, cmdOpt.cycleCheckDepth,
+    m->BuildMachine2D(cmdOpt.ruleNr, cmdOpt.nrNodes, cmdOpt.cycleCheckDepth,
       cmdOpt.tapeStructure, cmdOpt.tapePctBlack,cmdOpt.topoStructure, argc, argv, long_options);
 
     // Fabricate a run identifier.

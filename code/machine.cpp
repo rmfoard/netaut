@@ -13,8 +13,7 @@
 //---------------
 // ParseCommand
 //---------------
-static
-void ParseCommand(const int argc, char* argv[]) {
+void Machine2D::ParseCommand(const int argc, char* argv[]) {
     int c;
     bool errorFound = false;
 
@@ -86,10 +85,14 @@ void ParseCommand(const int argc, char* argv[]) {
 }
 
 //---------------
-MachineS::MachineS(rulenr_t ruleNr, int nrNodes, int cycleCheckDepth,
+Machine2D::Machine2D() {
+}
+
+//---------------
+void Machine2D::BuildMachine2D(rulenr_t ruleNr, int nrNodes, int cycleCheckDepth,
   std::string tapeStructure, int tapePctBlack, std::string topoStructure,
   int argc, char* argv[], struct option long_options[]) {
-    printf("MachineS: argc: %d\n", argc);
+    printf("Machine2D: argc: %d\n", argc);
     for (int i = 0; i < argc; i += 1)
         printf("  arg %d: %s\n", i, argv[i]);
     m_machineType = std::string("B");
@@ -112,7 +115,7 @@ MachineS::MachineS(rulenr_t ruleNr, int nrNodes, int cycleCheckDepth,
 }
 
 //---------------
-MachineS::~MachineS() {
+Machine2D::~Machine2D() {
     delete m_ruleParts;
     delete m_nodeStates;
     delete m_nextNodeStates;
@@ -132,10 +135,10 @@ MachineS::~MachineS() {
 //---------------
 // TODO: Use the proper form for "getters."
 //---------------
-std::string MachineS::get_machineType() { return m_machineType; }
-PNGraph MachineS::get_graph() { return m_graph; }
-int* MachineS::get_nodeStates() { return m_nodeStates; }
-MachineS::Statistics* MachineS::get_stats() { return &m_stats; }
+std::string Machine2D::get_machineType() { return m_machineType; }
+PNGraph Machine2D::get_graph() { return m_graph; }
+int* Machine2D::get_nodeStates() { return m_nodeStates; }
+Machine2D::Statistics* Machine2D::get_stats() { return &m_stats; }
 
 //---------------
 // AdvanceNode
@@ -144,7 +147,7 @@ MachineS::Statistics* MachineS::get_stats() { return &m_stats; }
 // destinations in the scratchpad. At this step, it's okay to create
 // multi-edges; they'll be removed in post-processing.
 //---------------
-void MachineS::AdvanceNode(TNGraph::TNodeI NIter) {
+void Machine2D::AdvanceNode(TNGraph::TNodeI NIter) {
 
     // Get node ids of neighbors.
     int nNId = NIter.GetId();
@@ -203,7 +206,7 @@ void MachineS::AdvanceNode(TNGraph::TNodeI NIter) {
 }
 
 //---------------
-void MachineS::BuildRing() {
+void Machine2D::BuildRing() {
     assert(m_nrNodes > 1);
 
     // Create all the nodes.
@@ -216,7 +219,7 @@ void MachineS::BuildRing() {
 }
 
 //---------------
-void MachineS::BuildTree() {
+void Machine2D::BuildTree() {
     assert(m_nrNodes > 1);
 
     // Create all the nodes.
@@ -239,7 +242,7 @@ void MachineS::BuildTree() {
 }
 
 //---------------
-void MachineS::BuildRandomGraph() {
+void Machine2D::BuildRandomGraph() {
     assert(m_nrNodes > 1);
 
     // Create all the nodes.
@@ -263,7 +266,7 @@ void MachineS::BuildRandomGraph() {
 // determine whether it is identical to one of the preceding 'cycleCheckDepth'
 // states. Return the cycle length if so, zero otherwise.
 //---------------
-int MachineS::Cycling(unsigned int curStateHash) {
+int Machine2D::Cycling(unsigned int curStateHash) {
 
     // If the current state's hash is not in the table,
     // no cycle is detected. (The check is not perfect, though,
@@ -294,7 +297,7 @@ int MachineS::Cycling(unsigned int curStateHash) {
 //---------------
 // InitTape
 //---------------
-void MachineS::InitTape(std::string tapeStructure, int tapePctBlack) {
+void Machine2D::InitTape(std::string tapeStructure, int tapePctBlack) {
     for (int i = 0; i < m_nrNodes; i += 1) m_nodeStates[i] = NWHITE;
     if (tapeStructure == "single-center")
         m_nodeStates[m_nrNodes/2] = NBLACK;
@@ -312,7 +315,7 @@ void MachineS::InitTape(std::string tapeStructure, int tapePctBlack) {
 //---------------
 // InitTopo
 //---------------
-void MachineS::InitTopo(std::string topoStructure) {
+void Machine2D::InitTopo(std::string topoStructure) {
     if (topoStructure == "ring")
         BuildRing();
     else if (topoStructure == "tree")
@@ -330,7 +333,7 @@ void MachineS::InitTopo(std::string topoStructure) {
 // Run one step of the loaded rule.
 // Return the length of any detected state cycle (0 => no cycle found)
 //---------------
-int MachineS::IterateMachine(int iterationNr) {
+int Machine2D::IterateMachine(int iterationNr) {
 
     // Stop and report if the machine is cycling.
     unsigned int curStateHash = CurStateHash();
@@ -405,7 +408,7 @@ int MachineS::IterateMachine(int iterationNr) {
 //---------------
 // EliminateNode
 //---------------
-void MachineS::EliminateNode(int node) {
+void Machine2D::EliminateNode(int node) {
     assert(m_nextL[node] != -1);
     m_nextL[node] = -1;
     m_nextR[node] = -1;
@@ -440,7 +443,7 @@ void MachineS::EliminateNode(int node) {
 // nating at the eliminated node to instead terminate at the node to which its
 // multi-edges both linked.
 //---------------
-int MachineS::EliminateMultiEdges() {
+int Machine2D::EliminateMultiEdges() {
     bool makingChanges = true;
     while (makingChanges) {
         makingChanges = false;
@@ -484,7 +487,7 @@ int MachineS::EliminateMultiEdges() {
 //---------------
 // RandomizeTapeState
 //---------------
-void MachineS::RandomizeTapeState(int tapePctBlack) {
+void Machine2D::RandomizeTapeState(int tapePctBlack) {
     for (int i = 0; i < m_nrNodes; i += 1)
         if (rand() % 100 <= tapePctBlack)
             m_nodeStates[i] = NBLACK;
@@ -497,7 +500,7 @@ void MachineS::RandomizeTapeState(int tapePctBlack) {
 //
 // Return a hash of the current machine state.
 //---------------
-unsigned int MachineS::CurStateHash() {
+unsigned int Machine2D::CurStateHash() {
     unsigned int hash = 0;
 
     // Incorporate node states...
@@ -524,7 +527,7 @@ unsigned int MachineS::CurStateHash() {
 // Return true if the machine state in the parameter is identical
 // to the machine's current state.
 //---------------
-bool MachineS::StateMatchesCurrent(MachineState other) {
+bool Machine2D::StateMatchesCurrent(MachineState other) {
 
     // Compare node states.
     for (int i = 0; i < m_nrNodes; i += 1)
