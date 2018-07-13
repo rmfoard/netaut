@@ -24,6 +24,7 @@ public:
     int* get_nodeStates();
     Statistics* get_stats();
     int IterateMachine(int);
+    void ParseCommand(int, char**);
     void ShowDepthFirst(int);
 
     Rule* m_rule;
@@ -58,7 +59,6 @@ private:
     void EliminateNode(int);
     void InitTape(std::string, int);
     void InitTopo(std::string);
-    void ParseCommand(int, char**);
     void RandomizeTapeState(int);
     unsigned int CurStateHash();
     bool StateMatchesCurrent(MachineState);

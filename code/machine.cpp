@@ -16,11 +16,11 @@
 static struct option* mainOptions = nullptr;
 
 static int switchArg = false;
+static int workaround = false;
 
 static struct option additional_command_options[] = {
-    {"switch-arg", no_argument, &switchArg, 1},
-
     {"string-arg", required_argument, 0, 's'},
+    {"workaround", no_argument, 0, 'w'},
     {0, 0, 0, 0}
 };
 
@@ -32,9 +32,6 @@ Machine2D::Machine2D() {
 void Machine2D::BuildMachine2D(rulenr_t ruleNr, int nrNodes, int cycleCheckDepth,
   std::string tapeStructure, int tapePctBlack, std::string topoStructure,
   int argc, char* argv[]) {
-    printf("Machine2D: argc: %d\n", argc);
-    for (int i = 0; i < argc; i += 1)
-        printf("  arg %d: %s\n", i, argv[i]);
     m_machineType = std::string("B");
     m_rule = new Rule(ruleNr);
     m_ruleParts = m_rule->get_ruleParts();
@@ -517,24 +514,26 @@ void Machine2D::ParseCommand(const int argc, char* argv[]) {
 
     // Set command options to default values.
 
-    bool tapePctBlackSpecified = false;
-
+    // "Rewind" command line scanning.
+    optind = 1;
     while (true) {
-
         int option_index = 0;
-        c = getopt_long(argc, argv, "s:", mainOptions, &option_index);
+        c = getopt_long(argc, argv, "s:w:", mainOptions, &option_index);
 
         if (c == -1) // end of options?
             break;
 
         switch (c) {
           case 0: // flag setting only, no further processing required
-            if (mainOptions[option_index].flag != 0)
-                break;
+            if (mainOptions[option_index].flag != 0) break;
             assert(false);
 
           case 's':
             printf("--string-arg was seen\n");
+            break;
+
+          case 'w':
+            workaround = 1;
             break;
 
           case '?':
@@ -547,10 +546,7 @@ void Machine2D::ParseCommand(const int argc, char* argv[]) {
     }
 
     // Check option consistency.
-    if (switchArg)
-        printf("switchArg: %d\n", switchArg);
-    else
-        printf("switchArg: %d\n", switchArg);
+    printf("workaround: %d\n", workaround);
 
     if (errorFound) exit(1);
 

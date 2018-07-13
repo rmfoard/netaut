@@ -419,8 +419,9 @@ int main(const int argc, char* argv[]) {
     // the current machine.
     m->AddMachineCommandOptions(long_options, MAX_COMMAND_OPTIONS);
 
-    // Parse the base command.
+    // Parse the base command and machine-specific options.
     ParseCommand(argc, argv);
+    m->ParseCommand(argc, argv);
 
     // Finish building the machine.
 
