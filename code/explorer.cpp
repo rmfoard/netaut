@@ -13,7 +13,7 @@
 #include "rule.h"
 #include "machine.h"
 
-#define VERSION "V180708.0"
+#define VERSION "V180717.0"
 
 //---------------
 // Command option settings
@@ -423,9 +423,7 @@ int main(const int argc, char* argv[]) {
     ParseCommand(argc, argv);
     m->ParseCommand(argc, argv);
 
-    // Finish building the machine.
-
-    // Build and run the machine.
+    // Translate ruletext if it is provided in lieu of a rule number.
     if (cmdOpt.ruletextPresent) {
         Rule* tmpRule = new Rule(cmdOpt.ruleText);
         cmdOpt.ruleNr = tmpRule->get_ruleNr();
@@ -434,7 +432,7 @@ int main(const int argc, char* argv[]) {
 
     // Create the machine.
     m->BuildMachine2D(cmdOpt.ruleNr, cmdOpt.nrNodes, cmdOpt.cycleCheckDepth,
-      cmdOpt.tapeStructure, cmdOpt.tapePctBlack,cmdOpt.topoStructure, argc, argv);
+      cmdOpt.tapeStructure, cmdOpt.tapePctBlack,cmdOpt.topoStructure);
 
     // Fabricate a run identifier.
     std::string runId = RunId(m->get_machineType(), cmdOpt.ruleNr);

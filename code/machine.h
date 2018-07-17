@@ -16,7 +16,7 @@ public:
     };
 
     Machine2D();
-    void BuildMachine2D(rulenr_t, int, int, std::string, int, std::string, int, char* argv[]);
+    void BuildMachine2D(rulenr_t, int, int, std::string, int, std::string);
     ~Machine2D();
     void AddMachineCommandOptions(struct option[], int);
     std::string get_machineType();

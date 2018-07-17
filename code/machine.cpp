@@ -30,8 +30,7 @@ Machine2D::Machine2D() {
 
 //---------------
 void Machine2D::BuildMachine2D(rulenr_t ruleNr, int nrNodes, int cycleCheckDepth,
-  std::string tapeStructure, int tapePctBlack, std::string topoStructure,
-  int argc, char* argv[]) {
+  std::string tapeStructure, int tapePctBlack, std::string topoStructure) {
     m_machineType = std::string("B");
     m_rule = new Rule(ruleNr);
     m_ruleParts = m_rule->get_ruleParts();
