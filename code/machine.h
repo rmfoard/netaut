@@ -2,7 +2,7 @@
 #define MACHINE_H
 
 #include <getopt.h>
-#include <queue>
+#include "Snap.h"
 
 //---------------
 class Machine {
@@ -20,7 +20,6 @@ public:
     virtual std::string get_machineType() = 0;
     virtual PNGraph get_graph() = 0;
     virtual int* get_nodeStates() = 0;
-    ////virtual Statistics* get_stats() = 0;
     virtual int IterateMachine(int) = 0;
     virtual void ParseCommand(int, char**) = 0;
 
