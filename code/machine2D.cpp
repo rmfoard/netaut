@@ -7,8 +7,10 @@
 #include <algorithm>
 #include <iostream>
 #include <string>
+#include <json/json.h>
 #include "rule.h"
 #include "machine.h"
+#include "machine2D.h"
 
 //---------------
 // Additional, machine-specific command options
@@ -25,11 +27,7 @@ static struct option additional_command_options[] = {
 };
 
 //---------------
-Machine2D::Machine2D() {
-}
-
-//---------------
-void Machine2D::BuildMachine2D(rulenr_t ruleNr, int nrNodes, int cycleCheckDepth,
+void Machine2D::BuildMachine(rulenr_t ruleNr, int nrNodes, int cycleCheckDepth,
   std::string tapeStructure, int tapePctBlack, std::string topoStructure,
   int argc, char* argv[]) {
     m_machineType = std::string("B");
@@ -52,6 +50,9 @@ void Machine2D::BuildMachine2D(rulenr_t ruleNr, int nrNodes, int cycleCheckDepth
 }
 
 //---------------
+Machine::~Machine() {}
+
+//---------------
 Machine2D::~Machine2D() {
     delete m_ruleParts;
     delete m_nodeStates;
@@ -63,7 +64,7 @@ Machine2D::~Machine2D() {
     // Clear any remaining storage in the state history queue.
     int queueLength = m_stateHistory.size(); // invariant: <=
     for (int i = 1; i <= queueLength; i += 1) {
-        MachineState entry = m_stateHistory.front();
+        Machine::MachineState entry = m_stateHistory.front();
         delete entry.nodeStates;
         m_stateHistory.pop();
     }
@@ -75,7 +76,6 @@ Machine2D::~Machine2D() {
 std::string Machine2D::get_machineType() { return m_machineType; }
 PNGraph Machine2D::get_graph() { return m_graph; }
 int* Machine2D::get_nodeStates() { return m_nodeStates; }
-Machine2D::Statistics* Machine2D::get_stats() { return &m_stats; }
 
 //---------------
 // AdvanceNode
@@ -213,10 +213,10 @@ int Machine2D::Cycling(unsigned int curStateHash) {
     // There was a hit in the hash table, so an exhaustive
     // comparison is necessary. Spin through the entire history
     // queue.
-    MachineState eoq = {nullptr, nullptr, 0};
+    Machine::MachineState eoq = {nullptr, nullptr, 0};
     m_stateHistory.push(eoq);
     int cycleLength = m_stateHistory.size(); // invariant: <=
-    MachineState candidate = m_stateHistory.front();
+    Machine::MachineState candidate = m_stateHistory.front();
     m_stateHistory.pop();
 
     while (candidate.nodeStates != nullptr) { // while not <end marker>
@@ -280,7 +280,7 @@ int Machine2D::IterateMachine(int iterationNr) {
     // Shift the current state into history and mark the hash table.
     // Discard the head of the queue if the queue is full, releasing
     // resources and removing from the history hash.
-    MachineState discard;
+    Machine::MachineState discard;
     if (m_stateHistory.size() == m_cycleCheckDepth) {
         discard = m_stateHistory.front();
         delete discard.nodeStates;
@@ -291,7 +291,7 @@ int Machine2D::IterateMachine(int iterationNr) {
     }
 
     // Add the current state to the history queue and mark the hash table.
-    MachineState newEntry;
+    Machine::MachineState newEntry;
     newEntry.graph = m_graph;
     newEntry.nodeStates = new int[m_nrNodes];
     newEntry.stateHash = curStateHash;
@@ -464,7 +464,7 @@ unsigned int Machine2D::CurStateHash() {
 // Return true if the machine state in the parameter is identical
 // to the machine's current state.
 //---------------
-bool Machine2D::StateMatchesCurrent(MachineState other) {
+bool Machine2D::StateMatchesCurrent(Machine::MachineState other) {
 
     // Compare node states.
     for (int i = 0; i < m_nrNodes; i += 1)
@@ -502,6 +502,23 @@ void Machine2D::AddMachineCommandOptions(struct option* options, int maxOptions)
         optIx += 1;
     }
     options[optIx] = endMark;
+}
+
+//---------------
+// AddSummaryInfo
+//---------------
+void Machine2D::AddSummaryInfo(Json::Value& info) {
+    info["multiEdgesAvoided"] = (Json::Value::UInt64) m_stats.multiEdgesAvoided;
+    info["selfEdgesAvoided"] = (Json::Value::UInt64) m_stats.selfEdgesAvoided;
+    info["hashCollisions"] = (Json::Value::UInt64) m_stats.hashCollisions;
+
+    Json::Value triadOccurrences;
+    for (int i = 0; i < NR_TRIAD_STATES; i += 1) {
+        auto occurrences = m_stats.triadOccurrences[i];
+        triadOccurrences.append((Json::Value::UInt64) occurrences);
+    }
+    info["triadOccurrences"] = triadOccurrences;
+
 }
 
 //---------------
@@ -546,7 +563,7 @@ void Machine2D::ParseCommand(const int argc, char* argv[]) {
     }
 
     // Check option consistency.
-    printf("workaround: %d\n", workaround);
+    //printf("workaround: %d\n", workaround);
 
     if (errorFound) exit(1);
 
