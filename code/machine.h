@@ -5,65 +5,36 @@
 #include <queue>
 
 //---------------
-class Machine2D {
+class Machine {
 
 public:
-    struct Statistics {
-        long unsigned int multiEdgesAvoided;
-        long unsigned int selfEdgesAvoided;
-        long unsigned int triadOccurrences[NR_TRIAD_STATES];
-        long unsigned int hashCollisions;
-    };
-
-    Machine2D();
-    void BuildMachine2D(rulenr_t, int, int, std::string, int, std::string);
-    ~Machine2D();
-    void AddMachineCommandOptions(struct option[], int);
-    std::string get_machineType();
-    PNGraph get_graph();
-    int* get_nodeStates();
-    Statistics* get_stats();
-    int IterateMachine(int);
-    void ParseCommand(int, char**);
-    void ShowDepthFirst(int);
-
-    Rule* m_rule;
-    int m_nrNodes;
-    const int* m_ruleParts;
-    Statistics m_stats;
-
-private:
     struct MachineState {
         int *nodeStates;
         PNGraph graph;
         unsigned int stateHash;
     };
 
-    std::string m_machineType;
-    PNGraph m_graph;
-    PNGraph m_nextGraph;
-    int* m_nodeStates;
-    int* m_nextNodeStates;
-    int* m_nextL;
-    int* m_nextR;
-    unsigned char* m_stateHistoryHashTable;
-    unsigned int m_cycleCheckDepth;
-    std::queue<MachineState> m_stateHistory;
+    virtual ~Machine() = 0;
+    virtual void BuildMachine(rulenr_t, int, int, std::string, int, std::string) = 0;
+    virtual void AddMachineCommandOptions(struct option[], int) = 0;
+    virtual std::string get_machineType() = 0;
+    virtual PNGraph get_graph() = 0;
+    virtual int* get_nodeStates() = 0;
+    ////virtual Statistics* get_stats() = 0;
+    virtual int IterateMachine(int) = 0;
+    virtual void ParseCommand(int, char**) = 0;
 
-    void AdvanceNode(TNGraph::TNodeI);
-    void BuildRing();
-    void BuildTree();
-    void BuildRandomGraph();
-    int Cycling(unsigned int);
-    int EliminateMultiEdges();
-    void EliminateNode(int);
-    void InitTape(std::string, int);
-    void InitTopo(std::string);
-    void RandomizeTapeState(int);
-    unsigned int CurStateHash();
-    bool StateMatchesCurrent(MachineState);
+    virtual void AdvanceNode(TNGraph::TNodeI) = 0;
+    virtual void BuildRing() = 0;
+    virtual void BuildTree() = 0;
+    virtual void BuildRandomGraph() = 0;
+    virtual int Cycling(unsigned int) = 0;
+    virtual int EliminateMultiEdges() = 0;
+    virtual void EliminateNode(int) = 0;
+    virtual void InitTape(std::string, int) = 0;
+    virtual void InitTopo(std::string) = 0;
+    virtual void RandomizeTapeState(int) = 0;
+    virtual unsigned int CurStateHash() = 0;
+    virtual bool StateMatchesCurrent(MachineState) = 0;
 };
-
-#define STATE_HISTORY_HASH_TABLE_LEN 65521
-#define HASH_MULTIPLIER 641
 #endif

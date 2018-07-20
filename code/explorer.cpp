@@ -12,8 +12,9 @@
 #include <json/json.h>
 #include "rule.h"
 #include "machine.h"
+#include "machine2D.h"
 
-#define VERSION "V180717.0"
+#define VERSION "V180720.0"
 
 //---------------
 // Command option settings
@@ -314,12 +315,12 @@ void WriteState(const std::string runId, Machine2D* m, const std::string outFile
 }
 
 //---------------
-// WriteInfo
+// WriteSummaryInfo
 //
 // Write a file containing JSON-encoded run parameters and outcome statistics.
 //---------------
 static
-void WriteInfo(std::string runId, Machine2D* machine, int nrActualIterations, int cycleLength, int runTimeMs) {
+void WriteSummaryInfo(std::string runId, Machine2D* machine, int nrActualIterations, int cycleLength, int runTimeMs) {
     // Capture the run parameters.
     Json::Value info;
 
@@ -344,17 +345,6 @@ void WriteInfo(std::string runId, Machine2D* machine, int nrActualIterations, in
     info["nrActualIterations"] = nrActualIterations;
     info["cycleLength"] = cycleLength;
     info["runTimeMs"] = runTimeMs;
-    Machine2D::Statistics* stats = machine->get_stats();
-    info["multiEdgesAvoided"] = (Json::Value::UInt64) stats->multiEdgesAvoided;
-    info["selfEdgesAvoided"] = (Json::Value::UInt64) stats->selfEdgesAvoided;
-    info["hashCollisions"] = (Json::Value::UInt64) stats->hashCollisions;
-
-    Json::Value triadOccurrences;
-    for (int i = 0; i < NR_TRIAD_STATES; i += 1) {
-        auto occurrences = stats->triadOccurrences[i];
-        triadOccurrences.append((Json::Value::UInt64) occurrences);
-    }
-    info["triadOccurrences"] = triadOccurrences;
 
     Json::Value ccSizeCount;
     TVec<TPair<TInt, TInt> > sizeCount;
@@ -397,6 +387,9 @@ void WriteInfo(std::string runId, Machine2D* machine, int nrActualIterations, in
     info["inDegreeCount"] = inDegreeCount;
     info["nrInDegrees"] = inDegCnt.Len();
 
+    // Add machine-specific summary information.
+    machine->AddSummaryInfo(info);
+
     // TODO: Replace with non-deprecated equivalent.
     Json::FastWriter stringWriter;
     std::string infoString = stringWriter.write(info);
@@ -431,7 +424,7 @@ int main(const int argc, char* argv[]) {
     }
 
     // Create the machine.
-    m->BuildMachine2D(cmdOpt.ruleNr, cmdOpt.nrNodes, cmdOpt.cycleCheckDepth,
+    m->BuildMachine(cmdOpt.ruleNr, cmdOpt.nrNodes, cmdOpt.cycleCheckDepth,
       cmdOpt.tapeStructure, cmdOpt.tapePctBlack,cmdOpt.topoStructure);
 
     // Fabricate a run identifier.
@@ -461,7 +454,7 @@ int main(const int argc, char* argv[]) {
     if (!cmdOpt.noWriteEndState) WriteState(runId, m, cmdOpt.outFileSuffix, -1, iter);
 
     // Write run information unless --no-write-info was present.
-    if (!cmdOpt.noInfo) WriteInfo(runId, m, iter, cycleLength, runTimeMs);
+    if (!cmdOpt.noInfo) WriteSummaryInfo(runId, m, iter, cycleLength, runTimeMs);
 
     delete m;
     exit(0);
