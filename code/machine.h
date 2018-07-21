@@ -8,6 +8,7 @@
 class Machine {
 
 public:
+    // TODO: Move structure def to 2D.
     struct MachineState {
         int *nodeStates;
         PNGraph graph;

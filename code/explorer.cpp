@@ -28,8 +28,8 @@ struct CommandOpts {
     int printTape;
     int noWriteEndState;
     int nrNodes;
-    int writeStart;
-    int writeStride;
+    int graphWriteStart;
+    int graphWriteStride;
     unsigned int cycleCheckDepth;
     int tapePctBlack;
     bool rulePresent;
@@ -75,8 +75,8 @@ static struct option long_options[MAX_COMMAND_OPTIONS] = {
     {"ruletext", required_argument, 0, 't'},
     {"suffix", required_argument, 0, 's'},
     {"tape-pct-black", required_argument, 0, CO_TAPE_PCT_BLACK},
-    {"write-start", required_argument, 0, CO_WRITE_START},
-    {"write-stride", required_argument, 0, CO_WRITE_STRIDE},
+    {"graph-start", required_argument, 0, CO_WRITE_START},
+    {"graph-stride", required_argument, 0, CO_WRITE_STRIDE},
     {"write-as", required_argument, 0, CO_WRITE_AS},
 
     {"help", no_argument, 0, CO_HELP},
@@ -116,8 +116,8 @@ void ParseCommand(const int argc, char* argv[]) {
     cmdOpt.noInfo = 0;
     cmdOpt.printTape = 0;
     cmdOpt.nrNodes = 256;
-    cmdOpt.writeStart = -1;
-    cmdOpt.writeStride = -1;
+    cmdOpt.graphWriteStart = -1;
+    cmdOpt.graphWriteStride = -1;
     cmdOpt.cycleCheckDepth = 0;
     cmdOpt.tapePctBlack = 50;
     cmdOpt.rulePresent = false;
@@ -198,11 +198,11 @@ void ParseCommand(const int argc, char* argv[]) {
             break;
 
           case CO_WRITE_START:
-            cmdOpt.writeStart = atoi(optarg);
+            cmdOpt.graphWriteStart = atoi(optarg);
             break;
 
           case CO_WRITE_STRIDE:
-            cmdOpt.writeStride = atoi(optarg);
+            cmdOpt.graphWriteStride = atoi(optarg);
             break;
 
           case CO_CYCLE_CHECK_DEPTH:
@@ -250,9 +250,9 @@ void ParseCommand(const int argc, char* argv[]) {
     }
 
     // Check option consistency.
-    if ((cmdOpt.writeStart >= 0 && cmdOpt.writeStride < 0)
-      || (cmdOpt.writeStart < 0 && cmdOpt.writeStride >= 0)) {
-        printf("error: --write-start and --write-stride must both be specified\n");
+    if ((cmdOpt.graphWriteStart >= 0 && cmdOpt.graphWriteStride < 0)
+      || (cmdOpt.graphWriteStart < 0 && cmdOpt.graphWriteStride >= 0)) {
+        printf("error: --graph-start and --graph-stride must both be specified\n");
         errorFound = true;
     }
 
@@ -274,12 +274,12 @@ void ParseCommand(const int argc, char* argv[]) {
 }
 
 //---------------
-// WriteState
+// WriteGraph
 //
 // Write the current machine state to a file.
 //---------------
 static
-void WriteState(const std::string runId, Machine2D* m, const std::string outFileSuffix,
+void WriteGraph(const std::string runId, Machine2D* m, const std::string outFileSuffix,
   const int numTag, int actualNrIterations) {
     TIntStrH nodeColorHash = THash<TInt, TStr>();
     int* nodeStates = m->get_nodeStates();
@@ -435,9 +435,9 @@ int main(const int argc, char* argv[]) {
     int iter;
     int cycleLength = 0;
     for (iter = 0; iter < cmdOpt.maxIterations; iter += 1) {
-        if (cmdOpt.writeStart >= 0) {
-            if (iter >= cmdOpt.writeStart && (iter - cmdOpt.writeStart) % cmdOpt.writeStride == 0) {
-                WriteState(runId, m, cmdOpt.outFileSuffix, iter, iter);
+        if (cmdOpt.graphWriteStart >= 0) {
+            if (iter >= cmdOpt.graphWriteStart && (iter - cmdOpt.graphWriteStart) % cmdOpt.graphWriteStride == 0) {
+                WriteGraph(runId, m, cmdOpt.outFileSuffix, iter, iter);
             }
         }
 
@@ -451,7 +451,7 @@ int main(const int argc, char* argv[]) {
 
     // Write the end-state machine unless --no-write-end-state was present.
     //   (-1 => no numeric tag for inclusion in file name)
-    if (!cmdOpt.noWriteEndState) WriteState(runId, m, cmdOpt.outFileSuffix, -1, iter);
+    if (!cmdOpt.noWriteEndState) WriteGraph(runId, m, cmdOpt.outFileSuffix, -1, iter);
 
     // Write run information unless --no-write-info was present.
     if (!cmdOpt.noInfo) WriteSummaryInfo(runId, m, iter, cycleLength, runTimeMs);

@@ -352,10 +352,13 @@ void Machine2D::EliminateNode(int node) {
     //printf("eliminating node %d\n", node);
     assert(node != -1);
     for (int in = 0; in < m_nrNodes; in += 1) {
+
         if (m_nextL[in] == node && m_nextR[in] == node)
             EliminateNode(in);
+
         else if (m_nextL[in] == node)
             m_nextL[in] = m_nextR[in];
+
         else if (m_nextR[in] == node)
             m_nextR[in] = m_nextL[in];
     }
