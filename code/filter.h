@@ -8,6 +8,6 @@ public:
     int m_nrAny;
     int m_nrNone;
 
-    Filter(RuleMask** any, int nrAny, RuleMask** none, int nrNone);
+    Filter(RuleMask** any, RuleMask** none, int nrAny, int nrNone);
 };
 #endif

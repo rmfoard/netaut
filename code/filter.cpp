@@ -4,5 +4,5 @@
 //---------------
 // Filter constructor: from RuleMask arrays
 //---------------
-Filter::Filter(RuleMask** any, int nrAny, RuleMask** none, int nrNone) :
-    m_any(any), m_nrAny(nrAny), m_none(none), m_nrNone(nrNone) {}
+Filter::Filter(RuleMask** any, RuleMask** none, int nrAny, int nrNone) :
+    m_any(any), m_none(none), m_nrAny(nrAny), m_nrNone(nrNone) {}
