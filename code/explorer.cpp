@@ -318,6 +318,16 @@ void WriteGraph(const std::string runId, Machine* m, const std::string outFileSu
 }
 
 //---------------
+// RemoveNewLines
+//---------------
+static
+std::string Compress(std::string in) {
+    std::string out = "";
+    for (char c : in) if (c != '\n' and c != '\t' and c != ' ') out += c;
+    return out;
+}
+
+//---------------
 // WriteSummaryInfo
 //
 // Write a file containing JSON-encoded run parameters and outcome statistics.
@@ -394,7 +404,7 @@ void WriteSummaryInfo(std::string runId, Machine* machine, int nrActualIteration
     machine->AddSummaryInfo(info);
 
     Json::StreamWriterBuilder wBuilder;
-    std::string infoString = Json::writeString(wBuilder, info);
+    std::string infoString = Compress(Json::writeString(wBuilder, info));
     assert(!infoString.empty());
     if (infoString[infoString.length() - 1] == '\n')
         infoString.erase(infoString.length() - 1);
