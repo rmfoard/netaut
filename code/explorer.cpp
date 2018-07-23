@@ -1,4 +1,7 @@
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdelete-non-virtual-dtor"
 #include "Snap.h"
+#pragma GCC diagnostic pop
 #include <assert.h>
 #include <getopt.h>
 #include <inttypes.h>

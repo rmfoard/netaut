@@ -1,4 +1,7 @@
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdelete-non-virtual-dtor"
 #include "Snap.h"
+#pragma GCC diagnostic pop
 #include <assert.h>
 #include <getopt.h>
 #include <inttypes.h>
@@ -17,7 +20,6 @@
 //
 static struct option* mainOptions = nullptr;
 
-static int switchArg = false;
 static int workaround = false;
 
 static struct option additional_command_options[] = {
@@ -529,7 +531,6 @@ void Machine2D::AddSummaryInfo(Json::Value& info) {
 void Machine2D::ParseCommand(const int argc, char* argv[]) {
     int c;
     bool errorFound = false;
-    int switchArg;
 
     // Set command options to default values.
 
