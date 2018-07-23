@@ -9,8 +9,8 @@
 #include <string>
 #include <json/json.h>
 #include "rule.h"
-#include "machine.h"
 #include "machine2D.h"
+#include "machine.h"
 
 //---------------
 // Additional, machine-specific command options

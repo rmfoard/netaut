@@ -2,7 +2,6 @@
 #define MACHINE2D_H
 
 #include <getopt.h>
-#include <queue>
 #include <json/json.h>
 #include "machine.h"
 #include "machine2D.h"
@@ -29,16 +28,6 @@ public:
     virtual int IterateMachine(int);
     virtual void ParseCommand(int, char**);
 
-    std::string m_machineType;
-    PNGraph m_graph;
-    PNGraph m_nextGraph;
-    int* m_nodeStates;
-    int* m_nextNodeStates;
-    int* m_nextL;
-    int* m_nextR;
-    unsigned char* m_stateHistoryHashTable;
-    unsigned int m_cycleCheckDepth;
-    std::queue<Machine::MachineState> m_stateHistory;
 
     virtual void AddSummaryInfo(Json::Value&);
     virtual void AdvanceNode(TNGraph::TNodeI);
@@ -54,11 +43,7 @@ public:
     virtual unsigned int CurStateHash();
     virtual bool StateMatchesCurrent(Machine::MachineState);
 
-    Rule* m_rule;
-    int m_nrNodes;
-    const int* m_ruleParts;
     Statistics m_stats;
-
 };
 
 #define STATE_HISTORY_HASH_TABLE_LEN 65521

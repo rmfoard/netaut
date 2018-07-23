@@ -2,6 +2,8 @@
 #define MACHINE_H
 
 #include <getopt.h>
+#include <json/json.h>
+#include <queue>
 #include "Snap.h"
 
 //---------------
@@ -24,6 +26,7 @@ public:
     virtual int IterateMachine(int) = 0;
     virtual void ParseCommand(int, char**) = 0;
 
+    virtual void AddSummaryInfo(Json::Value&) = 0;
     virtual void AdvanceNode(TNGraph::TNodeI) = 0;
     virtual void BuildRing() = 0;
     virtual void BuildTree() = 0;
@@ -36,5 +39,22 @@ public:
     virtual void RandomizeTapeState(int) = 0;
     virtual unsigned int CurStateHash() = 0;
     virtual bool StateMatchesCurrent(MachineState) = 0;
+
+    std::string m_machineType;
+    int m_nrNodes;
+
+    Rule* m_rule;
+    const int* m_ruleParts;
+
+    PNGraph m_graph;
+    PNGraph m_nextGraph;
+    int* m_nodeStates;
+    int* m_nextNodeStates;
+    int* m_nextL;
+    int* m_nextR;
+
+    unsigned char* m_stateHistoryHashTable;
+    unsigned int m_cycleCheckDepth;
+    std::queue<Machine::MachineState> m_stateHistory;
 };
 #endif

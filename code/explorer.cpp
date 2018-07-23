@@ -279,7 +279,7 @@ void ParseCommand(const int argc, char* argv[]) {
 // Write the current machine state to a file.
 //---------------
 static
-void WriteGraph(const std::string runId, Machine2D* m, const std::string outFileSuffix,
+void WriteGraph(const std::string runId, Machine* m, const std::string outFileSuffix,
   const int numTag, int actualNrIterations) {
     TIntStrH nodeColorHash = THash<TInt, TStr>();
     int* nodeStates = m->get_nodeStates();
@@ -320,7 +320,7 @@ void WriteGraph(const std::string runId, Machine2D* m, const std::string outFile
 // Write a file containing JSON-encoded run parameters and outcome statistics.
 //---------------
 static
-void WriteSummaryInfo(std::string runId, Machine2D* machine, int nrActualIterations, int cycleLength, int runTimeMs) {
+void WriteSummaryInfo(std::string runId, Machine* machine, int nrActualIterations, int cycleLength, int runTimeMs) {
     // Capture the run parameters.
     Json::Value info;
 
@@ -406,7 +406,8 @@ int main(const int argc, char* argv[]) {
     cmdOpt.ruleNr = 15;
 
     // Instantiate the "2D" (2 degree) machine.
-    Machine2D* m = new Machine2D();
+    ////Machine2D* m = new Machine2D();
+    Machine* m = new Machine2D();
 
     // Augment the command parsing structure with options specific to
     // the current machine.
