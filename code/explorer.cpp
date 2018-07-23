@@ -390,9 +390,8 @@ void WriteSummaryInfo(std::string runId, Machine* machine, int nrActualIteration
     // Add machine-specific summary information.
     machine->AddSummaryInfo(info);
 
-    // TODO: Replace with non-deprecated equivalent.
-    Json::FastWriter stringWriter;
-    std::string infoString = stringWriter.write(info);
+    Json::StreamWriterBuilder wBuilder;
+    std::string infoString = Json::writeString(wBuilder, info);
     assert(!infoString.empty());
     if (infoString[infoString.length() - 1] == '\n')
         infoString.erase(infoString.length() - 1);
@@ -406,12 +405,11 @@ int main(const int argc, char* argv[]) {
     cmdOpt.ruleNr = 15;
 
     // Instantiate the "2D" (2 degree) machine.
-    ////Machine2D* m = new Machine2D();
     Machine* m = new Machine2D();
 
     // Augment the command parsing structure with options specific to
     // the current machine.
-    m->AddMachineCommandOptions(long_options, MAX_COMMAND_OPTIONS);
+    m->AddCommandOptions(long_options, MAX_COMMAND_OPTIONS);
 
     // Parse the base command and machine-specific options.
     ParseCommand(argc, argv);

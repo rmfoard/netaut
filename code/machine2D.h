@@ -21,7 +21,7 @@ public:
     Machine2D() : Machine() {};
     ~Machine2D();
     virtual void BuildMachine(rulenr_t, int, int, std::string, int, std::string);
-    virtual void AddMachineCommandOptions(struct option[], int);
+    virtual void AddCommandOptions(struct option[], int);
     virtual std::string get_machineType();
     virtual PNGraph get_graph();
     virtual int* get_nodeStates();

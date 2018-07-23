@@ -487,9 +487,9 @@ bool Machine2D::StateMatchesCurrent(Machine::MachineState other) {
 }
 
 //---------------
-// AddMachineCommandOptions
+// AddCommandOptions
 //---------------
-void Machine2D::AddMachineCommandOptions(struct option* options, int maxOptions) {
+void Machine2D::AddCommandOptions(struct option* options, int maxOptions) {
 
     // Retain a pointer to 'getopt's' structure.
     mainOptions = options;
