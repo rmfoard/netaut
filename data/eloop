@@ -1,8 +1,7 @@
-../code/rulesource --genrand $RANDOM --reset --cache "$8.cache"
 runnr=1
 while [ $runnr -le $2 ]; do
     ../code/explorer \
-    --rule `../code/rulesource --genrand $RANDOM --reserve $2 --cache "$8.cache"` \
+    --rule `../code/rulesource --cache "$8"` \
     --randseed $RANDOM \
     --no-write-end-state \
     --nodes $1 \
