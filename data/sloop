@@ -1,9 +1,6 @@
-../sandbox/randrule --reset --cache "$8.cache"
 runnr=1
 while [ $runnr -le $2 ]; do
-    ../sandbox/explorer \
-    --rule `../sandbox/randrule --randseed $RANDOM --reserve $2 --cache "$8.cache"` \
-    --randseed $RANDOM \
+    ../code/explorer `../code/rulesource --source "$8"` \
     --no-write-end-state \
     --nodes $1 \
     --max-iterations $3 \
