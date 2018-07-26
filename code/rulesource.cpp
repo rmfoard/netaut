@@ -3,43 +3,31 @@
 #include <inttypes.h>
 #include <stdio.h>
 #include <stdint.h>
-#include <algorithm>
 #include <fstream>
 #include <iostream>
-#include <random>
 #include <string>
 #include "rule.h"
 
-#define VERSION "V180614.0"
-
-
-// Set up the Mersenne Twister random number generator.
-// 'pMersenne' will point to a seeded instantiation of the generator.
-// 'rn05' is an instantiated wrapper that yields uniform [0, 5] when called with
-// a generator.
-static std::mt19937* pMersenne = nullptr;
-static std::uniform_int_distribution<int> rn05(0, 5);
+#define VERSION "V180726.0"
 
 //---------------
 struct CommandOpts {
-    int randSeed;
-    int reserve;
     std::string acceptFile;
     std::string rejectFile;
-    std::string cacheFile;
+    std::string sourceFile;
 };
 
 static CommandOpts cmdOpt;
 
+static rulenr_t nextRuleNr;
+static int nextRandSeed;
+
 //---------------
-// TODO: Learn where the hell 'optind' came from.
 static
 void ParseCommand(const int argc, char* argv[]) {
 
     // Set options to default values.
-    cmdOpt.randSeed = -1;
-    cmdOpt.reserve = 0;
-    cmdOpt.cacheFile = "";
+    cmdOpt.sourceFile = "";
     cmdOpt.acceptFile = "";
     cmdOpt.rejectFile = "";
 
@@ -50,21 +38,17 @@ void ParseCommand(const int argc, char* argv[]) {
         // Other options
         {"accept", required_argument, 0, 'a'},
         {"reject", required_argument, 0, 'r'},
-        {"genrand", required_argument, 0, 's'},
-        {"reserve", required_argument, 0, 'e'},
-        {"cache", required_argument, 0, 'c'},
-        {"reset", no_argument, 0, 't'},
+        {"source", required_argument, 0, 's'},
         {"help", no_argument, 0, 'h'},
         {0, 0, 0, 0}
     };
 
     int c;
     bool errorFound = false;
-    bool resetting = false;
     while (true) {
 
         int option_index = 0;
-        c = getopt_long (argc, argv, "a:r:s:e:c:t:h:",
+        c = getopt_long (argc, argv, "a:r:s:h:",
           long_options, &option_index);
 
         if (c == -1) // end of options?
@@ -84,20 +68,8 @@ void ParseCommand(const int argc, char* argv[]) {
             cmdOpt.rejectFile = std::string(optarg);
             break;
 
-          case 'c': // --cache <filename>
-            cmdOpt.cacheFile = std::string(optarg);
-            break;
-
-          case 's': // --genrand <numeric_seed>
-            cmdOpt.randSeed = atoi(optarg);
-            break;
-
-          case 'e': // --reserve <cache_size>
-            cmdOpt.reserve = atoi(optarg);
-            break;
-
-          case 't': // --reset
-            resetting = true;
+          case 's': // --source <filename>
+            cmdOpt.sourceFile = std::string(optarg);
             break;
 
           case 'h': // --help
@@ -121,27 +93,11 @@ void ParseCommand(const int argc, char* argv[]) {
     if (errorFound) exit(1);
 
     // Check option consistency.
-    if (cmdOpt.cacheFile == ""
-      && (resetting || cmdOpt.reserve > 0)) {
-        std::cerr << "error: --reserve and --reset require --cache" << std::endl;
+    if (cmdOpt.sourceFile == "") {
+        std::cerr << "error: --source <filename> is required" << std::endl;
         exit(1);
     }
 
-    if ((cmdOpt.reserve > 0 || resetting) && cmdOpt.randSeed == -1) {
-        std::cerr << "error: --reserve and --reset require --genrand" << std::endl;
-        exit(1);
-    }
-
-    if (resetting) {
-        // Remove the cache file and its companion marker file.
-        int s1 = std::remove(cmdOpt.cacheFile.c_str());
-        int s2 = std::remove((cmdOpt.cacheFile + ".mkr").c_str());
-        if (s1 != 0 || s2 != 0)
-            std::cerr << "warning: all cache file deletions were not successful" << std::endl;
-        exit(0);
-    }
-
-    // Warn if any non-option command arguments are present.
     if (optind < argc) {
         std::cerr << "warning: there are extraneous command arguments: " << std::endl;
         while (optind < argc) printf ("%s ", argv[optind++]);
@@ -150,122 +106,66 @@ void ParseCommand(const int argc, char* argv[]) {
 }
 
 //---------------
-// GenRandRule
+// ProcessSourceFile
 //
-// Generate a random MachineS rule.
+// Draw the next entry from the source file.
 //---------------
 static
-rulenr_t GenRandRule() {
+void ProcessSourceFile() {
 
-    // Instantiate a seeded Mersenne random number generator if necessary.
-    if (!pMersenne) {
-        if (cmdOpt.randSeed == -1) {
-            std::cerr << "error: --genrand <integer> must be in the command" << std::endl;
-            exit(1);
-        }
-        pMersenne = new std::mt19937((std::mt19937::result_type) cmdOpt.randSeed);
+    // Open the source file.
+    std::ifstream sfileIn;
+    sfileIn.open(cmdOpt.sourceFile, std::ios::in);
+    if (!sfileIn.is_open()) {
+        std::cerr << "error: can't open source file" << std::endl;
+        exit(1);
     }
 
-    rulenr_t rr = 0;
-
-    // For each of the 8 triad-state rule parts...
-    for (int i = 0; i < 8; i += 1) {
-        int leftAction = rn05(*pMersenne);
-        int rightAction;
-
-        // Disallow identical left- and right-actions (that would
-        // create multi-edges).
-        do {
-            rightAction = rn05(*pMersenne);
-        } while (rightAction == leftAction);
-
-        // Shift in the rule part, encoded as a mixed-radix (6, 6, 2) number,
-        // to develop the radix 72 (6*6*2) rule number.
-        int nodeAction = rn05(*pMersenne) % 2;
-        rr = (72 * rr) + ((leftAction * 6 + rightAction) * 2) + nodeAction;
-    }
-    return rr;
-}
-
-//---------------
-// ProcessCacheFile
-//
-// Draw next entry from the cache file, first generating it if necessary.
-//---------------
-static
-rulenr_t ProcessCacheFile() {
-
-    // Create and fill the cache file if we're just starting.
-    std::ifstream cfileIn;
-    cfileIn.open(cmdOpt.cacheFile, std::ios::in);
-    if (!cfileIn.is_open()) { // if there is no cache file
-        std::ofstream cfileOut;
-        cfileOut.open(cmdOpt.cacheFile, std::ios::out);
-        if (!cfileOut.is_open()) {
-            std::cerr << "error: can't create cache file" << std::endl;
-            exit(1);
-        }
-
-        // Fill the cache file.
-        for (int i = 0; i < cmdOpt.reserve; i += 1)
-            cfileOut << GenRandRule() << std::endl;
-
-        // Close it, then reopen it for downstream use.
-        cfileOut.close();
-        cfileIn.open(cmdOpt.cacheFile, std::ios::in);
-
-        // Mark position zero.
-        std::ofstream mfstreamOut;
-        mfstreamOut.open(cmdOpt.cacheFile + ".mkr", std::ios::out);
-        mfstreamOut << "0" << std::endl;
-        mfstreamOut.close();
-    }
-
-    // Open the marker file. If it does not exist, this must be the first use of
-    // an existing cache file, so create and open a marker file at position zero.
+    // Open the marker file. If it does not exist, create it and
+    // mark position zero.
     std::ifstream mfstreamIn;
-    mfstreamIn.open(cmdOpt.cacheFile + ".mkr", std::ios::in);
+    mfstreamIn.open(cmdOpt.sourceFile + ".mkr", std::ios::in);
     if (!mfstreamIn.is_open()) {
+        std::cerr << "advice: rewinding marker file" << std::endl;
         std::ofstream mfstreamOut;
-        mfstreamOut.open(cmdOpt.cacheFile + ".mkr", std::ios::out);
+        mfstreamOut.open(cmdOpt.sourceFile + ".mkr", std::ios::out);
         mfstreamOut << "0" << std::endl;
         mfstreamOut.close();
-        mfstreamIn.open(cmdOpt.cacheFile + ".mkr", std::ios::in);
+        mfstreamIn.open(cmdOpt.sourceFile + ".mkr", std::ios::in);
     }
 
-    // Read the marker to learn the current position in the cache file.
+    // Read the marker to learn the current position in the source file.
     unsigned int streamPos;
     mfstreamIn >> streamPos;
     mfstreamIn.close();
 
-    // Note the cache's end position.
-    cfileIn.seekg(0, cfileIn.end);
-    unsigned int endPos = cfileIn.tellg();
+    // Note the source file's end position.
+    sfileIn.seekg(0, sfileIn.end);
+    unsigned int endPos = sfileIn.tellg();
 
-    // Position to and read the next entry in the cache
+    // Position to and read the next entry in the source file
     // unless we're at the end.
     assert(streamPos < endPos);
-    if (streamPos  == endPos - 1) throw std::runtime_error("rule number cache exhausted");
-    cfileIn.seekg(streamPos, cfileIn.beg);
-    rulenr_t nextRuleNr;
-    cfileIn >> nextRuleNr;
+    if (streamPos  == endPos - 1) throw std::runtime_error("source file exhausted");
+    sfileIn.seekg(streamPos, sfileIn.beg);
+
+    // Read values into globals.
+    sfileIn >> nextRuleNr;
+    sfileIn >> nextRandSeed;
 
     // If we've just read the last entry, delete the marker file.
-    streamPos = cfileIn.tellg();
+    streamPos = sfileIn.tellg();
     if (streamPos == endPos - 1) {
-        std::remove((cmdOpt.cacheFile + ".mkr").c_str());
+        std::remove((cmdOpt.sourceFile + ".mkr").c_str());
     }
     else { // Otherwise, replace the marker with the new file position.
-        // Replace the marker with the new file position.
         std::ofstream  mfstreamOut;
-        mfstreamOut.open(cmdOpt.cacheFile + ".mkr", std::ios::out);
-        streamPos = cfileIn.tellg();
+        mfstreamOut.open(cmdOpt.sourceFile + ".mkr", std::ios::out);
+        streamPos = sfileIn.tellg();
         mfstreamOut << std::to_string(streamPos) << std::endl;
         mfstreamOut.close();
-        cfileIn.close();
     }
-
-    return nextRuleNr;
+    sfileIn.close();
 }
 
 //---------------
@@ -279,11 +179,9 @@ int main(const int argc, char* argv[]) {
     if (cmdOpt.rejectFile != std::string(""))
         ; //printf("process rejectFile: %s\n", cmdOpt.rejectFile.c_str());
 
-    // Generate and/or draw from a cache file if specified.
-    if (cmdOpt.cacheFile != "")
-        std::cout << ProcessCacheFile();
-    else
-        std::cout << GenRandRule();
+    // Read and output the next entries from the source file..
+    ProcessSourceFile();
+    std::cout << "--rule " << nextRuleNr << " --randseed " << nextRandSeed;
 
     exit(0);
 }

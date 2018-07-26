@@ -48,6 +48,9 @@ explorer: explorer.cpp machine.h machine2D.cpp machine2D.h rule.h filter.o rule.
 rulesource:	rulesource.o
 	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(LDFLAGS) $(LIBS)
 
+rulesource:	rulesource.o
+	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(LDFLAGS) $(LIBS)
+
 toy:	toy.o
 	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(LDFLAGS) $(LIBS)
 
