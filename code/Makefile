@@ -45,7 +45,7 @@ $(CSNAP)/Snap.o:
 explorer: explorer.cpp machine.h machine2D.cpp machine2D.h rule.h filter.o rule.o $(CSNAP)/Snap.o
 	$(CC) $(CXXFLAGS) -o $@ $@.cpp machine2D.cpp filter.o rule.o $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
 
-rulesource:	rulesource.o
+randrule:	randrule.o
 	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(LDFLAGS) $(LIBS)
 
 rulesource:	rulesource.o
