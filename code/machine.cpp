@@ -2,37 +2,42 @@
 #pragma GCC diagnostic ignored "-Wdelete-non-virtual-dtor"
 #include "Snap.h"
 #pragma GCC diagnostic pop
+#include <math.h>
 #include "rule.h"
 #include "machine.h"
+
+
+//---------------
+// DegEntropy
+//---------------
+static double Entropy(TVec<TPair<TInt, TInt> > degCnt) {
+
+    // Total the frequencies.
+    int nrDegs = degCnt.Len();
+    double totalFreq;
+    for (int i = 0; i < nrDegs; i += 1) {
+        int freq = degCnt[i].Val2;
+        totalFreq += freq;
+    }
+
+    // Compute and return Shannon's entropy.
+    double sum = 0.0;
+    for (int i = 0; i < nrDegs; i += 1) {
+        int freq = degCnt[i].Val2;
+        double pk = freq / totalFreq;
+        sum += pk * log2(pk);
+    }
+    return -sum;
+}
 
 //---------------
 // GetDegStats
 //---------------
 void Machine::GetDegStats(DegStats& degStats) {
-    degStats.nrInDeg = 99;
+    TSnap::GetInDegCnt(m_graph, degStats.inDegCnt);
+    TSnap::GetOutDegCnt(m_graph, degStats.outDegCnt);
+    degStats.nrInDeg = degStats.inDegCnt.Len();
+    degStats.nrOutDeg = degStats.outDegCnt.Len();
+    degStats.inDegEntropy = Entropy(degStats.inDegCnt);
+    degStats.outDegEntropy = Entropy(degStats.outDegCnt);
 }
-/*
-    Json::Value inDegreeCount;
-    TVec<TPair<TInt, TInt> > inDegCnt;
-    TSnap::GetInDegCnt(machine->get_graph(), inDegCnt); 
-    for (int i = 0; i < inDegCnt.Len(); i += 1) {
-        Json::Value inDegreeCountPair;
-        inDegreeCountPair.append((int) inDegCnt[i].Val1);
-        inDegreeCountPair.append((int) inDegCnt[i].Val2);
-        inDegreeCount.append(inDegreeCountPair);
-    }
-    info["inDegreeCount"] = inDegreeCount;
-    info["nrInDegrees"] = inDegCnt.Len();
-
-    Json::Value outDegreeCount;
-    TVec<TPair<TInt, TInt> > outDegCnt;
-    TSnap::GetOutDegCnt(machine->get_graph(), outDegCnt);
-    for (int i = 0; i < outDegCnt.Len(); i += 1) {
-        Json::Value outDegreeCountPair;
-        outDegreeCountPair.append((int) outDegCnt[i].Val1);
-        outDegreeCountPair.append((int) outDegCnt[i].Val2);
-        outDegreeCount.append(outDegreeCountPair);
-    }
-    info["outDegreeCount"] = outDegreeCount;
-    info["nrOutDegrees"] = outDegCnt.Len();
-*/

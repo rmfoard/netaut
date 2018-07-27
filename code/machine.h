@@ -22,6 +22,8 @@ public:
         TVec<TPair<TInt, TInt> > inDegCnt;
         int nrOutDeg;
         TVec<TPair<TInt, TInt> > outDegCnt;
+        double inDegEntropy;
+        double outDegEntropy;
     } DegStats;
 
     virtual ~Machine() = 0;

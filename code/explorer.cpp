@@ -333,7 +333,7 @@ std::string Compress(std::string in) {
 // Write a file containing JSON-encoded run parameters and outcome statistics.
 //---------------
 static
-void WriteSummaryInfo(std::string runId, Machine* machine, int nrActualIterations, int cycleLength, int runTimeMs) {
+void WriteSummaryInfo(std::string runId, Machine* machine, int nrActualIterations, int cycleLength, int runTimeMs, Machine::DegStats initDegStats) {
     // Capture the run parameters.
     Json::Value info;
 
@@ -388,33 +388,33 @@ void WriteSummaryInfo(std::string runId, Machine* machine, int nrActualIteration
     info["diameter"] = FullDiam;
     info["effDiameter90Pctl"] = EffDiam;
 
-    Machine::DegStats degStats;
-    machine->GetDegStats(degStats);
-    std::cout << "degStats.nrInDeg: " << degStats.nrInDeg << std::endl;
+    info["initInDegreeEntropy"] = initDegStats.inDegEntropy;
+    info["initOutDegreeEntropy"] = initDegStats.outDegEntropy;
+
+    Machine::DegStats finDegStats;
+    machine->GetDegStats(finDegStats);
 
     Json::Value inDegreeCount;
-    TVec<TPair<TInt, TInt> > inDegCnt;
-    TSnap::GetInDegCnt(machine->get_graph(), inDegCnt); 
-    for (int i = 0; i < inDegCnt.Len(); i += 1) {
+    for (int i = 0; i < finDegStats.nrInDeg; i += 1) {
         Json::Value inDegreeCountPair;
-        inDegreeCountPair.append((int) inDegCnt[i].Val1);
-        inDegreeCountPair.append((int) inDegCnt[i].Val2);
+        inDegreeCountPair.append((int) finDegStats.inDegCnt[i].Val1);
+        inDegreeCountPair.append((int) finDegStats.inDegCnt[i].Val2);
         inDegreeCount.append(inDegreeCountPair);
     }
     info["inDegreeCount"] = inDegreeCount;
-    info["nrInDegrees"] = inDegCnt.Len();
+    info["nrInDegrees"] = finDegStats.nrInDeg;
+    info["finInDegreeEntropy"] = finDegStats.inDegEntropy;
 
     Json::Value outDegreeCount;
-    TVec<TPair<TInt, TInt> > outDegCnt;
-    TSnap::GetOutDegCnt(machine->get_graph(), outDegCnt);
-    for (int i = 0; i < outDegCnt.Len(); i += 1) {
+    for (int i = 0; i < finDegStats.nrOutDeg; i += 1) {
         Json::Value outDegreeCountPair;
-        outDegreeCountPair.append((int) outDegCnt[i].Val1);
-        outDegreeCountPair.append((int) outDegCnt[i].Val2);
+        outDegreeCountPair.append((int) finDegStats.outDegCnt[i].Val1);
+        outDegreeCountPair.append((int) finDegStats.outDegCnt[i].Val2);
         outDegreeCount.append(outDegreeCountPair);
     }
     info["outDegreeCount"] = outDegreeCount;
-    info["nrOutDegrees"] = outDegCnt.Len();
+    info["nrOutDegrees"] = finDegStats.nrOutDeg;
+    info["finOutDegreeEntropy"] = finDegStats.outDegEntropy;
 
     // Add machine-specific summary information.
     machine->AddSummaryInfo(info);
@@ -455,6 +455,10 @@ int main(const int argc, char* argv[]) {
     m->BuildMachine(cmdOpt.ruleNr, cmdOpt.nrNodes, cmdOpt.cycleCheckDepth,
       cmdOpt.tapeStructure, cmdOpt.tapePctBlack,cmdOpt.topoStructure);
 
+    // Note some initial statistics.
+    Machine::DegStats initDegStats;
+    m->GetDegStats(initDegStats);
+
     // Fabricate a run identifier.
     std::string runId = RunId(m->get_machineType(), cmdOpt.ruleNr);
 
@@ -482,7 +486,7 @@ int main(const int argc, char* argv[]) {
     if (!cmdOpt.noWriteEndState) WriteGraph(runId, m, cmdOpt.outFileSuffix, -1, iter);
 
     // Write run information unless --no-write-info was present.
-    if (!cmdOpt.noInfo) WriteSummaryInfo(runId, m, iter, cycleLength, runTimeMs);
+    if (!cmdOpt.noInfo) WriteSummaryInfo(runId, m, iter, cycleLength, runTimeMs, initDegStats);
 
     delete m;
     exit(0);
