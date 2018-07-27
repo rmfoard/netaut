@@ -388,6 +388,10 @@ void WriteSummaryInfo(std::string runId, Machine* machine, int nrActualIteration
     info["diameter"] = FullDiam;
     info["effDiameter90Pctl"] = EffDiam;
 
+    Machine::DegStats degStats;
+    machine->GetDegStats(degStats);
+    std::cout << "degStats.nrInDeg: " << degStats.nrInDeg << std::endl;
+
     Json::Value inDegreeCount;
     TVec<TPair<TInt, TInt> > inDegCnt;
     TSnap::GetInDegCnt(machine->get_graph(), inDegCnt); 
@@ -399,6 +403,18 @@ void WriteSummaryInfo(std::string runId, Machine* machine, int nrActualIteration
     }
     info["inDegreeCount"] = inDegreeCount;
     info["nrInDegrees"] = inDegCnt.Len();
+
+    Json::Value outDegreeCount;
+    TVec<TPair<TInt, TInt> > outDegCnt;
+    TSnap::GetOutDegCnt(machine->get_graph(), outDegCnt);
+    for (int i = 0; i < outDegCnt.Len(); i += 1) {
+        Json::Value outDegreeCountPair;
+        outDegreeCountPair.append((int) outDegCnt[i].Val1);
+        outDegreeCountPair.append((int) outDegCnt[i].Val2);
+        outDegreeCount.append(outDegreeCountPair);
+    }
+    info["outDegreeCount"] = outDegreeCount;
+    info["nrOutDegrees"] = outDegCnt.Len();
 
     // Add machine-specific summary information.
     machine->AddSummaryInfo(info);

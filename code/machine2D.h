@@ -16,6 +16,8 @@ public:
         long unsigned int selfEdgesAvoided;
         long unsigned int triadOccurrences[NR_TRIAD_STATES];
         long unsigned int hashCollisions;
+        double initDegEntropy;
+        double finDegEntropy;
     };
 
     Machine2D() : Machine() {};

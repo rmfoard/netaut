@@ -17,6 +17,13 @@ public:
         unsigned int stateHash;
     };
 
+    typedef struct DegStats {
+        int nrInDeg;
+        TVec<TPair<TInt, TInt> > inDegCnt;
+        int nrOutDeg;
+        TVec<TPair<TInt, TInt> > outDegCnt;
+    } DegStats;
+
     virtual ~Machine() = 0;
     virtual void BuildMachine(rulenr_t, int, int, std::string, int, std::string) = 0;
     virtual void AddCommandOptions(struct option[], int) = 0;
@@ -39,6 +46,8 @@ public:
     virtual void RandomizeTapeState(int) = 0;
     virtual unsigned int CurStateHash() = 0;
     virtual bool StateMatchesCurrent(MachineState) = 0;
+
+    void GetDegStats(DegStats&);
 
     std::string m_machineType;
     int m_nrNodes;
