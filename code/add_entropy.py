@@ -32,6 +32,7 @@ def main():
                 e = Entropier(dct['inDegreeCount'])
                 dct['degListEntropy'] = e.entropy()
                 out_f.write(json.dumps(dct, sort_keys=True) + '\n')
+                del e
 
 
 if __name__ == '__main__':
