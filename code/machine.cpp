@@ -27,7 +27,11 @@ static double Entropy(TVec<TPair<TInt, TInt> > degCnt) {
         double pk = freq / totalFreq;
         sum += pk * log2(pk);
     }
-    return -sum;
+
+    if (nrDegs == 1)
+        return 0;
+    else
+        return -sum / log2(nrDegs);
 }
 
 //---------------

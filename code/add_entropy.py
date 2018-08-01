@@ -17,7 +17,11 @@ class Entropier (object):
         for k, v in self.deg_to_freq.iteritems():
             pk = v / self.total_freq
             sum += pk * math.log(pk, 2)
-        return -sum
+
+        if len(self.deg_to_freq) == 1:
+            return 0.0
+        else:
+            return -sum / math.log(len(self.deg_to_freq), 2)
 
 
 def main():
