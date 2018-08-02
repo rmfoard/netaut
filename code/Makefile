@@ -22,7 +22,7 @@ CXXFLAGS += -ggdb
 # turn on for OpenMP
 CXXOPENMP = 
 LDFLAGS +=
-LIBS += -lrt -ljsoncpp -lpthread 
+LIBS += -lrt -ljsoncpp -lpthread -lpq -lpqxx
 # End global configuration
 
 ## Program-specific configuration
