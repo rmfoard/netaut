@@ -9,6 +9,7 @@ SNAPEXP = snap-exp
 
 CGLIB = ../../snap/$(GLIB)
 CSNAP = ../../snap/$(SNAP)
+CPQ = ../../libpqxx/include
 
 UNAME := $(shell uname)
 
@@ -22,7 +23,7 @@ CXXFLAGS += -ggdb
 # turn on for OpenMP
 CXXOPENMP = 
 LDFLAGS +=
-LIBS += -lrt -ljsoncpp -lpthread -lpq -lpqxx
+LIBS += -lrt -ljsoncpp -lpthread -lpqxx -lpq
 # End global configuration
 
 ## Program-specific configuration
@@ -38,6 +39,9 @@ demo: demo.cpp $(CSNAP)/Snap.o
 
 ldtoy: ldtoy.o
 	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(LDFLAGS) $(LIBS)
+
+insUentropy: insUentropy.o
+	$(CC) $(CXXFLAGS) -o $@ $@.cpp -I$(CPQ) $(LDFLAGS) $(LIBS)
 
 $(CSNAP)/Snap.o:
 	$(MAKE) -C $(CSNAP)
