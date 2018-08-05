@@ -4,7 +4,7 @@
 #include <pqxx/pqxx>
 
 static
-double uEntropy(std::vector<int>& v, int tFreq) {
+double UEntropy(std::vector<int>& v, int tFreq) { // empties 'v'
     double sum = 0.0;
     while (v.size() > 0) {
         double pk = (double) v.back() / tFreq;
@@ -18,41 +18,47 @@ double uEntropy(std::vector<int>& v, int tFreq) {
         return -sum;
 }
 
-int main()
-{
-    try
-    {
-        pqxx::connection C("dbname=toy");
-        pqxx::work W(C);
-        pqxx::result R = W.exec("SELECT * FROM runid ORDER BY runid");
+static
+void UpdateFinInDegreeEntropy(pqxx::connection& C, const char* runId, double fide) {
+    pqxx::work w(C);
+    std::string query = "UPDATE runs SET finInDegreeEntropy = "
+      + std::to_string(fide)
+      + " WHERE runId = '" + C.esc(runId) + "'";
+    //pqxx::result r = w.exec(query);
+    std::cout << query << std::endl;
+    w.commit();
+}
+
+int main(int argc, char* argv[]) {
+    try {
+        pqxx::connection C(std::string("dbname=") + argv[1]);
+        pqxx::work w(C);
+        pqxx::result R = w.exec("SELECT * FROM runid ORDER BY runid");
+        w.commit();
 
         std::vector<int> freq;
         int totalFreq;
         std::string curId = "";
+
         for (auto row : R) {
             if (row[0].c_str() != curId) {
-                if (curId != "") {
-                    // compute and store entropy
-                    std::cout << "uentropy: " << uEntropy(freq, totalFreq) << std::endl;
-                }
+                if (curId != "")
+                    UpdateFinInDegreeEntropy(C, row[0].c_str(), UEntropy(freq, totalFreq));
+
+                // Initialize for next runid
                 curId = row[0].c_str();
                 assert(freq.size() == 0);
                 freq.push_back(row[2].as<int>());
                 totalFreq = row[2].as<int>();
-                std::cout << row[0].c_str() << std::endl;
             }
             else {
                 freq.push_back(row[2].as<int>());
                 totalFreq += row[2].as<int>();
             }
         }
-        std::cout << "uentropy: " << uEntropy(freq, totalFreq) << std::endl;
-        std::cout << "Making changes definite: ";
-        W.commit();
-        std::cout << "OK." << std::endl;
+        //UpdateFinInDegreeEntropy(C, row[0].c_str(), UEntropy(freq, totalFreq));
     }
-    catch (const std::exception &e)
-    {
+    catch (const std::exception &e) {
         std::cerr << e.what() << std::endl;
         return 1;
     }
