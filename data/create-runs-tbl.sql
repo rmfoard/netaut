@@ -6,7 +6,6 @@ CREATE TABLE runs (
     diameter             integer,
     effDiameter90Pctl    double precision,
     finInDegreeEntropy   double precision,
-    finNrNodes           integer,
     finOutDegreeEntropy  double precision,
     hashCollisions       integer,
     initInDegreeEntropy  double precision,

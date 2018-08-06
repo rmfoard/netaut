@@ -36,7 +36,12 @@ def main():
         'tapePctBlack',
         'tapeStructure',
         'topoStructure',
-        'version'
+        'version',
+        'initInDegreeEntropy',
+        'initOutDegreeEntropy',
+        'finInDegreeEntropy',
+        'finOutDegreeEntropy',
+        'nrOutDegrees'
     ]
 
     cc_names = [
