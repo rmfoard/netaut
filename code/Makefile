@@ -43,6 +43,9 @@ ldtoy: ldtoy.o
 insUentropy: insUentropy.o
 	$(CC) $(CXXFLAGS) -o $@ $@.cpp -I$(CPQ) $(LDFLAGS) $(LIBS)
 
+normEntropy: normEntropy.o
+	$(CC) $(CXXFLAGS) -o $@ $@.cpp -I$(CPQ) $(LDFLAGS) $(LIBS)
+
 $(CSNAP)/Snap.o:
 	$(MAKE) -C $(CSNAP)
 
