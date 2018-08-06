@@ -24,8 +24,7 @@ void UpdateFinInDegreeEntropy(pqxx::connection& C, const char* runId, double fid
     std::string query = "UPDATE runs SET finInDegreeEntropy = "
       + std::to_string(fide)
       + " WHERE runId = '" + C.esc(runId) + "'";
-    //pqxx::result r = w.exec(query);
-    std::cout << query << std::endl;
+    pqxx::result r = w.exec(query);
     w.commit();
 }
 
@@ -39,8 +38,10 @@ int main(int argc, char* argv[]) {
         std::vector<int> freq;
         int totalFreq;
         std::string curId = "";
+        int count = 0;
 
         for (auto row : R) {
+            if (count++ % 10000 == 0) std::cout << count << std::endl;
             if (row[0].c_str() != curId) {
                 if (curId != "")
                     UpdateFinInDegreeEntropy(C, row[0].c_str(), UEntropy(freq, totalFreq));
