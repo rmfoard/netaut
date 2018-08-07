@@ -58,6 +58,7 @@ int main(int argc, char* argv[]) {
                 totalFreq += row[2].as<int>();
             }
         }
+        // Note that we fail to set the last row's value!
         //UpdateFinInDegreeEntropy(C, row[0].c_str(), Entropy(freq, totalFreq));
     }
     catch (const std::exception &e) {
