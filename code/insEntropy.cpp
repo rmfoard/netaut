@@ -4,18 +4,19 @@
 #include <pqxx/pqxx>
 
 static
-double UEntropy(std::vector<int>& v, int tFreq) { // empties 'v'
+double Entropy(std::vector<int>& v, int tFreq) { // empties 'v'
     double sum = 0.0;
+    double nrDegrees = v.size();
     while (v.size() > 0) {
         double pk = (double) v.back() / tFreq;
         v.pop_back();
         sum += pk * log2(pk);
     }
 
-    if (v.size() == 1)
+    if (nrDegrees == 1.0)
         return 0.0;
     else
-        return -sum;
+        return -sum / log2(nrDegrees);
 }
 
 static
@@ -44,7 +45,7 @@ int main(int argc, char* argv[]) {
             if (count++ % 10000 == 0) std::cout << count << std::endl;
             if (row[0].c_str() != curId) {
                 if (curId != "")
-                    UpdateFinInDegreeEntropy(C, row[0].c_str(), UEntropy(freq, totalFreq));
+                    UpdateFinInDegreeEntropy(C, row[0].c_str(), Entropy(freq, totalFreq));
 
                 // Initialize for next runid
                 curId = row[0].c_str();
@@ -57,7 +58,7 @@ int main(int argc, char* argv[]) {
                 totalFreq += row[2].as<int>();
             }
         }
-        //UpdateFinInDegreeEntropy(C, row[0].c_str(), UEntropy(freq, totalFreq));
+        //UpdateFinInDegreeEntropy(C, row[0].c_str(), Entropy(freq, totalFreq));
     }
     catch (const std::exception &e) {
         std::cerr << e.what() << std::endl;

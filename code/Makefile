@@ -40,10 +40,7 @@ demo: demo.cpp $(CSNAP)/Snap.o
 ldtoy: ldtoy.o
 	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(LDFLAGS) $(LIBS)
 
-insUentropy: insUentropy.o
-	$(CC) $(CXXFLAGS) -o $@ $@.cpp -I$(CPQ) $(LDFLAGS) $(LIBS)
-
-normEntropy: normEntropy.o
+insEntropy: insEntropy.o
 	$(CC) $(CXXFLAGS) -o $@ $@.cpp -I$(CPQ) $(LDFLAGS) $(LIBS)
 
 $(CSNAP)/Snap.o:
