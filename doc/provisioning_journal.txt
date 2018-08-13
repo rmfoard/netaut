@@ -93,6 +93,8 @@ To provision for generating netaut/hellosnap:
 - install libpqxx (if using Postgres from C++)
     - sudo apt-get install libpq-dev
     - sudo apt-get install xmlto (lengthy installation)
+        (in one case, 'make' still complained it was missing, so I
+        re-./configure'ed using --disable-documentation
     - clone libpqxx from GitHub
     - ./configure;make;make install
     - (for Makefile)
