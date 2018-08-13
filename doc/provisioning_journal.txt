@@ -91,6 +91,7 @@ To provision for generating netaut/hellosnap:
     - found I also ?needed sudo apt-get libpq-dev and libpq++-dev
 
 - install libpqxx (if using Postgres from C++)
+    - sudo apt-get libpq-dev
     - clone libpqxx from GitHub
     - ./configure;make;make install
     - (for Makefile)
