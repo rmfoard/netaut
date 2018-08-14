@@ -1,0 +1,1 @@
+ggplot() + geom_density(data=t256, aes(x=finindegreeentropy), alpha=.2) + geom_density(data=t512, aes(x=finindegreeentropy), alpha=.2, color="red") + geom_density(data=t768, aes(x=finindegreeentropy), alpha=.2, color="blue") + geom_density(data=t1024, aes(x=finindegreeentropy), alpha=.2, color="green")
