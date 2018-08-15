@@ -1,0 +1,7 @@
+ggplot(mapping=aes(x=finindegreeentropy, y=nractualiterations)) +
+  geom_smooth(data=filter(t1024, cyclelength == -1), color="red") +
+  geom_smooth(data=filter(t768, cyclelength == -1), color="green") +
+  geom_smooth(data=filter(t512, cyclelength == -1), color="blue") +
+  geom_smooth(data=filter(t256, cyclelength == -1), color="gray") +
+  geom_smooth(data=filter(t2048, cyclelength == -1), color="black") +
+  labs(title="Runs w/Graph Collapse")
