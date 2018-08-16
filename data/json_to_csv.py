@@ -108,7 +108,7 @@ def main():
                                 id_writer.writerow(id_dct)
 
                             tr_dct['runId'] = run_id
-                            for triad in xrange(6):
+                            for triad in xrange(NR_TRIAD_STATES):
                                 tr_dct['triad'] = triad
                                 tr_dct['triadCount'] = main_dct['triadOccurrences'][triad]
                                 tr_writer.writerow(tr_dct)
