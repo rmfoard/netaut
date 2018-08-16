@@ -44,7 +44,7 @@ struct CommandOpts {
     bool rulePresent;
     bool ruletextPresent;
     std::string recordName;
-    std::string outFileSuffix;
+    std::string graphFileSuffix;
     std::string writeAsName;
     char* ruleText;
     std::string tapeStructure;
@@ -55,6 +55,10 @@ static CommandOpts cmdOpt;
 // Output streams
 static std::ofstream recordSummOut;
 static std::ofstream recordItersOut;
+
+// Run identifier
+static std::string runId;
+
 
 //---------------
 // Command line parsing structure
@@ -150,7 +154,7 @@ void ParseCommand(const int argc, char* argv[]) {
     cmdOpt.rulePresent = false;
     cmdOpt.ruletextPresent = false;
     cmdOpt.noWriteEndGraph = false;
-    cmdOpt.outFileSuffix = "";
+    cmdOpt.graphFileSuffix = "";
     cmdOpt.writeAsName = "";
     cmdOpt.recordName = "";
     cmdOpt.ruleText = NULL;
@@ -218,7 +222,7 @@ void ParseCommand(const int argc, char* argv[]) {
             break;*/
 
           case 's':
-            cmdOpt.outFileSuffix = optarg;
+            cmdOpt.graphFileSuffix = optarg;
             break;
 
           case 'w':
@@ -355,7 +359,7 @@ void ParseCommand(const int argc, char* argv[]) {
 // Write the current machine state to a file.
 //---------------
 static
-void WriteGraph(const std::string runId, Machine* m, const std::string outFileSuffix,
+void WriteGraph(Machine* m, const std::string graphFileSuffix,
   const int numTag, int actualNrIterations) {
     TIntStrH nodeColorHash = THash<TInt, TStr>();
     int* nodeStates = m->get_nodeStates();
@@ -366,7 +370,7 @@ void WriteGraph(const std::string runId, Machine* m, const std::string outFileSu
 
     // Compose the file name.
     std::string suffix = "";
-    if (outFileSuffix != "") suffix = "_" + outFileSuffix;
+    if (graphFileSuffix != "") suffix = "_" + graphFileSuffix;
 
     std::string stateFName = "";
     std::string baseName = "";
@@ -408,7 +412,7 @@ std::string Compress(std::string in) {
 // Write a file containing JSON-encoded run parameters and outcome statistics.
 //---------------
 static
-void WriteSummaryInfo(std::string runId, Machine* machine, int nrActualIterations, int cycleLength, int runTimeMs, Machine::DegStats initDegStats) {
+void WriteSummaryInfo(Machine* machine, int nrActualIterations, int cycleLength, int runTimeMs, Machine::DegStats initDegStats) {
     // Capture the run parameters.
     Json::Value info;
 
@@ -536,7 +540,7 @@ int main(const int argc, char* argv[]) {
     m->GetDegStats(initDegStats);
 
     // Fabricate a run identifier.
-    std::string runId = RunId(m->get_machineType(), cmdOpt.ruleNr);
+    runId = RunId(m->get_machineType(), cmdOpt.ruleNr);
 
     // Open the output streams.
     recordSummOut.open(cmdOpt.recordName + "_Summ.json", std::ios::app);
@@ -553,7 +557,7 @@ int main(const int argc, char* argv[]) {
     for (iter = 0; iter < cmdOpt.maxIterations; iter += 1) {
         if (cmdOpt.graphWriteStart >= 0) {
             if (iter >= cmdOpt.graphWriteStart && (iter - cmdOpt.graphWriteStart) % cmdOpt.graphWriteStride == 0) {
-                WriteGraph(runId, m, cmdOpt.outFileSuffix, iter, iter);
+                WriteGraph(m, cmdOpt.graphFileSuffix, iter, iter);
             }
         }
 
@@ -567,10 +571,10 @@ int main(const int argc, char* argv[]) {
 
     // Write the end-state machine unless --no-write-end-state was present.
     //   (-1 => no numeric tag for inclusion in file name)
-    if (!cmdOpt.noWriteEndGraph) WriteGraph(runId, m, cmdOpt.outFileSuffix, -1, iter);
+    if (!cmdOpt.noWriteEndGraph) WriteGraph(m, cmdOpt.graphFileSuffix, -1, iter);
 
     // Write run information
-    WriteSummaryInfo(runId, m, iter, cycleLength, runTimeMs, initDegStats);
+    WriteSummaryInfo(m, iter, cycleLength, runTimeMs, initDegStats);
 
     // Close record output files.
     recordSummOut.close();
