@@ -5,7 +5,7 @@ import sys
 
 def main():
     if len(sys.argv) != 2:
-        print "usage: python json_to_csv.py <json file base name (w/o '.json')>"
+        print "usage: python json_to_csv.py <json file base name (w/o '.json'or '_suffixes')>"
         sys.exit(1)
     basename = sys.argv[1]
 
@@ -14,6 +14,7 @@ def main():
 
     # List of fields to be included in the main csv file (in order)
     main_names = [
+        'runId',
         'cycleCheckDepth',
         'cycleLength',
         'hashCollisions',
@@ -22,7 +23,6 @@ def main():
         'nrIterations',
         'randseed',
         'ruleNr',
-        'runId',
         'runTimeMs',
         'tapePctBlack',
         'tapeStructure',
@@ -43,6 +43,13 @@ def main():
         'inDegreeCount'
     ]
     id_dct = {}
+
+    od_names = [
+        'runId',
+        'outDegree',
+        'outDegreeCount'
+    ]
+    od_dct = {}
 
     tr_names = [
         'runId',
@@ -68,7 +75,7 @@ def main():
         'outDegreeEntropy'
     ]
 
-    # Pass the main json file writing the four derived csv files.
+    # Pass the main json file writing the five derived csv files.
     with open(basename + '_summ.json', 'r') as jsonfile:
         with open(basename + '_summ.csv', 'w') as main_f:
             main_writer = csv.DictWriter(main_f, fieldnames=main_names, extrasaction='ignore')
@@ -86,36 +93,46 @@ def main():
                         tr_writer = csv.DictWriter(tr_f, fieldnames=tr_names, extrasaction='ignore')
                         tr_writer.writeheader()
 
-                        line_number = 1
-                        for line in jsonfile:
-                            line_number += 1
-                            if len(line) < 2:
-                                continue
-                            main_dct = json.loads(line)
-                            run_id = main_dct['runId']
-                            main_writer.writerow(main_dct)
+                        with open(basename + '_od.csv', 'w') as od_f:
+                            od_writer = csv.DictWriter(od_f, fieldnames=od_names, extrasaction='ignore')
+                            od_writer.writeheader()
 
-                            cc_dct['runId'] = run_id
-                            for pair in main_dct['ccSizeCount']:
-                                cc_dct['ccSize'] = pair[0]
-                                cc_dct['ccCount'] = pair[1]
-                                cc_writer.writerow(cc_dct)
+                            line_number = 1
+                            for line in jsonfile:
+                                line_number += 1
+                                if len(line) < 2:
+                                    continue
+                                main_dct = json.loads(line)
+                                run_id = main_dct['runId']
+                                main_writer.writerow(main_dct)
 
-                            id_dct['runId'] = run_id
-                            for pair in main_dct['inDegreeCount']:
-                                id_dct['inDegree'] = pair[0]
-                                id_dct['inDegreeCount'] = pair[1]
-                                id_writer.writerow(id_dct)
+                                cc_dct['runId'] = run_id
+                                for pair in main_dct['ccSizeCount']:
+                                    cc_dct['ccSize'] = pair[0]
+                                    cc_dct['ccCount'] = pair[1]
+                                    cc_writer.writerow(cc_dct)
 
-                            tr_dct['runId'] = run_id
-                            for triad in xrange(NR_TRIAD_STATES):
-                                tr_dct['triad'] = triad
-                                tr_dct['triadCount'] = main_dct['triadOccurrences'][triad]
-                                tr_writer.writerow(tr_dct)
+                                id_dct['runId'] = run_id
+                                for pair in main_dct['inDegreeCount']:
+                                    id_dct['inDegree'] = pair[0]
+                                    id_dct['inDegreeCount'] = pair[1]
+                                    id_writer.writerow(id_dct)
+
+                                od_dct['runId'] = run_id
+                                for pair in main_dct['outDegreeCount']:
+                                    od_dct['outDegree'] = pair[0]
+                                    od_dct['outDegreeCount'] = pair[1]
+                                    od_writer.writerow(od_dct)
+
+                                tr_dct['runId'] = run_id
+                                for triad in xrange(NR_TRIAD_STATES):
+                                    tr_dct['triad'] = triad
+                                    tr_dct['triadCount'] = main_dct['triadOccurrences'][triad]
+                                    tr_writer.writerow(tr_dct)
 
     # Pass the iteration detail json file writing a csv file.
     with open(basename + '_iter.json', 'r') as jsonfile:
-        with open(basename + '_it.csv', 'w') as it_f:
+        with open(basename + '_iter.csv', 'w') as it_f:
             it_writer = csv.DictWriter(it_f, fieldnames=it_names, extrasaction='ignore')
             it_writer.writeheader()
             line_number = 1
