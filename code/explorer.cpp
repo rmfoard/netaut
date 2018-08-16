@@ -594,8 +594,8 @@ int main(const int argc, char* argv[]) {
     runId = RunId(m->get_machineType(), cmdOpt.ruleNr);
 
     // Open the output streams.
-    recordSummOut.open(cmdOpt.recordName + "_Summ.json", std::ios::app);
-    recordIterOut.open(cmdOpt.recordName + "_Iter.json", std::ios::app);
+    recordSummOut.open(cmdOpt.recordName + "_summ.json", std::ios::app);
+    recordIterOut.open(cmdOpt.recordName + "_iter.json", std::ios::app);
     if (!recordSummOut.is_open() || !recordIterOut.is_open()) {
         std::cerr << "error: can't open record output files" << std::endl;
         exit(1);

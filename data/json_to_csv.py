@@ -14,37 +14,20 @@ def main():
 
     # List of fields to be included in the main csv file (in order)
     main_names = [
-        'allowSelfEdges',
-        'avgClustCoef',
         'cycleCheckDepth',
         'cycleLength',
-        'diameter',
-        'effDiameter90Pctl',
         'hashCollisions',
         'machineType',
         'maxIterations',
-        'multiEdgesAvoided',
-        'nrActualIterations',
-        'nrCcSizes',
-        'nrCcs',
-        'nrClosedTriads',
-        'nrInDegrees',
-        'nrNodes',
-        'nrOpenTriads',
+        'nrIterations',
         'randseed',
         'ruleNr',
         'runId',
         'runTimeMs',
-        'selfEdgesAvoided',
         'tapePctBlack',
         'tapeStructure',
         'topoStructure',
-        'version',
-        'initInDegreeEntropy',
-        'initOutDegreeEntropy',
-        'finInDegreeEntropy',
-        'finOutDegreeEntropy',
-        'nrOutDegrees'
+        'version'
     ]
 
     cc_names = [
@@ -68,9 +51,26 @@ def main():
     ]
     tr_dct = {}
 
-    # Pass the json file writing the four derived csv's.
-    with open(basename + '.json', 'r') as jsonfile:
-        with open(basename + '.csv', 'w') as main_f:
+    it_names = [
+        'runId',
+        'avgClustCoef',
+        'diameter',
+        'effDiameter90Pctl',
+        'inDegreeEntropy',
+        'iterationNr',
+        'nrCcSizes',
+        'nrCcs',
+        'nrClosedTriads',
+        'nrInDegrees',
+        'nrNodes',
+        'nrOpenTriads',
+        'nrOutDegrees',
+        'outDegreeEntropy'
+    ]
+
+    # Pass the main json file writing the four derived csv files.
+    with open(basename + '_summ.json', 'r') as jsonfile:
+        with open(basename + '_summ.csv', 'w') as main_f:
             main_writer = csv.DictWriter(main_f, fieldnames=main_names, extrasaction='ignore')
             main_writer.writeheader()
 
@@ -112,6 +112,20 @@ def main():
                                 tr_dct['triad'] = triad
                                 tr_dct['triadCount'] = main_dct['triadOccurrences'][triad]
                                 tr_writer.writerow(tr_dct)
+
+    # Pass the iteration detail json file writing a csv file.
+    with open(basename + '_iter.json', 'r') as jsonfile:
+        with open(basename + '_it.csv', 'w') as it_f:
+            it_writer = csv.DictWriter(it_f, fieldnames=it_names, extrasaction='ignore')
+            it_writer.writeheader()
+            line_number = 1
+            for line in jsonfile:
+                line_number += 1
+                if len(line) < 2:
+                    continue
+                it_dct = json.loads(line)
+                it_writer.writerow(it_dct)
+
 
 if __name__ == '__main__':
     main()
