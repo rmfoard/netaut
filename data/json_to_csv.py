@@ -9,6 +9,9 @@ def main():
         sys.exit(1)
     basename = sys.argv[1]
 
+    NR_NODE_STATES = 2
+    NR_TRIAD_STATES = NR_NODE_STATES * NR_NODE_STATES * NR_NODE_STATES
+
     # List of fields to be included in the main csv file (in order)
     main_names = [
         'allowSelfEdges',
