@@ -11,6 +11,7 @@
 #include <ctime>
 #include <chrono>
 #include <iostream>
+#include <limits>
 #include <string>
 #include <json/json.h>
 #include "rule.h"
@@ -29,14 +30,19 @@ struct CommandOpts {
     int allowSelfEdges;
     int noInfo;
     int printTape;
-    int noWriteEndState;
+    int noWriteEndGraph;
     int nrNodes;
     int graphWriteStart;
     int graphWriteStride;
+    int graphWriteStop;
+    int statWriteStart;
+    int statWriteStride;
+    int statWriteStop;
     unsigned int cycleCheckDepth;
     int tapePctBlack;
     bool rulePresent;
     bool ruletextPresent;
+    std::string recordName;
     std::string outFileSuffix;
     std::string writeAsName;
     char* ruleText;
@@ -51,19 +57,24 @@ static CommandOpts cmdOpt;
 //
 #define MAX_COMMAND_OPTIONS 128
 
-#define CO_WRITE_START 1000
-#define CO_WRITE_STRIDE 1001
+#define CO_GRAPH_START 1000
+#define CO_GRAPH_STRIDE 1001
+#define CO_GRAPH_STOP 1009
+#define CO_STAT_START 1010
+#define CO_STAT_STRIDE 1011
+#define CO_STAT_STOP 1012
 #define CO_CYCLE_CHECK_DEPTH 1002
 #define CO_HELP 1003
 #define CO_INIT_TAPE 1004
 #define CO_INIT_TOPO 1005
 #define CO_TAPE_PCT_BLACK 1006
 #define CO_WRITE_AS 1007
+#define CO_RECORD 1013
 #define CO_NOOP 1008
 
 static struct option long_options[MAX_COMMAND_OPTIONS] = {
     {"no-info", no_argument, &cmdOpt.noInfo, 1},
-    {"no-write-end-state", no_argument, &cmdOpt.noWriteEndState, 1},
+    {"no-write-end-state", no_argument, &cmdOpt.noWriteEndGraph, 1},
     {"print-tape", no_argument, &cmdOpt.printTape, 1},
 
     {"cycle-check-depth", required_argument, 0, CO_CYCLE_CHECK_DEPTH},
@@ -78,9 +89,14 @@ static struct option long_options[MAX_COMMAND_OPTIONS] = {
     {"ruletext", required_argument, 0, 't'},
     {"suffix", required_argument, 0, 's'},
     {"tape-pct-black", required_argument, 0, CO_TAPE_PCT_BLACK},
-    {"graph-start", required_argument, 0, CO_WRITE_START},
-    {"graph-stride", required_argument, 0, CO_WRITE_STRIDE},
+    {"graph-start", required_argument, 0, CO_GRAPH_START},
+    {"graph-stride", required_argument, 0, CO_GRAPH_STRIDE},
+    {"graph-stop", required_argument, 0, CO_GRAPH_STOP},
+    {"stat-start", required_argument, 0, CO_STAT_START},
+    {"stat-stride", required_argument, 0, CO_STAT_STRIDE},
+    {"stat-stop", required_argument, 0, CO_STAT_STOP},
     {"write-as", required_argument, 0, CO_WRITE_AS},
+    {"record", required_argument, 0, CO_RECORD},
 
     {"help", no_argument, 0, CO_HELP},
     {0, 0, 0, 0}
@@ -121,13 +137,18 @@ void ParseCommand(const int argc, char* argv[]) {
     cmdOpt.nrNodes = 256;
     cmdOpt.graphWriteStart = -1;
     cmdOpt.graphWriteStride = -1;
+    cmdOpt.graphWriteStop = std::numeric_limits<int>::max();
+    cmdOpt.statWriteStart = -1;
+    cmdOpt.statWriteStride = -1;
+    cmdOpt.statWriteStop = std::numeric_limits<int>::max();
     cmdOpt.cycleCheckDepth = 0;
     cmdOpt.tapePctBlack = 50;
     cmdOpt.rulePresent = false;
     cmdOpt.ruletextPresent = false;
-    cmdOpt.noWriteEndState = false;
+    cmdOpt.noWriteEndGraph = false;
     cmdOpt.outFileSuffix = "";
     cmdOpt.writeAsName = "";
+    cmdOpt.recordName = "";
     cmdOpt.ruleText = NULL;
     cmdOpt.tapeStructure = "single-center";
     cmdOpt.topoStructure = "ring";
@@ -165,7 +186,7 @@ void ParseCommand(const int argc, char* argv[]) {
           case 't':
             cmdOpt.ruletextPresent = true;
             if (cmdOpt.rulePresent) {
-                printf("error: can't specify both --text and --rule\n");
+                std::cerr << "error: can't specify both --text and --rule";
                 errorFound = true;
             } else {
                 cmdOpt.ruleText = strAllocCpy(optarg);
@@ -175,20 +196,20 @@ void ParseCommand(const int argc, char* argv[]) {
           case 'r':
             cmdOpt.rulePresent = true;
             if (cmdOpt.ruletextPresent) {
-                printf("error: can't specify both --text and --rule\n");
+                std::cerr << "error: can't specify both --text and --rule" << std::endl;
                 errorFound = true;
             } else {
                 char* endPtr;
                 cmdOpt.ruleNr = strtoumax(optarg, &endPtr, 10); // radix 10
                 if (cmdOpt.ruleNr == 0) {
-                    printf("error: invalid rule number\n");
+                    std::cerr << "error: invalid rule number" << std::endl;
                     errorFound = true;
                 }
             }
             break;
 
           /*case 'm':
-            printf("--machine option is not yet supported.\n");
+            std::cerr << "machine option is not yet supported." << std::endl;
             errorFound = true;
             break;*/
 
@@ -197,15 +218,31 @@ void ParseCommand(const int argc, char* argv[]) {
             break;
 
           case 'w':
-            cmdOpt.noWriteEndState = 1;
+            cmdOpt.noWriteEndGraph = 1;
             break;
 
-          case CO_WRITE_START:
+          case CO_GRAPH_START:
             cmdOpt.graphWriteStart = atoi(optarg);
             break;
 
-          case CO_WRITE_STRIDE:
+          case CO_GRAPH_STRIDE:
             cmdOpt.graphWriteStride = atoi(optarg);
+            break;
+
+          case CO_GRAPH_STOP:
+            cmdOpt.graphWriteStop = atoi(optarg);
+            break;
+
+          case CO_STAT_START:
+            cmdOpt.statWriteStart = atoi(optarg);
+            break;
+
+          case CO_STAT_STRIDE:
+            cmdOpt.statWriteStride = atoi(optarg);
+            break;
+
+          case CO_STAT_STOP:
+            cmdOpt.statWriteStop = atoi(optarg);
             break;
 
           case CO_CYCLE_CHECK_DEPTH:
@@ -240,6 +277,10 @@ void ParseCommand(const int argc, char* argv[]) {
             cmdOpt.writeAsName = optarg;
             break;
 
+          case CO_RECORD:
+            cmdOpt.recordName = optarg;
+            break;
+
           case CO_NOOP:
             break;
 
@@ -255,11 +296,38 @@ void ParseCommand(const int argc, char* argv[]) {
     // Check option consistency.
     if ((cmdOpt.graphWriteStart >= 0 && cmdOpt.graphWriteStride < 0)
       || (cmdOpt.graphWriteStart < 0 && cmdOpt.graphWriteStride >= 0)) {
-        printf("error: --graph-start and --graph-stride must both be specified\n");
+        std::cerr << "error: --graph-start and --graph-stride must both be specified" << std::endl;
+        errorFound = true;
+    }
+    if (cmdOpt.graphWriteStart >= 0 && cmdOpt.graphWriteStop < cmdOpt.graphWriteStart) {
+        std::cerr << "error: --graph-stop must be >= --graph-st" << std::endl;
+        errorFound = true;
+    }
+
+    if ((cmdOpt.statWriteStart >= 0 && cmdOpt.statWriteStride < 0)
+      || (cmdOpt.statWriteStart < 0 && cmdOpt.statWriteStride >= 0)) {
+        std::cerr << "error: --stat-start and --stat-stride must both be specified" << std::endl;
+        errorFound = true;
+    }
+    if (cmdOpt.statWriteStart >= 0 && cmdOpt.statWriteStop < cmdOpt.statWriteStart) {
+        std::cerr << "error: --stat-stop must be >= --stat-stop" << std::endl;
+        errorFound = true;
+    }
+
+    if (cmdOpt.recordName == "") {
+        std::cerr << "error: --record must be specified" << std::endl;
         errorFound = true;
     }
 
     if (errorFound) exit(1);
+
+    // Adjust --stat-start if user specified zero (0th is written unconditionally)
+    if (cmdOpt.statWriteStart == 0) {
+        if (cmdOpt.statWriteStop == 0)
+            statWriteStart = -1;
+        else
+            cmdOpt.statWriteStart = 1;
+    }
 
     // Warn of odd selections.
     if (tapePctBlackSpecified && cmdOpt.tapeStructure != "random")
@@ -267,7 +335,8 @@ void ParseCommand(const int argc, char* argv[]) {
 
     // Warn if any non-option command arguments are present.
     if (optind < argc) {
-        printf ("warning: there are extraneous command arguments: ");
+        std::cerr << "warning: there are extraneous command arguments" << std::endl;
+        // TODO: Direct the following to cerr.
         while (optind < argc) printf ("%s ", argv[optind++]);
         putchar ('\n');
     }
@@ -318,7 +387,9 @@ void WriteGraph(const std::string runId, Machine* m, const std::string outFileSu
 }
 
 //---------------
-// RemoveNewLines
+// Compress
+//
+// Return a string with whitespace removed.
 //---------------
 static
 std::string Compress(std::string in) {
@@ -483,7 +554,7 @@ int main(const int argc, char* argv[]) {
 
     // Write the end-state machine unless --no-write-end-state was present.
     //   (-1 => no numeric tag for inclusion in file name)
-    if (!cmdOpt.noWriteEndState) WriteGraph(runId, m, cmdOpt.outFileSuffix, -1, iter);
+    if (!cmdOpt.noWriteEndGraph) WriteGraph(runId, m, cmdOpt.outFileSuffix, -1, iter);
 
     // Write run information unless --no-write-info was present.
     if (!cmdOpt.noInfo) WriteSummaryInfo(runId, m, iter, cycleLength, runTimeMs, initDegStats);
