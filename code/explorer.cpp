@@ -186,7 +186,7 @@ void ParseCommand(const int argc, char* argv[]) {
           case 't':
             cmdOpt.ruletextPresent = true;
             if (cmdOpt.rulePresent) {
-                std::cerr << "error: can't specify both --text and --rule";
+                std::cerr << "error: can't specify both --text and --rule" << std::endl;
                 errorFound = true;
             } else {
                 cmdOpt.ruleText = strAllocCpy(optarg);
@@ -324,7 +324,7 @@ void ParseCommand(const int argc, char* argv[]) {
     // Adjust --stat-start if user specified zero (0th is written unconditionally)
     if (cmdOpt.statWriteStart == 0) {
         if (cmdOpt.statWriteStop == 0)
-            statWriteStart = -1;
+            cmdOpt.statWriteStart = -1;
         else
             cmdOpt.statWriteStart = 1;
     }
