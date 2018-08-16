@@ -512,8 +512,6 @@ void Machine2D::AddCommandOptions(struct option* options, int maxOptions) {
 // AddSummaryInfo
 //---------------
 void Machine2D::AddSummaryInfo(Json::Value& info) {
-    info["multiEdgesAvoided"] = (Json::Value::UInt64) m_stats.multiEdgesAvoided;
-    info["selfEdgesAvoided"] = (Json::Value::UInt64) m_stats.selfEdgesAvoided;
     info["hashCollisions"] = (Json::Value::UInt64) m_stats.hashCollisions;
 
     Json::Value triadOccurrences;
