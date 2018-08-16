@@ -28,7 +28,7 @@ struct CommandOpts {
     int maxIterations;
     int randSeed;
     int allowSelfEdges;
-    int noInfo;
+    int noConsole;
     int printTape;
     int noWriteEndGraph;
     int nrNodes;
@@ -73,8 +73,8 @@ static CommandOpts cmdOpt;
 #define CO_NOOP 1008
 
 static struct option long_options[MAX_COMMAND_OPTIONS] = {
-    {"no-info", no_argument, &cmdOpt.noInfo, 1},
-    {"no-write-end-state", no_argument, &cmdOpt.noWriteEndGraph, 1},
+    {"no-console", no_argument, &cmdOpt.noConsole, 1},
+    {"no-write-end-graph", no_argument, &cmdOpt.noWriteEndGraph, 1},
     {"print-tape", no_argument, &cmdOpt.printTape, 1},
 
     {"cycle-check-depth", required_argument, 0, CO_CYCLE_CHECK_DEPTH},
@@ -132,7 +132,7 @@ void ParseCommand(const int argc, char* argv[]) {
     cmdOpt.maxIterations = 128;
     cmdOpt.randSeed = -1;
     cmdOpt.allowSelfEdges = 1;
-    cmdOpt.noInfo = 0;
+    cmdOpt.noConsole = 0;
     cmdOpt.printTape = 0;
     cmdOpt.nrNodes = 256;
     cmdOpt.graphWriteStart = -1;
@@ -496,7 +496,7 @@ void WriteSummaryInfo(std::string runId, Machine* machine, int nrActualIteration
     if (infoString[infoString.length() - 1] == '\n')
         infoString.erase(infoString.length() - 1);
 
-    std::cout << infoString;
+    if (!cmdOpt.noConsole) std::cout << infoString;
 }
 
 //---------------
@@ -556,8 +556,8 @@ int main(const int argc, char* argv[]) {
     //   (-1 => no numeric tag for inclusion in file name)
     if (!cmdOpt.noWriteEndGraph) WriteGraph(runId, m, cmdOpt.outFileSuffix, -1, iter);
 
-    // Write run information unless --no-write-info was present.
-    if (!cmdOpt.noInfo) WriteSummaryInfo(runId, m, iter, cycleLength, runTimeMs, initDegStats);
+    // Write run information
+    WriteSummaryInfo(runId, m, iter, cycleLength, runTimeMs, initDegStats);
 
     delete m;
     exit(0);
