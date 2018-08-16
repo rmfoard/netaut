@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <ctime>
 #include <chrono>
+#include <fstream>
 #include <iostream>
 #include <limits>
 #include <string>
@@ -49,8 +50,11 @@ struct CommandOpts {
     std::string tapeStructure;
     std::string topoStructure;
 };
-
 static CommandOpts cmdOpt;
+
+// Output streams
+static std::ofstream recordSummOut;
+static std::ofstream recordItersOut;
 
 //---------------
 // Command line parsing structure
@@ -497,6 +501,7 @@ void WriteSummaryInfo(std::string runId, Machine* machine, int nrActualIteration
         infoString.erase(infoString.length() - 1);
 
     if (!cmdOpt.noConsole) std::cout << infoString;
+    recordSummOut << infoString << std::endl;
 }
 
 //---------------
@@ -533,6 +538,14 @@ int main(const int argc, char* argv[]) {
     // Fabricate a run identifier.
     std::string runId = RunId(m->get_machineType(), cmdOpt.ruleNr);
 
+    // Open the output streams.
+    recordSummOut.open(cmdOpt.recordName + "_Summ.json", std::ios::app);
+    recordItersOut.open(cmdOpt.recordName + "_Iters.json", std::ios::app);
+    if (!recordSummOut.is_open() || !recordItersOut.is_open()) {
+        std::cerr << "error: can't open record output files" << std::endl;
+        exit(1);
+    }
+
     // Run it, saving state periodically if specified.
     auto start_time = std::chrono::high_resolution_clock::now();
     int iter;
@@ -558,6 +571,10 @@ int main(const int argc, char* argv[]) {
 
     // Write run information
     WriteSummaryInfo(runId, m, iter, cycleLength, runTimeMs, initDegStats);
+
+    // Close record output files.
+    recordSummOut.close();
+    recordItersOut.close();
 
     delete m;
     exit(0);
