@@ -18,6 +18,7 @@ def main():
         'cycleCheckDepth',
         'cycleLength',
         'hashCollisions',
+        'initNrNodes',
         'machineType',
         'maxIterations',
         'nrIterations',

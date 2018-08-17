@@ -6,6 +6,7 @@ SELECT
     machineType,
     maxIterations,
     nrActualIterations as nrIterations,
+    nrNodes as initNrNodes,
     randseed,
     ruleNr,
     runTimeMs,
