@@ -19,7 +19,7 @@
 #include "machine.h"
 #include "machine2D.h"
 
-#define VERSION "V180816.0"
+#define VERSION "V180818.0"
 
 //---------------
 // Command option settings

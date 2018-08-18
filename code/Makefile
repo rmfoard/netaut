@@ -46,8 +46,8 @@ insEntropy: insEntropy.o
 $(CSNAP)/Snap.o:
 	$(MAKE) -C $(CSNAP)
 
-explorer: explorer.cpp machine.cpp machine.h machine2D.cpp machine2D.h rule.h filter.o rule.o $(CSNAP)/Snap.o
-	$(CC) $(CXXFLAGS) -o $@ $@.cpp machine.cpp machine2D.cpp filter.o rule.o $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
+explorer: explorer.cpp machine.cpp machine.h machine2D.cpp machine2D.h machineR.cpp machineR.h rule.h filter.o rule.o $(CSNAP)/Snap.o
+	$(CC) $(CXXFLAGS) -o $@ $@.cpp machine.cpp machine2D.cpp machineR.cpp filter.o rule.o $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
 
 randrule:	randrule.o
 	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(LDFLAGS) $(LIBS)
