@@ -37,6 +37,7 @@ void MachineR::BuildMachine(rulenr_t ruleNr, int nrNodes, int cycleCheckDepth,
     m_nrNodes = nrNodes;
     m_cycleCheckDepth = cycleCheckDepth;
     m_graph = TNGraph::New();
+    m_snapRnd = new TRnd(rand());
     m_nodeStates = new int[m_nrNodes];
     m_nextNodeStates = new int[m_nrNodes];
     m_nextL = new int[m_nrNodes];
@@ -89,55 +90,16 @@ void MachineR::AdvanceNode(TNGraph::TNodeI NIter) {
     int lNId = NIter.GetOutNId(0);
     int rNId = NIter.GetOutNId(1);
 
-    // TODO: Remove unnecessary intermediate variables.
-    // Set state variables for convenience.
-    int nState = m_nodeStates[nNId]; 
-    int lState = m_nodeStates[lNId];
-    int rState = m_nodeStates[rNId];
-
-    int triadState = lState * 4 + nState * 2 + rState;
-    m_stats.triadOccurrences[triadState] += 1;
-
-    // Gather info on neighbors' neighbors.
-    TNGraph::TNodeI lNIter = m_graph->GetNI(lNId); // iterator for left neighbor
-    TNGraph::TNodeI rNIter = m_graph->GetNI(rNId); // iterator for right neighbor
-    int llNId = lNIter.GetOutNId(0);
-    int lrNId = lNIter.GetOutNId(1);
-    int rlNId = rNIter.GetOutNId(0);
-    int rrNId = rNIter.GetOutNId(1);
-
-    // Prepare an array of possible new destinations for edges
-    int* newDsts = new int[NR_DSTS];
-    newDsts[LEDGE] = lNId;
-    newDsts[LLEDGE] = llNId;
-    newDsts[LREDGE] = lrNId;
-    newDsts[REDGE] = rNId;
-    newDsts[RLEDGE] = rlNId;
-    newDsts[RREDGE] = rrNId;
-
-    assert(0 <= triadState && triadState < NR_TRIAD_STATES);
-    const int rulePart = m_ruleParts[triadState];
-    assert(0 <= rulePart && rulePart < NR_ACTIONS);
-
-    // TODO: (minor opt) Maintain unpacked structures built when
-    //   'ruleParts' is developed during initialization.
-    // Unpack the rule part into left edge, right edge, and node actions
-    const int lAction = (rulePart / 2) / NR_DSTS;
-    const int rAction = (rulePart / 2) % NR_DSTS;
-    const int nAction = rulePart % 2;
-
     // Confirm that the multi-edge invariant still holds.
     assert(lNId != rNId);
 
     // Apply the node action.
-    m_nextNodeStates[nNId] = nAction;
+    m_nextNodeStates[nNId] = rand() % 2; // randomly assign node color
 
     // Note the provisional topological action in the scratchpad.
     assert(m_nextL[nNId] == -1 && m_nextR[nNId] == -1);
-    m_nextL[nNId] = newDsts[lAction];
-    m_nextR[nNId] = newDsts[rAction];
-
-    delete newDsts;
+    m_nextL[nNId] = m_graph->GetRndNId(*m_snapRnd);
+    m_nextR[nNId] = m_graph->GetRndNId(*m_snapRnd);
 }
 
 //---------------

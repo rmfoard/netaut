@@ -59,6 +59,7 @@ public:
 
     PNGraph m_graph;
     PNGraph m_nextGraph;
+    TRnd* m_snapRnd;
     int* m_nodeStates;
     int* m_nextNodeStates;
     int* m_nextL;
