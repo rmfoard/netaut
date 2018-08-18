@@ -12,7 +12,7 @@
 #include <string>
 #include <json/json.h>
 #include "rule.h"
-#include "machine2D.h"
+#include "machineR.h"
 #include "machine.h"
 
 //---------------
@@ -29,9 +29,9 @@ static struct option additional_command_options[] = {
 };
 
 //---------------
-void Machine2D::BuildMachine(rulenr_t ruleNr, int nrNodes, int cycleCheckDepth,
+void MachineR::BuildMachine(rulenr_t ruleNr, int nrNodes, int cycleCheckDepth,
   std::string tapeStructure, int tapePctBlack, std::string topoStructure) {
-    m_machineType = std::string("B");
+    m_machineType = std::string("R");
     m_rule = new Rule(ruleNr);
     m_ruleParts = m_rule->get_ruleParts();
     m_nrNodes = nrNodes;
@@ -51,10 +51,7 @@ void Machine2D::BuildMachine(rulenr_t ruleNr, int nrNodes, int cycleCheckDepth,
 }
 
 //---------------
-Machine::~Machine() {}
-
-//---------------
-Machine2D::~Machine2D() {
+MachineR::~MachineR() {
     delete m_ruleParts;
     delete m_nodeStates;
     delete m_nextNodeStates;
@@ -74,9 +71,9 @@ Machine2D::~Machine2D() {
 //---------------
 // TODO: Use the proper form for "getters."
 //---------------
-std::string Machine2D::get_machineType() { return m_machineType; }
-PNGraph Machine2D::get_graph() { return m_graph; }
-int* Machine2D::get_nodeStates() { return m_nodeStates; }
+std::string MachineR::get_machineType() { return m_machineType; }
+PNGraph MachineR::get_graph() { return m_graph; }
+int* MachineR::get_nodeStates() { return m_nodeStates; }
 
 //---------------
 // AdvanceNode
@@ -85,7 +82,7 @@ int* Machine2D::get_nodeStates() { return m_nodeStates; }
 // destinations in the scratchpad. At this step, it's okay to create
 // multi-edges; they'll be removed in post-processing.
 //---------------
-void Machine2D::AdvanceNode(TNGraph::TNodeI NIter) {
+void MachineR::AdvanceNode(TNGraph::TNodeI NIter) {
 
     // Get node ids of neighbors.
     int nNId = NIter.GetId();
@@ -144,7 +141,7 @@ void Machine2D::AdvanceNode(TNGraph::TNodeI NIter) {
 }
 
 //---------------
-void Machine2D::BuildRing() {
+void MachineR::BuildRing() {
     assert(m_nrNodes > 1);
 
     // Create all the nodes.
@@ -157,7 +154,7 @@ void Machine2D::BuildRing() {
 }
 
 //---------------
-void Machine2D::BuildTree() {
+void MachineR::BuildTree() {
     assert(m_nrNodes > 1);
 
     // Create all the nodes.
@@ -180,7 +177,7 @@ void Machine2D::BuildTree() {
 }
 
 //---------------
-void Machine2D::BuildRandomGraph() {
+void MachineR::BuildRandomGraph() {
     assert(m_nrNodes > 1);
 
     // Create all the nodes.
@@ -204,7 +201,7 @@ void Machine2D::BuildRandomGraph() {
 // determine whether it is identical to one of the preceding 'cycleCheckDepth'
 // states. Return the cycle length if so, zero otherwise.
 //---------------
-int Machine2D::Cycling(unsigned int curStateHash) {
+int MachineR::Cycling(unsigned int curStateHash) {
 
     // If the current state's hash is not in the table,
     // no cycle is detected. (The check is not perfect, though,
@@ -235,7 +232,7 @@ int Machine2D::Cycling(unsigned int curStateHash) {
 //---------------
 // InitTape
 //---------------
-void Machine2D::InitTape(std::string tapeStructure, int tapePctBlack) {
+void MachineR::InitTape(std::string tapeStructure, int tapePctBlack) {
     for (int i = 0; i < m_nrNodes; i += 1) m_nodeStates[i] = NWHITE;
     if (tapeStructure == "single-center")
         m_nodeStates[m_nrNodes/2] = NBLACK;
@@ -253,7 +250,7 @@ void Machine2D::InitTape(std::string tapeStructure, int tapePctBlack) {
 //---------------
 // InitTopo
 //---------------
-void Machine2D::InitTopo(std::string topoStructure) {
+void MachineR::InitTopo(std::string topoStructure) {
     if (topoStructure == "ring")
         BuildRing();
     else if (topoStructure == "tree")
@@ -271,7 +268,7 @@ void Machine2D::InitTopo(std::string topoStructure) {
 // Run one step of the loaded rule.
 // Return the length of any detected state cycle (0 => no cycle found)
 //---------------
-int Machine2D::IterateMachine(int iterationNr) {
+int MachineR::IterateMachine(int iterationNr) {
 
     // Stop and report if the machine is cycling.
     unsigned int curStateHash = CurStateHash();
@@ -346,7 +343,7 @@ int Machine2D::IterateMachine(int iterationNr) {
 //---------------
 // EliminateNode
 //---------------
-void Machine2D::EliminateNode(int node) {
+void MachineR::EliminateNode(int node) {
     assert(m_nextL[node] != -1);
     m_nextL[node] = -1;
     m_nextR[node] = -1;
@@ -384,7 +381,7 @@ void Machine2D::EliminateNode(int node) {
 // nating at the eliminated node to instead terminate at the node to which its
 // multi-edges both linked.
 //---------------
-int Machine2D::EliminateMultiEdges() {
+int MachineR::EliminateMultiEdges() {
     bool makingChanges = true;
     while (makingChanges) {
         makingChanges = false;
@@ -428,7 +425,7 @@ int Machine2D::EliminateMultiEdges() {
 //---------------
 // RandomizeTapeState
 //---------------
-void Machine2D::RandomizeTapeState(int tapePctBlack) {
+void MachineR::RandomizeTapeState(int tapePctBlack) {
     for (int i = 0; i < m_nrNodes; i += 1)
         if (rand() % 100 <= tapePctBlack)
             m_nodeStates[i] = NBLACK;
@@ -441,7 +438,7 @@ void Machine2D::RandomizeTapeState(int tapePctBlack) {
 //
 // Return a hash of the current machine state.
 //---------------
-unsigned int Machine2D::CurStateHash() {
+unsigned int MachineR::CurStateHash() {
     unsigned int hash = 0;
 
     // Incorporate node states...
@@ -468,7 +465,7 @@ unsigned int Machine2D::CurStateHash() {
 // Return true if the machine state in the parameter is identical
 // to the machine's current state.
 //---------------
-bool Machine2D::StateMatchesCurrent(Machine::MachineState other) {
+bool MachineR::StateMatchesCurrent(Machine::MachineState other) {
 
     // Compare node states.
     for (int i = 0; i < m_nrNodes; i += 1)
@@ -491,7 +488,7 @@ bool Machine2D::StateMatchesCurrent(Machine::MachineState other) {
 //---------------
 // AddCommandOptions
 //---------------
-void Machine2D::AddCommandOptions(struct option* options, int maxOptions) {
+void MachineR::AddCommandOptions(struct option* options, int maxOptions) {
 
     // Retain a pointer to 'getopt's' structure.
     mainOptions = options;
@@ -511,7 +508,7 @@ void Machine2D::AddCommandOptions(struct option* options, int maxOptions) {
 //---------------
 // AddSummaryInfo
 //---------------
-void Machine2D::AddSummaryInfo(Json::Value& info) {
+void MachineR::AddSummaryInfo(Json::Value& info) {
     info["hashCollisions"] = (Json::Value::UInt64) m_stats.hashCollisions;
 
     Json::Value triadOccurrences;
@@ -526,7 +523,7 @@ void Machine2D::AddSummaryInfo(Json::Value& info) {
 //---------------
 // ParseCommand
 //---------------
-void Machine2D::ParseCommand(const int argc, char* argv[]) {
+void MachineR::ParseCommand(const int argc, char* argv[]) {
     int c;
     bool errorFound = false;
 

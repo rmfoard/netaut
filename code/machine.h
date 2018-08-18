@@ -10,6 +10,7 @@
 class Machine {
 
 public:
+    virtual ~Machine() = 0;
     // TODO: Move structure def to 2D.
     struct MachineState {
         int *nodeStates;
@@ -26,7 +27,6 @@ public:
         double outDegEntropy;
     } DegStats;
 
-    virtual ~Machine() = 0;
     virtual void BuildMachine(rulenr_t, int, int, std::string, int, std::string) = 0;
     virtual void AddCommandOptions(struct option[], int) = 0;
     virtual std::string get_machineType() = 0;

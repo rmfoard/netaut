@@ -18,6 +18,7 @@
 #include "rule.h"
 #include "machine.h"
 #include "machine2D.h"
+#include "machineR.h"
 
 #define VERSION "V180818.0"
 
@@ -568,8 +569,9 @@ int main(const int argc, char* argv[]) {
 
     cmdOpt.ruleNr = 15;
 
-    // Instantiate the "2D" (2 degree) machine.
-    Machine* m = new Machine2D();
+    // Instantiate the machine.
+    //Machine* m = new Machine2D();
+    Machine* m = new MachineR();
 
     // Augment the command parsing structure with options specific to
     // the current machine.

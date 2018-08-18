@@ -1,13 +1,13 @@
-#ifndef MACHINE2D_H
-#define MACHINE2D_H
+#ifndef MACHINER_H
+#define MACHINER_H
 
 #include <getopt.h>
 #include <json/json.h>
 #include "machine.h"
-#include "machine2D.h"
+#include "machineR.h"
 
 //---------------
-class Machine2D : public Machine {
+class MachineR : public Machine {
 
 public:
 
@@ -20,8 +20,8 @@ public:
         double finDegEntropy;
     };
 
-    Machine2D() : Machine() {};
-    ~Machine2D();
+    MachineR() : Machine() {};
+    ~MachineR();
     virtual void BuildMachine(rulenr_t, int, int, std::string, int, std::string);
     virtual void AddCommandOptions(struct option[], int);
     virtual std::string get_machineType();

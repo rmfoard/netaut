@@ -16,6 +16,9 @@
 #include "machine.h"
 
 //---------------
+Machine::~Machine() {}
+
+//---------------
 // Additional, machine-specific command options
 //
 static struct option* mainOptions = nullptr;
@@ -49,9 +52,6 @@ void Machine2D::BuildMachine(rulenr_t ruleNr, int nrNodes, int cycleCheckDepth,
     InitTape(tapeStructure, tapePctBlack);
     InitTopo(topoStructure);
 }
-
-//---------------
-Machine::~Machine() {}
 
 //---------------
 Machine2D::~Machine2D() {
