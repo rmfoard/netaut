@@ -16,21 +16,13 @@
 #include "machine.h"
 
 //---------------
-// Additional, machine-specific command options
-//
-static struct option* mainOptions = nullptr;
-
-static int rule_wise = false;
-
-static struct option additional_command_options[] = {
-    {"string-arg", required_argument, 0, 's'},
-    {"rule-wise", no_argument, 0, 'w'},
-    {0, 0, 0, 0}
-};
-
-//---------------
 void MachineR::BuildMachine(rulenr_t ruleNr, int nrNodes, int cycleCheckDepth,
-  std::string tapeStructure, int tapePctBlack, std::string topoStructure) {
+  std::string tapeStructure, int tapePctBlack, std::string topoStructure, int ruleWise) {
+    if (ruleWise)
+        m_machineType = "BR";
+    else
+        m_machineType = "R";
+
     m_rule = new Rule(ruleNr);
     m_ruleParts = m_rule->get_ruleParts();
     m_nrNodes = nrNodes;
@@ -127,12 +119,13 @@ void MachineR::AdvanceNode(TNGraph::TNodeI NIter) {
     // Apply the node action and note the provisional topological action
     // in the scratchpad.
     assert(m_nextL[nNId] == -1 && m_nextR[nNId] == -1);
-    if (rule_wise) { //randomly choose a rule part
+    if (m_machineType == "BR") { //"BR" machine: randomly choose a rule part
         m_nextNodeStates[nNId] = nAction;
         m_nextL[nNId] = newDsts[rand() % NR_DSTS];
         m_nextR[nNId] = newDsts[rand() % NR_DSTS];
     }
-    else { // randomly choose dest nodes
+    else { // "R" machine: randomly choose dest nodes
+        assert(m_machineType == "R");
         m_nextNodeStates[nNId] = rand() % 2; // randomly assign node color
         m_nextL[nNId] = m_graph->GetRndNId(*m_snapRnd);
         m_nextR[nNId] = m_graph->GetRndNId(*m_snapRnd);
@@ -487,26 +480,6 @@ bool MachineR::StateMatchesCurrent(Machine::MachineState other) {
 }
 
 //---------------
-// AddCommandOptions
-//---------------
-void MachineR::AddCommandOptions(struct option* options, int maxOptions) {
-
-    // Retain a pointer to 'getopt's' structure.
-    mainOptions = options;
-
-    // Locate the end of the main structure.
-    int optIx = 0;
-    while (optIx < maxOptions && options[optIx].name != 0) optIx += 1;
-    if (optIx == maxOptions) throw std::runtime_error("command option overflow");
-    struct option endMark = options[optIx];
-    for (int addIx = 0; additional_command_options[addIx].name != 0; addIx += 1) {
-        options[optIx] = additional_command_options[addIx];
-        optIx += 1;
-    }
-    options[optIx] = endMark;
-}
-
-//---------------
 // AddSummaryInfo
 //---------------
 void MachineR::AddSummaryInfo(Json::Value& info) {
@@ -518,62 +491,4 @@ void MachineR::AddSummaryInfo(Json::Value& info) {
         triadOccurrences.append((Json::Value::UInt64) occurrences);
     }
     info["triadOccurrences"] = triadOccurrences;
-
 }
-
-//---------------
-// ParseCommand
-//---------------
-void MachineR::ParseCommand(const int argc, char* argv[]) {
-    int c;
-    bool errorFound = false;
-
-    // Set command options to default values.
-    this->set_machineType("R");
-
-    // "Rewind" command line scanning.
-    optind = 1;
-    while (true) {
-        int option_index = 0;
-        c = getopt_long(argc, argv, "s:w:", mainOptions, &option_index);
-
-        if (c == -1) // end of options?
-            break;
-
-        switch (c) {
-          case 0: // flag setting only, no further processing required
-            if (mainOptions[option_index].flag != 0) break;
-            assert(false);
-
-          case 's':
-            printf("--string-arg was seen\n");
-            break;
-
-          case 'w':
-            rule_wise = true;
-            this->set_machineType("BR");
-            break;
-
-          case '?':
-            errorFound = true;
-            break;
-
-          default:
-            /*abort()*/;
-       }
-    }
-
-    if (errorFound) exit(1);
-
-    // Warn of odd selections.
-    if (false)
-        std::cerr << "warning: <odd selection>" << std::endl;
-
-    // Warn if any non-option command arguments are present.
-    if (optind < argc) {
-        printf ("warning: there are extraneous command arguments: ");
-        while (optind < argc) printf ("%s ", argv[optind++]);
-        putchar ('\n');
-    }
-}
-

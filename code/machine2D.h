@@ -22,12 +22,10 @@ public:
 
     Machine2D() : Machine() {};
     ~Machine2D();
-    virtual void BuildMachine(rulenr_t, int, int, std::string, int, std::string);
-    virtual void AddCommandOptions(struct option[], int);
+    virtual void BuildMachine(rulenr_t, int, int, std::string, int, std::string, int);
     virtual PNGraph get_graph();
     virtual int* get_nodeStates();
     virtual int IterateMachine(int);
-    virtual void ParseCommand(int, char**);
 
 
     virtual void AddSummaryInfo(Json::Value&);

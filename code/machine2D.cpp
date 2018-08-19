@@ -19,21 +19,9 @@
 Machine::~Machine() {}
 
 //---------------
-// Additional, machine-specific command options
-//
-static struct option* mainOptions = nullptr;
-
-static int workaround = false;
-
-static struct option additional_command_options[] = {
-    {"string-arg", required_argument, 0, 's'},
-    {"workaround", no_argument, 0, 'w'},
-    {0, 0, 0, 0}
-};
-
-//---------------
 void Machine2D::BuildMachine(rulenr_t ruleNr, int nrNodes, int cycleCheckDepth,
-  std::string tapeStructure, int tapePctBlack, std::string topoStructure) {
+  std::string tapeStructure, int tapePctBlack, std::string topoStructure, int ruleWise) {
+    assert(!ruleWise); // should be disallowed by caller
     m_machineType = std::string("B");
     m_rule = new Rule(ruleNr);
     m_ruleParts = m_rule->get_ruleParts();
@@ -485,26 +473,6 @@ bool Machine2D::StateMatchesCurrent(Machine::MachineState other) {
 }
 
 //---------------
-// AddCommandOptions
-//---------------
-void Machine2D::AddCommandOptions(struct option* options, int maxOptions) {
-
-    // Retain a pointer to 'getopt's' structure.
-    mainOptions = options;
-
-    // Locate the end of the main structure.
-    int optIx = 0;
-    while (optIx < maxOptions && options[optIx].name != 0) optIx += 1;
-    if (optIx == maxOptions) throw std::runtime_error("command option overflow");
-    struct option endMark = options[optIx];
-    for (int addIx = 0; additional_command_options[addIx].name != 0; addIx += 1) {
-        options[optIx] = additional_command_options[addIx];
-        optIx += 1;
-    }
-    options[optIx] = endMark;
-}
-
-//---------------
 // AddSummaryInfo
 //---------------
 void Machine2D::AddSummaryInfo(Json::Value& info) {
@@ -516,63 +484,4 @@ void Machine2D::AddSummaryInfo(Json::Value& info) {
         triadOccurrences.append((Json::Value::UInt64) occurrences);
     }
     info["triadOccurrences"] = triadOccurrences;
-
 }
-
-//---------------
-// ParseCommand
-//---------------
-void Machine2D::ParseCommand(const int argc, char* argv[]) {
-    int c;
-    bool errorFound = false;
-
-    // Set command options to default values.
-
-    // "Rewind" command line scanning.
-    optind = 1;
-    while (true) {
-        int option_index = 0;
-        c = getopt_long(argc, argv, "s:w:", mainOptions, &option_index);
-
-        if (c == -1) // end of options?
-            break;
-
-        switch (c) {
-          case 0: // flag setting only, no further processing required
-            if (mainOptions[option_index].flag != 0) break;
-            assert(false);
-
-          case 's':
-            printf("--string-arg was seen\n");
-            break;
-
-          case 'w':
-            workaround = 1;
-            break;
-
-          case '?':
-            errorFound = true;
-            break;
-
-          default:
-            /*abort()*/;
-       }
-    }
-
-    // Check option consistency.
-    //printf("workaround: %d\n", workaround);
-
-    if (errorFound) exit(1);
-
-    // Warn of odd selections.
-    if (false)
-        std::cerr << "warning: <odd selection>" << std::endl;
-
-    // Warn if any non-option command arguments are present.
-    if (optind < argc) {
-        printf ("warning: there are extraneous command arguments: ");
-        while (optind < argc) printf ("%s ", argv[optind++]);
-        putchar ('\n');
-    }
-}
-

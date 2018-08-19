@@ -29,12 +29,10 @@ public:
 
     std::string get_machineType();
     void set_machineType(std::string);
-    virtual void BuildMachine(rulenr_t, int, int, std::string, int, std::string) = 0;
-    virtual void AddCommandOptions(struct option[], int) = 0;
+    virtual void BuildMachine(rulenr_t, int, int, std::string, int, std::string, int) = 0;
     virtual PNGraph get_graph() = 0;
     virtual int* get_nodeStates() = 0;
     virtual int IterateMachine(int) = 0;
-    virtual void ParseCommand(int, char**) = 0;
 
     virtual void AddSummaryInfo(Json::Value&) = 0;
     virtual void AdvanceNode(TNGraph::TNodeI) = 0;

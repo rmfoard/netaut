@@ -32,6 +32,7 @@ struct CommandOpts {
     int noConsole;
     int printTape;
     int noWriteEndGraph;
+    int ruleWise;
     int nrNodes;
     int graphWriteStart;
     int graphWriteStride;
@@ -43,6 +44,7 @@ struct CommandOpts {
     int tapePctBlack;
     bool rulePresent;
     bool ruletextPresent;
+    std::string machineTypeName;
     std::string recordName;
     std::string graphFileSuffix;
     std::string writeAsName;
@@ -84,12 +86,13 @@ static struct option long_options[MAX_COMMAND_OPTIONS] = {
     {"no-console", no_argument, &cmdOpt.noConsole, 1},
     {"no-write-end-graph", no_argument, &cmdOpt.noWriteEndGraph, 1},
     {"print-tape", no_argument, &cmdOpt.printTape, 1},
+    {"rule-wise", no_argument, &cmdOpt.ruleWise, 1},
 
     {"cycle-check-depth", required_argument, 0, CO_CYCLE_CHECK_DEPTH},
     {"init-tape", required_argument, 0, CO_INIT_TAPE},
     {"init-topo", required_argument, 0, CO_INIT_TOPO},
     {"max-iterations", required_argument, 0, 'i'},
-    /*{"machine", required_argument, 0, 'm'},*/
+    {"machine", required_argument, 0, 'm'},
     {"nodes", required_argument, 0, 'n'},
     {"noop", no_argument, 0, CO_NOOP},
     {"randseed", required_argument, 0, 'a'},
@@ -137,10 +140,12 @@ void ParseCommand(const int argc, char* argv[]) {
     bool errorFound = false;
 
     // Set command options to default values.
+    // TODO: Need we initialize the "flag" option vars?
     cmdOpt.maxIterations = 128;
     cmdOpt.randSeed = -1;
     cmdOpt.noConsole = 0;
     cmdOpt.printTape = 0;
+    cmdOpt.ruleWise = 0;
     cmdOpt.nrNodes = 256;
     cmdOpt.graphWriteStart = -1;
     cmdOpt.graphWriteStride = -1;
@@ -153,6 +158,7 @@ void ParseCommand(const int argc, char* argv[]) {
     cmdOpt.rulePresent = false;
     cmdOpt.ruletextPresent = false;
     cmdOpt.noWriteEndGraph = false;
+    cmdOpt.machineTypeName = "B";
     cmdOpt.graphFileSuffix = "";
     cmdOpt.writeAsName = "";
     cmdOpt.recordName = "";
@@ -215,10 +221,13 @@ void ParseCommand(const int argc, char* argv[]) {
             }
             break;
 
-          /*case 'm':
-            std::cerr << "machine option is not yet supported." << std::endl;
-            errorFound = true;
-            break;*/
+          case 'm':
+            cmdOpt.machineTypeName = std::string(optarg);
+            if (cmdOpt.machineTypeName != "B" && cmdOpt.machineTypeName != "R") {
+                std::cerr << "error: machine type " << cmdOpt.machineTypeName << " is not recognized."  << std::endl;
+                errorFound = true;
+            }
+            break;
 
           case 's':
             cmdOpt.graphFileSuffix = optarg;
@@ -301,6 +310,11 @@ void ParseCommand(const int argc, char* argv[]) {
     }
 
     // Check option consistency.
+    if (cmdOpt.ruleWise && cmdOpt.machineTypeName != "R") {
+        std::cerr << "error: --rule-wise is used only with machine type 'R'" << std::endl;
+        errorFound = true;
+    }
+
     if ((cmdOpt.graphWriteStart >= 0 && cmdOpt.graphWriteStride < 0)
       || (cmdOpt.graphWriteStart < 0 && cmdOpt.graphWriteStride >= 0)) {
         std::cerr << "error: --graph-start and --graph-stride must both be specified" << std::endl;
@@ -569,17 +583,17 @@ int main(const int argc, char* argv[]) {
 
     cmdOpt.ruleNr = 15;
 
-    // Instantiate the machine.
-    //Machine* m = new Machine2D();
-    Machine* m = new MachineR();
-
-    // Augment the command parsing structure with options specific to
-    // the current machine.
-    m->AddCommandOptions(long_options, MAX_COMMAND_OPTIONS);
-
-    // Parse the base command and machine-specific options.
+    // Parse the command.
     ParseCommand(argc, argv);
-    m->ParseCommand(argc, argv);
+
+    Machine* m;
+    // Instantiate the machine.
+    if (cmdOpt.machineTypeName == "B")
+        m = new Machine2D();
+    else {
+        assert(cmdOpt.machineTypeName == "R");
+        m = new MachineR();
+    }
 
     // Translate ruletext if it is provided in lieu of a rule number.
     if (cmdOpt.ruletextPresent) {
@@ -590,7 +604,7 @@ int main(const int argc, char* argv[]) {
 
     // Create the machine.
     m->BuildMachine(cmdOpt.ruleNr, cmdOpt.nrNodes, cmdOpt.cycleCheckDepth,
-      cmdOpt.tapeStructure, cmdOpt.tapePctBlack,cmdOpt.topoStructure);
+      cmdOpt.tapeStructure, cmdOpt.tapePctBlack,cmdOpt.topoStructure, cmdOpt.ruleWise);
 
     // Fabricate a run identifier.
     runId = RunId(m->get_machineType(), cmdOpt.ruleNr);
