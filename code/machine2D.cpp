@@ -74,7 +74,6 @@ Machine2D::~Machine2D() {
 //---------------
 // TODO: Use the proper form for "getters."
 //---------------
-std::string Machine2D::get_machineType() { return m_machineType; }
 PNGraph Machine2D::get_graph() { return m_graph; }
 int* Machine2D::get_nodeStates() { return m_nodeStates; }
 
@@ -122,9 +121,7 @@ void Machine2D::AdvanceNode(TNGraph::TNodeI NIter) {
     const int rulePart = m_ruleParts[triadState];
     assert(0 <= rulePart && rulePart < NR_ACTIONS);
 
-    // TODO: (minor opt) Maintain unpacked structures built when
-    //   'ruleParts' is developed during initialization.
-    // Unpack the rule part into left edge, right edge, and node actions
+    // Unpack the rule part into left edge, right edge, and node actions.
     const int lAction = (rulePart / 2) / NR_DSTS;
     const int rAction = (rulePart / 2) % NR_DSTS;
     const int nAction = rulePart % 2;
@@ -132,10 +129,9 @@ void Machine2D::AdvanceNode(TNGraph::TNodeI NIter) {
     // Confirm that the multi-edge invariant still holds.
     assert(lNId != rNId);
 
-    // Apply the node action.
+    // Apply the node action and note the provisional topological action
+    // in the scratchpad.
     m_nextNodeStates[nNId] = nAction;
-
-    // Note the provisional topological action in the scratchpad.
     assert(m_nextL[nNId] == -1 && m_nextR[nNId] == -1);
     m_nextL[nNId] = newDsts[lAction];
     m_nextR[nNId] = newDsts[rAction];

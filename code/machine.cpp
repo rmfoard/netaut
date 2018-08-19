@@ -8,6 +8,12 @@
 
 
 //---------------
+// TODO: Use the proper form for "getters."
+//---------------
+std::string Machine::get_machineType() { return m_machineType; }
+void Machine::set_machineType(std::string type) { m_machineType = type; }
+
+//---------------
 // DegEntropy
 //---------------
 static double Entropy(TVec<TPair<TInt, TInt> > degCnt) {

@@ -24,7 +24,6 @@ public:
     ~MachineR();
     virtual void BuildMachine(rulenr_t, int, int, std::string, int, std::string);
     virtual void AddCommandOptions(struct option[], int);
-    virtual std::string get_machineType();
     virtual PNGraph get_graph();
     virtual int* get_nodeStates();
     virtual int IterateMachine(int);

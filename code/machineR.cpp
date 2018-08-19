@@ -20,18 +20,17 @@
 //
 static struct option* mainOptions = nullptr;
 
-static int workaround = false;
+static int rule_wise = false;
 
 static struct option additional_command_options[] = {
     {"string-arg", required_argument, 0, 's'},
-    {"workaround", no_argument, 0, 'w'},
+    {"rule-wise", no_argument, 0, 'w'},
     {0, 0, 0, 0}
 };
 
 //---------------
 void MachineR::BuildMachine(rulenr_t ruleNr, int nrNodes, int cycleCheckDepth,
   std::string tapeStructure, int tapePctBlack, std::string topoStructure) {
-    m_machineType = std::string("R");
     m_rule = new Rule(ruleNr);
     m_ruleParts = m_rule->get_ruleParts();
     m_nrNodes = nrNodes;
@@ -72,7 +71,6 @@ MachineR::~MachineR() {
 //---------------
 // TODO: Use the proper form for "getters."
 //---------------
-std::string MachineR::get_machineType() { return m_machineType; }
 PNGraph MachineR::get_graph() { return m_graph; }
 int* MachineR::get_nodeStates() { return m_nodeStates; }
 
@@ -90,16 +88,57 @@ void MachineR::AdvanceNode(TNGraph::TNodeI NIter) {
     int lNId = NIter.GetOutNId(0);
     int rNId = NIter.GetOutNId(1);
 
+    // TODO: Remove unnecessary intermediate variables.
+    // Set state variables for convenience.
+    int nState = m_nodeStates[nNId]; 
+    int lState = m_nodeStates[lNId];
+    int rState = m_nodeStates[rNId];
+
+    int triadState = lState * 4 + nState * 2 + rState;
+    m_stats.triadOccurrences[triadState] += 1;
+
+    // Gather info on neighbors' neighbors.
+    TNGraph::TNodeI lNIter = m_graph->GetNI(lNId); // iterator for left neighbor
+    TNGraph::TNodeI rNIter = m_graph->GetNI(rNId); // iterator for right neighbor
+    int llNId = lNIter.GetOutNId(0);
+    int lrNId = lNIter.GetOutNId(1);
+    int rlNId = rNIter.GetOutNId(0);
+    int rrNId = rNIter.GetOutNId(1);
+
+    // Prepare an array of possible new destinations for edges
+    int* newDsts = new int[NR_DSTS];
+    newDsts[LEDGE] = lNId;
+    newDsts[LLEDGE] = llNId;
+    newDsts[LREDGE] = lrNId;
+    newDsts[REDGE] = rNId;
+    newDsts[RLEDGE] = rlNId;
+    newDsts[RREDGE] = rrNId;
+
+    assert(0 <= triadState && triadState < NR_TRIAD_STATES);
+    const int rulePart = m_ruleParts[triadState];
+    assert(0 <= rulePart && rulePart < NR_ACTIONS);
+
+    // Unpack the node action from the rule part.
+    const int nAction = rulePart % 2;
+
     // Confirm that the multi-edge invariant still holds.
     assert(lNId != rNId);
 
-    // Apply the node action.
-    m_nextNodeStates[nNId] = rand() % 2; // randomly assign node color
-
-    // Note the provisional topological action in the scratchpad.
+    // Apply the node action and note the provisional topological action
+    // in the scratchpad.
     assert(m_nextL[nNId] == -1 && m_nextR[nNId] == -1);
-    m_nextL[nNId] = m_graph->GetRndNId(*m_snapRnd);
-    m_nextR[nNId] = m_graph->GetRndNId(*m_snapRnd);
+    if (rule_wise) { //randomly choose a rule part
+        m_nextNodeStates[nNId] = nAction;
+        m_nextL[nNId] = newDsts[rand() % NR_DSTS];
+        m_nextR[nNId] = newDsts[rand() % NR_DSTS];
+    }
+    else { // randomly choose dest nodes
+        m_nextNodeStates[nNId] = rand() % 2; // randomly assign node color
+        m_nextL[nNId] = m_graph->GetRndNId(*m_snapRnd);
+        m_nextR[nNId] = m_graph->GetRndNId(*m_snapRnd);
+    }
+
+    delete newDsts;
 }
 
 //---------------
@@ -490,6 +529,7 @@ void MachineR::ParseCommand(const int argc, char* argv[]) {
     bool errorFound = false;
 
     // Set command options to default values.
+    this->set_machineType("R");
 
     // "Rewind" command line scanning.
     optind = 1;
@@ -510,7 +550,8 @@ void MachineR::ParseCommand(const int argc, char* argv[]) {
             break;
 
           case 'w':
-            workaround = 1;
+            rule_wise = true;
+            this->set_machineType("BR");
             break;
 
           case '?':
@@ -521,9 +562,6 @@ void MachineR::ParseCommand(const int argc, char* argv[]) {
             /*abort()*/;
        }
     }
-
-    // Check option consistency.
-    //printf("workaround: %d\n", workaround);
 
     if (errorFound) exit(1);
 
