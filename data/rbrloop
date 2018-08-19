@@ -1,0 +1,18 @@
+../code/randrule --reset --cache "$8.cache"
+runnr=1
+while [ $runnr -le $2 ]; do
+    ../code/explorer \
+    --rule `../code/randrule --randseed $RANDOM --reserve $2 --cache "$8.cache"` \
+    --randseed $RANDOM \
+    --no-write-end-graph \
+    --no-console \
+    --machine R \
+    --rule-wise \
+    --nodes $1 \
+    --max-iterations $3 \
+    --init-tape $4 \
+    --init-topo $5 \
+    --cycle-check-depth $6 \
+    --record $7
+    ((runnr++))
+done
