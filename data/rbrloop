@@ -1,8 +1,8 @@
-../code/randrule --reset --cache "$8.cache"
+../code/randrule --reset --cache "$7.cache"
 runnr=1
 while [ $runnr -le $2 ]; do
     ../code/explorer \
-    --rule `../code/randrule --randseed $RANDOM --reserve $2 --cache "$8.cache"` \
+    --rule `../code/randrule --randseed $RANDOM --reserve $2 --cache "$7.cache"` \
     --randseed $RANDOM \
     --no-write-end-graph \
     --no-console \
