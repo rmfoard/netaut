@@ -20,7 +20,7 @@
 #include "machine2D.h"
 #include "machineR.h"
 
-#define VERSION "V180819.1"
+#define VERSION "V180820.0"
 
 //---------------
 // Command option settings
@@ -32,7 +32,7 @@ struct CommandOpts {
     int noConsole;
     int printTape;
     int noWriteEndGraph;
-    int ruleWise;
+    int local;
     int nrNodes;
     int graphWriteStart;
     int graphWriteStride;
@@ -86,7 +86,7 @@ static struct option long_options[MAX_COMMAND_OPTIONS] = {
     {"no-console", no_argument, &cmdOpt.noConsole, 1},
     {"no-write-end-graph", no_argument, &cmdOpt.noWriteEndGraph, 1},
     {"print-tape", no_argument, &cmdOpt.printTape, 1},
-    {"rule-wise", no_argument, &cmdOpt.ruleWise, 1},
+    {"local", no_argument, &cmdOpt.local, 1},
 
     {"cycle-check-depth", required_argument, 0, CO_CYCLE_CHECK_DEPTH},
     {"init-tape", required_argument, 0, CO_INIT_TAPE},
@@ -145,7 +145,7 @@ void ParseCommand(const int argc, char* argv[]) {
     cmdOpt.randSeed = -1;
     cmdOpt.noConsole = 0;
     cmdOpt.printTape = 0;
-    cmdOpt.ruleWise = 0;
+    cmdOpt.local = 0;
     cmdOpt.nrNodes = 256;
     cmdOpt.graphWriteStart = -1;
     cmdOpt.graphWriteStride = -1;
@@ -310,8 +310,8 @@ void ParseCommand(const int argc, char* argv[]) {
     }
 
     // Check option consistency.
-    if (cmdOpt.ruleWise && cmdOpt.machineTypeName != "R") {
-        std::cerr << "error: --rule-wise is used only with machine type 'R'" << std::endl;
+    if (cmdOpt.local && cmdOpt.machineTypeName != "R") {
+        std::cerr << "error: --local is used only with machine type 'R'" << std::endl;
         errorFound = true;
     }
 
@@ -604,7 +604,7 @@ int main(const int argc, char* argv[]) {
 
     // Create the machine.
     m->BuildMachine(cmdOpt.ruleNr, cmdOpt.nrNodes, cmdOpt.cycleCheckDepth,
-      cmdOpt.tapeStructure, cmdOpt.tapePctBlack,cmdOpt.topoStructure, cmdOpt.ruleWise);
+      cmdOpt.tapeStructure, cmdOpt.tapePctBlack,cmdOpt.topoStructure, cmdOpt.local);
 
     // Fabricate a run identifier.
     runId = RunId(m->get_machineType(), cmdOpt.ruleNr);

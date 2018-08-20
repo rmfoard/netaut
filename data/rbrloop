@@ -7,7 +7,7 @@ while [ $runnr -le $2 ]; do
     --no-write-end-graph \
     --no-console \
     --machine R \
-    --rule-wise \
+    --local \
     --nodes $1 \
     --max-iterations $3 \
     --init-tape $4 \

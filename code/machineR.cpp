@@ -17,8 +17,8 @@
 
 //---------------
 void MachineR::BuildMachine(rulenr_t ruleNr, int nrNodes, int cycleCheckDepth,
-  std::string tapeStructure, int tapePctBlack, std::string topoStructure, int ruleWise) {
-    if (ruleWise)
+  std::string tapeStructure, int tapePctBlack, std::string topoStructure, int local) {
+    if (local)
         m_machineType = "BR";
     else
         m_machineType = "R";

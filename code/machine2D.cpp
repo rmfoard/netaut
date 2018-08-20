@@ -20,8 +20,8 @@ Machine::~Machine() {}
 
 //---------------
 void Machine2D::BuildMachine(rulenr_t ruleNr, int nrNodes, int cycleCheckDepth,
-  std::string tapeStructure, int tapePctBlack, std::string topoStructure, int ruleWise) {
-    assert(!ruleWise); // should be disallowed by caller
+  std::string tapeStructure, int tapePctBlack, std::string topoStructure, int local) {
+    assert(!local); // should be disallowed by caller
     m_machineType = std::string("B");
     m_rule = new Rule(ruleNr);
     m_ruleParts = m_rule->get_ruleParts();
