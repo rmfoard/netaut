@@ -1,16 +1,19 @@
+# rloop type --local|noop nodes runs maxiters tape topo checkDepth recordBaseName
+#
+#
 ../code/randrule --reset --cache "$7.cache"
 runnr=1
-while [ $runnr -le $2 ]; do
+while [ $runnr -le $4 ]; do
     ../code/explorer \
-    --rule `../code/randrule --randseed $RANDOM --reserve $2 --cache "$7.cache"` \
+    --rule `../code/randrule --randseed $RANDOM --reserve $4 --cache "$9.cache"` \
     --randseed $RANDOM \
     --no-write-end-graph \
     --no-console \
-    --nodes $1 \
-    --max-iterations $3 \
-    --init-tape $4 \
-    --init-topo $5 \
-    --cycle-check-depth $6 \
-    --record $7
+    --nodes $3 \
+    --max-iterations $5 \
+    --init-tape $6 \
+    --init-topo $7 \
+    --cycle-check-depth $8 \
+    --record $9
     ((runnr++))
 done
