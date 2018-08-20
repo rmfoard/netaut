@@ -1,5 +1,5 @@
-CREATE TABLE runId (
-    runId               varchar(256) NOT NULL REFERENCES runs(runId),
+CREATE TABLE i (
+    runId               varchar(256) NOT NULL REFERENCES s(runId),
     inDegreeSize        integer,
     inDegreeCount       integer
 );

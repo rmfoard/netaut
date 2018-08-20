@@ -2,7 +2,6 @@ CREATE TABLE s (
     runId               varchar(256) NOT NULL PRIMARY KEY,
     cycleCheckDepth     integer,
     cycleLength         integer,
-    diameter            integer,
     hashCollisions      integer,
     initNrNodes         integer,
     machineType         varchar(4),
