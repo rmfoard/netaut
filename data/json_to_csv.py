@@ -13,7 +13,7 @@ def main():
     NR_TRIAD_STATES = NR_NODE_STATES * NR_NODE_STATES * NR_NODE_STATES
 
     # List of fields to be included in the main csv file (in order)
-    main_names = [
+    s_names = [
         'runId',
         'cycleCheckDepth',
         'cycleLength',
@@ -31,35 +31,35 @@ def main():
         'version'
     ]
 
-    cc_names = [
+    c_names = [
         'runId',
         'ccSize',
         'ccCount'
     ]
-    cc_dct = {}
+    c_dct = {}
 
-    id_names = [
+    i_names = [
         'runId',
         'inDegree',
         'inDegreeCount'
     ]
-    id_dct = {}
+    i_dct = {}
 
-    od_names = [
+    o_names = [
         'runId',
         'outDegree',
         'outDegreeCount'
     ]
-    od_dct = {}
+    o_dct = {}
 
-    tr_names = [
+    t_names = [
         'runId',
         'triad',
         'triadCount'
     ]
-    tr_dct = {}
+    t_dct = {}
 
-    it_names = [
+    d_names = [
         'runId',
         'avgClustCoef',
         'diameter',
@@ -78,71 +78,71 @@ def main():
 
     # Pass the main json file writing the five derived csv files.
     with open(basename + '_summ.json', 'r') as jsonfile:
-        with open(basename + '_summ.csv', 'w') as main_f:
-            main_writer = csv.DictWriter(main_f, fieldnames=main_names, extrasaction='ignore')
-            main_writer.writeheader()
+        with open(basename + '_s.csv', 'w') as s_f:
+            s_writer = csv.DictWriter(s_f, fieldnames=s_names, extrasaction='ignore')
+            s_writer.writeheader()
 
-            with open(basename + '_cc.csv', 'w') as cc_f:
-                cc_writer = csv.DictWriter(cc_f, fieldnames=cc_names, extrasaction='ignore')
-                cc_writer.writeheader()
+            with open(basename + '_c.csv', 'w') as c_f:
+                c_writer = csv.DictWriter(c_f, fieldnames=c_names, extrasaction='ignore')
+                c_writer.writeheader()
 
-                with open(basename + '_id.csv', 'w') as id_f:
-                    id_writer = csv.DictWriter(id_f, fieldnames=id_names, extrasaction='ignore')
-                    id_writer.writeheader()
+                with open(basename + '_i.csv', 'w') as i_f:
+                    i_writer = csv.DictWriter(i_f, fieldnames=i_names, extrasaction='ignore')
+                    i_writer.writeheader()
 
-                    with open(basename + '_tr.csv', 'w') as tr_f:
-                        tr_writer = csv.DictWriter(tr_f, fieldnames=tr_names, extrasaction='ignore')
-                        tr_writer.writeheader()
+                    with open(basename + '_t.csv', 'w') as t_f:
+                        t_writer = csv.DictWriter(t_f, fieldnames=t_names, extrasaction='ignore')
+                        t_writer.writeheader()
 
-                        with open(basename + '_od.csv', 'w') as od_f:
-                            od_writer = csv.DictWriter(od_f, fieldnames=od_names, extrasaction='ignore')
-                            od_writer.writeheader()
+                        with open(basename + '_o.csv', 'w') as o_f:
+                            o_writer = csv.DictWriter(o_f, fieldnames=o_names, extrasaction='ignore')
+                            o_writer.writeheader()
 
                             line_number = 1
                             for line in jsonfile:
                                 line_number += 1
                                 if len(line) < 2:
                                     continue
-                                main_dct = json.loads(line)
-                                run_id = main_dct['runId']
-                                main_writer.writerow(main_dct)
+                                s_dct = json.loads(line)
+                                run_id = s_dct['runId']
+                                s_writer.writerow(s_dct)
 
-                                cc_dct['runId'] = run_id
-                                for pair in main_dct['ccSizeCount']:
-                                    cc_dct['ccSize'] = pair[0]
-                                    cc_dct['ccCount'] = pair[1]
-                                    cc_writer.writerow(cc_dct)
+                                c_dct['runId'] = run_id
+                                for pair in s_dct['ccSizeCount']:
+                                    c_dct['ccSize'] = pair[0]
+                                    c_dct['ccCount'] = pair[1]
+                                    c_writer.writerow(c_dct)
 
-                                id_dct['runId'] = run_id
-                                for pair in main_dct['inDegreeCount']:
-                                    id_dct['inDegree'] = pair[0]
-                                    id_dct['inDegreeCount'] = pair[1]
-                                    id_writer.writerow(id_dct)
+                                i_dct['runId'] = run_id
+                                for pair in s_dct['inDegreeCount']:
+                                    i_dct['inDegree'] = pair[0]
+                                    i_dct['inDegreeCount'] = pair[1]
+                                    i_writer.writerow(i_dct)
 
-                                od_dct['runId'] = run_id
-                                for pair in main_dct['outDegreeCount']:
-                                    od_dct['outDegree'] = pair[0]
-                                    od_dct['outDegreeCount'] = pair[1]
-                                    od_writer.writerow(od_dct)
+                                o_dct['runId'] = run_id
+                                for pair in s_dct['outDegreeCount']:
+                                    o_dct['outDegree'] = pair[0]
+                                    o_dct['outDegreeCount'] = pair[1]
+                                    o_writer.writerow(o_dct)
 
-                                tr_dct['runId'] = run_id
+                                t_dct['runId'] = run_id
                                 for triad in xrange(NR_TRIAD_STATES):
-                                    tr_dct['triad'] = triad
-                                    tr_dct['triadCount'] = main_dct['triadOccurrences'][triad]
-                                    tr_writer.writerow(tr_dct)
+                                    t_dct['triad'] = triad
+                                    t_dct['triadCount'] = s_dct['triadOccurrences'][triad]
+                                    t_writer.writerow(t_dct)
 
     # Pass the iteration detail json file writing a csv file.
     with open(basename + '_iter.json', 'r') as jsonfile:
-        with open(basename + '_iter.csv', 'w') as it_f:
-            it_writer = csv.DictWriter(it_f, fieldnames=it_names, extrasaction='ignore')
-            it_writer.writeheader()
+        with open(basename + '_d.csv', 'w') as d_f:
+            d_writer = csv.DictWriter(d_f, fieldnames=d_names, extrasaction='ignore')
+            d_writer.writeheader()
             line_number = 1
             for line in jsonfile:
                 line_number += 1
                 if len(line) < 2:
                     continue
-                it_dct = json.loads(line)
-                it_writer.writerow(it_dct)
+                d_dct = json.loads(line)
+                d_writer.writerow(d_dct)
 
 
 if __name__ == '__main__':

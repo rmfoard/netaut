@@ -20,7 +20,7 @@
 #include "machine2D.h"
 #include "machineR.h"
 
-#define VERSION "V180819.0"
+#define VERSION "V180819.1"
 
 //---------------
 // Command option settings
@@ -610,8 +610,8 @@ int main(const int argc, char* argv[]) {
     runId = RunId(m->get_machineType(), cmdOpt.ruleNr);
 
     // Open the output streams.
-    recordSummOut.open(cmdOpt.recordName + "_summ.json", std::ios::app);
-    recordIterOut.open(cmdOpt.recordName + "_iter.json", std::ios::app);
+    recordSummOut.open(cmdOpt.recordName + "_s.json", std::ios::app);
+    recordIterOut.open(cmdOpt.recordName + "_d.json", std::ios::app);
     if (!recordSummOut.is_open() || !recordIterOut.is_open()) {
         std::cerr << "error: can't open record output files" << std::endl;
         exit(1);
