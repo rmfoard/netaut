@@ -77,7 +77,7 @@ def main():
     ]
 
     # Pass the main json file writing the five derived csv files.
-    with open(basename + '_summ.json', 'r') as jsonfile:
+    with open(basename + '_s.json', 'r') as jsonfile:
         with open(basename + '_s.csv', 'w') as s_f:
             s_writer = csv.DictWriter(s_f, fieldnames=s_names, extrasaction='ignore')
             s_writer.writeheader()
@@ -132,7 +132,7 @@ def main():
                                     t_writer.writerow(t_dct)
 
     # Pass the iteration detail json file writing a csv file.
-    with open(basename + '_iter.json', 'r') as jsonfile:
+    with open(basename + '_d.json', 'r') as jsonfile:
         with open(basename + '_d.csv', 'w') as d_f:
             d_writer = csv.DictWriter(d_f, fieldnames=d_names, extrasaction='ignore')
             d_writer.writeheader()
