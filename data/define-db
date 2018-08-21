@@ -1,0 +1,9 @@
+psql $1 <<EOF
+\i create-s-tbl.sql
+\i create-d-tbl.sql
+\i create-c-tbl.sql
+\i create-t-tbl.sql
+\i create-i-tbl.sql
+\i create-o-tbl.sql
+EOF
+
