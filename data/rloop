@@ -6,6 +6,7 @@ runnr=1
 while [ $runnr -le $4 ]; do
     ../code/explorer \
     --rule `../code/randrule --randseed $RANDOM --reserve $4 --cache "$9.cache"` \
+    $2 \
     --machine $1 \
     --randseed $RANDOM \
     --no-write-end-graph \
