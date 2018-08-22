@@ -1,0 +1,1 @@
+create view sd as select s.*, d.avgclustcoef, d.diameter, d.indegreeentropy, d.iterationnr, d. nrccsizes, d.nrccs, d.nrclosedtriads, d.nrindegrees, d.nrnodes as finnrnodes, d.nropentriads from s, d where s.runid = d.runid;
