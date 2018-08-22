@@ -1,1 +1,0 @@
-ggplot(data=sdr) + geom_boxplot(mapping=aes(x=initnrnodes, y=nrindegrees, group=initnrnodes)) + facet_wrap(~ machinetype)
