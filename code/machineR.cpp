@@ -17,11 +17,8 @@
 
 //---------------
 void MachineR::BuildMachine(rulenr_t ruleNr, int nrNodes, int cycleCheckDepth,
-  std::string tapeStructure, int tapePctBlack, std::string topoStructure, int local) {
-    if (local)
-        m_machineType = "BR";
-    else
-        m_machineType = "R";
+  std::string tapeStructure, int tapePctBlack, std::string topoStructure) {
+    m_machineType = "R";
 
     m_rule = new Rule(ruleNr);
     m_ruleParts = m_rule->get_ruleParts();

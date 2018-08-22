@@ -604,7 +604,7 @@ int main(const int argc, char* argv[]) {
 
     // Create the machine.
     m->BuildMachine(cmdOpt.ruleNr, cmdOpt.nrNodes, cmdOpt.cycleCheckDepth,
-      cmdOpt.tapeStructure, cmdOpt.tapePctBlack,cmdOpt.topoStructure, cmdOpt.local);
+      cmdOpt.tapeStructure, cmdOpt.tapePctBlack,cmdOpt.topoStructure);
 
     // Fabricate a run identifier.
     runId = RunId(m->get_machineType(), cmdOpt.ruleNr);

@@ -22,7 +22,7 @@ public:
 
     Machine2D() : Machine() {};
     ~Machine2D();
-    virtual void BuildMachine(rulenr_t, int, int, std::string, int, std::string, int);
+    virtual void BuildMachine(rulenr_t, int, int, std::string, int, std::string);
     virtual PNGraph get_graph();
     virtual int* get_nodeStates();
     virtual int IterateMachine(int);
