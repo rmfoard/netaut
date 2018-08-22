@@ -1,0 +1,1 @@
+select s.*, d.avgclustcoef, d.diameter, d.effdiameter90pctl, d.indegreeentropy, d.iterationnr, d.nrccsizes, d.nrccs, d.nrclosedtriads, d.nrindegrees, d.nrnodes, d.nropentriads, d.nroutdegrees, d.outdegreeentropy into sd from s, d where s.runid = d.runid;
