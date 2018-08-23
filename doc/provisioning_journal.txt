@@ -113,7 +113,7 @@ To provision for generating netaut/hellosnap:
     - R> install.packages("RPostgreSQL")
     - (See OneNote 'NetworkAutomata' journal for session setup advice.)
 
-- to use R from within Postgresql (32-bit Ubuntu only?):
+- to use R from within Postgresql (32-bit Ubuntu only?): /* not required */
     - install PL/R using 32-bit deb package: 1.8.3.0.17-3.pgdg16.04+1
     - make it accessible for use in R (as supervisor only, I think):
         sudo su - postgres
@@ -124,6 +124,10 @@ To provision for generating netaut/hellosnap:
     - (useful background information might be had by examining:
         /usr/share/postgresql/10/extensions/plr.sql)
 
+- install LaTeX
+    - sudo apt-get install texlive-full
+    - sudo apt-get install texmaker
+    - sudo apt install xpdf
 - install mhash library
     - downloaded mhash from sourceforge
     - gunzip, tar xvf, ./configure, make
