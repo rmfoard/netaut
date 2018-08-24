@@ -116,17 +116,10 @@ void MachineR::AdvanceNode(TNGraph::TNodeI NIter) {
     // Apply the node action and note the provisional topological action
     // in the scratchpad.
     assert(m_nextL[nNId] == -1 && m_nextR[nNId] == -1);
-    if (m_machineType == "BR") { //"BR" machine: randomly choose a rule part
-        m_nextNodeStates[nNId] = nAction;
-        m_nextL[nNId] = newDsts[rand() % NR_DSTS];
-        m_nextR[nNId] = newDsts[rand() % NR_DSTS];
-    }
-    else { // "R" machine: randomly choose dest nodes
-        assert(m_machineType == "R");
-        m_nextNodeStates[nNId] = rand() % 2; // randomly assign node color
-        m_nextL[nNId] = m_graph->GetRndNId(*m_snapRnd);
-        m_nextR[nNId] = m_graph->GetRndNId(*m_snapRnd);
-    }
+    assert(m_machineType == "R");
+    m_nextNodeStates[nNId] = nAction;
+    m_nextL[nNId] = newDsts[rand() % NR_DSTS];
+    m_nextR[nNId] = newDsts[rand() % NR_DSTS];
 
     delete newDsts;
 }
