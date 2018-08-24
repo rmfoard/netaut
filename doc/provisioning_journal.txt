@@ -128,6 +128,10 @@ To provision for generating netaut/hellosnap:
     - sudo apt-get install texlive-full
     - sudo apt-get install texmaker
     - sudo apt install xpdf
+
+- install yEd
+    - (download .sh installer from yworks.com/Downloads)
+
 - install mhash library
     - downloaded mhash from sourceforge
     - gunzip, tar xvf, ./configure, make
