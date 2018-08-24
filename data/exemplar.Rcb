@@ -1,1 +1,0 @@
-ggplot(data=filter(sd, initnrnodes==512, cyclelength==-1, iterationnr != 0, nriterations<15)) + geom_freqpoly(mapping=aes(x=nriterations, color=machinetype), binwidth=1)
