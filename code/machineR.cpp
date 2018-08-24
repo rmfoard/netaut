@@ -25,7 +25,7 @@ void MachineR::BuildMachine(rulenr_t ruleNr, int nrNodes, int cycleCheckDepth,
     m_nrNodes = nrNodes;
     m_cycleCheckDepth = cycleCheckDepth;
     m_graph = TNGraph::New();
-    m_snapRnd = new TRnd(rand());
+    m_snapRnd = new TRnd(rand()); // unused BUT rand() call must remain in place
     m_nodeStates = new int[m_nrNodes];
     m_nextNodeStates = new int[m_nrNodes];
     m_nextL = new int[m_nrNodes];
@@ -107,6 +107,10 @@ void MachineR::AdvanceNode(TNGraph::TNodeI NIter) {
     const int rulePart = m_ruleParts[triadState];
     assert(0 <= rulePart && rulePart < NR_ACTIONS);
 
+    // Note that the new node state is not being chosen randomly but
+    // this has no effect on the future states because the R machine
+    // ignores node state when making topological changes.
+    //
     // Unpack the node action from the rule part.
     const int nAction = rulePart % 2;
 
