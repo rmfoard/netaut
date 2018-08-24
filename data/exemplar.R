@@ -1,5 +1,6 @@
-ggplot() +
-    geom_freqpoly(data=filter(sdx, initnrnodes==512, cyclelength==-1, iterationnr != 0, nriterations<15),
+p = ggplot(data=filter(sdx, iterationnr != 0, nriterations<30)) +
+    geom_freqpoly(
         mapping=aes(x=nriterations, color=machinetype),
-        binwidth=1)
-print() 
+        binwidth=1) +
+    facet_wrap(~ initnrnodes)
+print(p) 
