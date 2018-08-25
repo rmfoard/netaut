@@ -79,12 +79,14 @@
 \renewcommand{\maketitlehookd}{%
 \begin{abstract}
 \noindent A simple, rule-based % Dummy abstract text - replace \blindtext with your abstract text
-graph automaton was defined and simulated using a variety of rules.
-The graphs generated in simulations were analyzed macroscopically, using
-aggregate statistics from large numbers of runs, and microscopically, through
-inspection of evolving graph characteristics during runs with selected rules.
-Results from simulationing a machine identical in structure but
-making random, instead of rule-based, changes were generated and compared [].
+graph automaton was defined for which each rule specifies topology and node state
+changes to be applied iteratively to a graph.
+Starting with randomly generated graphs, many simulated runs were performed using different rules,
+with each run terminating when the graph collapsed or cycled.
+Evolving and terminal graph states were analyzed macroscopically, using
+aggregate statistics, and microscopically, by inspection of graph structures.
+Results were compared with those from simulations of a second machine, identical with
+the first but making random, rather than rule-based, changes. We found that...
 \end{abstract}
 }
 
@@ -101,11 +103,21 @@ making random, instead of rule-based, changes were generated and compared [].
 
 \section{Introduction}
 
-\lettrine[nindent=0em,lines=3]{S} ince Alan Turing's initial conception of an abstract,
-universal machine, simple cellular automata have been the subject of research. The
-attention of a broader community was captured by Conway's \textit{Game of Life} simulations
-in 1970. In addition to their initial novelty, these and other simulations attract
-interest because their operation often gives rise to emergent, or self-organizing, behaviors.
+\lettrine[nindent=0em,lines=3]{S} ince Alan Turing conceived his abstract,
+universal machine, simple automata have been studied. Interest broadened in 1970,
+when Conway published his \textit{Game of Life} simulations highlighting the ability
+of an uncomplicated cellular automaton to exhibit complex behavior. Researchers in the
+nascent field of complexity theory also devoted attention to...
+
+Stephen Wolfram, in \textit{A New Kind of Science}, gives the results of thoroughgoing
+scrutiny of a variety of cellular automata, citing particular inspiration from the
+behavior of a one-dimensional machine running "Rule 110." Among his observations were... (list
+irreducibility, etc.)
+
+Wolfram and others have also suggested that many natural processes
+previously thought to arise from evolution's natural selection mechanism are instead
+manifestations of things that nature found "easy" to accomplish using
+the same fundamental principles that yield complex results from simple automata.
 
 \blindtext % Dummy text
 
