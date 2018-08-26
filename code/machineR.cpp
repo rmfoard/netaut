@@ -107,12 +107,8 @@ void MachineR::AdvanceNode(TNGraph::TNodeI NIter) {
     const int rulePart = m_ruleParts[triadState];
     assert(0 <= rulePart && rulePart < NR_ACTIONS);
 
-    // Note that the new node state is not being chosen randomly but
-    // this has no effect on the future states because the R machine
-    // ignores node state when making topological changes.
-    //
-    // Unpack the node action from the rule part.
-    const int nAction = rulePart % 2;
+    // Generate a random node action.
+    const int nAction = rand() % 2;
 
     // Confirm that the multi-edge invariant still holds.
     assert(lNId != rNId);

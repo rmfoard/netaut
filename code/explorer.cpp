@@ -20,7 +20,7 @@
 #include "machine2D.h"
 #include "machineR.h"
 
-#define VERSION "V180824.0"
+#define VERSION "V180826.0"
 
 //---------------
 // Command option settings
@@ -588,7 +588,7 @@ int main(const int argc, char* argv[]) {
 
     Machine* m;
     // Instantiate the machine.
-    if (cmdOpt.machineTypeName == "B")
+    if (cmdOpt.machineTypeName == "C")
         m = new Machine2D();
     else {
         assert(cmdOpt.machineTypeName == "R");
