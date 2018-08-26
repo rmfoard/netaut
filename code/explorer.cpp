@@ -223,7 +223,7 @@ void ParseCommand(const int argc, char* argv[]) {
 
           case 'm':
             cmdOpt.machineTypeName = std::string(optarg);
-            if (cmdOpt.machineTypeName != "B" && cmdOpt.machineTypeName != "R") {
+            if (cmdOpt.machineTypeName != "C" && cmdOpt.machineTypeName != "R") {
                 std::cerr << "error: machine type " << cmdOpt.machineTypeName << " is not recognized."  << std::endl;
                 errorFound = true;
             }
