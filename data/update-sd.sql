@@ -3,3 +3,4 @@ alter table finnrnodes rename column sum to nrnodes;
 create index finnrnodes_idx_runid on finnrnodes(runid);
 create index sd_idx_runid on sd(runid);
 update sd set nrnodes = finnrnodes.nrnodes from finnrnodes where sd.runid = finnrnodes.runid;
+drop table finnrnodes;

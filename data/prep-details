@@ -1,4 +1,4 @@
-# prep-detail <casename> <dbname> <machine> <nodes>
+# prep-detail <casename> <source_dbname> <machine> <nr_nodes>
 #
 # Runs the query in <casename>.sql and prepares a batch of iteration details
 # in the 'case_details' database (clearing it first). The query must create
@@ -8,7 +8,7 @@ casename=$1
 dbname=$2
 machine=$3
 nrnodes=$4
-echo "Preparing iteration details database 'case_details' for query in $1.sql:"
+echo "PREP> Preparing iteration details database 'case_details' for query in $1.sql:"
 cat "$casename".sql
 psql "$dbname" <<EOF
 `cat "$casename".sql`
@@ -16,13 +16,43 @@ psql "$dbname" <<EOF
 drop table $1_ids;
 \quit
 EOF
-echo "The query yielded these rules (& randseeds) for case $1:"
+echo "PREP> The query yielded these rules (& randseeds) for case $1:"
 cat "$1"_ids.txt
 set -- `wc "$1"_ids.txt`
 # (note that the value of $1 has been re-established)
 nrids=$1
-echo "Running the simulations using:"
+echo "PREP> Running the simulations using:"
 echo "dloop $machine --noop $nrnodes $nrids `expr $nrnodes '*' 2` random random `expr $nrnodes '*' 2` $casename "$casename"_ids.txt"
 ./dloop $machine --noop $nrnodes $nrids `expr $nrnodes '*' 2` random random `expr $nrnodes '*' 2` $casename "$casename"_ids.txt
 # for testing convenience only:
+echo "PREP> Created files:"
+ls -l "$casename"_*.json
+echo "PREP> Creating .csv files..."
+python json_to_csv.py "$casename"
+echo "PREP> Created files:"
+ls -l "$casename"_*.csv
 rm -v "$casename"_ids.txt
+echo "PREP> Clearing the case_details data base"
+psql case_details <<EOF
+delete from c;
+delete from t;
+delete from i;
+delete from o;
+delete from d;
+delete from s;
+drop table if exists finnrnodes;
+drop table if exists sd;
+\quit
+EOF
+echo "PREP> Adding details..."
+./load-db case_details "$casename"
+echo "PREP> Creating the 'sd' table and updating it with terminal node counts..."
+psql case_details <<EOF
+\i create-sd-tbl.sql
+\i update-sd.sql
+\quit
+EOF
+echo "PREP> Cleaning up..."
+rm -v "$casename"_*.csv
+rm -v "$casename"_*.json
+echo "PREP> Finis."
