@@ -1,0 +1,28 @@
+# prep-detail <casename> <dbname> <machine> <nodes>
+#
+# Runs the query in <casename>.sql and prepares a batch of iteration details
+# in the 'case_details' database (clearing it first). The query must create
+# a table named <casename>_ids.
+#
+casename=$1
+dbname=$2
+machine=$3
+nrnodes=$4
+echo "Preparing iteration details database 'case_details' for query in $1.sql:"
+cat "$casename".sql
+psql "$dbname" <<EOF
+`cat "$casename".sql`
+\copy ${casename}_ids to ${casename}_ids.txt (format csv, delimiter ' ')
+drop table $1_ids;
+\quit
+EOF
+echo "The query yielded these rules (& randseeds) for case $1:"
+cat "$1"_ids.txt
+set -- `wc "$1"_ids.txt`
+# (note that the value of $1 has been re-established)
+nrids=$1
+echo "Running the simulations using:"
+echo "dloop $machine --noop $nrnodes $nrids `expr $nrnodes '*' 2` random random `expr $nrnodes '*' 2` $casename "$casename"_ids.txt"
+./dloop $machine --noop $nrnodes $nrids `expr $nrnodes '*' 2` random random `expr $nrnodes '*' 2` $casename "$casename"_ids.txt
+# for testing convenience only:
+rm -v "$casename"_ids.txt

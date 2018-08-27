@@ -1,4 +1,4 @@
-# mloop type --local|noop nodes runs maxiters tape topo checkDepth recordBaseName rule+seedFile
+# dloop machine --local|noop nodes runs maxiters tape topo checkDepth recordBaseName rule+seedFile
 #
 #
 runnr=1
@@ -15,9 +15,7 @@ while [ $runnr -le $4 ]; do
     --init-topo $7 \
     --cycle-check-depth $8 \
     --record $9 \
-    --graph-start 0 \
     --stat-start 0 \
-    --graph-stride 1 \
     --stat-stride 1
     ((runnr++))
 done
