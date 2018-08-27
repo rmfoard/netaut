@@ -8,6 +8,7 @@ select machineType as Machine, (cycleLength = -1) as Collapsing, initNrNodes as 
     avg(nrInDegrees) as InDegrees,
     avg(inDegreeEntropy) as InDegreeEntropy
 into avgstats
-from sdxcrpt
+from sd
+where iterationnr <> 0
 group by GraphSize, Machine, Collapsing
 order by GraphSize, Machine, Collapsing;
