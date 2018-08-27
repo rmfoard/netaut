@@ -2,7 +2,7 @@
 #
 # Runs the query in <casename>.sql and prepares a batch of iteration details
 # in the 'case_details' database (clearing it first). The query must create
-# a table named <casename>_ids.
+# a table named <casename>_ids containing two columns: 'rulenr' and 'randseed'.
 #
 casename=$1
 dbname=$2
@@ -13,16 +13,16 @@ cat "$casename".sql
 psql "$dbname" <<EOF
 `cat "$casename".sql`
 \copy ${casename}_ids to ${casename}_ids.txt (format csv, delimiter ' ')
-drop table $1_ids;
+drop table ${casename}_ids;
 \quit
 EOF
-echo "PREP> The query yielded these rules (& randseeds) for case $1:"
-cat "$1"_ids.txt
-set -- `wc "$1"_ids.txt`
+echo "PREP> The query yielded these rules (& randseeds) for case ${casename}:"
+cat ${casename}_ids.txt
+set -- `wc ${casename}_ids.txt`
 # (note that the value of $1 has been re-established)
 nrids=$1
 echo "PREP> Running the simulations using:"
-echo "dloop $machine --noop $nrnodes $nrids `expr $nrnodes '*' 2` random random `expr $nrnodes '*' 2` $casename "$casename"_ids.txt"
+echo "dloop $machine --noop $nrnodes $nrids `expr $nrnodes '*' 2` random random `expr $nrnodes '*' 2` $casename ${casename}_ids.txt"
 ./dloop $machine --noop $nrnodes $nrids `expr $nrnodes '*' 2` random random `expr $nrnodes '*' 2` $casename "$casename"_ids.txt
 # for testing convenience only:
 echo "PREP> Created files:"
@@ -53,6 +53,6 @@ psql case_details <<EOF
 \quit
 EOF
 echo "PREP> Cleaning up..."
-rm -v "$casename"_*.csv
-rm -v "$casename"_*.json
+rm -v ${casename}_*.csv
+rm -v ${casename}_*.json
 echo "PREP> Finis."
