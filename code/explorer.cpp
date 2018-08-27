@@ -621,6 +621,7 @@ int main(const int argc, char* argv[]) {
     auto start_time = std::chrono::high_resolution_clock::now();
     int iter;
     int cycleLength = 0;
+    int lastIterationStatsWritten = 0;
     for (iter = 0; iter < cmdOpt.maxIterations; iter += 1) {
 
         // Write a graph snapshot if specified.
@@ -641,6 +642,7 @@ int main(const int argc, char* argv[]) {
               && iter <= cmdOpt.statWriteStop
               && (iter - cmdOpt.statWriteStart) % cmdOpt.statWriteStride == 0) {
                 WriteIterationStats(m, false, iter); // false => not to console
+                lastIterationStatsWritten = iter;
             }
         }
 
@@ -658,8 +660,10 @@ int main(const int argc, char* argv[]) {
     //   (-1 => no numeric tag for inclusion in file name)
     if (!cmdOpt.noWriteEndGraph) WriteGraph(m, cmdOpt.graphFileSuffix, -1, iter);
 
-    // Write the last iteration's stats.
-    WriteIterationStats(m, !cmdOpt.noConsole, iter - 1); // -1 => iteration nr of last iteration
+    // Write the last iteration's stats unless they've already been written.
+    if (lastIterationStatsWritten != iter - 1)
+        WriteIterationStats(m, !cmdOpt.noConsole, iter - 1); // -1 => iteration nr of last iteration
+
     WriteSummary(m, iter, cycleLength, runTimeMs);
 
     // Close record output files.
