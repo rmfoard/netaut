@@ -79,14 +79,14 @@
 \renewcommand{\maketitlehookd}{%
 \begin{abstract}
 \noindent A simple, rule-based % Dummy abstract text - replace \blindtext with your abstract text
-graph automaton was defined for which each rule specifies topology and node state
-changes to be applied iteratively to a graph.
-Starting with randomly generated graphs, many simulated runs were performed using different rules,
-with each run terminating when the graph collapsed or cycled.
+graph automaton was defined and simulated. Each of its possible rules specifies a set
+of local topology and node state changes to be applied iteratively, starting with a random initial graph.
+Simulation runs were performed using many different rules, each run terminating when its graph
+collapsed or cycled.
 Evolving and terminal graph states were analyzed macroscopically, using
-aggregate statistics, and microscopically, by inspection of graph structures.
-Results were compared with those from simulations of a second machine, identical with
-the first but making random, rather than rule-based, changes. We found that...
+aggregate statistics, and microscopically, by inspecting graph structures.
+Results were compared with those from simulations of a second machine that
+iterated by applying random, rather than rule-based, changes. We found that...
 \end{abstract}
 }
 
@@ -103,39 +103,48 @@ the first but making random, rather than rule-based, changes. We found that...
 
 \section{Introduction}
 
-\lettrine[nindent=0em,lines=3]{S} ince Alan Turing conceived his abstract,
-universal machine, simple automata have been studied. Interest broadened in 1970,
-when Conway published his \textit{Game of Life} simulations highlighting the ability
-of an uncomplicated cellular automaton to exhibit complex behavior. Researchers in the
-nascent field of complexity theory also devoted attention to...
+\lettrine[nindent=0em,lines=3]{S} ince Alan Turing conceived his
+universal machine in 1936, simple abstract automata have been studied. Interest broadened
+beyond the theoretical realm in 1970,
+when Conway published his \textit{Game of Life} simulations that highlighted the ability
+of uncomplicated cellular automata to show complex behavior. Researchers in the
+nascent field of complexity theory also devoted attention to similar phenomena such as the
+"sandpile" first explored by Per Bak (true??).
 
-Stephen Wolfram, in \textit{A New Kind of Science}, gives the results of thoroughgoing
-scrutiny of a variety of cellular automata, citing particular inspiration from the
+In \textit{A New Kind of Science} (199?), Stephen Wolfram applied thoroughgoing
+scrutiny to a variety of cellular automata types. His voluminous results cited particular inspiration from the
 behavior of a one-dimensional machine running "Rule 110." Among his observations were... (list
 irreducibility, etc.)
 
 Wolfram and others have also suggested that many natural processes
 previously thought to arise from evolution's natural selection mechanism are instead
 manifestations of things that nature found "easy" to accomplish using
-the same fundamental principles that yield complex results from simple automata.
-
-\blindtext % Dummy text
+the same fundamental principles underlying simple automata that produce complex behavior.
 
 %------------------------------------------------
 
 \section{Methods}
 
-Maecenas sed ultricies felis. Sed imperdiet dictum arcu a egestas. 
+Here be a description of the methods used. We attempt to explain the
+rationale behind the use of a highly restricted type of graph. This
+explanation might be better placed in the following section.
+
+\subsection{Graphs}
+
+The graphs were of a restricted type.
+
+\subsection{Rules}
+
+The rules is the rules, and don't you forget it!
+
+\subsection{Simulator}
+
+A simulator was used.
+
 \begin{itemize}
-\item Donec dolor arcu, rutrum id molestie in, viverra sed diam
-\item Curabitur feugiat
-\item turpis sed auctor facilisis
-\item arcu eros accumsan lorem, at posuere mi diam sit amet tortor
-\item Fusce fermentum, mi sit amet euismod rutrum
-\item sem lorem molestie diam, iaculis aliquet sapien tortor non nisi
-\item Pellentesque bibendum pretium aliquet
+\item Example item 1
+\item Example item 2
 \end{itemize}
-\blindtext % Dummy text
 
 Text requiring further explanation\footnote{Example footnote}.
 
@@ -158,14 +167,22 @@ Richard & Miles & $2$ \\
 \end{tabular}
 \end{table}
 
-\blindtext % Dummy text
+Some dummy text was here.
 
+\subsection{Graph Characteristics}
+
+Here we present general observations and statistics.
+
+\subsection{Are Collapses Like Sandpile Avalanches?}
+
+For this one, we'll have to dust off the old self-organizing criticality
+references.
 \begin{equation}
 \label{eq:emc}
 e = mc^2
 \end{equation}
 
-\blindtext % Dummy text
+Some dummy text was here.
 
 %------------------------------------------------
 
@@ -174,11 +191,11 @@ e = mc^2
 \subsection{Subsection One}
 
 A statement requiring citation \cite{Figueredo:2009dg}.
-\blindtext % Dummy text
+Some dummy text was here, too.
 
 \subsection{Subsection Two}
 
-\blindtext % Dummy text
+Some dummy text was here, too.
 
 %----------------------------------------------------------------------------------------
 %	REFERENCE LIST
