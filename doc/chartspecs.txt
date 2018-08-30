@@ -1,11 +1,51 @@
 /* the whole deal could be done in R, allowing canning! */
 
-/* Graph collapse vs. cycle outcomes for various initial graph sizes */
+/* C Graph collapse vs. cycle outcomes for various initial graph sizes */
+/* TODO: Show proportions instead of absolute counts. */
 psql model_c {
     select initnrnodes, cyclelength, '' as outcome into tmpcyco from s where machinetype = 'C';
     update tmpcyco set outcome = 'collapse' where cyclelength = -1;
     update tmpcyco set outcome = 'cycle' where cyclelength <> -1;
 } R {
     t <- select * from tmpcyco
-    ggplot(data=t) + geom_bar(mapping=aes(x=factor(initnrnodes), fill=outcome))
+    ggplot(data=tmpcyco) + geom_bar(mapping=aes(x=factor(initnrnodes), fill=outcome))
+}
+
+/* C Total iterations for cycling outcomes */
+psql model_c {
+    select initnrnodes, nriterations, cyclelength into cyc from  s where machinetype = 'C' and cyclelength > 0;
+} R {
+    ggplot() + geom_freqpoly(data=cyc, mapping=aes(x=nriterations, color=factor(initnrnodes)), binwidth=1) +
+        coord_cartesian(xlim=c(0, 25))
+}
+
+/* C Cycle length for cycling outcomes */
+R {
+    ggplot() + geom_freqpoly(data=cyc, mapping=aes(x=cyclelength, color=factor(initnrnodes)), binwidth=1) +
+        coord_cartesian(xlim=c(0, 15))
+}
+
+/* C Total iterations for collapsing outcomes */
+psql model_c {
+    select initnrnodes, nriterations, cyclelength into coll from s where machinetype = 'C' and cyclelength = -1;
+} R {
+    ggplot() + geom_freqpoly(data=cyc, mapping=aes(x=nriterations, color=factor(initnrnodes)), binwidth=1) +
+        coord_cartesian(xlim=c(0, 25))
+}
+
+/* C Cycle length vs total iterations for cycling outcomes (scatter) */
+R {
+ggplot(data=cyc) +
+    geom_point(mapping=aes(x=cyclelength, y=nriterations, color=initnrnodes), pch=".", position="jitter") +
+    coord_cartesian(xlim=c(0, 15), ylim=c(0, 25))
+}
+
+/* R Distribution of total iterations, random (collapsing) outcomes */
+/* C Distribution of terminal node counts, cycling outcomes */
+/* C Distribution of terminal node counts, collapsing outcomes */
+/* R Distribution of terminal node counts, random (collapsing) outcomes */
+psql model_c {
+    select * into sd from s natural join (select * from d where iterationnr <> 0);
+    select initnrnodes, nrnodes, nriterations, cyclelength into sdcounts from sd where machinetype = 'C';
+} R {
 }
