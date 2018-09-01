@@ -41,11 +41,23 @@ ggplot(data=cyc) +
 }
 
 /* R Distribution of total iterations, random (collapsing) outcomes */
+/* (gives a strange bow tie with some negative iteration counts shown??? */
+R {
+ggplot(data=filter(sd, machinetype=='R')) + geom_freqpoly(mapping=aes(x=nriterations, color=factor(initnrnodes)), binwidth=10)
+}
+
 /* C Distribution of terminal node counts, cycling outcomes */
+R {
+
+ggplot(data=filter(sd, machinetype=='C', cyclelength>0)) + geom_freqpoly(mapping=aes(x=nrnodes, color=factor(initnrnodes)), binwidth=10)
+}
+
 /* C Distribution of terminal node counts, collapsing outcomes */
+R {
+ggplot(data=filter(sd, machinetype=='C', cyclelength==-1)) + geom_freqpoly(mapping=aes(x=nrnodes, color=factor(initnrnodes)), binwidth=10)
+}
+
 /* R Distribution of terminal node counts, random (collapsing) outcomes */
-psql model_c {
-    select * into sd from s natural join (select * from d where iterationnr <> 0);
-    select initnrnodes, nrnodes, nriterations, cyclelength into sdcounts from sd where machinetype = 'C';
-} R {
+R {
+ggplot(data=filter(sd, machinetype=='R', cyclelength==-1)) + geom_freqpoly(mapping=aes(x=nrnodes, color=factor(initnrnodes)), binwidth=10)
 }
