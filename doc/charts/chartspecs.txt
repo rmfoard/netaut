@@ -1,15 +1,8 @@
 /* the whole deal could be done in R, allowing canning! */
 
-/* C Graph collapse vs. cycle outcomes for various initial graph sizes */
-/* TODO: Show proportions instead of absolute counts. */
-psql model_c {
-    select initnrnodes, cyclelength, '' as outcome into tmpcyco from s where machinetype = 'C';
-    update tmpcyco set outcome = 'collapse' where cyclelength = -1;
-    update tmpcyco set outcome = 'cycle' where cyclelength <> -1;
-} R {
-    t <- select * from tmpcyco
-    ggplot(data=tmpcyco) + geom_bar(mapping=aes(x=factor(initnrnodes), fill=outcome))
-}
+# Graph collapse vs. cycle outcomes for various initial graph sizes, machine C
+(see collVcyc.R)
+
 
 /* C Total iterations for cycling outcomes */
 psql model_c {
