@@ -17,7 +17,7 @@ p <- ggplot(data=tmp) +
     ) +
     labs(
         title=paste("Collapses outnumber cycles."),
-        subtitle=paste("[Machine C]"),
+        subtitle=paste("collVcyc [Machine C]"),
         x="Initial graph size",
         y="Number of runs"
     )
