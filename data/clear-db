@@ -1,0 +1,10 @@
+psql $1 <<EOF
+drop table c;
+drop table t;
+drop table i;
+drop table o;
+drop table d;
+drop table sd;
+drop table s;
+EOF
+./define-db $1
