@@ -70,3 +70,6 @@ ggplot(data=sd1024) +
 /* terminal node counts in collapsing outcomes, C vs R THIS ONE IS INTERESTING */
 ggplot(data=filter(sd1024, cyclelength == -1)) +
 +  geom_freqpoly(mapping=aes(x=nrnodes, color=machinetype), binwidth=10)
+
+/* terminal node counts vs entropy, C & R THIS ONE TOO! (also interesting is nrindegrees vs entropy, others */
+ggplot(data=filter(sd1024)) + geom_point(mapping=aes(x=indegreeentropy, y=nrnodes, color=machinetype))
