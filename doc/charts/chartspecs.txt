@@ -54,3 +54,10 @@ ggplot(data=filter(sd, machinetype=='C', cyclelength==-1)) + geom_freqpoly(mappi
 R {
 ggplot(data=filter(sd, machinetype=='R', cyclelength==-1)) + geom_freqpoly(mapping=aes(x=nrnodes, color=factor(initnrnodes)), binwidth=10)
 }
+
+/* Entropy distribution: C cycling, C collapsing, R [collapsing] */
+/* (this one's in a raw state) */
+ggplot(data=filter(sd1024, cyclelength > 0)) +
++ geom_freqpoly(mapping=aes(x=indegreeentropy), binwidth=0.01, color="blue") +
++ geom_freqpoly(data=filter(sd1024, cyclelength == -1), mapping=aes(x=indegreeentropy), binwidth=0.01, color="red") +
++ facet_wrap(~ machinetype)
