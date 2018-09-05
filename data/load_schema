@@ -1,4 +1,5 @@
 psql $1 <<EOF
+set search_path to $2, public;
 \copy s from $2_s.csv delimiter ',' csv header
 \copy d from $2_d.csv delimiter ',' csv header
 \copy c from $2_c.csv delimiter ',' csv header
