@@ -1,0 +1,9 @@
+# Script to create and populate a "study schema."
+#
+psql $1 <<EOF
+create schema $2
+set search_path to $2, public
+\i create-tbls.sql
+\i $3
+set search_path to public
+EOF
