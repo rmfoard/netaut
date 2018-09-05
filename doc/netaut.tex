@@ -78,14 +78,14 @@
 \date{\today} % Leave empty to omit a date
 \renewcommand{\maketitlehookd}{%
 \begin{abstract}
-\noindent A simple, rule-based % Dummy abstract text - replace \blindtext with your abstract text
+\noindent A simple, rule-based
 graph automaton was defined and simulated. Each of its possible rules specifies a set
 of local topology and node state changes to be applied iteratively, starting with a random initial graph.
 Simulation runs were performed using many different rules, each run terminating when its graph
 collapsed or cycled.
 Evolving and terminal graph states were analyzed macroscopically, using
 aggregate statistics, and microscopically, by inspecting graph structures.
-Results were compared with those from simulations of a second machine that
+Results were compared with those from simulations of a machine that
 iterated by applying random, rather than rule-based, changes. We found that...
 \end{abstract}
 }
@@ -107,31 +107,56 @@ iterated by applying random, rather than rule-based, changes. We found that...
 universal machine in 1936, simple abstract automata have been studied. Interest broadened
 beyond the theoretical realm in 1970,
 when Conway published his \textit{Game of Life} simulations that highlighted the ability
-of uncomplicated cellular automata to show complex behavior. Researchers in the
-nascent field of complexity theory also devoted attention to similar phenomena such as the
+of uncomplicated cellular automata to behave in complex ways. Researchers in the
+nascent field of complexity theory also devoted attention to similar phenomena, such as the
 "sandpile" first explored by Per Bak (true??).
 
-In \textit{A New Kind of Science} (199?), Stephen Wolfram applied thoroughgoing
-scrutiny to a variety of cellular automata types. His voluminous results cited particular inspiration from the
+In \textit{A New Kind of Science} (199?), Stephen Wolfram methodically analyzed
+a variety of cellular automata types. His voluminous results cited particular inspiration from the
 behavior of a one-dimensional machine running "Rule 110." Among his observations were... (list
 irreducibility, etc.)
 
-Wolfram and others have also suggested that many natural processes
-previously thought to arise from evolution's natural selection mechanism are instead
+Wolfram and others have also suggested that some natural processes that were
+previously thought to evolve by natural selection are instead
 manifestations of things that nature found "easy" to accomplish using
-the same fundamental principles underlying simple automata that produce complex behavior.
+the same fundamental principles that underlie simple automata.
+
+In this work, we analyze a graph automaton -- a machine that operates on the same principles as
+cellular automata, but runs using a graph rather than a "tape," or grid, as a substrate.
+Where cellular machines define cell adjacency spatially, our machines use graph topology.
 
 %------------------------------------------------
 
 \section{Methods}
 
-Here be a description of the methods used. We attempt to explain the
-rationale behind the use of a highly restricted type of graph. This
-explanation might be better placed in the following section.
+A rule-based automaton was designed and implemented in simulation. The simulator was run repeatedly, using rules
+selected at random from the large universe of possibilities. Measurements were recorded as the graphs
+evolved through each run. The resulting database accumulated data on many thousands of runs. The body of data
+was analyzed macroscopically, using aggregate
+statistics, and microscopically, by inspecting statistical and graphic "snapshots" from individual runs.
+
+Each simulation run begins with a randomly generated graph and progresses by
+iteratively modifying its edges and node states; changes are made according to a rule selected
+for the run. Each rule, encoded as a large integer, is effectively
+a simple program  that specifies local, incremental modifications to be applied based on the state
+of each node and its topologically defined neighborhood.
+
+A simulation run proceeds as follows: (describe initial condition and iteration procedure)
 
 \subsection{Graphs}
 
-The graphs were of a restricted type.
+Nodes may be in one of two states: black or white.
+Graph structure is highly restricted in order to simplify simulation and analysis:
+
+\begin{itemize}
+\item Edges are directed.
+\item All nodes have out-degree of exactly two.
+\item Multiple, like-directed edges between two nodes are prohibited.
+\item "Self-linking" edges are permitted.
+\end{itemize}
+
+The simulator maintains these conditions throughout execution by selectively eliminating
+nodes and edges when necessary.
 
 \subsection{Rules}
 
@@ -139,12 +164,7 @@ The rules is the rules, and don't you forget it!
 
 \subsection{Simulator}
 
-A simulator was used.
-
-\begin{itemize}
-\item Example item 1
-\item Example item 2
-\end{itemize}
+How the invariants are maintained.
 
 Text requiring further explanation\footnote{Example footnote}.
 
