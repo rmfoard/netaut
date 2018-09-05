@@ -1,4 +1,4 @@
-function set-title() {
+function set_title() {
   if [[ -z "$ORIG" ]]; then
     ORIG=$PS1
   fi
