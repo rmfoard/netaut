@@ -73,3 +73,7 @@ ggplot(data=filter(sd1024, cyclelength == -1)) +
 
 /* terminal node counts vs entropy, C & R THIS ONE TOO! (also interesting is nrindegrees vs entropy, others */
 ggplot(data=filter(sd1024)) + geom_point(mapping=aes(x=indegreeentropy, y=nrnodes, color=machinetype))
+
+/* "stepdown" charts for random machine, 512 nodes, 10 iterations */
+ggplot(data=sdx) + geom_step(mapping=aes(x=iterationnr, y=indegreeentropy)) + facet_wrap(~ ruleid)
+(or use y=nrnodes, saved initial charts in r_stepdown_{nrnodes, entropy})
