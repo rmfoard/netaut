@@ -77,3 +77,6 @@ ggplot(data=filter(sd1024)) + geom_point(mapping=aes(x=indegreeentropy, y=nrnode
 /* "stepdown" charts for random machine, 512 nodes, 10 iterations */
 ggplot(data=sdx) + geom_step(mapping=aes(x=iterationnr, y=indegreeentropy)) + facet_wrap(~ ruleid)
 (or use y=nrnodes, saved initial charts in r_stepdown_{nrnodes, entropy})
+
+/* propensity to create multiple connected components */
+ggplot(data=filter(sd, nrccs > 1)) + geom_point(mapping=aes(x=outcome, y=nrccs, color=initnrnodes), position="jitter") + facet_wrap(~ machinetype)
