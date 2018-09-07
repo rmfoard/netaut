@@ -136,6 +136,15 @@ To provision for generating netaut/hellosnap:
     - downloaded mhash from sourceforge
     - gunzip, tar xvf, ./configure, make
 
+- install pip, etc.
+    $ sudo apt-get install python-pip python-dev build-essential 
+    $ sudo pip install --upgrade pip 
+    $ sudo pip install --upgrade virtualenv 
+- install scikit-learn
+    - sudo pip install numpy
+    - sudo pip install scipy
+    - sudo pip install scikit-learn
+
 (Deferred enabling doxygen)
 (Deferred enabling googletest to run SNAP's tests)
 
