@@ -144,6 +144,7 @@ To provision for generating netaut/hellosnap:
     - sudo pip install numpy
     - sudo pip install scipy
     - sudo pip install scikit-learn
+    - sudo pip install matplotlib
 
 (Deferred enabling doxygen)
 (Deferred enabling googletest to run SNAP's tests)
