@@ -1,6 +1,7 @@
 #ifndef RULEMASK_H
 #define RULEMASK_H
 #include "netaut.h"
+#include "rule.h"
 
 // Rulemask objects:
 //
@@ -28,6 +29,8 @@
 // Note that "-" and "*" wildcards are not interchageable -- "-" matches any individual
 // action specifier in a rule part; "*" matches any entire rule part.
 //---------------
+
+#define NR_RULEMASK_ELEMENTS (NR_TRIAD_STATES * (NR_DSTS * 2 + NR_NODE_STATES))
 
 //---------------
 // class RuleMask

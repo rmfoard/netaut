@@ -22,7 +22,6 @@
 
 #define NR_TRIAD_STATES (NR_NODE_STATES * NR_NODE_STATES * NR_NODE_STATES)
 #define NR_ACTIONS (NR_DSTS * NR_DSTS * NR_NODE_STATES)
-#define NR_RULEMASK_ELEMENTS (NR_TRIAD_STATES * (NR_DSTS * 2 + NR_NODE_STATES))
 
 // The implicit assumption underlying the following is that
 // sizeof(rulenr_t) == sizeof(uintmax_t). The assumption is

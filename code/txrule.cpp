@@ -9,6 +9,7 @@
 #include <iostream>
 #include <string>
 #include "rule.h"
+#include "rulemask.h"
 
 #define VERSION "V180908.0"
 
@@ -152,8 +153,15 @@ int main(const int argc, char* argv[]) {
         delete ruleSubParts;
     }
 
-    else
-        std::cout << "apology: conversion to a map is not yet implemented";
+    else {
+        RuleMask* mask = new RuleMask(r->get_ruleNr());
+        bool* compiledMask = mask->get_mask();
+        for (int i = 0; i < NR_RULEMASK_ELEMENTS; i += 1) {
+            std::cout << (compiledMask[i] ? "1" : "0");
+            if (i < NR_RULEMASK_ELEMENTS - 1) std::cout << " ";
+        }
+        delete compiledMask;
+    }
 
     delete r;
     exit(0);
