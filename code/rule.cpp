@@ -126,6 +126,21 @@ const int* Rule::get_ruleParts() {
     return rp;
 }
 
+//---------------
+// get_ruleSubParts
+//---------------
+const int* Rule::get_ruleSubParts() {
+    int* rsp = new int[NR_TRIAD_STATES * 3];
+    rulenr_t dividend = m_ruleNr;
+    for (int triadState = 0; triadState < NR_TRIAD_STATES; triadState += 1) {
+        int part = dividend % NR_ACTIONS;
+        rsp[triadState * 3 + 0] = part / (NR_DSTS * 2);
+        rsp[triadState * 3 + 1] = (part % (NR_DSTS * 2)) / 2;
+        rsp[triadState * 3 + 2] = part % 2;
+        dividend /= NR_ACTIONS;
+    }
+    return rsp;
+}
 
 //---------------
 // get_ruleText

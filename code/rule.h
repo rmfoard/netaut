@@ -98,6 +98,7 @@ public:
     rulenr_t get_ruleNr();
     rulenr_t get_maxRuleNr();
     const int* get_ruleParts();
+    const int* get_ruleSubParts();
     std::string get_ruleText();
     bool PassesFilter(const Filter& filter);
 

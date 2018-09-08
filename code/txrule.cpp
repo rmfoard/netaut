@@ -10,7 +10,7 @@
 #include <string>
 #include "rule.h"
 
-#define VERSION "V180615.0"
+#define VERSION "V180908.0"
 
 // TODO: Add --help
 //---------------
@@ -18,6 +18,7 @@ struct CommandOpts {
     int number;
     int text;
     int parts;
+    int subParts;
     int map;
     rulenr_t ruleNr;
     char* ruleText;
@@ -36,6 +37,7 @@ void ParseCommand(const int argc, char* argv[]) {
     cmdOpt.number = 0;
     cmdOpt.text = 0;
     cmdOpt.parts = 0;
+    cmdOpt.subParts = 0;
     cmdOpt.map = 0;
     cmdOpt.ruleNr = 0;
     cmdOpt.ruleText = nullptr;
@@ -46,6 +48,7 @@ void ParseCommand(const int argc, char* argv[]) {
         {"number", no_argument, &cmdOpt.number, 1},
         {"text", no_argument, &cmdOpt.text, 1},
         {"parts", no_argument, &cmdOpt.parts, 1},
+        {"subparts", no_argument, &cmdOpt.subParts, 1},
         {"map", no_argument, &cmdOpt.map, 1},
         {0, 0, 0, 0}
     };
@@ -76,11 +79,12 @@ void ParseCommand(const int argc, char* argv[]) {
     }
 
     // Check option consistency.
-    if (cmdOpt.number + cmdOpt.text + cmdOpt.parts + cmdOpt.map != 1) {
+    if (cmdOpt.number + cmdOpt.text + cmdOpt.parts + cmdOpt.subParts + cmdOpt.map != 1) {
         printf("error: please choose exactly one output type from:\n");
         printf("  --number\n");
         printf("  --text\n");
         printf("  --parts\n");
+        printf("  --subparts\n");
         printf("  --map\n");
         errorFound = true;
     }
@@ -137,6 +141,15 @@ int main(const int argc, char* argv[]) {
             if (i < NR_TRIAD_STATES - 1) std::cout << " ";
         }
         delete ruleParts;
+    }
+
+    else if (cmdOpt.subParts) {
+        const int* ruleSubParts = r->get_ruleSubParts();
+        for (int i = 0; i < NR_TRIAD_STATES * 3; i += 1) {
+            std::cout << ruleSubParts[i];
+            if (i < NR_TRIAD_STATES * 3 - 1) std::cout << " ";
+        }
+        delete ruleSubParts;
     }
 
     else

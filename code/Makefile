@@ -58,10 +58,8 @@ rulesource:	rulesource.o
 toy:	toy.o
 	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(LDFLAGS) $(LIBS)
 
-txrule:	txrule.o
+txrule:	txrule.o rule.o
 	$(CC) $(CXXFLAGS) -o $@ $@.cpp rule.o $(LDFLAGS) $(LIBS)
-
-rule: rule.o
 
 rule.o: rule.cpp rule.h
 
