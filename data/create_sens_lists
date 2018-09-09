@@ -1,0 +1,6 @@
+for i in 0 1 2 3 4 5 6 7 8; do
+    seed=$RANDOM
+    for r in `cat sens_rulenrs.txt`; do
+        echo $r ' ' $seed >> sens_list_$i.txt
+    done
+done
