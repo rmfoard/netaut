@@ -27,17 +27,14 @@ def main():
             targets.append(int(line[:-1]))
 
     # Create a classifier: a support vector classifier
-    classifier = svm.SVC(C=0.01, gamma=1e-09)
+    classifier = svm.SVC(C=10, gamma=1.00)
 
     # We learn the digits on the first half of the digits
-    #classifier.fit(data[:n_samples // 2], targets[:n_samples // 2])
-    classifier.fit(data[:9500], targets[:9500])
+    classifier.fit(data[:n_samples // 2], targets[:n_samples // 2])
 
     # Now predict the value of the digit on the second half:
-    #expected = targets[n_samples // 2:]
-    #predicted = classifier.predict(data[n_samples // 2:])
-    expected = targets[9501:]
-    predicted = classifier.predict(data[9501:])
+    expected = targets[n_samples // 2:]
+    predicted = classifier.predict(data[n_samples // 2:])
 
     print 'predicted:'
     print predicted
