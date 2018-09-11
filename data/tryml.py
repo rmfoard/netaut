@@ -27,7 +27,7 @@ def main():
             targets.append(int(line[:-1]))
 
     # Create a classifier: a support vector classifier
-    classifier = svm.SVC(C=10, gamma=1.00)
+    classifier = svm.SVC(C=10, gamma=0.01)
 
     # We learn the digits on the first half of the digits
     classifier.fit(data[:n_samples // 2], targets[:n_samples // 2])

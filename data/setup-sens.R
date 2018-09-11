@@ -1,0 +1,5 @@
+library("RPostgreSQL")
+library("tidyverse")
+pg = dbDriver("PostgreSQL")
+con = dbConnect(pg, user="richard", port=5432, dbname="model_c")
+dbGetQuery(con, "set search_path to sens, public")
