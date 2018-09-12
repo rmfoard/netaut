@@ -61,6 +61,8 @@
 
 \usepackage{hyperref} % For hyperlinks in the PDF
 
+\usepackage{graphicx}
+
 %----------------------------------------------------------------------------------------
 %	TITLE SECTION
 %----------------------------------------------------------------------------------------
@@ -190,12 +192,24 @@ Text requiring further explanation\footnote{Example footnote}.
 \section{Results}
 
 Because initial graphs are finite, and graph size is either maintained
-or reduced in each iteration, all runs must terminate with either
-a collapsing or cycling graph. The immense number of possible graphs
-(formula), however, precludes carrying every run to completion, so a
-third outcome, "unfinished," must be considered.
+or reduced in each machine iteration, all runs must terminate with either
+a collapsed or cycling graph. The combinatorially explosive number of possible
+state trajectories, however, precludes carrying every run to completion, so a
+third, "unfinished" outcome category must be included in measurements.
 
-Overview commentary. How results from random Machine R differ.
+\subsection{Rule-based vs. Random}
+
+The rule-based machine is far less likely to produce graph collapses than
+is the random machine (59.3\% vs. 99.9\%). Among runs ending in collapse,
+machine C executes roughly twice as many iterations as the R machine (Fig. \ref{fig:fig1}.)
+
+\begin{figure}
+  \includegraphics[width=\linewidth]{fig1.png}
+  \caption{On average, C executes more iterations than R before collapsing.}
+  \label{fig:fig1}
+\end{figure}
+
+Other observations on how results from random Machine R differ.
 
 \subsection{Unhappy Endings -- Cycles and Collapses}
 
