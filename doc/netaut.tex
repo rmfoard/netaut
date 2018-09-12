@@ -138,8 +138,8 @@ statistics, and microscopically, by inspecting statistical and graphic "snapshot
 Each simulation run begins with a randomly generated graph and progresses by
 iteratively modifying its edges and node states; changes are made according to a rule selected
 for the run. Each rule, encoded as a large integer, is effectively
-a simple program  that specifies local, incremental modifications to be applied based on the state
-of each node and its topologically defined neighborhood.
+a simple program  that how local changes should be applied, based on the state
+of each node and its two topological neighbors.
 
 A simulation run proceeds as follows: (describe initial condition and iteration procedure)
 
@@ -155,22 +155,68 @@ Graph structure is highly restricted in order to simplify simulation and analysi
 \item "Self-linking" edges are permitted.
 \end{itemize}
 
-The simulator maintains these conditions throughout execution by selectively eliminating
-nodes and edges when necessary.
+These conditions are established when creating initial graphs and maintained
+throughout execution by "pruning," as described in \textit{Maintaining Structure}.
+
+An initial, random graph of size N is constructed by assigning two edges to each node, with
+the destination of each selected at random from all nodes, observing the
+constraint that both edges cannot have the same destination node. As a consequence,
+all nodes have out-degree 2; in-degree can vary from 0 to 2N (wrong!). Each node is assigned
+a black or white state, with equal likelihood except where otherwise noted.
 
 \subsection{Rules}
 
-The rules is the rules, and don't you forget it!
+The rules for Machine C. Random rules for comparison are not rules \textit{per se}.
 
-\subsection{Structure Invariants}
+\subsection{Maintaining Structure}
 
-How the invariants are maintained.
+Invariants are maintained in all simulations -- both for the rule-based and
+the random machine. <How the invariants are maintained.>
+
+\subsection{The Simulator}
+
+Input parameters and statistics gathered. Data base and analysis tooling.
+
+\subsection{Run Selection}
+
+There are 722 trillion (<formula>) possible rules. Making choices amidst
+many degrees of freedom. Varying initial graph size. Rule-based versus
+random.
 
 Text requiring further explanation\footnote{Example footnote}.
 
 %------------------------------------------------
 
 \section{Results}
+
+Because initial graphs are finite, and graph size is either maintained
+or reduced in each iteration, all runs must terminate with either
+a collapsing or cycling graph. The immense number of possible graphs
+(formula), however, precludes carrying every run to completion, so a
+third outcome, "unfinished," must be considered.
+
+Overview commentary. How results from random Machine R differ.
+
+\subsection{Unhappy Endings -- Cycles and Collapses}
+
+All runs end in one of three ways... Graphs are finite. They begin
+with n nodes and 2n edges and can only remain at theit initial
+size or grow smaller as iterations proceed.
+
+For this one, we'll have to dust off the old self-organizing criticality
+references. Are collapses like sandpile avalanches?
+
+\subsection{In the Long Run...}
+
+\subsection{Self-Organization -- Made to Order?}
+
+\subsection{Learning the Hard Way}
+
+\subsection{Analysis -- Doing the math}
+
+\subsection{Evolution by Design}
+
+\subsection{Interesting Configurations -- Photo Ops}
 
 \begin{table}
 \caption{Example table}
@@ -189,14 +235,6 @@ Richard & Miles & $2$ \\
 
 Some dummy text was here.
 
-\subsection{Graph Characteristics}
-
-Here we present general observations and statistics.
-
-\subsection{Are Collapses Like Sandpile Avalanches?}
-
-For this one, we'll have to dust off the old self-organizing criticality
-references.
 \begin{equation}
 \label{eq:emc}
 e = mc^2
