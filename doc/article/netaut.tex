@@ -169,23 +169,21 @@ a \textit{black} or \textit{white} state with equal likelihood.
 \subsection{Machine \textbf{C} Rules and Operation}
 
 A simulation run begins with an initial graph and proceeds through a series of
-iterations; each iteration builds a new graph that reflects the state of the graph
+iterations; each iteration builds a new graph copy that reflects the state of the graph
 with which it started, transformed according to the rule in force for the run.
-As first produced, the transformed graph may contain prohibited structures
-(like-directed edges between pairs of nodes). When this occurs, a pruning operation is
-performed before proceeding to the next iteration. Pruning selectively removes
-nodes and redirects edges until no prohibited structures remain.
-The new graph, pruned as necessary, becomes the starting graph for the next iteration.
-In some cases, pruning continues until the graph is empty, or "collapsed."
-The simulation run ends when (1) the graph collapses, (2) a state cycle is detected,
-or (3) the maximum number of iterations is reached.
 
-For description purposes, we arbitrarily designate a node's two out-edges "left" and "right."
-Rules consist of eight parts. Each rule-part specifies replacement values for
-a node's state, the destination of its left out-edge, and the destination of its right
-out-edge. Replacement destinations are given in terms of the node's current out-edge destinations
-and those of its two immediate neighbors. Specifically, the six possible replacement
-destinations are:
+During the transformation process, each node in the current graph is examined in turn.
+Depending on the combined \textit{black}/\textit{white}
+states of the node and its two neighbors, changes are made to the node's
+state and its out-edges in the new graph copy. Rules encode these state-dependent change
+instructions as follows:
+
+(For purposes of description, it is convenient to designate a node's two out-edges "left" and "right.")
+Rules consist of eight parts, each corresponding to a possible compound state of a node and its
+two neighbors. Each rule-part specifies replacement values for
+the node's state, the destination of its left out-edge, and the destination of its right
+out-edge. A replacement node state is either \textit{black} or \textit{white}.
+A replacement edge destination is one of:
 
 \begin{enumerate}
     \item L - the node's current left-edge destination
@@ -196,11 +194,15 @@ destinations are:
     \item RR - the current destination of its right neighbor's right-edge
 \end{enumerate}
 
-During an iteration, each node is examined in turn. Depending on the compound \textit{black}/\textit{white}
-state of the node and its two neighbors, one of the eight rule-parts is applied to
-the node's state and its two out-edges. Using the arbitrary designations of "left" and "right"
-for the out-edges, the possible modifications are:
-Combinatorics and packing.
+After all nodes have been processed, the new graph copy may
+contain prohibited structures (like-directed edges between pairs of nodes).
+When this occurs, a pruning operation is
+performed before proceeding to the next iteration. Pruning selectively removes
+nodes and redirects edges until no prohibited structures remain.
+The new graph, pruned as necessary, becomes the starting graph for the next iteration.
+In some cases, pruning continues until the graph is empty, or "collapsed."
+The simulation run ends when (1) the graph collapses, (2) a state cycle is detected,
+or (3) the maximum number of iterations is reached.
 
 \subsection{Structure Invariants}
 
