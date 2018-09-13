@@ -131,8 +131,9 @@ Where cellular machines define cell adjacency spatially, our machines use graph 
 
 \section{Methods}
 
-A rule-based automaton was designed and implemented in simulation. The simulator was run repeatedly, using rules
-selected at random from the large universe of possibilities. Measurements were recorded as the graphs
+A rule-based automaton, designated \textbf{Machine C}, was designed and implemented in simulation.
+The simulator was run repeatedly, using rules
+selected at random from a large universe of possibilities. Measurements were recorded as the graphs
 evolved through each run. The resulting database accumulated data on many thousands of runs. The body of data
 was analyzed macroscopically, using aggregate
 statistics, and microscopically, by inspecting statistical and graphic "snapshots" from individual runs.
@@ -145,10 +146,10 @@ of each node and its two topological neighbors, how local changes should be appl
 
 A simulation run proceeds as follows: (describe initial condition and iteration procedure)
 
-\subsection{Graphs}
+\subsection{Graph Composition}
 
-Nodes may be in one of two states: black or white.
-Graph structure is highly restricted in order to simplify simulation and analysis:
+Nodes may be in one of two states: \textit{black} or \textit{white}.
+Graph topology is narrowly restricted in order to simplify analysis:
 
 \begin{itemize}
 \item Edges are directed.
@@ -158,32 +159,26 @@ Graph structure is highly restricted in order to simplify simulation and analysi
 \end{itemize}
 
 These conditions are established when creating initial graphs and maintained
-throughout execution by "pruning," as described in \textit{Maintaining Structure}.
+throughout execution by "pruning," as described in \textit{Structure Invariants}.
 
 An initial, random graph of size N is constructed by assigning two edges to each node, with
 the destination of each selected at random from all nodes, observing the
 constraint that both edges cannot have the same destination node. As a consequence,
-all nodes have out-degree 2; in-degree can vary from 0 to 2N (wrong!). Each node is assigned
-a black or white state, with equal likelihood except where otherwise noted.
+all nodes have out-degree 2; in-degree can vary from 0 to N. Each node is assigned
+a \textit{black} or \textit{white} state with equal likelihood.
 
-\subsection{Rules}
+\subsection{Rule Encoding}
 
-The rules for Machine C. Random rules for comparison are not rules \textit{per se}.
+Combinatorics and packing.
 
-\subsection{Maintaining Structure}
+\subsection{Structure Invariants}
 
-Invariants are maintained in all simulations -- both for the rule-based and
-the random machine. <How the invariants are maintained.>
+Invariants are maintained in all simulations.
 
-\subsection{The Simulator}
+\subsection{Parameters and Outcome Statistics}
 
 Input parameters and statistics gathered. Data base and analysis tooling.
-
-\subsection{Run Selection}
-
-There are 722 trillion (<formula>) possible rules. Making choices amidst
-many degrees of freedom. Varying initial graph size. Rule-based versus
-random.
+How parameter values were selected and varied.
 
 Text requiring further explanation\footnote{Example footnote}.
 
@@ -191,21 +186,33 @@ Text requiring further explanation\footnote{Example footnote}.
 
 \section{Results}
 
-Because initial graphs are finite, and graph size is either maintained
-or reduced in each machine iteration, all runs must terminate with either
-a collapsed or cycling graph. The combinatorially explosive number of possible
-state trajectories, however, precludes carrying every run to completion, so a
-third, "unfinished" outcome category must be included in measurements.
+Initial graphs are finite, and graph size is either maintained
+or reduced in each iteration. As a consequence, it is certain that all
+simulations
+would terminate with either a collapsed or a cycling graph if allowed to
+run to completion. The simulator's ability to detect a state cycle is
+limited, however, because a graph may traverse an astronomical
+number of states before revisiting a previous configuration.
+For this reason, a third, "unfinished" category is included in
+outcome statistics.
 
 \subsection{Rule-based vs. Random}
 
-The rule-based machine is far less likely to produce graph collapses than
-is the random machine (59.3\% vs. 99.9\%). For runs ending in collapse,
-C executes more iterations than R (Fig. \ref{fig:fig1}.).
+To gauge the extent to which machine \textbf{C} creates order out of
+initially random graphs, a simulator for a second machine, \textbf{R},
+was constructed. Like \textbf{C}, \textbf{R} makes iterative changes to the
+graph, but proceeds by changing node states and edge assignments randomly
+instead of under control of a rule. As with \textbf{C}, though, the scope
+of \textbf{R}'s changes is confined to nodes' immediate topological neighborhoods.
+
+Machine \textbf{C} is far less likely to produce graph collapses than
+\textbf{R} (59.3\% vs. 99.9\% of runs). In cases where \textbf{C} produces
+collapses, average run length is consistently greater than
+for \textbf{R} (Fig. \ref{fig:fig1}.).
 
 \begin{figure}
-  \fbox{\includegraphics[width=\linewidth]{fig1.png}}
-  \caption{On average, C executes more iterations than R before collapsing.}
+  \fbox{\includegraphics[width=\linewidth, scale=0.7]{fig1.png}}
+  \caption{On average, the rule-based \textbf{C} machine executes more iterations than \textbf{R}  before collapse occurs.}
   \label{fig:fig1}
 \end{figure}
 
@@ -214,13 +221,11 @@ Other observations on how results from random Machine R differ.
 \subsection{Unhappy Endings -- Cycles and Collapses}
 
 All runs end in one of three ways... Graphs are finite. They begin
-with n nodes and 2n edges and can only remain at theit initial
+with n nodes and 2n edges and can only remain at their initial
 size or grow smaller as iterations proceed.
 
 For this one, we'll have to dust off the old self-organizing criticality
 references. Are collapses like sandpile avalanches?
-
-\subsection{In the Long Run...}
 
 \subsection{Self-Organization -- Made to Order?}
 
@@ -231,6 +236,8 @@ references. Are collapses like sandpile avalanches?
 \subsection{Evolution by Design}
 
 \subsection{Interesting Configurations -- Photo Ops}
+
+\subsection{In the Long Run...}
 
 \begin{table}
 \caption{Example table}

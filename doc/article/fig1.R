@@ -6,6 +6,10 @@ p <- ggplot(data=sdavgs) +
         mapping=aes(x=initnrnodes, y=anriterations, color=machinetype),
         size=2
     ) +
+    geom_point(
+        mapping=aes(x=initnrnodes, y=anriterations, color=machinetype),
+        size=2
+    ) +
     scale_color_manual(values=c("blue", "red")) +
     theme(
         plot.title = element_text(hjust = 0.5, size=16),
