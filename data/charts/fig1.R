@@ -8,7 +8,7 @@ p <- ggplot(data=sdavgs) +
     ) +
     scale_color_manual(values=c("blue", "red")) +
     theme(
-        plot.title = element_text(hjust = 0.5),
+        plot.title = element_text(hjust = 0.5, size=16),
         plot.subtitle = element_text(hjust = 0.5),
         legend.title.align = 0.5
     ) +
