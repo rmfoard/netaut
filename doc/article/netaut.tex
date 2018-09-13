@@ -131,7 +131,7 @@ Where cellular machines define cell adjacency spatially, our machines use graph 
 
 \section{Methods}
 
-A rule-based automaton, designated \textbf{Machine C}, was designed and implemented in simulation.
+A rule-based automaton, \textbf{Machine C}, was designed and implemented in simulation.
 The simulator was run repeatedly, using rules
 selected at random from a large universe of possibilities. Measurements were recorded as the graphs
 evolved through each run. The resulting database accumulated data on many thousands of runs. The body of data
@@ -140,8 +140,7 @@ statistics, and microscopically, by inspecting statistical and graphic "snapshot
 
 Each simulation run begins with a randomly generated graph and progresses by
 iteratively modifying its edges and node states; changes are made according to a rule selected
-for the run. Each rule, encoded as a large integer, is effectively
-a simple program  that specifies, based on the state
+for the run. Each rule is effectively a simple program  that specifies, based on the state
 of each node and its two topological neighbors, how local changes should be applied.
 
 A simulation run proceeds as follows: (describe initial condition and iteration procedure)
@@ -152,23 +151,55 @@ Nodes may be in one of two states: \textit{black} or \textit{white}.
 Graph topology is narrowly restricted in order to simplify analysis:
 
 \begin{itemize}
-\item Edges are directed.
-\item All nodes have out-degree of exactly two.
-\item Multiple, like-directed edges between two nodes are prohibited.
-\item "Self-linking" edges are permitted.
+    \item Edges are directed.
+    \item Nodes have out-degree of exactly two.
+    \item Multiple, like-directed edges between two nodes are prohibited.
+    \item "Self-linking" edges are permitted.
 \end{itemize}
 
 These conditions are established when creating initial graphs and maintained
-throughout execution by "pruning," as described in \textit{Structure Invariants}.
+throughout execution by "pruning" when necessary, as described in \textit{Structure Invariants}.
 
 An initial, random graph of size N is constructed by assigning two edges to each node, with
 the destination of each selected at random from all nodes, observing the
 constraint that both edges cannot have the same destination node. As a consequence,
-all nodes have out-degree 2; in-degree can vary from 0 to N. Each node is assigned
+all nodes have out-degree 2, but in-degree can vary from 0 to N. Each node is assigned
 a \textit{black} or \textit{white} state with equal likelihood.
 
-\subsection{Rule Encoding}
+\subsection{Machine \textbf{C} Rules and Operation}
 
+A simulation run begins with an initial graph and proceeds through a series of
+iterations; each iteration builds a new graph that reflects the state of the graph
+with which it started, transformed according to the rule in force for the run.
+As first produced, the transformed graph may contain prohibited structures
+(like-directed edges between pairs of nodes). When this occurs, a pruning operation is
+performed before proceeding to the next iteration. Pruning selectively removes
+nodes and redirects edges until no prohibited structures remain.
+The new graph, pruned as necessary, becomes the starting graph for the next iteration.
+In some cases, pruning continues until the graph is empty, or "collapsed."
+The simulation run ends when (1) the graph collapses, (2) a state cycle is detected,
+or (3) the maximum number of iterations is reached.
+
+For description purposes, we arbitrarily designate a node's two out-edges "left" and "right."
+Rules consist of eight parts. Each rule-part specifies replacement values for
+a node's state, the destination of its left out-edge, and the destination of its right
+out-edge. Replacement destinations are given in terms of the node's current out-edge destinations
+and those of its two immediate neighbors. Specifically, the six possible replacement
+destinations are:
+
+\begin{enumerate}
+    \item L - the node's current left-edge destination
+    \item R - the node's current right-edge destination
+    \item LL - the current destination of its left neighbor's left-edge
+    \item LR - the current destination of its left neighbor's right-edge
+    \item RL - the current destination of its right neighbor's left-edge
+    \item RR - the current destination of its right neighbor's right-edge
+\end{enumerate}
+
+During an iteration, each node is examined in turn. Depending on the compound \textit{black}/\textit{white}
+state of the node and its two neighbors, one of the eight rule-parts is applied to
+the node's state and its two out-edges. Using the arbitrary designations of "left" and "right"
+for the out-edges, the possible modifications are:
 Combinatorics and packing.
 
 \subsection{Structure Invariants}
