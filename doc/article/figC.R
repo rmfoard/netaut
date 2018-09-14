@@ -1,13 +1,13 @@
-# Average # in-degrees C vs R machines, all initial graph sizes
+# Average maximum in-degree, C vs R machines, all initial graph sizes
 # (depends on the 'sdavgs' table [avg-sd.sql])
 #
 p <- ggplot(data=sdavgs) +
     geom_line(
-        mapping=aes(x=initnrnodes, y=anrindegrees, color=machinetype),
+        mapping=aes(x=initnrnodes, y=amaxindegree, color=machinetype),
         size=2
     ) +
     geom_point(
-        mapping=aes(x=initnrnodes, y=anrindegrees, color=machinetype),
+        mapping=aes(x=initnrnodes, y=amaxindegree, color=machinetype),
         size=2
     ) +
     scale_color_manual(values=c("blue", "red")) +
@@ -17,12 +17,12 @@ p <- ggplot(data=sdavgs) +
         legend.title.align = 0.5
     ) +
     labs(
-        title=paste("Average # in-degrees, C and R machines"),
-        subtitle=paste("[B]"),
+        title=paste("Average maximum in-degree, C and R machines"),
+        subtitle=paste("[C]"),
         x="Initial graph size (nodes)",
-        y="Average number of distinct in-degrees"
+        y="Average maximum in-degree"
     ) +
     labs(color="Machine")
 print(p)
-dev.copy(png, filename="figB.png")
+dev.copy(png, filename="figC.png")
 dev.off()
