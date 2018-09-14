@@ -68,6 +68,7 @@ ggplot(data=sd1024) +
 + coord_cartesian(xlim=c(0, 256)) # note the zoom-in
 
 /* terminal node counts in collapsing outcomes, C vs R THIS ONE IS INTERESTING */
+/* Probably want to treat this one in the collapses analysis segment */
 ggplot(data=filter(sd1024, cyclelength == -1)) +
 +  geom_freqpoly(mapping=aes(x=nrnodes, color=machinetype), binwidth=10)
 

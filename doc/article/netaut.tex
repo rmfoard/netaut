@@ -61,7 +61,9 @@
 
 \usepackage{hyperref} % For hyperlinks in the PDF
 
+% RMF additions
 \usepackage{graphicx}
+\usepackage{amsmath}
 
 %----------------------------------------------------------------------------------------
 %	TITLE SECTION
@@ -196,6 +198,13 @@ A replacement edge destination is one of:
     \item RR - the current destination of its right neighbor's right-edge
 \end{itemize}
 
+\begin{figure*}[tb] 
+\centering
+ \makebox[\textwidth]{\includegraphics[width=.9\paperwidth]{./placeholder.png}}
+\caption{The SAP data model based on an UML class diagram: classes and relationships.}
+\label{fig:Fig5}
+\end{figure*}
+
 After all nodes in the original graph have been processed, the new graph copy
 built up during the iteration may
 contain prohibited structures (like-directed edges between pairs of nodes).
@@ -216,8 +225,6 @@ Invariants are maintained in all simulations.
 Input parameters and statistics gathered. Data base and analysis tooling.
 How parameter values were selected and varied.
 
-Text requiring further explanation\footnote{Example footnote}.
-
 %------------------------------------------------
 
 \section{Results}
@@ -228,8 +235,14 @@ simulations
 would terminate with either a collapsed or a cycling graph if allowed to
 run to completion. The simulator's ability to detect a state cycle is
 limited, however, because a graph may traverse an astronomical
-number of states before revisiting a previous configuration.
-For this reason, a third, "unfinished" category is included in
+number of states\footnote{An N-node graph of the studied variety
+has
+\[
+2^N\cdot\binom{N}{2}^N
+\]
+possible states.}
+before revisiting a previous configuration.
+For this reason, a third, "undetermined" category is included in
 outcome statistics.
 
 \subsection{Rule-based vs. Random}
@@ -244,12 +257,12 @@ of \textbf{R}'s changes is confined to nodes' immediate topological neighborhood
 Machine \textbf{C} is far less likely to produce graph collapses than
 \textbf{R} (59.3\% vs. 99.9\% of runs). In cases where \textbf{C} produces
 collapses, average run length is consistently greater than
-for \textbf{R} (Fig. \ref{fig:fig1}.).
+for \textbf{R} (Fig. \ref{fig:figA}.).
 
 \begin{figure}
-  \fbox{\includegraphics[width=\linewidth, scale=0.7]{fig1.png}}
+  \fbox{\includegraphics[width=\linewidth, scale=0.7]{figA.png}}
   \caption{On average, the rule-based \textbf{C} machine executes more iterations than \textbf{R}  before collapse occurs.}
-  \label{fig:fig1}
+  \label{fig:figA}
 \end{figure}
 
 Other observations on how results from random Machine R differ.

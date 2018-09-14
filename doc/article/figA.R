@@ -18,11 +18,11 @@ p <- ggplot(data=sdavgs) +
     ) +
     labs(
         title=paste("Average pre-collapse run lengths, C and R machines"),
-        subtitle=paste(""),
+        subtitle=paste("[A]"),
         x="Initial graph size (nodes)",
         y="Run length (iterations)"
     ) +
     labs(color="Machine")
 print(p)
-dev.copy(png, filename="fig1.png")
+dev.copy(png, filename="figA.png")
 dev.off()
