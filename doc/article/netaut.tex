@@ -64,6 +64,7 @@
 % RMF additions
 \usepackage{graphicx}
 \usepackage{amsmath}
+\interfootnotelinepenalty=1000 % default is 100; discourages splitting footnotes
 
 %----------------------------------------------------------------------------------------
 %	TITLE SECTION
@@ -235,12 +236,11 @@ simulations
 would terminate with either a collapsed or a cycling graph if allowed to
 run to completion. The simulator's ability to detect a state cycle is
 limited, however, because a graph may traverse an astronomical
-number of states\footnote{An N-node graph of the studied variety
-has
+number of states\footnote{The number of possible states for an N-node graph is:
 \[
 2^N\cdot\binom{N}{2}^N
 \]
-possible states.}
+}
 before revisiting a previous configuration.
 For this reason, a third, "undetermined" category is included in
 outcome statistics.
@@ -252,7 +252,7 @@ initially random graphs, a simulator for a second machine, \textbf{R},
 was constructed. Like \textbf{C}, \textbf{R} makes iterative changes to the
 graph, but proceeds by changing node states and edge assignments randomly
 instead of under control of a rule. As with \textbf{C}, though, the scope
-of \textbf{R}'s changes is confined to nodes' immediate topological neighborhoods.
+of \textbf{R}'s changes is limited to nodes' immediate topological neighborhoods.
 
 Machine \textbf{C} is far less likely to produce graph collapses than
 \textbf{R} (59.3\% vs. 99.9\% of runs). In cases where \textbf{C} produces
@@ -265,13 +265,33 @@ for \textbf{R} (Fig. \ref{fig:figA}.).
   \label{fig:figA}
 \end{figure}
 
-Other observations on how results from random Machine R differ.
+Machine \textbf{C}, on average, generates graphs with a larger 
+maximum in-degree than in the random case (Fig. \ref{fig:figC}.), and also produces a
+larger number of distinct in-degrees (Fig. \ref{fig:figB}.)
+
+\begin{figure}
+  \fbox{\includegraphics[width=\linewidth, scale=0.7]{figB.png}}
+  \caption{\textbf{C} produces graphs with a larger number of in-degrees.}
+  \label{fig:figC}
+\end{figure}
+
+\begin{figure}
+  \fbox{\includegraphics[width=\linewidth, scale=0.7]{figC.png}}
+  \caption{\textbf{B} produces a larger maximum in-degree than \textbf{R}.}
+  \label{fig:figC}
+\end{figure}
+
+The same relationship holds for clustering coefficients (Fig. \ref{fig:figD}.)
+
+\begin{figure}
+  \fbox{\includegraphics[width=\linewidth, scale=0.7]{figD.png}}
+  \caption{\textbf{C}'s clustering coefficients are larger than those for \textbf{R}.}
+  \label{fig:figD}
+\end{figure}
 
 \subsection{Unhappy Endings -- Cycles and Collapses}
 
-All runs end in one of three ways... Graphs are finite. They begin
-with n nodes and 2n edges and can only remain at their initial
-size or grow smaller as iterations proceed.
+This is where things get more interesting.
 
 For this one, we'll have to dust off the old self-organizing criticality
 references. Are collapses like sandpile avalanches?
