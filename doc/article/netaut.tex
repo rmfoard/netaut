@@ -210,21 +210,12 @@ schematically in (Fig. \ref{fig:Fig1}).
 
 After all nodes in the original graph have been processed, a pruning operation
 is performed to remove any like-directed edges between pairs of nodes.
-Pruning selectively removes nodes and redirects edges cascading as requied
+Pruning selectively removes nodes and redirects edges, cascading as requied
 until no prohibited structures remain.
-If it is not empty, the pruned graph becomes the starting graph for the next iteration.
-If pruning emptied the graph, it is said to have "collapsed."
+If it is not empty, the pruned graph becomes the starting point for the next iteration;
+if it is empty it is said to have collapsed.
 The simulation run ends when (1) the graph collapses, (2) a state cycle is detected,
 or (3) the maximum number of iterations is reached.
-
-\subsection{Pruning}
-
-Invariants are maintained in all simulations.
-
-\subsection{The Simulator}
-
-Input parameters and statistics gathered. Data base and analysis tooling.
-Constituent packages. How parameter values were selected and varied.
 
 \subsection{Machine \textbf{C}'s Random Counterpart, \textbf{R}}
 
@@ -235,34 +226,48 @@ graph, but proceeds by changing node states and edge assignments randomly
 instead of under control of a rule. As with \textbf{C}, though, the scope
 of \textbf{R}'s changes is limited to nodes' immediate topological neighborhoods.
 
+\subsection{Pruning}
+
+Invariants are maintained in all simulations.
+
+\subsection{The Simulator}
+
+Input parameters and statistics gathered. Data base and analysis tooling.
+Constituent packages. How parameter values were selected and varied.
+
 %------------------------------------------------
 
 \section{Results}
 
 Initial graphs are finite, rules are deterministic, and each iteration
-either maintains or reduces the number of nodes.
-It is consequently certain that the machine will terminate for every rule,
-in either a state cycle or a graph collapse.
+either maintains the number of nodes or reduces it by pruning.
+It is consequently certain that machine \textbf{C} will terminate for every rule,
+in either a state cycle or a graph collapse; it is likewise certain that
+machine \textbf{R} will always terminate.
 The possibility that a graph will traverse an astronomical number
-of states\footnote before revisiting a previous configuration, however,
-limits simulator's ability to detect a cycle.
+of states\footnote{The number of possible states for an N-node graph is:
 \[
 2^N\cdot\binom{N}{2}^N
 \]
 }
-For this reason, a third, "undetermined" category is included in
+before revisiting a previous configuration, however, limits the simulator's ability to
+detect a cycle. For this reason, a third, "undetermined" category is included in
 statistics on run outcomes.
 
 Machine \textbf{C} is far less likely to produce graph collapses than
-\textbf{R} (59.3\% vs. 99.9\% of runs). In cases where \textbf{C} produces
+\textbf{R} is (59.3\% vs. 99.9\% of runs). In cases where \textbf{C} produces
 collapses, average run length is consistently greater than
-for \textbf{R} (Fig. \ref{fig:figA}).
+for \textbf{R} (Fig. \ref{fig:figA}). For both machine types, we refer to
+the number of nodes at the end of the iteration immediately preceding a collapse,
+or to the "settled" number of nodes in a cycling graph, as the terminal number of nodes.
 
 \begin{figure}
   \fbox{\includegraphics[width=\linewidth, scale=0.7]{figA.png}}
-  \caption{On average, the rule-based \textbf{C} machine executes more iterations than \textbf{R}  before collapse occurs.}
+  \caption{On average, the rule-based \textbf{C} machine executes more iterations than \textbf{R} before collapse occurs.}
   \label{fig:figA}
 \end{figure}
+
+\subsection{Degree and Complexity}
 
 Machine \textbf{C}, on average, generates graphs with a larger 
 maximum in-degree than in the random case (Fig. \ref{fig:figC}), and also produces a
@@ -280,14 +285,24 @@ larger number of distinct in-degrees (Fig. \ref{fig:figB}).
   \label{fig:figB}
 \end{figure}
 
-Shannon's entropy xxx, computed on summary in-degree statistics and normalized
-\footnote{Explanation of normalization}, can be
-regarded a measure of the randomness in a graph as it is transformed
-through a series of machine iterations. As would be expected, entropy is
-large in the randomly generated graphs with which each run starts, varying
-within the narrow range xxx.
+Shannon's entropy [citation needed], computed on summary in-degree statistics and
+normalized\footnote{Explanation of normalization}, can be regarded a measure of
+a graph's "randomness."
+As would be expected, entropy is consistently large in the randomly generated
+initial graphs. Between the \textbf{R} and \textbf{C} machines, entropy in the terminal
+graphs for \textbf{C} is lower than that for the randomly operating R (Fig. \ref{fig:figE}).
 
-The same relationship holds for clustering coefficients (Fig. \ref{fig:figDd1024}).
+\begin{figure}
+  \fbox{\includegraphics[width=\linewidth, scale=0.7]{figE.png}}
+  \caption{In-degree entropy is largest in initial random graphs,
+        smaller for \textbf{R}'s terminal graphs, and smallest for \textbf{C}'s terminal graphs.}
+  \label{fig:figE}
+\end{figure}
+
+\subsection{Clustering}
+
+Terminal clustering coefficients for machine \textbf{C} are smaller than those for \textbf{R} in
+the large majority of cases (Fig. \ref{fig:figDd1024}).
 
 \begin{figure}
   \fbox{\includegraphics[width=\linewidth, scale=0.7]{figDd1024.png}}
