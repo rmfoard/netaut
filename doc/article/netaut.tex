@@ -260,6 +260,7 @@ collapses, average run length is consistently greater than
 for \textbf{R} (Fig. \ref{fig:figA}). For both machine types, we refer to
 the number of nodes at the end of the iteration immediately preceding a collapse,
 or to the "settled" number of nodes in a cycling graph, as the terminal number of nodes.
+(Add a note on the use of "neighbor and separate into a separate paragraph on terms.)
 
 \begin{figure}
   \fbox{\includegraphics[width=\linewidth, scale=0.7]{figA.png}}
@@ -291,6 +292,10 @@ a graph's "randomness."
 As would be expected, entropy is consistently large in the randomly generated
 initial graphs. Between the \textbf{R} and \textbf{C} machines, entropy in the terminal
 graphs for \textbf{C} is lower than that for the randomly operating R (Fig. \ref{fig:figE}).
+The drop in average entropy between initial graphs and the\textbf{R} machine's terminal
+graphs seems surprising on its face, but is accounted for by the restriction that
+\textbf{R}'s topological changes, like \textbf{C}'s, may only redirect a node's out-edges
+to one of its own edges' destinations or to one of its immediate neighbors' edge destinations.
 
 \begin{figure}
   \fbox{\includegraphics[width=\linewidth, scale=0.7]{figE.png}}
