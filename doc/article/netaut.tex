@@ -171,16 +171,16 @@ a \textit{black} or \textit{white} state at random, with equal likelihood.
 
 \subsection{Machine \textbf{C} Rules and Operation}
 
-A simulation run begins with an initial graph and proceeds through a series of
-iterations; each iteration builds a new graph copy that reflects the state of the graph
-with which it started, transformed according to the iteration rule in force for the run.
-The new graph copy, adjusted to eliminate any prohibited structures, becomes the starting
-graph for the next iteration.
+At the start of each simulation run, a rule is selected and an initial graph
+is generated.  The simulation proceeds in a series of
+iterations. During each, the rule is applied at each node, yielding a draft
+version of a new graph. The draft is then adjusted to eliminate
+prohibited structures and becomes the starting point for the next iteration.
 
 During an iteration, each node in the current graph is examined in turn.
 Depending on the combined \textit{black}/\textit{white}
 states of the node and its two neighbors, changes are made to the node's
-state and its out-edges in the new graph copy. An iteration rule encodes these state-dependent change
+state and its out-edges in the draft copy. Rules encode change
 instructions as follows:
 
 (For purposes of description, it is convenient to designate a node's two out-edges "left" and "right.")
@@ -198,21 +198,21 @@ A replacement edge destination is one of:
     \item RL - the current destination of its right neighbor's left-edge
     \item RR - the current destination of its right neighbor's right-edge
 \end{itemize}
+The process of a rule being applied to a node and its immediate neighbors is shown
+schematically in (Fig. \ref{fig:Fig1}).
 
 \begin{figure*}[tb] 
-\centering
- \makebox[\textwidth]{\includegraphics[width=.9\paperwidth]{./placeholder.png}}
-\caption{The SAP data model based on an UML class diagram: classes and relationships.}
-\label{fig:Fig5}
+    \centering
+    \makebox[\textwidth]{\includegraphics[width=.9\paperwidth]{./placeholder.png}}
+    \caption{A rule specifies state-dependent changes to a node's state and its out-edges.}
+    \label{fig:Fig1}
 \end{figure*}
 
-After all nodes in the original graph have been processed, the new graph copy
-built up during the iteration may
-contain prohibited structures (like-directed edges between pairs of nodes).
-When this occurs, a pruning operation is
-performed before proceeding to the next iteration. Pruning selectively removes
-nodes and redirects edges; it cascades until no prohibited structures remain.
-If non-empty, the pruned graph becomes the starting graph for the next iteration.
+After all nodes in the original graph have been processed, a pruning operation
+is performed to remove any like-directed edges between pairs of nodes.
+Pruning selectively removes nodes and redirects edges cascading as requied
+until no prohibited structures remain.
+If it is not empty, the pruned graph becomes the starting graph for the next iteration.
 If pruning emptied the graph, it is said to have "collapsed."
 The simulation run ends when (1) the graph collapses, (2) a state cycle is detected,
 or (3) the maximum number of iterations is reached.
@@ -221,31 +221,12 @@ or (3) the maximum number of iterations is reached.
 
 Invariants are maintained in all simulations.
 
-\subsection{Parameters and Outcome Statistics}
+\subsection{The Simulator}
 
 Input parameters and statistics gathered. Data base and analysis tooling.
-How parameter values were selected and varied.
+Constituent packages. How parameter values were selected and varied.
 
-%------------------------------------------------
-
-\section{Results}
-
-Initial graphs are finite, and graph size is either maintained
-or reduced in each iteration. As a consequence, it is certain that all
-simulations
-would terminate with either a collapsed or a cycling graph if allowed to
-run to completion. The simulator's ability to detect a state cycle is
-limited, however, because a graph may traverse an astronomical
-number of states\footnote{The number of possible states for an N-node graph is:
-\[
-2^N\cdot\binom{N}{2}^N
-\]
-}
-before revisiting a previous configuration.
-For this reason, a third, "undetermined" category is included in
-outcome statistics.
-
-\subsection{Rule-based vs. Random}
+\subsection{Machine \textbf{C}'s Random Counterpart, \textbf{R}}
 
 To gauge the extent to which machine \textbf{C} creates order out of
 initially random graphs, a simulator for a second machine, \textbf{R},
@@ -254,10 +235,28 @@ graph, but proceeds by changing node states and edge assignments randomly
 instead of under control of a rule. As with \textbf{C}, though, the scope
 of \textbf{R}'s changes is limited to nodes' immediate topological neighborhoods.
 
+%------------------------------------------------
+
+\section{Results}
+
+Initial graphs are finite, rules are deterministic, and each iteration
+either maintains or reduces the number of nodes.
+It is consequently certain that the machine will terminate for every rule,
+in either a state cycle or a graph collapse.
+The possibility that a graph will traverse an astronomical number
+of states\footnote before revisiting a previous configuration, however,
+limits simulator's ability to detect a cycle.
+\[
+2^N\cdot\binom{N}{2}^N
+\]
+}
+For this reason, a third, "undetermined" category is included in
+statistics on run outcomes.
+
 Machine \textbf{C} is far less likely to produce graph collapses than
 \textbf{R} (59.3\% vs. 99.9\% of runs). In cases where \textbf{C} produces
 collapses, average run length is consistently greater than
-for \textbf{R} (Fig. \ref{fig:figA}.).
+for \textbf{R} (Fig. \ref{fig:figA}).
 
 \begin{figure}
   \fbox{\includegraphics[width=\linewidth, scale=0.7]{figA.png}}
@@ -266,8 +265,8 @@ for \textbf{R} (Fig. \ref{fig:figA}.).
 \end{figure}
 
 Machine \textbf{C}, on average, generates graphs with a larger 
-maximum in-degree than in the random case (Fig. \ref{fig:figC}.), and also produces a
-larger number of distinct in-degrees (Fig. \ref{fig:figB}.)
+maximum in-degree than in the random case (Fig. \ref{fig:figC}), and also produces a
+larger number of distinct in-degrees (Fig. \ref{fig:figB}).
 
 \begin{figure}
   \fbox{\includegraphics[width=\linewidth, scale=0.7]{figC.png}}
@@ -281,18 +280,24 @@ larger number of distinct in-degrees (Fig. \ref{fig:figB}.)
   \label{fig:figB}
 \end{figure}
 
-Consider introducing the in-degree entropy measure here, with a discussion
-of how it is indicative of more complex structure...
+Shannon's entropy xxx, computed on summary in-degree statistics and normalized
+\footnote{Explanation of normalization}, can be
+regarded a measure of the randomness in a graph as it is transformed
+through a series of machine iterations. As would be expected, entropy is
+large in the randomly generated graphs with which each run starts, varying
+within the narrow range xxx.
 
-The same relationship holds for clustering coefficients (Fig. \ref{fig:figDd1024}.)
+The same relationship holds for clustering coefficients (Fig. \ref{fig:figDd1024}).
 
 \begin{figure}
   \fbox{\includegraphics[width=\linewidth, scale=0.7]{figDd1024.png}}
-  \caption{\textbf{C}'s clustering coefficients are larger than those for \textbf{R}.}
+  \caption{\textbf{C}'s average clustering coefficients are larger than \textbf{R}'s.}
   \label{fig:figDd1024}
 \end{figure}
 
 \subsection{Unhappy Endings -- Cycles and Collapses}
+
+\subsection{Sensivity to Initial Conditions}
 
 This is where things get more interesting.
 
