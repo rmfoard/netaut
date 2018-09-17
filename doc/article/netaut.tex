@@ -174,8 +174,8 @@ a \textit{black} or \textit{white} state at random, with equal likelihood.
 At the start of each simulation run, a rule is selected and an initial graph
 is generated.  The simulation proceeds in a series of
 iterations. During each, the rule is applied at each node, yielding a draft
-version of a new graph. The draft is then adjusted to eliminate
-prohibited structures and becomes the starting point for the next iteration.
+version of a new graph. The draft is then pruned to eliminate
+prohibited structures, creating the input graph to the next iteration.
 
 During an iteration, each node in the current graph is examined in turn.
 Depending on the combined \textit{black}/\textit{white}
@@ -183,12 +183,13 @@ states of the node and its two neighbors, changes are made to the node's
 state and its out-edges in the draft copy. Rules encode change
 instructions as follows:
 
-(For purposes of description, it is convenient to designate a node's two out-edges "left" and "right.")
 A rule consists of eight parts, each corresponding to a possible compound state of a node and its
 two neighbors. Each rule-part specifies replacement values for
 the node's state, the destination of its left out-edge, and the destination of its right
 out-edge. A replacement node state is either \textit{black} or \textit{white}.
-A replacement edge destination is one of:
+A replacement edge destination
+(for purposes of description, it is convenient to designate a node's two out-edges "left" and "right.")
+is one of:
 
 \begin{itemize}
     \item L - the node's current left-edge destination
@@ -208,10 +209,9 @@ schematically in (Fig. \ref{fig:Fig1}).
     \label{fig:Fig1}
 \end{figure*}
 
-After all nodes in the original graph have been processed, a pruning operation
-is performed to remove any like-directed edges between pairs of nodes.
-Pruning selectively removes nodes and redirects edges, cascading as requied
-until no prohibited structures remain.
+After all nodes in the original graph have been processed, pruning removes
+any like-directed edges between pairs of nodes; pruning selectively removes nodes
+and redirects edges, cascading as required until no prohibited structures remain.
 If it is not empty, the pruned graph becomes the starting point for the next iteration;
 if it is empty it is said to have collapsed.
 The simulation run ends when (1) the graph collapses, (2) a state cycle is detected,
@@ -220,7 +220,7 @@ or (3) the maximum number of iterations is reached.
 \subsection{Machine \textbf{C}'s Random Counterpart, \textbf{R}}
 
 To gauge the extent to which machine \textbf{C} creates order out of
-initially random graphs, a simulator for a second machine, \textbf{R},
+random starting graphs, a simulator for a second machine, \textbf{R},
 was constructed. Like \textbf{C}, \textbf{R} makes iterative changes to the
 graph, but proceeds by changing node states and edge assignments randomly
 instead of under control of a rule. As with \textbf{C}, though, the scope
@@ -242,7 +242,7 @@ Constituent packages. How parameter values were selected and varied.
 Initial graphs are finite, rules are deterministic, and each iteration
 either maintains the number of nodes or reduces it by pruning.
 It is consequently certain that machine \textbf{C} will terminate for every rule,
-in either a state cycle or a graph collapse; it is likewise certain that
+either in a state cycle or in a graph collapse; it is likewise certain that
 machine \textbf{R} will always terminate.
 The possibility that a graph will traverse an astronomical number
 of states\footnote{The number of possible states for an N-node graph is:
@@ -260,7 +260,7 @@ collapses, average run length is consistently greater than
 for \textbf{R} (Fig. \ref{fig:figA}). For both machine types, we refer to
 the number of nodes at the end of the iteration immediately preceding a collapse,
 or to the "settled" number of nodes in a cycling graph, as the terminal number of nodes.
-(Add a note on the use of "neighbor and separate into a separate paragraph on terms.)
+(Add a note on the use of "neighbor" and separate into a separate paragraph on terms.)
 
 \begin{figure}
   \fbox{\includegraphics[width=\linewidth, scale=0.7]{figA.png}}
@@ -268,7 +268,7 @@ or to the "settled" number of nodes in a cycling graph, as the terminal number o
   \label{fig:figA}
 \end{figure}
 
-\subsection{Degree and Complexity}
+\subsection{Degree and Entropy}
 
 Machine \textbf{C}, on average, generates graphs with a larger 
 maximum in-degree than in the random case (Fig. \ref{fig:figC}), and also produces a
