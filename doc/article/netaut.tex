@@ -177,7 +177,8 @@ version of a new graph. The draft is then pruned to eliminate
 prohibited structures, creating the input graph to the next iteration.
 
 During an iteration, each node in the current graph is examined in turn.
-The combined \textit{black}/\textit{white} states of the node and its two neighbors
+The combined \textit{black}/\textit{white} states of the node and its two neighbors\footnote{In
+all cases, "neighbor" is used to indicate a node at the destination end of one of a node's out-edges.}
 are used to select one of the rule's eight constituent parts, which in turn
 controls the changes that are made to the node's state and its out-edges in
 the draft copy. Rules encode change instructions as follows:
@@ -219,49 +220,48 @@ or (3) the maximum number of iterations is reached.
 
 \subsection{Machine \textbf{C}'s Random Counterpart, \textbf{R}}
 
-To gauge the extent to which machine \textbf{C} creates order out of
-random starting graphs, a simulator for a second machine, \textbf{R},
+To help gauge the extent to which machine \textbf{C} increases order as it
+transforms random starting graphs, a simulator for a second machine, \textbf{R},
 was constructed. Like \textbf{C}, \textbf{R} makes iterative changes to the
 graph, but proceeds by changing node states and edge assignments randomly
-instead of under control of a rule. As with \textbf{C}, though, the scope
-of \textbf{R}'s changes is limited to nodes' immediate topological neighborhoods.
+instead of under the control of a rule. As with \textbf{C}, though, the scope
+of \textbf{R}'s changes at a node is limited to the node's state and the destinations of
+its two out-edges.
 
 \subsection{Pruning}
 
-Graph changes, whether made under control of \textbf{C}'s rules or by the
-random action of Machine \textbf{R}, can introduce multiple, like-directed
-edges between pairs of nodes. These prohibited structures can arise in the
-draft graphs created during an iteration's first pass, and must be removed
-to restore the structure invariant before leaving the iteration.
-Two kinds of situations must be resolved before the machine can begin its
-next iteration (Fig. \ref{fig:Fig2}).
+Changes to out-edge destinations, whether made randomly or based on \textbf{C}'s
+rules, can introduce multiple, like-directed edges between nodes. These prohibited structures
+arise as the machine's iteration logic creates a first-pass, draft copy of the transformed graph.
+The draft copy is restored to conformance with the structure invariant by applying a
+pruning process. In the diagram (Fig. \ref{fig:Fig2}),
+the two illegal configurations that require pruning are shown as cases I and II.
+Both are resolved by sacrificing the node at which the offending edge pair
+originates (labeled "A" in the illustrations), along with the edge pair.
+In case I, all edges inbound to the eliminated node are redirected to 
+the destination (shown as node "B") of its to-be-eliminated edge pair.
+Redirected edges are shown in red.
+
+Lacking such a natural new destination for inbound edges in case II, the
+pruning process instead moves the problem "upstream"---any edge inbound to
+the eliminated node is redirected to the same destination node as that of
+its origin node's other out-edge. This, of course, immediately creates
+case I structure violations for all such origin nodes; these violations must also be
+resolved before the pruning process is complete.
+Case II resolutions \textit{always} create additional structure violations;
+case I resolutions may or may not. The cascading reductions in graph size are
+common for both \textbf{C} and \textbf{R} machines.
 
 \begin{figure*}[tb] 
     \centering
-    \makebox[\textwidth]{\includegraphics[width=.9\paperwidth]{./pruning.png}}
-    \caption{Resolution methods for two variations of a prohibited structure.
+    %\makebox[\textwidth]{\includegraphics[width=.9\paperwidth, scale=0.7]{./pruning.png}}
+    \makebox[\textwidth]{\includegraphics[scale=0.7]{./pruning.png}}
+    \caption{\textbf{Pruning.} Resolution methods for two variations of a prohibited structure.
 In both cases, edges originating at node A are eliminated; edges in red are redirected.
 Case II creates two case I-type structures that require further resolution.}
     \label{fig:Fig2}
 \end{figure*}
 
-
-Both are resolved by sacrificing the node at which the offending edge pair
-originates (labeled "A" in the illustrations) along with its pair of out-edges.
-In case I, all edges inbound to the eliminated node are redirected to 
-the destination (shown as node "B") of its to-be-eliminated edge pair.
-
-Lacking such a natural new destination for inbound edges in case II, the
-pruning process instead moves the problem "upstream;" any edge inbound to
-the eliminated node is redirected to the same destination node as that of
-its origin node's other out-edge. This, of course, immediately creates a
-case I structure violation for all such origin nodes; these must also be
-resolved before the pruning process is complete; for this reason it proceeds
-in multiple passes. Case II resolution
-\textit{always} creates additional structure violations; case I resolutions
-may or may not. The cascades of node eliminations that can result are common
-in simulations of both the \textbf{C} and \textbf{R} machines. They often result in complete
-graph collapse, especially in the case of \textbf{R}.
 
 \subsection{The Simulator}
 
@@ -272,18 +272,18 @@ Constituent packages. How parameter values were selected and varied.
 
 \section{Results}
 
-Initial graphs are finite, rules are deterministic, and each iteration
+Initial graphs are finite, and each iteration
 either maintains the number of nodes or reduces it by pruning.
-It is consequently certain that machine \textbf{C} will terminate for every rule,
-either in a state cycle or in a graph collapse; it is likewise certain that
-machine \textbf{R} will always terminate.
+It is consequently certain that machine runs will terminate,
+either in a state cycle or in a graph collapse; this holds true
+for both machine types.
 The possibility that a graph will traverse an astronomical number
 of states\footnote{The number of possible states for an N-node graph is:
 \[
 2^N\cdot\binom{N}{2}^N
 \]
 }
-before revisiting a previous configuration, however, limits the simulator's ability to
+before revisiting a previous one, however, limits the simulator's ability to
 detect a cycle. For this reason, a third, "undetermined" category is included in
 statistics on run outcomes.
 
@@ -293,10 +293,10 @@ collapses, average run length is consistently greater than
 for \textbf{R} (Fig. \ref{fig:figA}). For both machine types, we refer to
 the number of nodes at the end of the iteration immediately preceding a collapse,
 or to the "settled" number of nodes in a cycling graph, as the terminal number of nodes.
-(Add a note on the use of "neighbor" and separate into a separate paragraph on terms.)
 
 \begin{figure}
-  \fbox{\includegraphics[width=\linewidth, scale=0.7]{figA.png}}
+%  \fbox{\includegraphics[width=\linewidth, scale=0.6]{figA.png}}
+  \includegraphics[width=\linewidth, scale=0.7]{figA.png}
   \caption{On average, the rule-based \textbf{C} machine executes more iterations than \textbf{R} before collapse occurs.}
   \label{fig:figA}
 \end{figure}
@@ -308,13 +308,15 @@ maximum in-degree than in the random case (Fig. \ref{fig:figC}), and also produc
 larger number of distinct in-degrees (Fig. \ref{fig:figB}).
 
 \begin{figure}
-  \fbox{\includegraphics[width=\linewidth, scale=0.7]{figC.png}}
+  %\fbox{\includegraphics[width=\linewidth, scale=0.7]{figC.png}}
+  \includegraphics[width=\linewidth, scale=0.7]{figC.png}
   \caption{\textbf{C} produces a larger maximum in-degree than \textbf{R}.}
   \label{fig:figC}
 \end{figure}
 
 \begin{figure}
-  \fbox{\includegraphics[width=\linewidth, scale=0.7]{figB.png}}
+  %\fbox{\includegraphics[width=\linewidth, scale=0.7]{figB.png}}
+  \includegraphics[width=\linewidth, scale=0.7]{figB.png}
   \caption{\textbf{C} produces graphs with a larger number of in-degrees.}
   \label{fig:figB}
 \end{figure}
@@ -325,14 +327,15 @@ a graph's "randomness."
 As would be expected, entropy is consistently large in the randomly generated
 initial graphs. Between the \textbf{R} and \textbf{C} machines, entropy in the terminal
 graphs for \textbf{C} is lower than that for the randomly operating R (Fig. \ref{fig:figE}).
-The drop in average entropy between initial graphs and the\textbf{R} machine's terminal
+The drop in average entropy between initial graphs and the \textbf{R} machine's terminal
 graphs seems surprising on its face, but is accounted for by the restriction that
 \textbf{R}'s topological changes, like \textbf{C}'s, may only redirect a node's out-edge
-to one of its own edges' destinations to one of its immediate neighbors'.
+to one of its neighbors or their neighbors.
 The effect is to "localize" the randomness, increasing apparent order in the graph.
 
 \begin{figure}
-  \fbox{\includegraphics[width=\linewidth, scale=0.7]{figE.png}}
+  %\fbox{\includegraphics[width=\linewidth, scale=0.7]{figE.png}}
+  \includegraphics[width=\linewidth, scale=0.7]{figE.png}
   \caption{In-degree entropy is largest in initial random graphs,
         smaller for \textbf{R}'s terminal graphs, and smallest for \textbf{C}'s terminal graphs.}
   \label{fig:figE}
@@ -344,31 +347,40 @@ Terminal clustering coefficients for machine \textbf{C} are smaller than those f
 the large majority of cases (Fig. \ref{fig:figDd1024}).
 
 \begin{figure}
-  \fbox{\includegraphics[width=\linewidth, scale=0.7]{figDd1024.png}}
+  %\fbox{\includegraphics[width=\linewidth, scale=0.7]{figDd1024.png}}
+  \includegraphics[width=\linewidth, scale=0.7]{figDd1024.png}
   \caption{\textbf{C}'s average clustering coefficients are larger than \textbf{R}'s.}
   \label{fig:figDd1024}
 \end{figure}
 
-\subsection{Unhappy Endings -- Cycles and Collapses}
+\subsection{Cycles and Collapses}
+%Unhappy Endings?
 
-\subsection{Sensivity to Initial Conditions}
+\subsection{Sensitivity to Initial Conditions}
 
 This is where things get more interesting.
 
 For this one, we'll have to dust off the old self-organizing criticality
 references. Are collapses like sandpile avalanches?
 
-\subsection{Self-Organization -- Made to Order?}
+\subsection{Self-Organization}
+%Made to Order?
 
-\subsection{Learning the Hard Way}
+\subsection{Predictability}
+%Learning the Hard Way?
 
-\subsection{Analysis -- Doing the math}
+\subsection{Mathematical Analysis}
+%Doing the Math?
 
-\subsection{Evolution by Design -- "Designer Rules"}
+\subsection{Designed Rules}
+%Designer Rules? Rules by Design?
 
-\subsection{Interesting Configurations -- Photo Ops}
+\subsection{Interesting Configurations}
+%Photo Opps?
+Sorter?
 
-\subsection{In the Long Run...}
+\subsection{Cycles}
+%In the Long Run?
 
 \begin{table}
 \caption{Example table}
