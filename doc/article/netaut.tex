@@ -230,15 +230,18 @@ of \textbf{R}'s changes is limited to nodes' immediate topological neighborhoods
 
 Graph changes, whether made under control of \textbf{C}'s rules or by the
 random action of Machine \textbf{R}, can introduce multiple, like-directed
-edges between pairs of nodes. These prohibited structures can arise in the draft graphs created
-during each iteration's first pass, and must be removed in order to preserve
-the structure invariant. Two kinds of situations must be resolved before
-the machine can begin its next iteration (Fig. \ref{fig:Fig2}).
+edges between pairs of nodes. These prohibited structures can arise in the
+draft graphs created during an iteration's first pass, and must be removed
+to restore the structure invariant before leaving the iteration.
+Two kinds of situations must be resolved before the machine can begin its
+next iteration (Fig. \ref{fig:Fig2}).
 
 \begin{figure*}[tb] 
     \centering
-    \makebox[\textwidth]{\includegraphics[width=.9\paperwidth]{./placeholder2.png}}
-    \caption{A rule specifies state-dependent changes to a node's state and its out-edges.}
+    \makebox[\textwidth]{\includegraphics[width=.9\paperwidth]{./pruning.png}}
+    \caption{Resolution methods for two variations of a prohibited structure.
+In both cases, edges originating at node A are eliminated; edges in red are redirected.
+Case II creates two case I-type structures that require further resolution.}
     \label{fig:Fig2}
 \end{figure*}
 
