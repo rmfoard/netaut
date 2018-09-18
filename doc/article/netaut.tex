@@ -233,9 +233,15 @@ random action of Machine \textbf{R}, can introduce multiple, like-directed
 edges between pairs of nodes. These prohibited structures can arise in the draft graphs created
 during each iteration's first pass, and must be removed in order to preserve
 the structure invariant. Two kinds of situations must be resolved before
-the machine can begin its next iteration:
+the machine can begin its next iteration (Fig. \ref{fig:Fig2}).
 
-(Illustration of cases I. and II.)
+\begin{figure*}[tb] 
+    \centering
+    \makebox[\textwidth]{\includegraphics[width=.9\paperwidth]{./placeholder2.png}}
+    \caption{A rule specifies state-dependent changes to a node's state and its out-edges.}
+    \label{fig:Fig2}
+\end{figure*}
+
 
 Both are resolved by sacrificing the node at which the offending edge pair
 originates (labeled "A" in the illustrations) along with its pair of out-edges.
