@@ -144,9 +144,8 @@ statistics, and microscopically, by inspecting statistical and graphic "snapshot
 Each simulation run begins with a randomly generated graph and progresses by
 iteratively modifying its edges and node states; changes are made according to a rule selected
 for the run. Each rule is effectively a simple program  that specifies, based on the state
-of each node and its two topological neighbors, how local changes should be applied.
-
-A simulation run proceeds as follows: (describe initial condition and iteration procedure)
+of each node and its two topological neighbors, how local changes should be applied during an
+iteration.
 
 \subsection{Graph Composition}
 
@@ -178,13 +177,13 @@ version of a new graph. The draft is then pruned to eliminate
 prohibited structures, creating the input graph to the next iteration.
 
 During an iteration, each node in the current graph is examined in turn.
-Depending on the combined \textit{black}/\textit{white}
-states of the node and its two neighbors, changes are made to the node's
-state and its out-edges in the draft copy. Rules encode change
-instructions as follows:
+The combined \textit{black}/\textit{white} states of the node and its two neighbors
+are used to select one of the rule's eight constituent parts, which in turn
+controls the changes that are made to the node's state and its out-edges in
+the draft copy. Rules encode change instructions as follows:
 
-A rule consists of eight parts, each corresponding to a possible compound state of a node and its
-two neighbors. Each rule-part specifies replacement values for
+A rule comprises eight parts, each corresponding to one of the possible compound states
+of a node and its neighbors. Each rule-part specifies replacement values for
 the node's state, the destination of its left out-edge, and the destination of its right
 out-edge. A replacement node state is either \textit{black} or \textit{white}.
 A replacement edge destination
@@ -210,7 +209,8 @@ schematically in (Fig. \ref{fig:Fig1}).
 \end{figure*}
 
 After all nodes in the original graph have been processed, pruning removes
-any like-directed edges between pairs of nodes; pruning selectively removes nodes
+any like-directed edges between pairs of nodes that have been created in the
+draft copy; the process selectively removes nodes
 and redirects edges, cascading as required until no prohibited structures remain.
 If it is not empty, the pruned graph becomes the starting point for the next iteration;
 if it is empty it is said to have collapsed.
@@ -228,7 +228,31 @@ of \textbf{R}'s changes is limited to nodes' immediate topological neighborhoods
 
 \subsection{Pruning}
 
-Invariants are maintained in all simulations.
+Graph changes, whether made under control of \textbf{C}'s rules or by the
+random action of Machine \textbf{R}, can introduce multiple, like-directed
+edges between pairs of nodes. These prohibited structures can arise in the draft graphs created
+during each iteration's first pass, and must be removed in order to preserve
+the structure invariant. Two kinds of situations must be resolved before
+the machine can begin its next iteration:
+
+(Illustration of cases I. and II.)
+
+Both are resolved by sacrificing the node at which the offending edge pair
+originates (labeled "A" in the illustrations) along with its pair of out-edges.
+In case I, all edges inbound to the eliminated node are redirected to 
+the destination (shown as node "B") of its to-be-eliminated edge pair.
+
+Lacking such a natural new destination for inbound edges in case II, the
+pruning process instead moves the problem "upstream;" any edge inbound to
+the eliminated node is redirected to the same destination node as that of
+its origin node's other out-edge. This, of course, immediately creates a
+case I structure violation for all such origin nodes; these must also be
+resolved before the pruning process is complete; for this reason it proceeds
+in multiple passes. Case II resolution
+\textit{always} creates additional structure violations; case I resolutions
+may or may not. The cascades of node eliminations that can result are common
+in simulations of both the \textbf{C} and \textbf{R} machines. They often result in complete
+graph collapse, especially in the case of \textbf{R}.
 
 \subsection{The Simulator}
 
@@ -331,7 +355,7 @@ references. Are collapses like sandpile avalanches?
 
 \subsection{Analysis -- Doing the math}
 
-\subsection{Evolution by Design}
+\subsection{Evolution by Design -- "Designer Rules"}
 
 \subsection{Interesting Configurations -- Photo Ops}
 
@@ -365,14 +389,18 @@ Some dummy text was here.
 
 \section{Discussion}
 
+Possible areas for further investigation:
+
+\begin{itemize}
+    \item Search strategies for rules with specific characteristics.
+    \item Encodings of more complex graph structures.
+    \item Exploring mathematical parallels.
+    \item Investigating variations on the machines, both simpler and more complex.
+\end{itemize}
+
 \subsection{Subsection One}
 
 A statement requiring citation \cite{Figueredo:2009dg}.
-Some dummy text was here, too.
-
-\subsection{Subsection Two}
-
-Some dummy text was here, too.
 
 %----------------------------------------------------------------------------------------
 %	REFERENCE LIST
