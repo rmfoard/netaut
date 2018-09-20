@@ -1,42 +1,48 @@
-# prep_schema <schemaname> <source_dbname> <machine> <nr_nodes>
+# prep_schema <dest(new) schemaname> <source_dbname> <source schemaname> <machine> <nr_nodes>...
+#   <tape_init_spec> <topo_init_spec> <max iterations>
 #
-# Runs the query in <schemaname>.sql and prepares a batch of iteration details
-# in the <schemaname> schema within <source_dbname>. The query must create
-# a table named <schemaname>_ids containing two columns: 'rulenr' and 'randseed'.
+# Runs the query in <schemaname>.sql in the <source schemaname> of <source_dbname> and
+# prepares a batch of iteration details in the <schemaname> schema within <source_dbname>.
+# The query must create a table named <schemaname>_ids containing two columns: 'rulenr' and 'randseed'.
 #
-schemaname=$1
+newschemaname=$1
 dbname=$2
-machine=$3
-nrnodes=$4
+srcschemaname=$3
+machine=$4
+nrnodes=$5
+tapeinit=$6
+topoinit=$7
+maxiters=$8
 echo "PREP> Creating and loading schema $1 under database $2 using the query in $1.sql:"
-cat "$schemaname".sql
+cat "$newschemaname".sql
 psql "$dbname" <<EOF
-`cat "$schemaname".sql`
-\copy ${schemaname}_ids to ${schemaname}_ids.txt (format csv, delimiter ' ')
-drop table ${schemaname}_ids;
+set search_path to "$srcschemaname", public;
+`cat "$newschemaname".sql`
+\copy ${newschemaname}_ids to ${newschemaname}_ids.txt (format csv, delimiter ' ')
+drop table ${newschemaname}_ids;
 \quit
 EOF
-echo "PREP> The query yielded these rule numbers (& randseeds) for detailing in ${schemaname}:"
-cat ${schemaname}_ids.txt
-set -- `wc ${schemaname}_ids.txt`
+echo "PREP> The query yielded these rule numbers (& randseeds) for detailing in ${newschemaname}:"
+cat ${newschemaname}_ids.txt
+set -- `wc ${newschemaname}_ids.txt`
 # (note that the value of $1 is being re-established as the number of lines (which == the number of rule/randseed pairs))
 nrids=$1
 echo "PREP> Running simulations using:"
-echo "dloop $machine --noop $nrnodes $nrids `expr $nrnodes '*' 2` random random `expr $nrnodes '*' 2` $schemaname ${schemaname}_ids.txt"
-./dloop $machine --noop $nrnodes $nrids `expr $nrnodes '*' 2` random random `expr $nrnodes '*' 2` $schemaname "$schemaname"_ids.txt
+echo "dloop $machine --noop $nrnodes $nrids `expr $nrnodes '*' 2` $tapeinit $topoinit `expr $nrnodes '*' 2` $newschemaname ${newschemaname}_ids.txt"
+./dloop $machine --noop $nrnodes $nrids `expr $nrnodes '*' $maxiters` $tapeinit $topoinit `expr $nrnodes '*' $maxiters` $newschemaname "$newschemaname"_ids.txt
 # for testing convenience only:
 echo "PREP> Created files:"
-ls -l "$schemaname"_*.json
+ls -l "$newschemaname"_*.json
 echo "PREP> Creating .csv files..."
-python json_to_csv.py "$schemaname"
+python json_to_csv.py "$newschemaname"
 echo "PREP> Created files:"
-ls -l "$schemaname"_*.csv
-rm -v "$schemaname"_ids.txt
-echo "PREP> Creating the $schemaname schema"
-./create_schema $dbname $schemaname
+ls -l "$newschemaname"_*.csv
+rm -v "$newschemaname"_ids.txt
+echo "PREP> Creating the $newschemaname schema"
+./create_schema $dbname $newschemaname
 echo "PREP> Adding details..."
-./load_schema $dbname $schemaname
+./load_schema $dbname $newschemaname
 echo "PREP> Cleaning up..."
-rm -v ${schemaname}_*.csv
-rm -v ${schemaname}_*.json
+rm -v ${newschemaname}_*.csv
+rm -v ${newschemaname}_*.json
 echo "PREP> Finis."
