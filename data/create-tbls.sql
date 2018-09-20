@@ -43,23 +43,16 @@ CREATE TABLE d (
 --
 CREATE TABLE c (
     runId               varchar(256) NOT NULL REFERENCES s(runId),
+    iterationNr         integer,
     ccSize              integer,
     ccCount             integer
-);
------------------
--- t table: triad counts
---
------------------
-CREATE TABLE t (
-    runId               varchar(256)  NOT NULL REFERENCES s(runId),
-    triad               integer,
-    triadCount          integer
 );
 -----------------
 -- i table: in-degree details
 --
 CREATE TABLE i (
     runId               varchar(256) NOT NULL REFERENCES s(runId),
+    iterationNr         integer,
     inDegreeSize        integer,
     inDegreeCount       integer
 );
@@ -69,6 +62,16 @@ CREATE TABLE i (
 -----------------
 CREATE TABLE o (
     runId           varchar(256) NOT NULL REFERENCES s(runId),
+    iterationNr     integer,
     outDegreeSize   integer,
     outDegreeCount  integer
+);
+-----------------
+-- t table: triad counts
+--
+-----------------
+CREATE TABLE t (
+    runId               varchar(256)  NOT NULL REFERENCES s(runId),
+    triad               integer,
+    triadCount          integer
 );

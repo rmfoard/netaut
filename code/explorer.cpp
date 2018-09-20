@@ -20,7 +20,7 @@
 #include "machine2D.h"
 #include "machineR.h"
 
-#define VERSION "V180826.0"
+#define VERSION "V180920.0"
 
 //---------------
 // Command option settings
@@ -158,7 +158,7 @@ void ParseCommand(const int argc, char* argv[]) {
     cmdOpt.rulePresent = false;
     cmdOpt.ruletextPresent = false;
     cmdOpt.noWriteEndGraph = false;
-    cmdOpt.machineTypeName = "B";
+    cmdOpt.machineTypeName = "!";
     cmdOpt.graphFileSuffix = "";
     cmdOpt.writeAsName = "";
     cmdOpt.recordName = "";
@@ -340,6 +340,11 @@ void ParseCommand(const int argc, char* argv[]) {
         errorFound = true;
     }
 
+    if (cmdOpt.machineTypeName == "!") {
+        std::cerr << "error: --machine must be specified as 'C' or 'R'(andom)" << std::endl;
+        errorFound = true;
+    }
+
     if (errorFound) exit(1);
 
     // Adjust --stat-start if user specified zero (0th is written unconditionally)
@@ -445,6 +450,7 @@ void WriteIterationStats(Machine* machine, bool teeToConsole, int iterationNr) {
         ccSizeCount.append(sizeCountPair);
         nrCcs += (int) sizeCount[i].Val2;
     }
+    info["ccSizeCount"] = ccSizeCount;
     info["nrCcSizes"] = sizeCount.Len();
     info["nrCcs"] = nrCcs;
     info["nrNodes"] = nrNodes;
@@ -474,6 +480,7 @@ void WriteIterationStats(Machine* machine, bool teeToConsole, int iterationNr) {
         inDegreeCountPair.append((int) degStats.inDegCnt[i].Val2);
         inDegreeCount.append(inDegreeCountPair);
     }
+    info["inDegreeCount"] = inDegreeCount;
     info["nrInDegrees"] = degStats.nrInDeg;
     info["inDegreeEntropy"] = degStats.inDegEntropy;
 
@@ -485,6 +492,7 @@ void WriteIterationStats(Machine* machine, bool teeToConsole, int iterationNr) {
         outDegreeCountPair.append((int) degStats.outDegCnt[i].Val2);
         outDegreeCount.append(outDegreeCountPair);
     }
+    info["outDegreeCount"] = outDegreeCount;
     info["nrOutDegrees"] = degStats.nrOutDeg;
     info["outDegreeEntropy"] = degStats.outDegEntropy;
 
@@ -529,40 +537,6 @@ void WriteSummary(Machine* machine, int nrIterations, int cycleLength, int runTi
     info["nrIterations"] = nrIterations;
     info["cycleLength"] = cycleLength;
     info["runTimeMs"] = runTimeMs;
-
-    // Connected component details
-    Json::Value ccSizeCount;
-    TVec<TPair<TInt, TInt> > sizeCount;
-    TSnap::GetWccSzCnt(machine->get_graph(), sizeCount);
-    for (int i = 0; i < sizeCount.Len(); i += 1) {
-        Json::Value sizeCountPair;
-        sizeCountPair.append((int) sizeCount[i].Val1);
-        sizeCountPair.append((int) sizeCount[i].Val2);
-        ccSizeCount.append(sizeCountPair);
-    }
-    info["ccSizeCount"] = ccSizeCount;
-
-    // In-degree details
-    Machine::DegStats degStats;
-    machine->GetDegStats(degStats);
-    Json::Value inDegreeCount;
-    for (int i = 0; i < degStats.nrInDeg; i += 1) {
-        Json::Value inDegreeCountPair;
-        inDegreeCountPair.append((int) degStats.inDegCnt[i].Val1);
-        inDegreeCountPair.append((int) degStats.inDegCnt[i].Val2);
-        inDegreeCount.append(inDegreeCountPair);
-    }
-    info["inDegreeCount"] = inDegreeCount;
-
-    // Out-degree details
-    Json::Value outDegreeCount;
-    for (int i = 0; i < degStats.nrOutDeg; i += 1) {
-        Json::Value outDegreeCountPair;
-        outDegreeCountPair.append((int) degStats.outDegCnt[i].Val1);
-        outDegreeCountPair.append((int) degStats.outDegCnt[i].Val2);
-        outDegreeCount.append(outDegreeCountPair);
-    }
-    info["outDegreeCount"] = outDegreeCount;
 
     // Add machine-specific information.
     machine->AddSummaryInfo(info);
