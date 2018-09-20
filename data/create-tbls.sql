@@ -1,6 +1,7 @@
 -----------------
 -- s table: simulator runs
 --
+-----------------
 CREATE TABLE s (
     runId               varchar(256) NOT NULL PRIMARY KEY,
     cycleCheckDepth     integer,
@@ -39,34 +40,6 @@ CREATE TABLE d (
     outDegreeEntropy    double precision
 );
 -----------------
--- c table: connected component details
---
-CREATE TABLE c (
-    runId               varchar(256) NOT NULL REFERENCES s(runId),
-    iterationNr         integer,
-    ccSize              integer,
-    ccCount             integer
-);
------------------
--- i table: in-degree details
---
-CREATE TABLE i (
-    runId               varchar(256) NOT NULL REFERENCES s(runId),
-    iterationNr         integer,
-    inDegreeSize        integer,
-    inDegreeCount       integer
-);
------------------
--- o table: out-degree details
---
------------------
-CREATE TABLE o (
-    runId           varchar(256) NOT NULL REFERENCES s(runId),
-    iterationNr     integer,
-    outDegreeSize   integer,
-    outDegreeCount  integer
-);
------------------
 -- t table: triad counts
 --
 -----------------
@@ -75,3 +48,6 @@ CREATE TABLE t (
     triad               integer,
     triadCount          integer
 );
+\i create-c-tbl.sql
+\i create-i-tbl.sql
+\i create-o-tbl.sql
