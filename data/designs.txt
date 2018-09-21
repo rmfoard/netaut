@@ -3,3 +3,8 @@ L,R,W; L,RR,W; L,R,B; L,R,B; LL,R,W; LL,RR,W; L,R,B; L,R,B
 
 w avoids b neighbors, b avoids w neighbors
 L,R,W; L,RR,W; LL,RR,B; LL,R,B; LL,R,W; LL,RR,W; L,RR,B; L,R,B
+
+(gen all possible "uniform" rules: `enum_rules.py`)
+
+triad 2 (010'2) creates multilink
+L,R,W;L,R,W;L,L,W;L,R,W;L,R,W;L,R,W;L,R,W;L,R,W == 6103 1335 4316 06
