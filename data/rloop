@@ -1,7 +1,7 @@
 # rloop type --local|noop nodes runs maxiters tape topo checkDepth recordBaseName
 #
 #
-../code/randrule --reset --cache "$7.cache"
+../code/randrule --reset --cache "$9.cache"
 runnr=1
 while [ $runnr -le $4 ]; do
     ../code/explorer \
