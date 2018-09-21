@@ -1,0 +1,10 @@
+# exptrun <exptname> <nrentries> <nrnodes>
+#
+# (draws from <exptname>_list_<n>.txt
+#
+exptname=$1
+nrentries=$2
+nrnodes=$3
+for i in `seq 0 $nrentries`; do
+    ./sloop C --noop $nrnodes $nrentries $nrnodes single-center random $nrnodes "$exptname" "$exptname"_list_$i.txt
+done

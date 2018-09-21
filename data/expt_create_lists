@@ -1,0 +1,14 @@
+# Create (rulenr, randseed) lists, one list per randseed
+#
+# expt_create_lists <exptname> <nrentries>
+#
+# (draws from <exptname>_rulenrs.txt == simple rulenr list
+#
+exptname=$1
+nrentries=$2
+for i in `seq 0 $nrentries`; do
+    seed=$RANDOM
+    for r in `cat "$exptname"_rulenrs.txt`; do
+        echo $r ' ' $seed >> "$exptname"_list_$i.txt
+    done
+done

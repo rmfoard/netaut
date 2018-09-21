@@ -1,0 +1,14 @@
+# Count the number of graph collapses occurring in random 2-graphs set up to
+# form a single, initial multi-link.
+#
+# usage: ./collapsefrac <# nodes>
+#
+
+nrnodes=$1
+rm expt_*.json
+rm cols.tmp
+for i in `seq 10`; do
+../code/explorer --machine C --record expt --rule 61031335431606 --no-console --nodes $1 --init-tape single-center --init-topo random --randseed $i
+done
+ml expt_d.json | grep -v 'iteratioNr":0' | python -mjson.tool | grep nrNodes >> cols.tmp
+cat cols.tmp
