@@ -20,7 +20,7 @@
 #include "machine2D.h"
 #include "machineR.h"
 
-#define VERSION "V180920.0"
+#define VERSION "V180921.0"
 
 //---------------
 // Command option settings
@@ -30,6 +30,7 @@ struct CommandOpts {
     int maxIterations;
     int randSeed;
     int noConsole;
+    int extendId;
     int printTape;
     int noWriteEndGraph;
     int local;
@@ -84,6 +85,7 @@ static std::string runId;
 
 static struct option long_options[MAX_COMMAND_OPTIONS] = {
     {"no-console", no_argument, &cmdOpt.noConsole, 1},
+    {"extend-id", no_argument, &cmdOpt.extendId, 1},
     {"no-write-end-graph", no_argument, &cmdOpt.noWriteEndGraph, 1},
     {"print-tape", no_argument, &cmdOpt.printTape, 1},
     {"local", no_argument, &cmdOpt.local, 1},
@@ -129,7 +131,8 @@ std::string RunId(std::string machineType, rulenr_t ruleNr) {
       now->tm_hour, now->tm_min, now->tm_sec);
     return machineType
       + "-" + std::to_string(ruleNr)
-      + "-" + std::string(nowStr);
+      + "-" + std::string(nowStr)
+      + (cmdOpt.extendId ? ("-" + std::to_string(cmdOpt.randSeed)) : "");
 }
 
 //---------------
@@ -144,6 +147,7 @@ void ParseCommand(const int argc, char* argv[]) {
     cmdOpt.maxIterations = 128;
     cmdOpt.randSeed = -1;
     cmdOpt.noConsole = 0;
+    cmdOpt.extendId = 0;
     cmdOpt.printTape = 0;
     cmdOpt.local = 0;
     cmdOpt.nrNodes = 256;
