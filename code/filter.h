@@ -1,6 +1,8 @@
 #ifndef FILTER_H
 #define FILTER_H
 
+#include "rulemask.h"
+
 class Filter {
 public:
     RuleMask **m_any;

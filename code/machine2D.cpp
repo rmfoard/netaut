@@ -26,7 +26,7 @@ void Machine2D::BuildMachine(rulenr_t ruleNr, int nrNodes, int cycleCheckDepth,
     m_ruleParts = m_rule->get_ruleParts();
     m_nrNodes = nrNodes;
     m_cycleCheckDepth = cycleCheckDepth;
-    m_graph = TNGraph::New();
+    m_graph = TNEGraph::New();
     m_nodeStates = new int[m_nrNodes];
     m_nextNodeStates = new int[m_nrNodes];
     m_nextL = new int[m_nrNodes];
@@ -61,7 +61,7 @@ Machine2D::~Machine2D() {
 //---------------
 // TODO: Use the proper form for "getters."
 //---------------
-PNGraph Machine2D::get_graph() { return m_graph; }
+PNEGraph Machine2D::get_graph() { return m_graph; }
 int* Machine2D::get_nodeStates() { return m_nodeStates; }
 
 //---------------
@@ -71,7 +71,7 @@ int* Machine2D::get_nodeStates() { return m_nodeStates; }
 // destinations in the scratchpad. At this step, it's okay to create
 // multi-edges; they'll be removed in post-processing.
 //---------------
-void Machine2D::AdvanceNode(TNGraph::TNodeI NIter) {
+void Machine2D::AdvanceNode(TNEGraph::TNodeI NIter) {
 
     // Get node ids of neighbors.
     int nNId = NIter.GetId();
@@ -88,8 +88,8 @@ void Machine2D::AdvanceNode(TNGraph::TNodeI NIter) {
     m_stats.triadOccurrences[triadState] += 1;
 
     // Gather info on neighbors' neighbors.
-    TNGraph::TNodeI lNIter = m_graph->GetNI(lNId); // iterator for left neighbor
-    TNGraph::TNodeI rNIter = m_graph->GetNI(rNId); // iterator for right neighbor
+    TNEGraph::TNodeI lNIter = m_graph->GetNI(lNId); // iterator for left neighbor
+    TNEGraph::TNodeI rNIter = m_graph->GetNI(rNId); // iterator for right neighbor
     int llNId = lNIter.GetOutNId(0);
     int lrNId = lNIter.GetOutNId(1);
     int rlNId = rNIter.GetOutNId(0);
@@ -114,7 +114,7 @@ void Machine2D::AdvanceNode(TNGraph::TNodeI NIter) {
     const int nAction = rulePart % 2;
 
     // Confirm that the multi-edge invariant still holds.
-    assert(lNId != rNId);
+    ////assert(lNId != rNId);
 
     // Apply the node action and note the provisional topological action
     // in the scratchpad.
@@ -293,16 +293,16 @@ int Machine2D::IterateMachine(int iterationNr) {
     // Apply one iteration of the loaded rule, creating the next generation's
     // provisional state in the scratchpad. This step also creates the next
     // generation's node states.
-    for (TNGraph::TNodeI NIter = m_graph->BegNI(); NIter < m_graph->EndNI(); NIter++)
+    for (TNEGraph::TNodeI NIter = m_graph->BegNI(); NIter < m_graph->EndNI(); NIter++)
         AdvanceNode(NIter);
 
     // Post-process the scratchpad to eliminate multi-edges.
-    int termIndicator = EliminateMultiEdges();
-    if (termIndicator < 0) return termIndicator;
+    ////int termIndicator = EliminateMultiEdges();
+    ////if (termIndicator < 0) return termIndicator;
 
     // Create the next generation's graph from the scratchpad; initialize an empty graph
     // and create all the next generation's surviving nodes.
-    m_nextGraph = TNGraph::New();
+    m_nextGraph = TNEGraph::New();
     for (int nId = 0; nId < m_nrNodes; nId += 1) if (m_nextL[nId] != -1)
         m_nextGraph->AddNode(nId);
 
@@ -434,7 +434,7 @@ unsigned int Machine2D::CurStateHash() {
     }
 
     // ...and topology.
-    TNGraph::TNodeI graphNodeIter = m_graph->BegNI();
+    TNEGraph::TNodeI graphNodeIter = m_graph->BegNI();
     while (graphNodeIter < m_graph->EndNI()) {
         hash = (hash * HASH_MULTIPLIER + graphNodeIter.GetOutNId(0))
           % STATE_HISTORY_HASH_TABLE_LEN;
@@ -458,8 +458,8 @@ bool Machine2D::StateMatchesCurrent(Machine::MachineState other) {
         if (m_nodeStates[i] != other.nodeStates[i]) return false;
 
     // Compare topologies.
-    TNGraph::TNodeI graphNodeIter = m_graph->BegNI();
-    TNGraph::TNodeI otherGraphNodeIter = other.graph->BegNI();
+    TNEGraph::TNodeI graphNodeIter = m_graph->BegNI();
+    TNEGraph::TNodeI otherGraphNodeIter = other.graph->BegNI();
     while (graphNodeIter < m_graph->EndNI()) {
         if (graphNodeIter.GetId() != otherGraphNodeIter.GetId()) return false;
         if (graphNodeIter.GetOutNId(0) != otherGraphNodeIter.GetOutNId(0)) return false;

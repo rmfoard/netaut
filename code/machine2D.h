@@ -23,13 +23,13 @@ public:
     Machine2D() : Machine() {};
     ~Machine2D();
     virtual void BuildMachine(rulenr_t, int, int, std::string, int, std::string);
-    virtual PNGraph get_graph();
+    virtual PNEGraph get_graph();
     virtual int* get_nodeStates();
     virtual int IterateMachine(int);
 
 
     virtual void AddSummaryInfo(Json::Value&);
-    virtual void AdvanceNode(TNGraph::TNodeI);
+    virtual void AdvanceNode(TNEGraph::TNodeI);
     virtual void BuildRing();
     virtual void BuildTree();
     virtual void BuildRandomGraph();

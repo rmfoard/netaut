@@ -397,7 +397,7 @@ void WriteGraph(Machine* m, const std::string graphFileSuffix,
   const int numTag, int actualNrIterations) {
     TIntStrH nodeColorHash = THash<TInt, TStr>();
     int* nodeStates = m->get_nodeStates();
-    for (TNGraph::TNodeI NIter = m->get_graph()->BegNI(); NIter < m->get_graph()->EndNI(); NIter++) {
+    for (TNEGraph::TNodeI NIter = m->get_graph()->BegNI(); NIter < m->get_graph()->EndNI(); NIter++) {
         int nId = NIter.GetId();
         nodeColorHash.AddDat(nId, (nodeStates[nId] == NBLACK) ? "black" : "white");
     }

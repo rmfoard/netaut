@@ -14,7 +14,7 @@ public:
     // TODO: Move structure def to 2D.
     struct MachineState {
         int *nodeStates;
-        PNGraph graph;
+        PNEGraph graph;
         unsigned int stateHash;
     };
 
@@ -30,12 +30,12 @@ public:
     std::string get_machineType();
     void set_machineType(std::string);
     virtual void BuildMachine(rulenr_t, int, int, std::string, int, std::string) = 0;
-    virtual PNGraph get_graph() = 0;
+    virtual PNEGraph get_graph() = 0;
     virtual int* get_nodeStates() = 0;
     virtual int IterateMachine(int) = 0;
 
     virtual void AddSummaryInfo(Json::Value&) = 0;
-    virtual void AdvanceNode(TNGraph::TNodeI) = 0;
+    virtual void AdvanceNode(TNEGraph::TNodeI) = 0;
     virtual void BuildRing() = 0;
     virtual void BuildTree() = 0;
     virtual void BuildRandomGraph() = 0;
@@ -56,8 +56,8 @@ public:
     Rule* m_rule;
     const int* m_ruleParts;
 
-    PNGraph m_graph;
-    PNGraph m_nextGraph;
+    PNEGraph m_graph;
+    PNEGraph m_nextGraph;
     TRnd* m_snapRnd;
     int* m_nodeStates;
     int* m_nextNodeStates;

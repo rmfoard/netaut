@@ -1,7 +1,6 @@
 #ifndef RULEMASK_H
 #define RULEMASK_H
 #include "netaut.h"
-#include "rule.h"
 
 // Rulemask objects:
 //
