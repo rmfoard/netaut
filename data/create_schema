@@ -1,5 +1,9 @@
-# Script to create a "study schema" and initialize it with empty tables
+# Script to create a schema and initialize it with empty tables
 #
+if [ -z $2 ]; then
+    echo "usage: $0 db schema"
+    exit 1
+fi
 psql $1 <<EOF
 create schema $2;
 set search_path to $2, public;

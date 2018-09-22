@@ -1,0 +1,24 @@
+if [ -z $2 ]; then
+    echo "usage $0 db [schema] csvroot"
+    exit 1
+fi
+if [ -z $3 ]; then
+    psql $1 <<EOF
+    \copy s from $2_s.csv delimiter ',' csv header
+    \copy d from $2_d.csv delimiter ',' csv header
+    \copy c from $2_c.csv delimiter ',' csv header
+    \copy t from $2_t.csv delimiter ',' csv header
+    \copy i from $2_i.csv delimiter ',' csv header
+    \copy o from $2_o.csv delimiter ',' csv header
+EOF
+else
+    psql $1 <<EOF
+    set search_path to $2, public;
+    \copy s from $3_s.csv delimiter ',' csv header
+    \copy d from $3_d.csv delimiter ',' csv header
+    \copy c from $3_c.csv delimiter ',' csv header
+    \copy t from $3_t.csv delimiter ',' csv header
+    \copy i from $3_i.csv delimiter ',' csv header
+    \copy o from $3_o.csv delimiter ',' csv header
+EOF
+fi

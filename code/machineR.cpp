@@ -295,8 +295,8 @@ int MachineR::IterateMachine(int iterationNr) {
         AdvanceNode(NIter);
 
     // Post-process the scratchpad to eliminate multi-edges.
-    int termIndicator = EliminateMultiEdges();
-    if (termIndicator < 0) return termIndicator;
+    ////int termIndicator = EliminateMultiEdges();
+    ////if (termIndicator < 0) return termIndicator;
 
     // Create the next generation's graph from the scratchpad; initialize an empty graph
     // and create all the next generation's surviving nodes.
