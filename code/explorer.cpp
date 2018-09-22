@@ -227,7 +227,9 @@ void ParseCommand(const int argc, char* argv[]) {
 
           case 'm':
             cmdOpt.machineTypeName = std::string(optarg);
-            if (cmdOpt.machineTypeName != "C" && cmdOpt.machineTypeName != "R") {
+            if (cmdOpt.machineTypeName != "C"
+              && cmdOpt.machineTypeName != "D"
+              && cmdOpt.machineTypeName != "R") {
                 std::cerr << "error: machine type " << cmdOpt.machineTypeName << " is not recognized."  << std::endl;
                 errorFound = true;
             }
@@ -345,7 +347,7 @@ void ParseCommand(const int argc, char* argv[]) {
     }
 
     if (cmdOpt.machineTypeName == "!") {
-        std::cerr << "error: --machine must be specified as 'C' or 'R'(andom)" << std::endl;
+        std::cerr << "error: --machine must be specified as 'D' or 'R'(andom)" << std::endl;
         errorFound = true;
     }
 
@@ -566,12 +568,12 @@ int main(const int argc, char* argv[]) {
 
     Machine* m;
     // Instantiate the machine.
-    if (cmdOpt.machineTypeName == "C")
+    if (cmdOpt.machineTypeName == "D")
         m = new Machine2D();
-    else {
-        assert(cmdOpt.machineTypeName == "R");
+    else if (cmdOpt.machineTypeName == "R")
         m = new MachineR();
-    }
+    else
+        assert(false);
 
     // Translate ruletext if it is provided in lieu of a rule number.
     if (cmdOpt.ruletextPresent) {
