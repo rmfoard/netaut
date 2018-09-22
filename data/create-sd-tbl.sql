@@ -1,4 +1,2 @@
-drop table if exists tmpd;
-select * into tmpd from d where d.iterationnr = (select max(iterationnr) from d as md where d.runid = md.runid);
-select * into sd from s natural join tmpd;
-drop table tmpd;
+select * into sd from (s natural join (select * from d where iterationnr <> 0) as y) as x;
+alter table sd rename column nrnodes to finnrnodes;
