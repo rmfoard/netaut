@@ -1,5 +1,5 @@
 library("RPostgreSQL")
 library("tidyverse")
 pg = dbDriver("PostgreSQL")
-con = dbConnect(pg, user="richard", port=5432, dbname="model_c")
+con = dbConnect(pg, user="richard", port=5432, dbname="model_d")
 print("Remember to set the search_path to ... if necessary.")
