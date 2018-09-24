@@ -20,7 +20,7 @@ public:
         double finDegEntropy;
     };
 
-    MachineR() : Machine() {};
+    MachineR(std::string type) : Machine() { m_machineType = type; };
     ~MachineR();
     virtual void BuildMachine(rulenr_t, int, int, std::string, int, std::string);
     virtual PNEGraph get_graph();

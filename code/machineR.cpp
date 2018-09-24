@@ -18,7 +18,7 @@
 //---------------
 void MachineR::BuildMachine(rulenr_t ruleNr, int nrNodes, int cycleCheckDepth,
   std::string tapeStructure, int tapePctBlack, std::string topoStructure) {
-    m_machineType = "R";
+    assert(m_machineType == "R" || m_machineType == "RM");
 
     m_rule = new Rule(ruleNr);
     m_ruleParts = m_rule->get_ruleParts();
@@ -107,17 +107,13 @@ void MachineR::AdvanceNode(TNEGraph::TNodeI NIter) {
     const int rulePart = m_ruleParts[triadState];
     assert(0 <= rulePart && rulePart < NR_ACTIONS);
 
-    // Generate a random node action.
-    const int nAction = rand() % 2;
-
-    // Confirm that the multi-edge invariant still holds.
-    ////assert(lNId != rNId);
+    // If applicable, confirm that the multi-edge invariant still holds.
+    if (m_machineType == "R") assert(lNId != rNId);
 
     // Apply the node action and note the provisional topological action
     // in the scratchpad.
     assert(m_nextL[nNId] == -1 && m_nextR[nNId] == -1);
-    assert(m_machineType == "R");
-    m_nextNodeStates[nNId] = nAction;
+    m_nextNodeStates[nNId] = m_nodeStates[nNId]; // (node states are left unchanged, not randomized)
     m_nextL[nNId] = newDsts[rand() % NR_DSTS];
     m_nextR[nNId] = newDsts[rand() % NR_DSTS];
 
@@ -294,9 +290,13 @@ int MachineR::IterateMachine(int iterationNr) {
     for (TNEGraph::TNodeI NIter = m_graph->BegNI(); NIter < m_graph->EndNI(); NIter++)
         AdvanceNode(NIter);
 
-    // Post-process the scratchpad to eliminate multi-edges.
-    ////int termIndicator = EliminateMultiEdges();
-    ////if (termIndicator < 0) return termIndicator;
+    // If they're disallowed, post-process the scratchpad to eliminate multi-edges.
+    if (m_machineType == "R") {
+        int termIndicator = EliminateMultiEdges();
+        if (termIndicator < 0) return termIndicator;
+    }
+    else
+        assert(m_machineType == "RM");
 
     // Create the next generation's graph from the scratchpad; initialize an empty graph
     // and create all the next generation's surviving nodes.

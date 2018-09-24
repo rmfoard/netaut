@@ -20,7 +20,7 @@
 #include "machine2D.h"
 #include "machineR.h"
 
-#define VERSION "V180921.0"
+#define VERSION "V180924.0"
 
 //---------------
 // Command option settings
@@ -33,7 +33,6 @@ struct CommandOpts {
     int extendId;
     int printTape;
     int noWriteEndGraph;
-    int local;
     int nrNodes;
     int graphWriteStart;
     int graphWriteStride;
@@ -88,7 +87,6 @@ static struct option long_options[MAX_COMMAND_OPTIONS] = {
     {"extend-id", no_argument, &cmdOpt.extendId, 1},
     {"no-write-end-graph", no_argument, &cmdOpt.noWriteEndGraph, 1},
     {"print-tape", no_argument, &cmdOpt.printTape, 1},
-    {"local", no_argument, &cmdOpt.local, 1},
 
     {"cycle-check-depth", required_argument, 0, CO_CYCLE_CHECK_DEPTH},
     {"init-tape", required_argument, 0, CO_INIT_TAPE},
@@ -149,7 +147,6 @@ void ParseCommand(const int argc, char* argv[]) {
     cmdOpt.noConsole = 0;
     cmdOpt.extendId = 0;
     cmdOpt.printTape = 0;
-    cmdOpt.local = 0;
     cmdOpt.nrNodes = 256;
     cmdOpt.graphWriteStart = -1;
     cmdOpt.graphWriteStride = -1;
@@ -162,7 +159,7 @@ void ParseCommand(const int argc, char* argv[]) {
     cmdOpt.rulePresent = false;
     cmdOpt.ruletextPresent = false;
     cmdOpt.noWriteEndGraph = false;
-    cmdOpt.machineTypeName = "!";
+    cmdOpt.machineTypeName = "";
     cmdOpt.graphFileSuffix = "";
     cmdOpt.writeAsName = "";
     cmdOpt.recordName = "";
@@ -228,9 +225,10 @@ void ParseCommand(const int argc, char* argv[]) {
           case 'm':
             cmdOpt.machineTypeName = std::string(optarg);
             if (cmdOpt.machineTypeName != "C"
-              && cmdOpt.machineTypeName != "D"
-              && cmdOpt.machineTypeName != "R") {
-                std::cerr << "error: machine type " << cmdOpt.machineTypeName << " is not recognized."  << std::endl;
+              && cmdOpt.machineTypeName != "R"
+              && cmdOpt.machineTypeName != "CM"
+              && cmdOpt.machineTypeName != "RM") {
+                std::cerr << "error: machine type '" << cmdOpt.machineTypeName << "' is not recognized."  << std::endl;
                 errorFound = true;
             }
             break;
@@ -316,11 +314,6 @@ void ParseCommand(const int argc, char* argv[]) {
     }
 
     // Check option consistency.
-    if (cmdOpt.local && cmdOpt.machineTypeName != "R") {
-        std::cerr << "error: --local is used only with machine type 'R'" << std::endl;
-        errorFound = true;
-    }
-
     if ((cmdOpt.graphWriteStart >= 0 && cmdOpt.graphWriteStride < 0)
       || (cmdOpt.graphWriteStart < 0 && cmdOpt.graphWriteStride >= 0)) {
         std::cerr << "error: --graph-start and --graph-stride must both be specified" << std::endl;
@@ -346,8 +339,11 @@ void ParseCommand(const int argc, char* argv[]) {
         errorFound = true;
     }
 
-    if (cmdOpt.machineTypeName == "!") {
-        std::cerr << "error: --machine must be specified as 'D' or 'R'(andom)" << std::endl;
+    if (cmdOpt.machineTypeName != "C"
+      && cmdOpt.machineTypeName != "R"
+      && cmdOpt.machineTypeName != "CM"
+      && cmdOpt.machineTypeName != "RM") {
+        std::cerr << "error: --machine must be specified as C, R, CM, or RM" << std::endl;
         errorFound = true;
     }
 
@@ -568,10 +564,10 @@ int main(const int argc, char* argv[]) {
 
     Machine* m;
     // Instantiate the machine.
-    if (cmdOpt.machineTypeName == "D")
-        m = new Machine2D();
-    else if (cmdOpt.machineTypeName == "R")
-        m = new MachineR();
+    if (cmdOpt.machineTypeName == "C" || cmdOpt.machineTypeName == "CM")
+        m = new Machine2D(cmdOpt.machineTypeName);
+    else if (cmdOpt.machineTypeName == "R" || cmdOpt.machineTypeName == "RM")
+        m = new MachineR(cmdOpt.machineTypeName);
     else
         assert(false);
 
