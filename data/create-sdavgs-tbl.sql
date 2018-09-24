@@ -2,6 +2,7 @@ select
     initnrnodes,
     machinetype,
     avg(nriterations) as anriterations,
+    avg(cyclelength) as acyclelength,
     avg(avgclustcoef) as aavgclustcoef,
     avg(diameter) as adiameter,
     avg(effdiameter90pctl) as aeffdiameter90pctl,
@@ -10,10 +11,9 @@ select
     avg(nrccs) as anrccs,
     avg(nrclosedtriads) as anrclosedtriads,
     avg(nrindegrees) as anrindegrees,
-    avg(nrnodes) as anrnodes,
+    avg(finnrnodes) as afinnrnodes,
     avg(nropentriads) as anropentriads
 into sdavgs
 from sd
-where cyclelength = -1
 group by initnrnodes, machinetype
 order by initnrnodes, machinetype;
