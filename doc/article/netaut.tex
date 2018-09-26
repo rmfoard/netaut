@@ -150,8 +150,7 @@ iteration.
 \subsection{Graph Composition}
 
 Nodes may be in one of two states: \textit{black} or \textit{white}.
-Graph topology is narrowly restricted in order to simplify analysis.
-For machine \textbf{C},
+Graph topology is narrowly restricted in order to simplify analysis:
 
 \begin{itemize}
     \item Edges are directed.
@@ -160,8 +159,6 @@ For machine \textbf{C},
     \item Multiple, like-directed edges between two nodes are prohibited.
 \end{itemize}
 
-For machine \textbf{CM}, the last restriction is omitted.
-
 These conditions are established when initial graphs are generated.
 Both machine types maintain them throughout execution. In
 Machine \textbf{C}, a "pruning" operation is performed at the end of each
@@ -169,14 +166,15 @@ iteration if necessary to eliminate prohibited structures; the process
 is described in a later section. %BOOKMARK%
 
 A second machine, \textbf{CM}, was also implemented. It is identical with
-machine \textbf{C} but removes the restriction on multiple, like-directed
-edges between nodes.
+machine \textbf{C} but allows multiple, like-directed edges between nodes
+and consequently does not need to perform pruning.
 
 An initial, random graph of size N is constructed by assigning two edges to each node, with
 the destination of each selected at random from all nodes. For \textbf{C} runs, the
 constraint that both edges cannot have the same destination node is observed.
-All nodes have out-degree 2, but in-degree can vary from 0 to N. Each node is assigned
-a \textit{black} or \textit{white} state at random, with equal likelihood.
+In all cases, nodes have out-degree 2, but in-degree can vary from 0 to N.
+Each node is assigned a \textit{black} or \textit{white} state at random,
+with equal likelihood.
 
 \subsection{Machine \textbf{C} Rules and Operation}
 
@@ -210,7 +208,7 @@ is one of:
     \item RR - the current destination of its right neighbor's right-edge
 \end{itemize}
 The process of a rule being applied to a node and its immediate neighbors is shown
-schematically in (Fig. \ref{fig:Fig1}).
+schematically in (Figure \ref{fig:Fig1}).
 
 \begin{figure*}[tb] 
     \centering
@@ -228,25 +226,29 @@ if it is empty it is said to have collapsed.
 The simulation run ends when (1) the graph collapses, (2) a state cycle is detected,
 or (3) the maximum number of iterations is reached.
 
-\subsection{Machine \textbf{C}'s Random Counterpart, \textbf{R}}
+Machine \textbf{CM} uses the same rule structures. It operates exactly as
+machine \textbf{C} does, but cannot create prohibited structure and consequently
+does not incorporate a pruning process or produce "collapse" outcomes. 
 
-To help gauge the extent to which machine \textbf{C} increases order as it
-transforms random starting graphs, a simulator for a second machine, \textbf{R},
-was constructed. Like \textbf{C}, \textbf{R} makes iterative changes to the
-graph, but proceeds by changing node states and edge assignments randomly
-instead of under the control of a rule. As with \textbf{C}, though, the scope
-of \textbf{R}'s changes at a node is limited to the node's state and the destinations of
-its two out-edges.
+\subsection{The \textbf{C*} Machines' Random Counterparts, \textbf{R} and \textbf{RM}}
+
+To help gauge the extent to which machines \textbf{C} and \textbf{CM}
+increase order as they transform random starting graphs, simulators for counterpart machines \textbf{R} and \textbf{RM}
+were constructed. Like the rule-based \textbf{C*} machines, these change graphs
+iteratively, but make their changes \textit{randomly}.
+As with the \textbf{C*} machines, though, the scope of changes at each node is
+limited to the destinations of its two out-edges. (They need not alter nodes' states
+because node states have no effect on the \textbf{R*} machines' actions).
 
 \subsection{Pruning}
 
-Changes to out-edge destinations, whether made randomly or based on \textbf{C}'s
+Changes to out-edge destinations, whether made randomly by machine \textbf{R} or based on \textbf{C}'s
 rules, can introduce multiple, like-directed edges between nodes. These prohibited structures
 arise as the machine's iteration logic creates a first-pass, draft copy of the transformed graph.
 The draft copy is restored to conformance with the structure invariant by applying a
-pruning process. In the diagram (Fig. \ref{fig:Fig2}),
+pruning process. In the diagram (Figure \ref{fig:Fig2}),
 the two illegal configurations that require pruning are shown as cases I and II.
-Both are resolved by sacrificing the node at which the offending edge pair
+Both are resolved by eliminating the node at which the offending edge pair
 originates (labeled "A" in the illustrations), along with the edge pair.
 In case I, all edges inbound to the eliminated node are redirected to 
 the destination (shown as node "B") of its to-be-eliminated edge pair.
@@ -259,8 +261,9 @@ its origin node's other out-edge. This, of course, immediately creates
 case I structure violations for all such origin nodes; these violations must also be
 resolved before the pruning process is complete.
 Case II resolutions \textit{always} create additional structure violations;
-case I resolutions may or may not. The cascading reductions in graph size are
-common for both \textbf{C} and \textbf{R} machines.
+case I resolutions may or may not. In either case, cascades can result. These
+cascades, and the resulting reductions in graph size, are common in both
+\textbf{C} and \textbf{R} simulations.
 
 \begin{figure*}[tb] 
     \centering
@@ -283,10 +286,10 @@ Constituent packages. How parameter values were selected and varied.
 \section{Results}
 
 Initial graphs are finite, and each iteration
-either maintains the number of nodes or reduces it by pruning.
-It is consequently certain that machine runs will terminate,
+either maintains the number of nodes or, in the case of \textbf{C} and \textbf{R},
+reduces it by pruning.  It is consequently certain that all machine runs will terminate,
 either in a state cycle or in a graph collapse; this holds true
-for both machine types.
+for \textbf{C}, \textbf{CM}, and their random counterparts.
 The possibility that a graph will traverse an astronomical number
 of states\footnote{The number of possible states for an N-node graph is:
 \[
@@ -294,13 +297,32 @@ of states\footnote{The number of possible states for an N-node graph is:
 \]
 }
 before revisiting a previous one, however, limits the simulator's ability to
-detect a cycle. For this reason, a third, "undetermined" category is included in
-statistics on run outcomes.
+detect cycles. If a simulator reaches a maximum number of iterations
+before its machine terminates, the outcome is recorded as "undetermined."
+Aggregate outcome statistics for all simulations appear in Table \ref{tab:Tab1}.
+
+\begin{table}
+\caption{Simulation Outcomes, All Runs}
+\centering
+\begin{tabular}{lrcr}
+\toprule
+Machine & Cycling & Collapsed & Undet. \\
+\midrule
+C & 40.77\% & 59.22\% & 0.01\% \\
+R & 0.01\% & 99.99\% & 0\% \\
+CM & 99.07\% & --- & 0.03\% \\
+RM & 100.00\% & --- & 0.00\% \\
+\bottomrule
+\end{tabular}
+\label{tab:Tab1}
+\end{table}
+
+%BOOKMARK%
 
 Machine \textbf{C} is far less likely to produce graph collapses than
 \textbf{R} is (59.3\% vs. 99.9\% of runs). In cases where \textbf{C} produces
 collapses, average run length is consistently greater than
-for \textbf{R} (Fig. \ref{fig:figA}). For both machine types, we refer to
+for \textbf{R} (Figure \ref{fig:figA}). For both machine types, we refer to
 the number of nodes at the end of the iteration immediately preceding a collapse,
 or to the "settled" number of nodes in a cycling graph, as the terminal number of nodes.
 
@@ -314,8 +336,8 @@ or to the "settled" number of nodes in a cycling graph, as the terminal number o
 \subsection{Degree and Entropy}
 
 Machine \textbf{C}, on average, generates graphs with a larger 
-maximum in-degree than in the random case (Fig. \ref{fig:figC}), and also produces a
-larger number of distinct in-degrees (Fig. \ref{fig:figB}).
+maximum in-degree than in the random case (Figure \ref{fig:figC}), and also produces a
+larger number of distinct in-degrees (Figure \ref{fig:figB}).
 
 \begin{figure}
   %\fbox{\includegraphics[width=\linewidth, scale=0.7]{figC.png}}
@@ -336,7 +358,7 @@ normalized\footnote{Explanation of normalization}, can be regarded a measure of
 a graph's "randomness."
 As would be expected, entropy is consistently large in the randomly generated
 initial graphs. Between the \textbf{R} and \textbf{C} machines, entropy in the terminal
-graphs for \textbf{C} is lower than that for the randomly operating R (Fig. \ref{fig:figE}).
+graphs for \textbf{C} is lower than that for the randomly operating R (Figure \ref{fig:figE}).
 The drop in average entropy between initial graphs and the \textbf{R} machine's terminal
 graphs seems surprising on its face, but is accounted for by the restriction that
 \textbf{R}'s topological changes, like \textbf{C}'s, may only redirect a node's out-edge
@@ -354,7 +376,7 @@ The effect is to "localize" the randomness, increasing apparent order in the gra
 \subsection{Clustering}
 
 Terminal clustering coefficients for machine \textbf{C} are smaller than those for \textbf{R} in
-the large majority of cases (Fig. \ref{fig:figDd1024}).
+the large majority of cases (Figure \ref{fig:figDd1024}).
 
 \begin{figure}
   %\fbox{\includegraphics[width=\linewidth, scale=0.7]{figDd1024.png}}
