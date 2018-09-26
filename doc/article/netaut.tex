@@ -136,7 +136,7 @@ Where cellular machines define cell adjacency spatially, our machines use graph 
 
 Two similar rule-based automata, \textbf{Machine C} and \textbf{Machine CM}, were designed
 and implemented in simulation. The simulators were run repeatedly, using rules
-selected at random from a large universe of possibilities. Measurements were recorded as graphs
+selected at random from a large universe of possibilities. Measurements were recorded as the graphs
 evolved through each run. The resulting database accumulated data on many thousands of runs. The body of data
 was analyzed macroscopically, using aggregate statistics, and microscopically, by inspecting
 statistical and graphic snapshots from individual runs.
@@ -150,54 +150,68 @@ iteration.
 \subsection{Graph Composition}
 
 Nodes may be in one of two states: \textit{black} or \textit{white}.
-Graph topology is narrowly restricted in order to simplify analysis:
+Graph topology is restricted in order to simplify rule design. For the
+\textbf{CM} machine:
 
 \begin{itemize}
     \item Edges are directed.
     \item Nodes have out-degree of exactly two.
     \item "Self-linking" edges are permitted.
+\end{itemize}
+The \textbf{C}  machine's graphs are more narrowly defined by adding the
+restriction:
+\begin{itemize} 
     \item Multiple, like-directed edges between two nodes are prohibited.
 \end{itemize}
 
-These conditions are established when initial graphs are generated.
-Both machine types maintain them throughout execution. In
-Machine \textbf{C}, a "pruning" operation is performed at the end of each
-iteration if necessary to eliminate prohibited structures; the process
-is described in a later section. %BOOKMARK%
+\textbf{C} and \textbf{CM} machines operate using the same rule structures.
+Each machine begins execution with a graph that has been randomly generated
+to conform to its machine's topological restrictions. Both maintain conformance
+throughout execution. In applying some rules, \textbf{C} may create prohibited
+structures. When this occurs, it applies a pruning process that selectively
+removes nodes and edges to restore conformance before proceeding. The \textbf{CM}
+machine does not require a pruning capability because no rule can cause it to
+violate its more relaxed structure restrictions. \textbf{CM} is otherwise
+identical to \textbf{C}.  
 
-A second machine, \textbf{CM}, was also implemented. It is identical with
-machine \textbf{C} but allows multiple, like-directed edges between nodes
-and consequently does not need to perform pruning.
-
-An initial, random graph of size N is constructed by assigning two edges to each node, with
+An initial, random graph of size N is constructed by assigning each node
+a \textit{black} or \textit{white} state with equal likelihood.
+Two edges are attached to each node, with
 the destination of each selected at random from all nodes. For \textbf{C} runs, the
-constraint that both edges cannot have the same destination node is observed.
-In all cases, nodes have out-degree 2, but in-degree can vary from 0 to N.
-Each node is assigned a \textit{black} or \textit{white} state at random,
-with equal likelihood.
+generator observes the constraint that both edges cannot have the same destination node.
+In all initial graphs, nodes have out-degree 2, but in-degree can vary from 0 to N.
+Initial graphs are a subset of the class of Erdos-Renyi random graphs [citation needed]
+\textit{G(n, p)} where \textit{n} is the number of nodes and \textit{p} is the probability
+that two nodes are connected by an edge. Because our graphs have fixed out-degree 2,
+the generation process produces randomness only in the nodes' in-degrees. As a result,
+each of our initial graphs is a member of \textit{G(n, p)} where \textit{p} is a function
+of graph size \textit{n} (approximately \( 4 / (n - 1) \)).
 
-\subsection{Machine \textbf{C} Rules and Operation}
+\subsection{Rule Structure and Application}
 
 At the start of each simulation run, a rule is selected and an initial graph
 is generated.  The simulation proceeds in a series of
 iterations. During each, the rule is applied at each node, yielding a draft
-version of a new graph. The draft is then pruned to eliminate
+version of a new graph. For machine \textbf{CM}, the draft immediately becomes
+the input to the next iteration. In \textbf{C}, the draft may require pruning
+before becoming input to the next iteration. 
+
+The draft is then pruned to eliminate
 prohibited structures, creating the input graph to the next iteration.
 
 During an iteration, each node in the current graph is examined in turn.
 The combined \textit{black}/\textit{white} states of the node and its two neighbors\footnote{In
 all cases, "neighbor" is used to indicate a node at the destination end of one of a node's out-edges.}
-are used to select one of the rule's eight constituent parts, which in turn
+are used to select one of the rule's eight constituent parts; the part in turn
 controls the changes that are made to the node's state and its out-edges in
-the draft copy. Rules encode change instructions as follows:
+the developing draft copy. Rules encode change instructions as follows:
 
 A rule comprises eight parts, each corresponding to one of the possible compound states
 of a node and its neighbors. Each rule-part specifies replacement values for
-the node's state, the destination of its left out-edge, and the destination of its right
-out-edge. A replacement node state is either \textit{black} or \textit{white}.
-A replacement edge destination
-(for purposes of description, it is convenient to designate a node's two out-edges "left" and "right.")
-is one of:
+the node's state and the destinations of its out-edges
+(for purposes of description, it is convenient to designate a node's two out-edges "left" and "right").
+The replacement node state is either \textit{black} or \textit{white}.
+The replacement edge destinations are each one of:
 
 \begin{itemize}
     \item L - the node's current left-edge destination
@@ -217,42 +231,44 @@ schematically in (Figure \ref{fig:Fig1}).
     \label{fig:Fig1}
 \end{figure*}
 
-After all nodes in the original graph have been processed, pruning removes
+After all nodes in the original graph have been processed,
+the resulting draft copy is pruned if necessary.
+
+Applicable only for machine \textbf{C}, pruning removes
 any like-directed edges between pairs of nodes that have been created in the
 draft copy; the process selectively removes nodes
 and redirects edges, cascading as required until no prohibited structures remain.
 If it is not empty, the pruned graph becomes the starting point for the next iteration;
-if it is empty it is said to have collapsed.
-The simulation run ends when (1) the graph collapses, (2) a state cycle is detected,
+if it is empty, it is said to have collapsed.
+A simulation run ends when (1) the graph collapses, (2) a state cycle is detected,
 or (3) the maximum number of iterations is reached.
-
-Machine \textbf{CM} uses the same rule structures. It operates exactly as
-machine \textbf{C} does, but cannot create prohibited structure and consequently
-does not incorporate a pruning process or produce "collapse" outcomes. 
 
 \subsection{The \textbf{C*} Machines' Random Counterparts, \textbf{R} and \textbf{RM}}
 
 To help gauge the extent to which machines \textbf{C} and \textbf{CM}
-increase order as they transform random starting graphs, simulators for counterpart machines \textbf{R} and \textbf{RM}
-were constructed. Like the rule-based \textbf{C*} machines, these change graphs
-iteratively, but make their changes \textit{randomly}.
+increase order as they transform random starting graphs, simulators for counterpart
+machines \textbf{R} and \textbf{RM} were constructed. Like the rule-based \textbf{C*} machines,
+these change graphs iteratively, but make their changes \textit{randomly}.
 As with the \textbf{C*} machines, though, the scope of changes at each node is
-limited to the destinations of its two out-edges. (They need not alter nodes' states
+limited to the destinations of its two out-edges. (The random machines need not alter nodes' states
 because node states have no effect on the \textbf{R*} machines' actions).
+The \textbf{R} machine applies the same pruning process that \textbf{C} uses. As
+with \textbf{CM}, no pruning step is requied in \textbf{RM} simulations.
 
-\subsection{Pruning}
+\subsection{The Pruning Process}
 
 Changes to out-edge destinations, whether made randomly by machine \textbf{R} or based on \textbf{C}'s
 rules, can introduce multiple, like-directed edges between nodes. These prohibited structures
-arise as the machine's iteration logic creates a first-pass, draft copy of the transformed graph.
-The draft copy is restored to conformance with the structure invariant by applying a
+arise as the machine's iteration logic creates a first-pass, "draft" copy of the transformed graph.
+The draft copy is restored to conformance with structure restrictions by applying a
 pruning process. In the diagram (Figure \ref{fig:Fig2}),
-the two illegal configurations that require pruning are shown as cases I and II.
+the two illegal configurations that require pruning are shown in red and
+labeled as cases I and II.
 Both are resolved by eliminating the node at which the offending edge pair
 originates (labeled "A" in the illustrations), along with the edge pair.
 In case I, all edges inbound to the eliminated node are redirected to 
 the destination (shown as node "B") of its to-be-eliminated edge pair.
-Redirected edges are shown in red.
+Redirected edges are shown in blue.
 
 Lacking such a natural new destination for inbound edges in case II, the
 pruning process instead moves the problem "upstream"---any edge inbound to
@@ -269,8 +285,8 @@ cascades, and the resulting reductions in graph size, are common in both
     \centering
     %\makebox[\textwidth]{\includegraphics[width=.9\paperwidth, scale=0.7]{./pruning.png}}
     \makebox[\textwidth]{\includegraphics[scale=0.7]{./pruning.png}}
-    \caption{\textbf{Pruning.} Resolution methods for two variations of a prohibited structure.
-In both cases, edges originating at node A are eliminated; edges in red are redirected.
+    \caption{\textbf{Pruning.} Resolution methods for two variations of a (red) prohibited structure.
+In both cases, edges originating at node A are eliminated; edges in blue are redirected.
 Case II creates two case I-type structures that require further resolution.}
     \label{fig:Fig2}
 \end{figure*}
@@ -298,8 +314,8 @@ of states\footnote{The number of possible states for an N-node graph is:
 }
 before revisiting a previous one, however, limits the simulator's ability to
 detect cycles. If a simulator reaches a maximum number of iterations
-before its machine terminates, the outcome is recorded as "undetermined."
-Aggregate outcome statistics for all simulations appear in Table \ref{tab:Tab1}.
+before its machine terminates, the simulation outcome is recorded as "undetermined."
+Aggregate outcome statistics for all runs appear in Table \ref{tab:Tab1}.
 
 \begin{table}
 \caption{Simulation Outcomes, All Runs}
@@ -373,11 +389,6 @@ The effect is to "localize" the randomness, increasing apparent order in the gra
   \label{fig:figE}
 \end{figure}
 
-\subsection{Clustering}
-
-Terminal clustering coefficients for machine \textbf{C} are smaller than those for \textbf{R} in
-the large majority of cases (Figure \ref{fig:figDd1024}).
-
 \begin{figure}
   %\fbox{\includegraphics[width=\linewidth, scale=0.7]{figDd1024.png}}
   \includegraphics[width=\linewidth, scale=0.7]{figDd1024.png}
@@ -387,6 +398,11 @@ the large majority of cases (Figure \ref{fig:figDd1024}).
 
 \subsection{Cycles and Collapses}
 %Unhappy Endings?
+
+\subsection{Clustering}
+
+Terminal clustering coefficients for machine \textbf{C} are smaller than those for \textbf{R} in
+the large majority of cases (Figure \ref{fig:figDd1024}).
 
 \subsection{Sensitivity to Initial Conditions}
 
