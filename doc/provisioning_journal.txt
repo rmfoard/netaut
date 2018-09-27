@@ -131,10 +131,16 @@ To provision for generating netaut/hellosnap:
 
 - install yEd
     - (download .sh installer from yworks.com/Downloads)
+- install yEd
+-   downloaded .sh install script, chmod +x
+-   (also installs a JRE in the yEd dir, which must be writable
+-   next time try sudo ...sh and place in /usr/bin?)
 
-- install mhash library
-    - downloaded mhash from sourceforge
-    - gunzip, tar xvf, ./configure, make
+- install inkscape
+    - (had a false start with a failed install of flatpak first, aborted)
+    - sudo add-apt-repository ppa:inkscape.dev/stable
+    - sudo apt update
+    - sudo apt install inkscape
 
 - install pip, etc.
     $ sudo apt-get install python-pip python-dev build-essential 
@@ -149,8 +155,6 @@ To provision for generating netaut/hellosnap:
 (Deferred enabling doxygen)
 (Deferred enabling googletest to run SNAP's tests)
 
-- install yEd
--   downloaded .sh install script, chmod +x
--   (also installs a JRE in the yEd dir, which must be writable
--   next time try sudo ...sh and place in /usr/bin?)
-
+- install mhash library
+    - downloaded mhash from sourceforge
+    - gunzip, tar xvf, ./configure, make
