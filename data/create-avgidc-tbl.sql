@@ -2,7 +2,8 @@ select
     machinetype,
     initnrnodes,
     indegreesize,
-    avg(indegreecount) as avgidc
+    avg(indegreecount) as avgidc,
+    variance(indegreecount) as varidc
 into avgidc
 from sd, i
 where
