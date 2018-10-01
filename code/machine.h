@@ -4,6 +4,7 @@
 #include <getopt.h>
 #include <json/json.h>
 #include <queue>
+#include <vector>
 #include "Snap.h"
 
 //---------------
@@ -49,6 +50,7 @@ public:
     virtual bool StateMatchesCurrent(MachineState) = 0;
 
     void GetDegStats(DegStats&);
+    double EstimateDegExp(std::vector<int>&, int);
 
     std::string m_machineType;
     int m_nrNodes;

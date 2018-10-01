@@ -14,6 +14,7 @@
 #include <iostream>
 #include <limits>
 #include <string>
+#include <vector>
 #include <json/json.h>
 #include "rule.h"
 #include "machine.h"
@@ -472,19 +473,30 @@ void WriteIterationStats(Machine* machine, bool teeToConsole, int iterationNr) {
     info["diameter"] = FullDiam;
     info["effDiameter90Pctl"] = EffDiam;
 
-    // In-degree summary
+    // In-degree summary (also build vector 'nk' of node counts by in-degree)
     Machine::DegStats degStats;
     machine->GetDegStats(degStats);
     Json::Value inDegreeCount;
+    int maxInDegree = 0;
+    for (int i = 0; i < degStats.nrInDeg; i += 1)
+        if (degStats.inDegCnt[i].Val1 > maxInDegree) maxInDegree = degStats.inDegCnt[i].Val1;
+    std::vector<int> nk(maxInDegree + 1, 0);
+
     for (int i = 0; i < degStats.nrInDeg; i += 1) {
+        int inDegree = degStats.inDegCnt[i].Val1;
+        int nodeCount = degStats.inDegCnt[i].Val2;
+
         Json::Value inDegreeCountPair;
-        inDegreeCountPair.append((int) degStats.inDegCnt[i].Val1);
-        inDegreeCountPair.append((int) degStats.inDegCnt[i].Val2);
+        inDegreeCountPair.append(inDegree);
+        inDegreeCountPair.append(nodeCount);
         inDegreeCount.append(inDegreeCountPair);
+
+        nk[inDegree] = nodeCount;
     }
     info["inDegreeCount"] = inDegreeCount;
     info["nrInDegrees"] = degStats.nrInDeg;
     info["inDegreeEntropy"] = degStats.inDegEntropy;
+    info["estimatedInDegreeExponent"] = machine->EstimateDegExp(nk, maxInDegree);
 
     // Out-degree summary
     Json::Value outDegreeCount;

@@ -34,14 +34,6 @@ To provision for generating netaut/hellosnap:
 -   from current source .tar: gunzip, tar xvf
 -   make, sudo make install
 
-- install leveldb
--   download from github
--   README => mkdir -p build && cd build
--   (see README for build commands)
--   manually sudo cp -r ~/leveldb/include/leveldb into /usr/local/include/
--   manually sudo cp ~/leveldb/build/libleveldb.a into /usr/local/lib/
--   use, e.g., #include <leveldb/db.h>
-
 - install jsoncpp
 -   clone from github into ~/jsoncpp
 -   cd jsoncpp
@@ -101,6 +93,11 @@ To provision for generating netaut/hellosnap:
         - LIBS += lpqxx lpq (order matters!)
         - -I<include path is ~/libpqxx/include>
 
+-install boost
+    - download from https://www.boost.org/users/history/version_1_67_0.html (the .gz) to ~
+    - gunzip
+    - tar xvf
+
 -install R
     - sudo apt-get install r-base
     - install tidyverse package
@@ -154,6 +151,14 @@ To provision for generating netaut/hellosnap:
 
 (Deferred enabling doxygen)
 (Deferred enabling googletest to run SNAP's tests)
+
+- install leveldb
+-   download from github
+-   README => mkdir -p build && cd build
+-   (see README for build commands)
+-   manually sudo cp -r ~/leveldb/include/leveldb into /usr/local/include/
+-   manually sudo cp ~/leveldb/build/libleveldb.a into /usr/local/lib/
+-   use, e.g., #include <leveldb/db.h>
 
 - install mhash library
     - downloaded mhash from sourceforge
