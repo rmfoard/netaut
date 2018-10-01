@@ -76,7 +76,8 @@ def main():
         'nrNodes',
         'nrOpenTriads',
         'nrOutDegrees',
-        'outDegreeEntropy'
+        'outDegreeEntropy',
+        'estimatedInDegreeExponent'
     ]
 
     # Pass the main (_s.) json file writing s.csv (run parameters and stats) and t.csv (triad counts)
