@@ -1,7 +1,7 @@
 # 
 # 
 #
-p <- ggplot(data=filter(sd, initnrnodes == 1024)) +
+p <- ggplot(data=filter(sd, initnrnodes == 1024, machinetype == 'C' | machinetype == 'R')) +
     geom_freqpoly(
         mapping=aes(x=avgclustcoef, color=machinetype),
         binwidth=0.025,
