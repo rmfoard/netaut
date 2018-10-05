@@ -1,6 +1,7 @@
 select
     initnrnodes,
     machinetype,
+    outcome,
     avg(nriterations) as anriterations,
     avg(cyclelength) as acyclelength,
     avg(avgclustcoef) as aavgclustcoef,
@@ -15,5 +16,5 @@ select
     avg(nropentriads) as anropentriads
 into sdavgs
 from sd
-group by initnrnodes, machinetype
-order by initnrnodes, machinetype;
+group by initnrnodes, machinetype, outcome
+order by initnrnodes, machinetype, outcome;
