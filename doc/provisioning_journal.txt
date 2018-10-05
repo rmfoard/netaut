@@ -133,12 +133,6 @@ To provision for generating netaut/hellosnap:
 -   (also installs a JRE in the yEd dir, which must be writable
 -   next time try sudo ...sh and place in /usr/bin?)
 
-- install inkscape
-    - (had a false start with a failed install of flatpak first, aborted)
-    - sudo add-apt-repository ppa:inkscape.dev/stable
-    - sudo apt update
-    - sudo apt install inkscape
-
 - install pip, etc.
     $ sudo apt-get install python-pip python-dev build-essential 
     $ sudo pip install --upgrade pip 
@@ -151,6 +145,18 @@ To provision for generating netaut/hellosnap:
 
 (Deferred enabling doxygen)
 (Deferred enabling googletest to run SNAP's tests)
+
+- install dia graphic editor
+    - Download linux/ubuntu package from: http://dia-installer.de/download/linux.html.en
+    - Activate link from browser download icon (starts UI)
+    - Click 'Install' (twice, for some reason, until asked for sudo credentials)
+    - Invoke from shell 'dia', then grab gnome icon and slide into place in app tray
+
+- install inkscape
+    - (had a false start with a failed install of flatpak first, aborted)
+    - sudo add-apt-repository ppa:inkscape.dev/stable
+    - sudo apt update
+    - sudo apt install inkscape
 
 - install leveldb
 -   download from github
