@@ -1,3 +1,5 @@
+# Average number of iterations
+
 p <- ggplot() +
     geom_line(data=filter(
         sdavgs,
@@ -11,5 +13,19 @@ p <- ggplot() +
         linetype=outcome
       )
     ) +
-    scale_color_manual(values=c("blue", "gray50", "red"))
+    scale_color_manual(values=c("blue", "gray50", "red")) +
+    theme(
+        plot.title=element_text(hjust=0.5, size=16),
+        plot.subtitle=element_text(hjust=0.5),
+        legend.title.align=0.5
+    ) +
+    labs(
+        title=paste("Average number of iterations"),
+        subtitle=paste("[outcomes-nriter]"),
+        x="Initial graph size (nodes)",
+        y="Average number of iterations"
+    )
+
 print(p)
+dev.copy(png, filename="outcomes-nriter.png")
+dev.off()

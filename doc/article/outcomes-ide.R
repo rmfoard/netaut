@@ -1,4 +1,4 @@
-# Average number of in-degrees
+# Average in-degree entropy
 
 p <- ggplot() +
     geom_line(data=filter(
@@ -8,7 +8,7 @@ p <- ggplot() +
       ),
       mapping=aes(
         x=initnrnodes,
-        y=anrindegrees,
+        y=aindegreeentropy,
         color=machinetype,
         linetype=outcome
       )
@@ -20,12 +20,12 @@ p <- ggplot() +
         legend.title.align=0.5
     ) +
     labs(
-        title=paste("Average number of in-degrees"),
-        subtitle=paste("[outcomes-nrid]"),
+        title=paste("Average in-degree entropy"),
+        subtitle=paste("[outcomes-ide]"),
         x="Initial graph size (nodes)",
-        y="Number of in-degrees"
+        y="Average in-degree entropy"
     )
 
 print(p)
-dev.copy(png, filename="outcomes-nrid.png")
+dev.copy(png, filename="outcomes-ide.png")
 dev.off()
