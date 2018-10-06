@@ -1,4 +1,4 @@
-# Average terminal number of in-degrees
+# Average terminal clustering coefficient
 
 p <- ggplot() +
     geom_line(data=filter(
@@ -20,12 +20,12 @@ p <- ggplot() +
         legend.title.align=0.5
     ) +
     labs(
-        title=paste("Average terminal number of in-degrees"),
-        subtitle=paste("[outcomes-nrid]"),
+        title=paste("Average terminal clustering coefficient"),
+        subtitle=paste("[outcomes-acc]"),
         x="Initial graph size (nodes)",
-        y="Average terminal number of in-degrees"
+        y="Average terminal clustering coefficient"
     )
 
 print(p)
-dev.copy(png, filename="outcomes-nrid.png")
+dev.copy(png, filename="outcomes-acc.png")
 dev.off()

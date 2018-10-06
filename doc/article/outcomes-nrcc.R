@@ -1,4 +1,4 @@
-# Average terminal number of in-degrees
+# Average terminal number of connected components
 
 p <- ggplot() +
     geom_line(data=filter(
@@ -20,12 +20,12 @@ p <- ggplot() +
         legend.title.align=0.5
     ) +
     labs(
-        title=paste("Average terminal number of in-degrees"),
-        subtitle=paste("[outcomes-nrid]"),
+        title=paste("Average terminal number of connected components"),
+        subtitle=paste("[outcomes-nrcc]"),
         x="Initial graph size (nodes)",
-        y="Average terminal number of in-degrees"
+        y="Average terminal number of connected components"
     )
 
 print(p)
-dev.copy(png, filename="outcomes-nrid.png")
+dev.copy(png, filename="outcomes-nrcc.png")
 dev.off()

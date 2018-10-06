@@ -1,4 +1,4 @@
-# Average in-degree entropy
+# Average terminal in-degree entropy
 
 p <- ggplot() +
     geom_line(data=filter(
@@ -20,10 +20,10 @@ p <- ggplot() +
         legend.title.align=0.5
     ) +
     labs(
-        title=paste("Average in-degree entropy"),
+        title=paste("Average terminal in-degree entropy"),
         subtitle=paste("[outcomes-ide]"),
         x="Initial graph size (nodes)",
-        y="Average in-degree entropy"
+        y="Average terminal in-degree entropy"
     )
 
 print(p)
