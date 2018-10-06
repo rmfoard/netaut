@@ -8,7 +8,7 @@ p <- ggplot() +
       ),
       mapping=aes(
         x=initnrnodes,
-        y=anrindegrees,
+        y=aavgclustcoef,
         color=machinetype,
         linetype=outcome
       )
