@@ -307,7 +307,7 @@ Initial graphs are finite, and each iteration
 either maintains the number of nodes or, in the case of \textbf{C} and \textbf{R},
 reduces it by pruning.  It is consequently certain that all machine runs will terminate,
 either in a state cycle or in a graph collapse; this holds true
-for \textbf{C}, \textbf{CM}, and their random counterparts.
+for \textbf{C}, \textbf{CM}, and their random counterparts \textbf{R} and \textbf{RM}.
 The possibility that a graph will traverse an astronomical number
 of states\footnote{The number of possible states for an N-node graph is:
 \[
@@ -366,7 +366,14 @@ The drop in average entropy between initial graphs and the \textbf{R} machine's 
 graphs seems surprising on its face, but is accounted for by the restriction that
 \textbf{R}'s topological changes, like \textbf{C}'s, may only redirect a node's out-edge
 to one of its neighbors or their neighbors.
-The effect is to "localize" the randomness, increasing apparent order in the graph.
+The effect is to "localize" the randomness, increasing apparent order in the random graph as
+soon as the first iteration is completed.
+
+The two \textbf{*M} machines that allow multi-edges to remain in the graph, \textbf{CM} and
+\textbf{RM}, almost invariably cycle because there are fewer possible new destinations for
+both members of a multi-edge when the machine applies the iteration rule (or random choice
+in the case of \textbf{RM}) at their origin node. <Refer to the diagram, then go on to
+explain that the effect is more pronounced for the random variant because...>
 
 \begin{figure}
   %\fbox{\includegraphics[width=\linewidth, scale=0.7]{figE.png}}
