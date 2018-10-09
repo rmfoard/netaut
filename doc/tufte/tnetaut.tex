@@ -29,6 +29,8 @@
 % Provides paragraphs of dummy text
 \usepackage{lipsum}
 
+\usepackage{lettrine} % The lettrine is the first enlarged letter at the beginning of the text
+
 % These commands are used to pretty-print LaTeX commands
 \newcommand{\doccmd}[1]{\texttt{\textbackslash#1}}% command name -- adds backslash automatically
 \newcommand{\docopt}[1]{\ensuremath{\langle}\textrm{\textit{#1}}\ensuremath{\rangle}}% optional command argument
@@ -47,51 +49,42 @@
 \setlist{nosep}
 
 
-\title{Shiitake Cultivation on Logs}
+\title{Emergence in Network Automata}
 \author{Richard Foard}
-\date{9 October 2018}  % if the \date{} command is left out, the current date will be used
+\date{7 October 2018}  % if the \date{} command is left out, the current date will be used
 \begin{document}
 
 \maketitle% this prints the handout title, author, and date
 \marginnote{\textsc{Contact:\\
-Richard Foard\\
-email: richard.foard@gtri.gatech.edu\\
-phone: 404-281-3487
+David LeBauer\\
+email: dlebauer@gmail.com\\
+phone: 919-275-0360
 }}
 
 
 \begin{abstract}
-\noindent \textsc{Shiitake are delicious and easy to grow.} They can be an excellent alternative crop because much of the work required can be done in the off-season. In addition, Shiitake grows in the shade of a forest and so does not compete for cultivated land. Shiitake are a source of vitamins, minerals, and up to 30\%
-protein with all essential amino acids.
- 
-The objective of this one day hands-on workshop is to introduce farmers to the basic steps required to grow shiitake on logs. 
-The course begins with an overview of fungal 'behavior' - the ecology and physiology of how they grow, fruit, reproduce, and interact with other organisms. 
-This will provide a foundation for understanding how to cultivate and care for your logs and their fungal guests. We will learn to identify oaks, fell trees, and identify a suitable locations for logs. During incubation and fruiting stages. Lunch will provide an informal opportunity for questions. Following lunch, we will learn how to inoculate logs with shiitake spawn, and then set up a demonstration production line. Finally, we will discuss taking care of logs, forcing them to fruit on schedule, and some ideas on marketing. 
-I hope that by the end of this class, students will leave ready to start a small shiitake production operation on their own. 
+\noindent A simple, rule-based
+graph automaton was defined and simulated. Each of its possible rules specifies a set
+of local topology and node state changes to be applied iteratively, starting with a random initial graph.
+Simulation runs were performed using many different rules, each run terminating when its graph
+collapsed or cycled.
+Evolving and terminal graph states were analyzed macroscopically, using
+aggregate statistics, and microscopically, by inspecting graph structures.
+Results were compared with those from simulations of a machine that
+iterated by applying random, rather than rule-based, changes. We found that...
 \end{abstract}
-
-
-\marginnote[-5cm]{
-\textsc{Agenda:}
-\begin{description}
-\item{10:00} Welcome \& Overview
-\item{10:30} Mushroom Ecology \& Physiology
-\item{11:15} Harvesting Logs
-\item{12:00} Lunch
-\item{12:30} Coffee, Q\&A, 
-\item{1:00} Inoculating  
-\item{1:45} Hands on Log Inoculation Demo
-\item{3:00} Clean Up
-\item{3:30} Spawn Run, Fruiting, Marketing
-\end{description}
-}
-
 
 \section{Fungal Ecology \&  Physiology}
 
-
-
 \subsection{The Carbon Cycle: Plants and Fungi}
+
+\newthought{Since Alan Turing conceived his
+universal machine} in 1936, simple abstract automata have drawn research attention.
+Interest broadened beyond the academic realm in 1970,
+when Conway published his \textit{Game of Life} simulations [citation needed] that highlighted the ability
+of uncomplicated cellular automata to behave in complex ways. Researchers in the
+nascent field of complexity theory began studying similar phenomena, such as the
+sandpile avalanches first explored by Per Bak (true??).
 
 \begin{marginfigure}
 \includegraphics{figA.png}
@@ -100,19 +93,19 @@ Plants convert carbon dioxide in the atmosphere into biomass. Fungi, microbes, a
 Farmers who focus on selling plant material are missing out on half of the cycle.}
 \end{marginfigure}
 
-\newthought{Fungi play an important role} in the cycling of carbon and nutrient in ecosystems. Mushrooms are a type of fungi that produce a conspicuous 
-fruiting body. Most mushrooms are either \emph{symbionts} or \emph{decomposers}.
+In \textit{A New Kind of Science} (199?), Stephen Wolfram methodically analyzed
+a variety of cellular automata types. He found particular inspiration in the
+behavior of a one-dimensional machine running "Rule 110." Among his observations were... (list
+irreducibility, etc.)
 
-Symbionts live in close relationships with plants. 
-These organisms trade with plants - for example a fungus can mine nutrients in the soil more efficiently than a plant, and then exchange these nutrients with the plant for food.
-These symbiotic mushrooms belong to a much larger group of fungi known as \emph{mycorrhizae}, and are associated with most plants. This group includes both \textsc{the most prized edible mushrooms} including porcini, chantrelles, and truffles as well as \textsc{the most deadly} such as the 'death cap'. 
-Despite the ubiquity and deliciousness of these fungi, they are very difficult to cultivate, because both organisms must be cared for, the 'economic' conditions must be favorable for trade, and the environmental conditions must be favorable for fruiting.
+Wolfram and others have also suggested that some natural processes that were
+previously thought to evolve by natural selection are instead
+manifestations of things that nature found "easy" to accomplish using
+the same fundamental principles that underlie simple automata.
 
-\newthought{Shiitake, and most other cultivated mushrooms are decomposers}, unlike mycorrhizae, decomposers grow on dead plant material.  
-There are many delicious edible mushrooms that have the simple habitat of growing on wood logs or chips, and the methods involved in their cultivation are relatively easy and rewarding. 
-These include shiitake, oyster, white button, crimini, maitake / hen-of-the-woods, and many others.
-Some decomposer fungi are also poisonous, but rarely deadly. 
-Most edible decomposer mushrooms are easy to recognize with a little bit of experience, and there are no poisonous mushrooms that look anything like shiitake.
+In this work, we analyze simple graph automata -- machines that operate on the same principles as
+cellular automata, but use a graph, rather than a "tape" or grid, as a substrate.
+Where cellular machines define cell adjacency spatially, our machines use graph topology.
 
 \subsection{The Fungal Life Cycle: Spores, Hyphae, and Mushrooms}
 
