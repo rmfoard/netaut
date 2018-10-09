@@ -23,6 +23,10 @@
 \usepackage{fancyvrb}
 \fvset{fontsize=\normalsize}
 
+% Set up the spacing using fontspec features
+\renewcommand\allcapsspacing[1]{{\addfontfeature{LetterSpace=15}#1}}
+\renewcommand\smallcapsspacing[1]{{\addfontfeature{LetterSpace=10}#1}}
+
 % Small sections of multiple columns
 \usepackage{multicol}
 
@@ -56,9 +60,9 @@
 
 \maketitle% this prints the handout title, author, and date
 \marginnote{\textsc{Contact:\\
-David LeBauer\\
-email: dlebauer@gmail.com\\
-phone: 919-275-0360
+Richard Foard\\
+email: richard.foard@gtri.gatech.edu\\
+phone: 404-281-3487
 }}
 
 
@@ -188,13 +192,14 @@ The replacement edge destinations are each one of:
     \item RL - the current destination of its right neighbor's left-edge
     \item RR - the current destination of its right neighbor's right-edge
 \end{itemize}
-\clearpage %experiment
+
 The process of a rule being applied to a node and its immediate neighbors is shown
-schematically:
+schematically in Figure \ref{fig:Ruleapplication}
 
 \begin{figure}
 \includegraphics{placeholder.png}
-\caption{A rule specifies state-dependent changes to a node's state and its out-edges.}
+\caption{\textbf{Rule Application.} A rule specifies state-dependent changes to a node's state and its out-edges.}
+\label{fig:Ruleapplication}
 \end{figure}
 
 After all nodes in the original graph have been processed,
@@ -234,7 +239,7 @@ the two illegal configurations that require pruning are shown in red and
 labeled as cases I and II.
 
 \begin{figure}
-\includegraphics{placeholder.png} % should be pruning.png
+\includegraphics{pruning.png}
 \caption{\textbf{Pruning.} Resolution methods for two variations of a (red) prohibited structure.
 In both cases, edges originating at node A are eliminated; edges in blue are redirected.
 Case II creates two case I-type structures that require further resolution.}
@@ -302,10 +307,10 @@ RM & 100.00\% & --- & 0.00\% \\
 
 \begin{marginfigure}
 %  \fbox{\includegraphics[width=\linewidth, scale=0.6]{figA.png}}
-  \includegraphics[width=\linewidth, scale=0.7]{figA.png}
+  \includegraphics{figA.png}
   \caption{On average, the rule-based \textbf{C} machine executes more iterations than \textbf{R} before collapse occurs.}
   \label{fig:figA}
-\end{figure}
+\end{marginfigure}
 
 \subsection{In-Degree Entropy}
 
@@ -314,10 +319,10 @@ maximum in-degree than in the random case, and also produces a
 larger number of distinct in-degrees (Figure \ref{fig:figB}).
 
 \begin{marginfigure}
-  \includegraphics[width=\linewidth, scale=0.7]{figB.png}
+  \includegraphics{figB.png}
   \caption{\textbf{C} produces graphs with a larger number of in-degrees.}
   \label{fig:figB}
-\end{figure}
+\end{marginfigure}
 
 Shannon's entropy [citation needed], computed on summary in-degree statistics and
 normalized\footnote{Explanation of normalization}, can be regarded a measure of
@@ -339,18 +344,17 @@ in the case of \textbf{RM}) at their origin node. <Refer to the diagram, then go
 explain that the effect is more pronounced for the random variant because...>
 
 \begin{marginfigure}
-  \includegraphics[width=\linewidth, scale=0.7]{figE.png}
+  \includegraphics{figE.png}
   \caption{In-degree entropy is largest in initial random graphs,
         smaller for \textbf{R}'s terminal graphs, and smallest for \textbf{C}'s terminal graphs.}
   \label{fig:figE}
-\end{figure}
+\end{marginfigure}
 
-\begin{figure}
-  %\fbox{\includegraphics[width=\linewidth, scale=0.7]{figDd1024.png}}
-  \includegraphics[width=\linewidth, scale=0.7]{figDd1024.png}
+\begin{marginfigure}
+  \includegraphics{figDd1024.png}
   \caption{\textbf{C}'s average clustering coefficients are larger than \textbf{R}'s.}
   \label{fig:figDd1024}
-\end{figure}
+\end{marginfigure}
 
 \subsection{Cycles and Collapses}
 %Unhappy Endings?
@@ -395,8 +399,37 @@ references. Are collapses like sandpile avalanches?
 %Photo Opps?
 Sorter?
 
+%------------------------------------------------
+
+\section{Discussion}
+
+Possible areas for further investigation:
+
+\begin{itemize}
+    \item Search strategies for rules with specific characteristics.
+    \item Encodings of more complex graph structures.
+    \item Exploring mathematical parallels.
+    \item Investigating variations on the machines, both simpler and more complex.
+\end{itemize}
+
+A statement requiring citation \cite{Figueredo:2009dg}.
+
+%----------------------------------------------------------------------------------------
+%	REFERENCE LIST
+%----------------------------------------------------------------------------------------
+
+\begin{thebibliography}{99} % Bibliography - this is intentionally simple in this template
+
+\bibitem[Figueredo and Wolf, 2009]{Figueredo:2009dg}
+Figueredo, A.~J. and Wolf, P. S.~A. (2009).
+\newblock Assortative pairing and life history strategy - a cross-cultural
+  study.
+\newblock {\em Human Nature}, 20:317--330.
+ 
+\end{thebibliography}
+
 \vspace{1cm}
 
-\emph{This handout was based on an article I originally wrote for the Carolinia Farm Stewardship newsletter, March-April 2004.}}
+\emph{This handout was based on an article I originally wrote for the Carolinia Farm Stewardship newsletter, March-April 2004.}
 
 \end{document}
