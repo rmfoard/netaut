@@ -93,13 +93,20 @@ a variety of cellular automata types. He found particular inspiration in the
 behavior of a one-dimensional machine running "Rule 110." Among his observations were... (list
 irreducibility, etc.)
 
+\begin{marginfigure}
+\includegraphics{rule110.jpeg}
+\caption{Excerpt from the state sequence produced by Wolfram's \textit{Rule 110}
+one-dimensional cellular automaton}
+\end{marginfigure}
+
 Wolfram and others have also suggested that some natural processes that were
 previously thought to evolve by natural selection are instead
 manifestations of things that nature found "easy" to accomplish using
 the same fundamental principles that underlie simple automata.
 
-In this work, we analyze simple graph automata -- machines that operate on the same principles as
-cellular automata, but use a graph, rather than a "tape" or grid, as a substrate.
+In this work, we analyze simple graph automata using simulations of abstract
+machines that operate on the same principles as
+cellular automata but use a graph, rather than a "tape" or grid, as a substrate.
 Where cellular machines define cell adjacency spatially, our machines use graph topology.
 
 
@@ -124,16 +131,21 @@ Nodes may be in one of two states: \textit{black} or \textit{white}.
 Graph topology is restricted in order to simplify rule design. For the
 \textbf{CM} machine:
 
+\vspace{1mm}
 \begin{itemize}
+\setlength{\itemindent}{2em}
     \item Edges are directed.
     \item Nodes have out-degree of exactly two.
     \item "Self-linking" edges are permitted.
 \end{itemize}
+\vspace{2mm}
 The \textbf{C}  machine's graphs are more narrowly defined by adding the
 restriction:
 \begin{itemize} 
+\setlength{\itemindent}{2em}
     \item Multiple, like-directed edges between two nodes are prohibited.
 \end{itemize}
+\vspace{2mm}
 
 \textbf{C} and \textbf{CM} machines operate using the same rule structures.
 Each machine begins execution with a graph that has been randomly generated
@@ -154,7 +166,7 @@ In all initial graphs, nodes have out-degree 2, but in-degree can vary from 0 to
 Initial graphs are a subset of the class of Erdos-Renyi random graphs (citation needed)
 \textit{G(n, p)} where \textit{n} is the number of nodes and \textit{p} is the probability
 that two nodes are connected by an edge. Because our graphs have fixed out-degree 2,
-the generation process produces randomness only in the nodes' in-degrees. As a result,
+the generation process creates random variation only in the nodes' in-degrees. As a result,
 each of our initial graphs is a member of \textit{G(n, p)} where \textit{p} is a function
 of graph size \textit{n} (approximately \( 4 / (n - 1) \)).
 
@@ -184,14 +196,17 @@ the node's state and the destinations of its out-edges
 The replacement node state is either \textit{black} or \textit{white}.
 The replacement edge destinations are each one of:
 
+\vspace{1mm}
 \begin{itemize}
-    \item L - the node's current left-edge destination
-    \item R - the node's current right-edge destination
-    \item LL - the current destination of its left neighbor's left-edge
-    \item LR - the current destination of its left neighbor's right-edge
-    \item RL - the current destination of its right neighbor's left-edge
-    \item RR - the current destination of its right neighbor's right-edge
+\setlength{\itemindent}{2em}
+    \item \textit{L} - the node's current left-edge destination
+    \item \textit{R} - the node's current right-edge destination
+    \item \textit{LL} - the current destination of its left neighbor's left-edge
+    \item \textit{LR} - the current destination of its left neighbor's right-edge
+    \item \textit{RL} - the current destination of its right neighbor's left-edge
+    \item \textit{RR} - the current destination of its right neighbor's right-edge
 \end{itemize}
+\vspace{2mm}
 
 The process of a rule being applied to a node and its immediate neighbors is shown
 schematically in Figure \ref{fig:Ruleapplication}
@@ -219,12 +234,13 @@ or (3) the maximum number of iterations is reached.
 To help gauge the extent to which machines \textbf{C} and \textbf{CM}
 increase order as they transform random starting graphs, simulators for counterpart
 machines \textbf{R} and \textbf{RM} were constructed. Like the rule-based \textbf{C*} machines,
-these change graphs iteratively, but make their changes \textit{randomly}.
+these change the graph iteratively, but make their changes \textit{randomly}.
 As with the \textbf{C*} machines, though, the scope of changes at each node is
 limited to the destinations of its two out-edges. (The random machines need not alter nodes' states
 because node states have no effect on the \textbf{R*} machines' actions).
 The \textbf{R} machine applies the same pruning process that \textbf{C} uses. As
-with \textbf{CM}, no pruning step is required in \textbf{RM} simulations.
+with \textbf{CM}, no pruning step is required in \textbf{RM} simulations because
+no prohibited structures can be generated.
 
 <Insert here a chart showing the differences among the four machines>
 
@@ -278,7 +294,8 @@ reduces it by pruning.  It is consequently certain that all machine runs will te
 either in a state cycle or in a graph collapse; this holds true
 for \textbf{C}, \textbf{CM}, and their random counterparts \textbf{R} and \textbf{RM}.
 The possibility that a graph will traverse an astronomical number
-of states\footnote{The number of possible states for an N-node graph is:
+of states\footnote{The number of possible states for an N-node graph with
+out-degree restricted to 2 is:
 \[
 2^N\cdot\binom{N}{2}^N
 \]
@@ -286,7 +303,7 @@ of states\footnote{The number of possible states for an N-node graph is:
 before revisiting a previous one, however, limits the simulator's ability to
 detect cycles. If a simulator reaches a maximum number of iterations
 before its machine terminates, the simulation outcome is recorded as "undetermined."
-Aggregate outcome statistics for all runs appear in Table \ref{tab:Tab1}.
+Outcome statistics for all runs are given in Table \ref{tab:Tab1}.
 
 \begin{table}
 \caption{Simulation Outcomes, All Runs}
@@ -304,9 +321,23 @@ RM & 100.00\% & --- & 0.00\% \\
 \end{tabular}
 \label{tab:Tab1}
 \end{table}
+\vspace{3mm}
+The reason that nearly all \textbf{CM} and \textbf{RM} runs end in graph collapse is
+intuitive---because they allow multi-edges, they tend to generate the structures
+in Figure \ref{fig:Multiedges}. As these configurations appear, they increasingly limit the
+amount of topological change that can occur around them. This limiting effect
+applies in both rule-based (\textbf{CM}) and random (\textbf{RM}) runs because
+the multi-edges effectively shrink "menu" of possible new edge destinations from
+which both machines draw when operating on a node's out-edges.
 
 \begin{marginfigure}
-%  \fbox{\includegraphics[width=\linewidth, scale=0.6]{figA.png}}
+\includegraphics{multiedges.png}
+\caption{Structures with multi-edges reduce the number of possible topology
+changes at a node}
+\label{fig:Multiedges}
+\end{marginfigure}
+
+\begin{marginfigure}
   \includegraphics{figA.png}
   \caption{On average, the rule-based \textbf{C} machine executes more iterations than \textbf{R} before collapse occurs.}
   \label{fig:figA}
