@@ -119,6 +119,29 @@ evolved through each run. The resulting database accumulated data on many thousa
 was analyzed macroscopically, using aggregate statistics, and microscopically, by inspecting
 statistical and graphic snapshots from individual runs.
 
+\begin{marginfigure}
+\includegraphics[width=45mm]{5iters_0.ps}
+\end{marginfigure}
+
+\begin{marginfigure}
+\includegraphics[width=45mm]{5iters_1.ps}
+\end{marginfigure}
+
+\begin{marginfigure}
+\includegraphics[width=45mm]{5iters_2.ps}
+\end{marginfigure}
+
+\begin{marginfigure}
+\includegraphics[width=45mm]{5iters_3.ps}
+\end{marginfigure}
+
+\begin{marginfigure}
+\includegraphics[width=45mm]{5iters_4.ps}
+\caption{Four iterations of machine \textbf{C} beginning with a randomly
+generated 8-node graph and terminating in a static configuration (four
+nodes removed after iteration 2 to eliminate multi-edges)}
+\end{marginfigure}
+
 Each simulation run begins with a randomly generated graph and progresses by
 iteratively modifying its edges and node states; changes are made according to a rule selected
 for the run. Each rule is effectively a simple program  that specifies, based on the state
@@ -322,18 +345,25 @@ RM & 100.00\% & --- & 0.00\% \\
 \label{tab:Tab1}
 \end{table}
 \vspace{3mm}
-The reason that nearly all \textbf{CM} and \textbf{RM} runs end in graph collapse is
+The reason that nearly all \textbf{CM} and \textbf{RM} runs end in state cycles is
 intuitive---because they allow multi-edges, they tend to generate structures
-like those in Figure \ref{fig:Multiedges}. As these configurations appear, they increasingly limit the
-amount of topological change that can occur around them. This limiting effect
+like those in Figure \ref{fig:Multiedges}. As these configurations appear, they limit the
+amount of topological change that can occur around them, progressively decreasing the
+number of possible new states. This limiting effect
 applies in both rule-based (\textbf{CM}) and random (\textbf{RM}) runs because
 the multi-edges effectively shrink the "menu" of possible new edge destinations from
 which both machines draw when operating on a node's out-edges.
 
 \begin{marginfigure}
-\includegraphics{exemplar.png}
-\caption{Structures with multi-edges reduce the number of possible topology
-changes at a node}
+\includegraphics[scale=0.5, width=50mm]{sixchoices.ps}
+\caption{For each edge originating at the "*" node, there are six possible new destinations.}
+\label{fig:Multiedges}
+\end{marginfigure}
+
+\begin{marginfigure}
+\vspace{2mm}
+\includegraphics{multiedges.ps}
+\caption{Structures with multi-edges reduce the number of possible new edge destinations.}
 \label{fig:Multiedges}
 \end{marginfigure}
 
@@ -343,6 +373,7 @@ changes at a node}
   \label{fig:figA}
 \end{marginfigure}
 
+\clearpage
 \subsection{In-Degree Entropy}
 
 Machine \textbf{C}, on average, generates graphs with a larger 
