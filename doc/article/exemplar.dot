@@ -1,16 +1,12 @@
 digraph G {
   graph [splines=false overlap=false]
-  node  [shape=ellipse, width=0.2, height=0.2, label=""]
-  0 [style=filled, fillcolor="white"];
+  node  [shape=ellipse, width=0.3, height=0.3, label="", fontsize=8]
+  0 [style=filled, fillcolor="white", label="A"];
   1 [style=filled, fillcolor="white"];
   2 [style=filled, fillcolor="white"];
   3 [style=filled, fillcolor="white"];
   4 [style=filled, fillcolor="white"];
   5 [style=filled, fillcolor="white"];
-/****
-  6 [style=filled, fillcolor="white"];
-  7 [style=filled, fillcolor="white"];
-****/
   8 [style=filled, fillcolor="white"];
   9 [style=filled, fillcolor="white"];
   10 [style=filled, fillcolor="white"];
@@ -18,12 +14,6 @@ digraph G {
   12 [style=filled, fillcolor="white"];
   13 [style=filled, fillcolor="white"];
   14 [style=filled, fillcolor="white"];
-  15 [style=filled, fillcolor="white"];
-  16 [style=filled, fillcolor="white"];
-  17 [style=filled, fillcolor="white"];
-  18 [style=filled, fillcolor="white"];
-  19 [style=filled, fillcolor="white"];
-  20 [style=filled, fillcolor="white"];
   21 [style=filled, fillcolor="white"];
   22 [style=filled, fillcolor="white"];
   23 [style=filled, fillcolor="white"];
@@ -45,12 +35,14 @@ digraph G {
 13 -> 14
 13 -> 14
 
+/*
 15 -> 16
 15 -> 17
 16 -> 16
 16 -> 20
 17 -> 18
 17 -> 19
+*/
 
 23 -> 21
 23 -> 21
