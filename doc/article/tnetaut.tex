@@ -120,18 +120,22 @@ was analyzed macroscopically, using aggregate statistics, and microscopically, b
 statistical and graphic snapshots from individual runs.
 
 \begin{marginfigure}
+\hspace{-4em}
 \includegraphics{5iters_0.ps}
 \end{marginfigure}
 
 \begin{marginfigure}
+\hspace{-4em}
 \includegraphics{5iters_1.ps}
 \end{marginfigure}
 
 \begin{marginfigure}
+\hspace{-4em}
 \includegraphics{5iters_2.ps}
 \end{marginfigure}
 
 \begin{marginfigure}
+\hspace{-4em}
 \includegraphics{5iters_3.ps}
 \caption{Three iterations of machine \textbf{C}, rule 177828939654904,
 beginning with a randomly generated 8-node graph and terminating in a
@@ -214,7 +218,7 @@ of a node and its neighbors. Each rule-part specifies replacement values for
 the node's state and the destinations of its out-edges
 (for purposes of description, it is convenient to designate a node's two out-edges "left" and "right").
 The replacement node state is either \textit{black} or \textit{white}.
-The replacement edge destinations are each one of:
+The replacement edge destinations \ref{fig:Sixnumbered} are each one of:
 
 \vspace{1mm}
 \begin{itemize}
@@ -227,6 +231,13 @@ The replacement edge destinations are each one of:
     \item \textit{RR} - the current destination of its right neighbor's right-edge
 \end{itemize}
 \vspace{2mm}
+
+\begin{marginfigure}
+\hspace{-4em}
+\includegraphics{sixnumbered.ps}
+\caption{The six possible new destinations for a node's out-edges}
+\label{fig:Sixnumbered}
+\end{marginfigure}
 
 The process of a rule being applied to a node and its immediate neighbors is shown
 schematically in Figure \ref{fig:Ruleapplication}
@@ -352,6 +363,7 @@ the multi-edges effectively shrink the "menu" of possible new edge destinations 
 which both machines draw when operating on a node's out-edges.
 
 \begin{marginfigure}
+\hspace{-4em}
 \includegraphics[scale=0.5, width=50mm]{sixchoices.ps}
 \caption{For each edge originating at the "*" node, there are six possible new destinations.}
 \label{fig:Multiedges}
