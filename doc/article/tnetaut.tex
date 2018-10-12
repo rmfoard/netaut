@@ -120,23 +120,23 @@ was analyzed macroscopically, using aggregate statistics, and microscopically, b
 statistical and graphic snapshots from individual runs.
 
 \begin{marginfigure}
-\includegraphics[width=45mm]{5iters_0.ps}
+\includegraphics{5iters_0.ps}
 \end{marginfigure}
 
 \begin{marginfigure}
-\includegraphics[width=45mm]{5iters_1.ps}
+\includegraphics{5iters_1.ps}
 \end{marginfigure}
 
 \begin{marginfigure}
-\includegraphics[width=45mm]{5iters_2.ps}
+\includegraphics{5iters_2.ps}
 \end{marginfigure}
 
 \begin{marginfigure}
-\includegraphics[width=45mm]{5iters_3.ps}
+\includegraphics{5iters_3.ps}
 \end{marginfigure}
 
 \begin{marginfigure}
-\includegraphics[width=45mm]{5iters_4.ps}
+\includegraphics{5iters_4.ps}
 \caption{Four iterations of machine \textbf{C} beginning with a randomly
 generated 8-node graph and terminating in a static configuration (four
 nodes removed after iteration 2 to eliminate multi-edges)}
@@ -171,14 +171,15 @@ restriction:
 \vspace{2mm}
 
 \textbf{C} and \textbf{CM} machines operate using the same rule structures.
-Each machine begins execution with a graph that has been randomly generated
-to conform to its machine's topological restrictions. Both maintain conformance
-throughout execution. In applying some rules, \textbf{C} may create prohibited
-structures. When this occurs, it applies a pruning process that selectively
-removes nodes and edges to restore conformance before proceeding. The \textbf{CM}
-machine does not require a pruning capability because no rule can cause it to
-violate its more relaxed structure restrictions. \textbf{CM} is otherwise
-identical to \textbf{C}.  
+A single rule is chosen for each run. Each execution
+begins on a graph that has been randomly generated
+to conform to its machine's topological restrictions. Both machines maintain conformance
+throughout the run. In applying some rules, \textbf{C} creates prohibited
+structures. When this occurs, a "pruning" process selectively
+removes nodes and edges to restore conformance before proceeding with the
+next iteration. The \textbf{CM} machine does not need this process because
+it is structurally incapable of altering its graph in a way thati violates its more
+relaxed structure restrictions. \textbf{CM} is otherwise identical to \textbf{C}.  
 
 An initial, random graph of size N is constructed by assigning each node
 a \textit{black} or \textit{white} state with equal likelihood.
@@ -188,9 +189,9 @@ generator observes the constraint that both edges cannot have the same destinati
 In all initial graphs, nodes have out-degree 2, but in-degree can vary from 0 to N.
 Initial graphs are a subset of the class of Erdos-Renyi random graphs (citation needed)
 \textit{G(n, p)} where \textit{n} is the number of nodes and \textit{p} is the probability
-that two nodes are connected by an edge. Because our graphs have fixed out-degree 2,
+that two nodes are connected by an edge. Because all graphs have fixed out-degree 2,
 the generation process creates random variation only in the nodes' in-degrees. As a result,
-each of our initial graphs is a member of \textit{G(n, p)} where \textit{p} is a function
+each initial graph is a member of \textit{G(n, p)} where \textit{p} is a function
 of graph size \textit{n} (approximately \( 4 / (n - 1) \)).
 
 \subsection{Rule Structure and Application}

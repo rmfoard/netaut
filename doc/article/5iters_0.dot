@@ -29,5 +29,5 @@ digraph G {
   6 -> 1;
   7 -> 5;
   7 -> 0;
-  label = ".          initial graph          .";  fontsize=18;
+  label = "-----------initial graph-----------";  fontsize=18;
 }

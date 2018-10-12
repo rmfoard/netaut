@@ -26,5 +26,5 @@ digraph G {
   6 -> 6;
   7 -> 4;
   7 -> 5;
-  label = ".          iteration 1          .";  fontsize=18;
+  label = "-----------iteration 1-----------";  fontsize=18;
 }
