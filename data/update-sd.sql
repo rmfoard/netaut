@@ -1,4 +1,4 @@
-select s.runid, sum(cccount * ccsize) into finnrnodes from s, c where s.runid = c.runid group by s.runid;
+select s.runid, sum(cccount * ccsize) into finnrnodes from s, c where s.runid = c.runid and c.iterationnr <> 0 group by s.runid;
 alter table finnrnodes rename column sum to nrnodes;
 create index finnrnodes_idx_runid on finnrnodes(runid);
 create index sd_idx_runid on sd(runid);
