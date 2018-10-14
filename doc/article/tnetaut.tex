@@ -52,6 +52,12 @@
 \usepackage{enumitem}
 \setlist{nosep}
 
+% RMF additions
+\usepackage{xcolor,colortbl}
+\definecolor{green}{rgb}{0.1,0.1,0.1}
+\newcommand{\done}{\cellcolor{teal}done}  %{0.9}
+\newcommand{\hcyan}[1]{{\color{teal} #1}}
+
 
 \title{Emergence in Network Automata}
 \author{Richard Foard}
@@ -218,7 +224,7 @@ of a node and its neighbors. Each rule-part specifies replacement values for
 the node's state and the destinations of its out-edges
 (for purposes of description, it is convenient to designate a node's two out-edges "left" and "right").
 The replacement node state is either \textit{black} or \textit{white}.
-The replacement edge destinations \ref{fig:Sixnumbered} are each one of:
+The replacement edge destinations (Figure \ref{fig:Sixnumbered}) are each one of:
 
 \vspace{1mm}
 \begin{itemize}
@@ -235,7 +241,7 @@ The replacement edge destinations \ref{fig:Sixnumbered} are each one of:
 \begin{marginfigure}
 \hspace{-4em}
 \includegraphics{sixnumbered.ps}
-\caption{The six possible new destinations for a node's out-edges}
+\caption{The six possible new destinations for node \textbf{*}'s out-edges}
 \label{fig:Sixnumbered}
 \end{marginfigure}
 
@@ -319,8 +325,12 @@ Constituent packages. How parameter values were selected and varied.
 
 \section{Results}
 
+General remarks introducing the organization of result information
+
+\subsection{Qualitative Summary}
+
 Initial graphs are finite, and each iteration
-either maintains the number of nodes or, in the case of \textbf{C} and \textbf{R},
+either maintains the number of nodes or, in the cases of \textbf{C} and \textbf{R},
 reduces it by pruning.  It is consequently certain that all machine runs will terminate,
 either in a state cycle or in a graph collapse; this holds true
 for \textbf{C}, \textbf{CM}, and their random counterparts \textbf{R} and \textbf{RM}.
@@ -353,18 +363,17 @@ RM & 100.00\% & --- & 0.00\% \\
 \label{tab:Tab1}
 \end{table}
 \vspace{3mm}
+
 The reason that nearly all \textbf{CM} and \textbf{RM} runs end in state cycles is
 intuitive---because they allow multi-edges, they tend to generate structures
-like those in Figure \ref{fig:Multiedges}. As these configurations appear, they limit the
-amount of topological change that can occur around them, progressively decreasing the
-number of possible new states. This limiting effect
-applies in both rule-based (\textbf{CM}) and random (\textbf{RM}) runs because
-the multi-edges effectively shrink the "menu" of possible new edge destinations from
-which both machines draw when operating on a node's out-edges.
+like those in Figure \ref{fig:Multiedges}. As these configurations appear, they 
+shrink the number of possible new edge destinations at a node, progressively decreasing the
+number of possible new states in the graph overall. This limiting effect
+applies in both rule-based (\textbf{CM}) and random (\textbf{RM}) machines.
 
 \begin{marginfigure}
-\hspace{-4em}
-\includegraphics[scale=0.5, width=50mm]{sixchoices.ps}
+%\hspace{-4em}
+\includegraphics[scale=0.3]{sixchoices.png}
 \caption{For each edge originating at the "*" node, there are six possible new destinations.}
 \label{fig:Multiedges}
 \end{marginfigure}
@@ -372,9 +381,38 @@ which both machines draw when operating on a node's out-edges.
 \begin{marginfigure}
 \vspace{2mm}
 \includegraphics{multiedges.ps}
-\caption{Structures with multi-edges reduce the number of possible new edge destinations.}
+\caption{Structures with multi-edges reduce the number of possible new edge destinations for
+the origin ("*") node.}
 \label{fig:Multiedges}
 \end{marginfigure}
+
+\clearpage
+
+\begin{table}
+\centering
+\begin{tabular}{lrcrccccc}
+\toprule
+Measure & Cycling & Collapsed & Cycling & Collapsed & Cycling & Collapsed \\
+\midrule
+\# Terminal &  &  & highest &  &  & \\
+Connected & a1 & a1 & & \done & NA & a1  \\
+Components &  &  &  &  &  & \\
+\cmidrule(r){2-7}
+\# Terminal &  &  & highest &  &  & \\
+Connected & a1 & a1 & & NA & NA & a1  \\
+Components &  &  &  &  &  & \\
+\cmidrule(r){2-7}
+\# Terminal &  &  & highest &  &  & \\
+Connected & a1 & a1 & & NA & NA & a1  \\
+Components &  &  &  &  &  & \\
+\bottomrule
+\end{tabular}
+\label{tab:TabQ}
+\end{table}
+\hspace{8mm}\caption{Table \ref{tab:TabQ}: Comparison of Graph Measures --- Machines and Outcomes}
+\vspace{3mm}
+
+\clearpage
 
 \begin{marginfigure}
   \includegraphics{figA.png}
@@ -382,7 +420,6 @@ which both machines draw when operating on a node's out-edges.
   \label{fig:figA}
 \end{marginfigure}
 
-\clearpage
 \subsection{In-Degree Entropy}
 
 Machine \textbf{C}, on average, generates graphs with a larger 
