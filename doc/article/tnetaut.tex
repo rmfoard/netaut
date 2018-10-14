@@ -55,9 +55,10 @@
 % RMF additions
 \usepackage{xcolor,colortbl}
 \definecolor{green}{rgb}{0.1,0.1,0.1}
-\newcommand{\done}{\cellcolor{teal}done}  %{0.9}
+\newcommand{\grayout}{\cellcolor{lightgray}}
 \newcommand{\hcyan}[1]{{\color{teal} #1}}
 
+\usepackage{booktabs}
 
 \title{Emergence in Network Automata}
 \author{Richard Foard}
@@ -390,22 +391,27 @@ the origin ("*") node.}
 
 \begin{table}
 \centering
-\begin{tabular}{lrcrccccc}
-\toprule
-Measure & Cycling & Collapsed & Cycling & Collapsed & Cycling & Collapsed \\
-\midrule
-\# Terminal &  &  & highest &  &  & \\
-Connected & a1 & a1 & & \done & NA & a1  \\
-Components &  &  &  &  &  & \\
-\cmidrule(r){2-7}
-\# Terminal &  &  & highest &  &  & \\
-Connected & a1 & a1 & & NA & NA & a1  \\
-Components &  &  &  &  &  & \\
-\cmidrule(r){2-7}
-\# Terminal &  &  & highest &  &  & \\
-Connected & a1 & a1 & & NA & NA & a1  \\
-Components &  &  &  &  &  & \\
-\bottomrule
+\begin{tabular}{lrccccccc}\toprule
+  & \multicolumn{4}{c}{\textbf{Machine C}} & \multicolumn{2}{c}{\textbf{Machine R}} \\ \cmidrule(lr){2-5} \cmidrule(lr){6-7}
+\addlinespace[2mm]
+
+Multi-edges: & \multicolumn{2}{c}{\textit{No}} & \multicolumn{2}{c}{\textit{Yes}} & \multicolumn{2}{c}{\textit{No}} \\ \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7}
+\addlinespace[2mm]
+
+Outcome: & \textit{Cycling} & \textit{Collapsed} & \textit{Cycling} & \textit{Collapsed} & \textit{Cycling} & \textit{Collapsed} \\ \cmidrule(lr){2-2} \cmidrule(lr){3-3} \cmidrule(lr){4-4} \cmidrule(lr){5-5} \cmidrule(lr){6-6} \cmidrule(lr){7-7}
+\# Connected &  &  & highest & \grayout & \grayout & \\
+Components & $\approx$ 1 & $\approx$ 1 & & \grayout & \grayout & $\approx$ 1  \\
+  &  &  &  & \grayout & \grayout & \\
+\addlinespace[2mm]
+
+  &  &  &  & \grayout & \grayout & \\
+\# Iterations & $\approx$ 1 & $\approx$ 1 & & \grayout & \grayout & $\approx$ 1  \\
+  &  &  &  & \grayout & \grayout & \\
+\addlinespace[2mm]
+
+\# Terminal &  &  & highest & \grayout & \grayout & \\
+Components & $\approx$ 1 & $\approx$ 1 & & \grayout & \grayout & $\approx$ 1  \\
+  &  &  &  & \grayout & \grayout & \\ \bottomrule
 \end{tabular}
 \label{tab:TabQ}
 \end{table}
