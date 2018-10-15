@@ -375,8 +375,10 @@ applies in both rule-based (\textbf{CM}) and random (\textbf{RM}) machines.
 \begin{marginfigure}
 %\hspace{-4em}
 \includegraphics[scale=0.3]{sixchoices.png}
-\caption{For each edge originating at the "*" node, there are six possible new destinations.}
-\label{fig:Multiedges}
+\caption{For each edge originating at the "*" node, there are six possible new destinations. (These
+are not necessarily six different nodes, but, in the absence of multi-edges, are more likely
+to be distinct nodes.)}
+\label{fig:Sixnumbered}
 \end{marginfigure}
 
 \begin{marginfigure}
@@ -391,8 +393,9 @@ the origin ("*") node.}
 
 \begin{table}
 \centering
-\begin{tabular}{lrccccccc}\toprule
-  & \multicolumn{4}{c}{\textbf{Machine C}} & \multicolumn{2}{c}{\textbf{Machine R}} \\ \cmidrule(lr){2-5} \cmidrule(lr){6-7}
+\begin{tabular}{lcccccccc}\toprule
+\addlinespace[3mm]
+Machine:  & \multicolumn{2}{c}{\textbf{C}} & \multicolumn{2}{c}{\textbf{CM}} & \multicolumn{2}{c}{\textbf{R}} \\ \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7}
 \addlinespace[2mm]
 
 Multi-edges: & \multicolumn{2}{c}{\textit{No}} & \multicolumn{2}{c}{\textit{Yes}} & \multicolumn{2}{c}{\textit{No}} \\ \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7}
@@ -415,7 +418,7 @@ Components & $\approx$ 1 & $\approx$ 1 & & \grayout & \grayout & $\approx$ 1  \\
 \end{tabular}
 \label{tab:TabQ}
 \end{table}
-\hspace{8mm}\caption{Table \ref{tab:TabQ}: Comparison of Graph Measures --- Machines and Outcomes}
+\hspace{2mm}\caption{Table \ref{tab:TabQ}: Comparison of Graph Measures Across (Machine+Outcome)s}
 \vspace{3mm}
 
 \clearpage
