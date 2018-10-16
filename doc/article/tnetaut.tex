@@ -410,9 +410,9 @@ often to the point of complete collapse.
 Machine \textbf{R} is far more likely to produce graph collapses than
 \textbf{C} is (99.9\% vs. 59.2\% of runs). The reason is similar to the reason
 that \textbf{*M} machine runs collapse: just as \textbf{RM} produces multi-edges,
-\textbf{R}'s identical edge rerouting logic
-will \textit{always} produce some number of structures that must be pruned out
-owing to random variation. \textbf{C}, on the other hand, is more or less likely
+random variation will ensure that \textbf{R}'s same edge rerouting logic
+will \textit{always} produce some number of structures that must be pruned out.
+\textbf{C}, on the other hand, is more or less likely
 to produce prohibited structures, depending on the rule in force for a particular
 run.
 
@@ -513,7 +513,7 @@ Machine:  & \multicolumn{2}{c}{\textbf{C}} & \multicolumn{2}{c}{\textbf{CM}} & \
 \addlinespace[2mm]
 
 Outcome: & \textit{Cycling} & \textit{Collapsed} & \textit{Cycling} & \textit{Collapsed} & \textit{Cycling} & \textit{Collapsed} \\ \cmidrule(lr){2-2} \cmidrule(lr){3-3} \cmidrule(lr){4-4} \cmidrule(lr){5-5} \cmidrule(lr){6-6} \cmidrule(lr){7-7}
-\# Connected &  &  & highest & \grayout & \grayout & \\
+\# Connected &  &  & \includegraphics[width=3cm, height=10cm]{rel_lo.png} & \grayout & \grayout & \\
 Components & $\approx$ 1 & $\approx$ 1 & & \grayout & \grayout & $\approx$ 1  \\
   &  &  &  & \grayout & \grayout & \\
 \addlinespace[2mm]
