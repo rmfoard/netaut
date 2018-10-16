@@ -299,7 +299,8 @@ Machine & New Edge Selection & Multi-edges & Pruning Performed \\
 Changes to out-edge destinations, whether made randomly by machine \textbf{R} or based on \textbf{C}'s
 rules, can introduce multi-edges. These prohibited structures
 arise as the machine's iteration logic creates a first-pass, "draft" copy of the transformed graph.
-the draft copy is pruned to restore conformance with structure restrictions.
+the draft copy is pruned to restore conformance with structure restrictions before
+the following iteration begins.
 The diagram in Figure \ref{fig:Pruning} shows the two kinds of prohibited structures
 that can occur and illustrates the restorative changes made in the pruning step.
 
@@ -355,7 +356,7 @@ out-degree restricted to 2 is:
 \]
 }
 before revisiting a previous one, however, limits the simulator's ability to
-detect cycles. If a simulator reaches a maximum number of iterations
+detect cycles. If the simulator reaches a maximum number of iterations
 before its machine terminates, the simulation outcome is recorded as "undetermined."
 A summary of outcomes for all runs is given in Table \ref{tab:Tab1}.
 
@@ -386,7 +387,7 @@ shrink the number of possible new out-edge destinations for their origin nodes,
 progressively decreasing the number of possible new states in the graph overall.
 
 \begin{marginfigure}
-%\hspace{-4em}
+%\hspace{-10mm}
 \includegraphics[scale=0.3]{sixchoices.png}
 \caption{For each edge originating at the "*" node, there are six possible new destinations. (These
 are not necessarily six different nodes, but are more likely to be distinct nodes when
@@ -402,40 +403,36 @@ the origin ("*") node during each machine iteration.}
 \label{fig:Multiedges}
 \end{marginfigure}
 
-\clearpage
+The absence of multi-edges in machines \textbf{C} and \textbf{R}
+necessitates the removal of prohibited structures when they arise. The
+number of nodes in the graph can consequently decrease during execution,
+often to the point of complete collapse.
+Machine \textbf{R} is far more likely to produce graph collapses than
+\textbf{C} is (99.9\% vs. 59.2\% of runs). The reason is similar to the reason
+that \textbf{*M} machine runs collapse: just as \textbf{RM} produces multi-edges,
+\textbf{R}'s identical edge rerouting logic
+will \textit{always} produce some number of structures that must be pruned out
+owing to random variation. \textbf{C}, on the other hand, is more or less likely
+to produce prohibited structures, depending on the rule in force for a particular
+run.
 
-\begin{table}
-\caption{Table \ref{tab:TabQ}: Comparison of Graph Measures Across (Machine $\times$ Outcome)}
-\vspace{12mm}
-\centering
-\begin{tabular}{lcccccccc}\toprule
-\addlinespace[3mm]
-Machine:  & \multicolumn{2}{c}{\textbf{C}} & \multicolumn{2}{c}{\textbf{CM}} & \multicolumn{2}{c}{\textbf{R}} \\ \midrule %\cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7}
-\addlinespace[2mm]
+In runs in which \textbf{C} produces
+collapses, average run length is consistently greater than
+for \textbf{R} (Figure \ref{fig:figA}), suggesting that
+rule-based graph evolution, on average, produces prohibited structures
+at a slower pace.
 
-%Multi-edges: & \multicolumn{2}{c}{\textit{No}} & \multicolumn{2}{c}{\textit{Yes}} & \multicolumn{2}{c}{\textit{No}} \\ \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7}
-%\addlinespace[2mm]
+(Move this later) For both machine types, we refer to
+the number of nodes at the end of the iteration immediately preceding a collapse,
+or to the "settled" number of nodes in a cycling graph, as the terminal number of nodes.
 
-Outcome: & \textit{Cycling} & \textit{Collapsed} & \textit{Cycling} & \textit{Collapsed} & \textit{Cycling} & \textit{Collapsed} \\ \cmidrule(lr){2-2} \cmidrule(lr){3-3} \cmidrule(lr){4-4} \cmidrule(lr){5-5} \cmidrule(lr){6-6} \cmidrule(lr){7-7}
-\# Connected &  &  & highest & \grayout & \grayout & \\
-Components & $\approx$ 1 & $\approx$ 1 & & \grayout & \grayout & $\approx$ 1  \\
-  &  &  &  & \grayout & \grayout & \\
-\addlinespace[2mm]
+<Compare cycling behaviors. ?Cycle lengths vs nr iterations?>
 
-  &  &  &  & \grayout & \grayout & \\
-\# Iterations & $\approx$ 1 & $\approx$ 1 & & \grayout & \grayout & $\approx$ 1  \\
-  &  &  &  & \grayout & \grayout & \\
-\addlinespace[2mm]
+<Explain why further investigation of the *M machines was dropped.>
 
-\# Terminal &  &  & highest & \grayout & \grayout & \\
-Components & $\approx$ 1 & $\approx$ 1 & & \grayout & \grayout & $\approx$ 1  \\
-  &  &  &  & \grayout & \grayout & \\ \bottomrule
-\end{tabular}
-\label{tab:TabQ}
-\end{table}
-\vspace{3mm}
+<Explain why R collapses are far more likely.>
 
-\clearpage
+<Discuss collapse shapes, R vs C.>
 
 \begin{marginfigure}
   \includegraphics{figA.png}
@@ -446,7 +443,7 @@ Components & $\approx$ 1 & $\approx$ 1 & & \grayout & \grayout & $\approx$ 1  \\
 \subsection{In-Degree Entropy}
 
 Machine \textbf{C}, on average, generates graphs with a larger 
-maximum in-degree than in the random case, and also produces a
+maximum in-degree than in the random case of machine \textbf{R}, and also produces a
 larger number of distinct in-degrees (Figure \ref{fig:figB}).
 
 \begin{marginfigure}
@@ -461,12 +458,13 @@ a graph's "randomness."
 As would be expected, entropy is consistently large in the randomly generated
 initial graphs. Between the \textbf{R} and \textbf{C} machines, entropy in the terminal
 graphs for \textbf{C} is lower than that for the randomly operating R (Figure \ref{fig:figE}).
+
 The drop in average entropy between initial graphs and the \textbf{R} machine's terminal
 graphs seems surprising on its face, but is accounted for by the restriction that
 \textbf{R}'s topological changes, like \textbf{C}'s, may only redirect a node's out-edge
 to one of its neighbors or their neighbors.
-The effect is to "localize" the randomness, increasing apparent order in the random graph as
-soon as the first iteration is completed.
+The effect is to "localize" the randomness, abruptly increasing apparent order in the
+random graph as soon as the first iteration is finished.
 
 The two \textbf{*M} machines that allow multi-edges to remain in the graph, \textbf{CM} and
 \textbf{RM}, almost invariably cycle because there are fewer possible new destinations for
@@ -487,24 +485,6 @@ explain that the effect is more pronounced for the random variant because...>
   \label{fig:figDd1024}
 \end{marginfigure}
 
-\subsection{Cycles and Collapses}
-%Unhappy Endings?
-
-Machine \textbf{C} is far less likely to produce graph collapses than
-\textbf{R} is (59.3\% vs. 99.9\% of runs). In cases where \textbf{C} produces
-collapses, average run length is consistently greater than
-for \textbf{R} (Figure \ref{fig:figA}). For both machine types, we refer to
-the number of nodes at the end of the iteration immediately preceding a collapse,
-or to the "settled" number of nodes in a cycling graph, as the terminal number of nodes.
-
-<Compare cycling behaviors. ?Cycle lengths vs nr iterations?>
-
-<Explain why further investigation of the *M machines was dropped.>
-
-<Explain why R collapses are far more likely.>
-
-<Discuss collapse shapes, R vs C.>
-
 \subsection{Sensitivity to Initial Conditions}
 
 <Discuss.>
@@ -520,6 +500,36 @@ This is where things get more interesting.
 
 For this one, we'll have to dust off the old self-organizing criticality
 references. Are collapses like sandpile avalanches?
+
+\clearpage
+
+\begin{table}
+\caption{Table \ref{tab:TabQ}: Comparison of Graph Measures Across (Machine $\times$ Outcome)}
+\vspace{12mm}
+\centering
+\begin{tabular}{lcccccccc}\toprule
+\addlinespace[3mm]
+Machine:  & \multicolumn{2}{c}{\textbf{C}} & \multicolumn{2}{c}{\textbf{CM}} & \multicolumn{2}{c}{\textbf{R}} \\ \midrule
+\addlinespace[2mm]
+
+Outcome: & \textit{Cycling} & \textit{Collapsed} & \textit{Cycling} & \textit{Collapsed} & \textit{Cycling} & \textit{Collapsed} \\ \cmidrule(lr){2-2} \cmidrule(lr){3-3} \cmidrule(lr){4-4} \cmidrule(lr){5-5} \cmidrule(lr){6-6} \cmidrule(lr){7-7}
+\# Connected &  &  & highest & \grayout & \grayout & \\
+Components & $\approx$ 1 & $\approx$ 1 & & \grayout & \grayout & $\approx$ 1  \\
+  &  &  &  & \grayout & \grayout & \\
+\addlinespace[2mm]
+
+  &  &  &  & \grayout & \grayout & \\
+\# Iterations & $\approx$ 1 & $\approx$ 1 & & \grayout & \grayout & $\approx$ 1  \\
+  &  &  &  & \grayout & \grayout & \\
+\addlinespace[2mm]
+
+\# Terminal &  &  & highest & \grayout & \grayout & \\
+Components & $\approx$ 1 & $\approx$ 1 & & \grayout & \grayout & $\approx$ 1  \\
+  &  &  &  & \grayout & \grayout & \\ \bottomrule
+\end{tabular}
+\label{tab:TabQ}
+\end{table}
+\vspace{3mm}
 
 \subsection{Designed Rules}
 %Made to Order?
