@@ -60,6 +60,8 @@
 
 \usepackage{booktabs}
 
+\usepackage{abraces}
+
 \title{Emergence in Network Automata}
 \author{Richard Foard}
 \date{7 October 2018}  % if the \date{} command is left out, the current date will be used
@@ -211,18 +213,19 @@ the input to the next iteration. In \textbf{C}, the draft may require pruning
 before becoming input to the next iteration. 
 
 During an iteration, each node in the current graph is examined in turn.
-The combined \textit{black}/\textit{white} states of the node and its two neighbors\footnote{In
+The combined \textit{black}/\textit{white} states of the node and its two neighbors\footnote{
+\textit{Black} is interpreted as zero, \textit{white} as one. In
 all cases, "neighbor" is used to indicate a node at the destination end of one of a node's out-edges.}
-are used to select one of the rule's eight constituent parts; the part in turn
+are used to select one of the rule's eight constituent parts; the selected part, in turn,
 controls the changes that are made to the node's state and its out-edges in
 the developing draft copy. Rules encode change instructions as follows:
 
-A rule comprises eight parts, each corresponding to one of the possible compound states
+A rule comprises eight parts, each corresponding to one of the possible compound, or "triad" states
 of a node and its neighbors. Each rule-part specifies replacement values for
 the node's state and the destinations of its out-edges
-(for purposes of description, it is convenient to designate a node's two out-edges "left" and "right").
-The replacement node state is either \textit{black} or \textit{white}.
-The replacement edge destinations (Figure \ref{fig:Sixnumbered}) are each one of:
+(it is convenient to refer to a node's two out-edges as "left" and "right").
+The replacement node state is either \textit{black} (\textit{B}) or \textit{white} (\textit{W}).
+The replacement edge destinations (Figure \ref{fig:Sixlabeled}) are each one of:
 
 \vspace{1mm}
 \begin{itemize}
@@ -235,38 +238,38 @@ The replacement edge destinations (Figure \ref{fig:Sixnumbered}) are each one of
     \item \textit{RR} - the current destination of its right neighbor's right-edge
 \end{itemize}
 \vspace{2mm}
+A rule might be represented symbolically, for example, as:
+\[
+\aunderbrace[l1r]{L,L,B}_{0}; \aunderbrace[l1r]{R,RR,W}_{1}; \aunderbrace[l1r]{L,R,W}_{2}; \aunderbrace[l1r]{LL,R,B}_{3}; \aunderbrace[l1r]{L,LL,B}_{4}; \aunderbrace[l1r]{RL,RR,W}_{5}; \aunderbrace[l1r]{RR,RR,B}_{6}; \aunderbrace[l1r]{R,L,B}_{7}
+\]
+in which each semicolon-separated substring is a rule-part to be applied at nodes having a
+triad state equal to the part's index position in the rule string. For coding purposes, rule
+numbers are encoded as a mixed-radix integer between 0 and
+$(6 \times 6 \times 2)^8 \quad (722,204,136,308,736)$.
 
 \begin{marginfigure}
 \hspace{-4em}
-\includegraphics{sixnumbered.ps}
+\includegraphics{sixlabeled.ps}
 \caption{The six possible new destinations for node \textbf{*}'s out-edges}
-\label{fig:Sixnumbered}
+\label{fig:Sixlabeled}
 \end{marginfigure}
 
-The process of a rule being applied to a node and its immediate neighbors is shown
-schematically in Figure \ref{fig:Ruleapplication}
-
-\begin{figure}
-\includegraphics{placeholder.png}
-\caption{\textbf{Rule Application.} A rule specifies state-dependent changes to a node's state and its out-edges.}
-\label{fig:Ruleapplication}
-\end{figure}
-
+\vspace{1mm}
 After all nodes in the original graph have been processed,
 the resulting draft copy is pruned if necessary.
 Applicable only for machine \textbf{C}, the pruning step removes
 any like-directed edges (multi-edges) that have been created between pairs
 of nodes in the draft copy; the process selectively removes nodes
-and redirects edges, cascading as required until no prohibited structures remain.
+and redirects edges, cascading as required, until no prohibited structures remain.
 If it is not empty, the pruned graph becomes the starting point for the next iteration;
 if it is empty, it is said to have collapsed.
 A simulation run ends when (1) the graph collapses, (2) a state cycle is detected,
-or (3) the maximum number of iterations is reached.
+or (3) a maximum number of iterations is reached.
 
 \subsection{The \textbf{C*} Machines' Random Counterparts, \textbf{R} and \textbf{RM}}
 
 To help gauge the extent to which machines \textbf{C} and \textbf{CM}
-increase order as they transform random starting graphs, simulators for counterpart
+introduce order as they transform random starting graphs, simulators for counterpart
 machines \textbf{R} and \textbf{RM} were constructed. Like the rule-based \textbf{C*} machines,
 these change the graph iteratively, but make their changes \textit{randomly}.
 As with the \textbf{C*} machines, though, the scope of edge destination changes for each node is
@@ -358,7 +361,7 @@ out-degree restricted to 2 is:
 before revisiting a previous one, however, limits the simulator's ability to
 detect cycles. If the simulator reaches a maximum number of iterations
 before its machine terminates, the simulation outcome is recorded as "undetermined."
-A summary of outcomes for all runs is given in Table \ref{tab:Tab1}.
+A summary of outcomes for all runs is given in Table \ref{tab:Tab2}.
 
 \begin{table}
 \caption{Simulation Outcomes, All Runs}
@@ -374,7 +377,7 @@ Machine & Cycling & Collapsed & Undet. \\
 \textbf{RM} & 100.00\% & --- & 0.00\% \\
 \bottomrule
 \end{tabular}
-\label{tab:Tab1}
+\label{tab:Tab2}
 \end{table}
 \vspace{3mm}
 
@@ -403,7 +406,7 @@ the origin ("*") node during each machine iteration.}
 \label{fig:Multiedges}
 \end{marginfigure}
 
-The absence of multi-edges in machines \textbf{C} and \textbf{R}
+The prohibition of multi-edges in machines \textbf{C} and \textbf{R}
 necessitates the removal of prohibited structures when they arise. The
 number of nodes in the graph can consequently decrease during execution,
 often to the point of complete collapse.
@@ -411,9 +414,9 @@ Machine \textbf{R} is far more likely to produce graph collapses than
 \textbf{C} is (99.9\% vs. 59.2\% of runs). The reason is similar to the reason
 that \textbf{*M} machine runs collapse: just as \textbf{RM} produces multi-edges,
 random variation will ensure that \textbf{R}'s same edge rerouting logic
-will \textit{always} produce some number of structures that must be pruned out.
+will produce some number of structures that must be pruned out.
 \textbf{C}, on the other hand, is more or less likely
-to produce prohibited structures, depending on the rule in force for a particular
+to produce prohibited structures, depending on the rule in force for each particular
 run.
 
 In runs in which \textbf{C} produces
@@ -462,7 +465,7 @@ graphs for \textbf{C} is lower than that for the randomly operating R (Figure \r
 The drop in average entropy between initial graphs and the \textbf{R} machine's terminal
 graphs seems surprising on its face, but is accounted for by the restriction that
 \textbf{R}'s topological changes, like \textbf{C}'s, may only redirect a node's out-edge
-to one of its neighbors or their neighbors.
+within its two-hop neighborhood.
 The effect is to "localize" the randomness, abruptly increasing apparent order in the
 random graph as soon as the first iteration is finished.
 
