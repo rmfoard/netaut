@@ -1,0 +1,1 @@
+dot -Tps -Ktwopi terminal_RM_graph.dot > terminal_RM_graph.ps
