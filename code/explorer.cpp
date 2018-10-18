@@ -21,7 +21,7 @@
 #include "machine2D.h"
 #include "machineR.h"
 
-#define VERSION "V180924.0"
+#define VERSION "V181015.0"
 
 //---------------
 // Command option settings
