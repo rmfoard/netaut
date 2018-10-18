@@ -60,6 +60,8 @@
 
 \usepackage{abraces}
 
+\usepackage{makecell}
+
 \title{Emergence in Network Automata}
 \author{Richard Foard}
 \date{7 October 2018}  % if the \date{} command is left out, the current date will be used
@@ -297,7 +299,7 @@ Machine & New Edge Selection & Multi-edges & Pruning Performed \\
 
 \subsection{Graph Pruning}
 
-Changes to out-edge destinations, whether made randomly by machine \textbf{R} or based on \textbf{C}'s
+Changes to out-edge destinations, whether made randomly by machine \textbf{R}, or based on \textbf{C}'s
 rules, can introduce multi-edges. These prohibited structures
 arise as the machine's iteration logic creates a first-pass, "draft" copy of the transformed graph.
 the draft copy is pruned to restore conformance with structure restrictions before
@@ -339,10 +341,12 @@ Constituent packages. How parameter values were selected and varied.
 
 \section{Results}
 
-In this section, a largely qualitative summary of simulation results is followed
-by sections on the more interesting aspects of outcomes.
+Our first task was to understand the characteristic behaviors of each
+machine, in comparison with those of its random counterpart.
+In this section, a survey of qualitative and quantitative simulation results are
+presented, followed by sections on the more interesting aspects of outcomes.
 
-\subsection{Summary of Outcomes---Cycles and Collapses}
+\subsection{Summary of Terminal Outcomes---Cycles and Collapses}
 
 Each simulation run begins with a finite graph, and each iteration
 either maintains the number of nodes or, in the cases of \textbf{C} and \textbf{R},
@@ -387,11 +391,13 @@ shrink the number of possible new out-edge destinations for their origin nodes,
 progressively decreasing the number of possible new states in the graph overall.
 
 Less inutuitive is the finding that all \textbf{RM} runs end in cycles---it would
-seem that the machine's continuously random edge reassignments would
+seem that this machine's continuously random edge reassignments would
 make state cycles impossible. In fact, \textbf{RM}'s graphs invariably devolve
 to configurations in which every node's six possible "new" out-edge destinations
-are the previous destination node of both its (multi-) out-edge, resulting in no
-change to the edges. An example of such a graph appears in Figure \ref{fig:TerminalRMGraph}.
+are, in fact, all the same node---the previous destination node of both its
+out-edges---resulting in no change to the edges and causing a tight state cycle.
+An example of such a graph appears in Figure \ref{fig:TerminalRMGraph}.
+
 \begin{marginfigure}
 \vspace{-8cm}
 \includegraphics[scale=0.3]{sixchoices.png}
@@ -423,18 +429,14 @@ number of nodes in the graph can consequently decrease during execution,
 often to the point of complete collapse.
 Machine \textbf{R} is far more likely to produce graph collapses than
 \textbf{C} is (99.9\% vs. 59.2\% of runs). The reason is similar to the reason
-that \textbf{*M} machine runs collapse: just as \textbf{RM} random operation produces multi-edges,
-\textbf{R}'s identical edge rerouting logic typically produces multi-edges in
-each iteration's draft output graph that must be pruned out before continuing
-execution. \textbf{C}, on the other hand, is more or less likely
-to produce prohibited structures, depending on the rule in force for the
-run.
-
-In runs in which \textbf{C} produces
-collapses, average run length is consistently greater than
-for \textbf{R} (Figure \ref{fig:figA}), suggesting that
-rule-based graph evolution, on average, produces prohibited structures
-at a slower pace.
+that \textbf{*M} machine runs cycle: \textbf{R} and \textbf{RM} share the same
+random edge rerouting logic, and produce multi-edges with equal likelihood. These are allowed to
+remain in \textbf{RM}'s graph, but must be pruned out of \textbf{R}'s graph
+before it can continue with execution, reducing its node count and making collapse
+more likely. The number of multi-edges \textbf{C} produces, on the other hand,
+is controlled by the rule under which it runs, and consequently varies widely as
+the machine is run with different rules.
+to the next.
 
 (Move this later) For both machine types, we refer to
 the number of nodes at the end of the iteration immediately preceding a collapse,
@@ -448,34 +450,54 @@ or to the "settled" number of nodes in a cycling graph, as the terminal number o
 
 <Discuss collapse shapes, R vs C.>
 
-\clearpage
+%\clearpage
 
 \begin{table}
-\caption{Table \ref{tab:TabQ}: Comparison of Graph Measures, \textbf{C} vs. \textbf{R}}
-\vspace{12mm}
 \centering
-\begin{tabular}{lcc}\toprule
+\caption{Comparison of Graph Measures, \textbf{C} vs. \textbf{R}}
+\begin{tabular}{ll}\toprule
 \addlinespace[3mm]
-Statistic  & Comparison & \\ \midrule
+Statistic  & Comparison \\ \midrule
 \addlinespace[2mm]
 
-\# Avg. Run Length & Approx. twice that of \textbf{R} & \\
-Collapse Outcome & & \includegraphics[height=8cm]{figA.png} \\
- & & \\
-\addlinespace[2mm]
+\makecell[tl]{
+Average \\%
+Run Length, \\%
+\\%
+Terminal \\%
+Node Count} &
+\makecell[tl]{
+Between \textbf{C} and \textbf{R} runs ending in collapse, \\%
+\textbf{C} runs average nearly twice the number of \\%
+iterations (Figure \ref{fig:OutcomesNriter}) and end with much higher \\%
+pre-collapse node counts (Figure \ref{fig:OutcomesFinnn}). They \\%
+run longer and "fall farther." \\%
+\textbf{C} runs that end in state cycles terminate \\%
+with average node counts nearly identical with \\%
+those for collapsing runs, but average more \\%
+than twice the run length, suggesting that ...} \\
 
- & & \
-\# Iterations & & \\
- & & \\
-\addlinespace[2mm]
+\# Iterations & \\
 
-\# Terminal & & \\
-Components & & \\
- & & \\ \bottomrule
+\# Terminal & \\ \bottomrule
 \end{tabular}
 \label{tab:TabQ}
 \end{table}
-\vspace{3mm}
+
+\begin{marginfigure}
+  \vspace{-5cm}
+  \includegraphics{outcomes-nriter.png} \\
+  \caption{Here is the caption.}
+  \label{fig:OutcomesNriter}
+\end{marginfigure}
+
+\begin{marginfigure}
+  \includegraphics{outcomes-finnn.png} \\
+  \caption{Here is the caption.}
+  \label{fig:OutcomesFinnn}
+\end{marginfigure}
+
+\clearpage
 
 \subsection{In-Degree Entropy}
 

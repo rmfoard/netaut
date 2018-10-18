@@ -2,7 +2,7 @@
 # (depends on the 'sdavgs' table [avg-sd.sql])
 #
 p <- ggplot(data=filter(sdavgs, machinetype == 'C' | machinetype == 'R')) +
-    geom_path(
+    geom_line(
         mapping=aes(x=initnrnodes, y=anriterations, color=machinetype),
         size=2
     ) +

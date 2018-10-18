@@ -3,7 +3,8 @@
 p <- ggplot() +
     geom_line(data=filter(
         sdavgs,
-        mach_outc == 'C->COL' | mach_outc == 'C->CYC' | mach_outc == 'R->COL' | mach_outc == 'CM->CYC',
+        mach_outc == 'C->COL' | mach_outc == 'C->CYC' | mach_outc == 'R->COL',
+        initnrnodes != 384 & initnrnodes != 640 & initnrnodes != 896,
         initnrnodes < 2048
       ),
       mapping=aes(
@@ -13,11 +14,12 @@ p <- ggplot() +
         linetype=outcome
       )
     ) +
-    scale_color_manual(values=c("blue", "gray50", "red")) +
+    scale_color_manual(values=c("blue", "red")) +
     theme(
         plot.title=element_text(hjust=0.5, size=16),
         plot.subtitle=element_text(hjust=0.5),
-        legend.title.align=0.5
+        legend.title.align=0.5,
+        panel.background=element_blank()
     ) +
     labs(
         title=paste("Average terminal graph size"),
