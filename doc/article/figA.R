@@ -1,7 +1,7 @@
 # Number of iterations, collapsing runs, C vs R machines, all initial graph sizes
 # (depends on the 'sdavgs' table [avg-sd.sql])
 #
-p <- ggplot(data=sdavgs) +
+p <- ggplot(data=filter(sdavgs, machinetype == 'C' | machinetype == 'R')) +
     geom_path(
         mapping=aes(x=initnrnodes, y=anriterations, color=machinetype),
         size=2

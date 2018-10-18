@@ -58,8 +58,6 @@
 \newcommand{\grayout}{\cellcolor{lightgray}}
 \newcommand{\hcyan}[1]{{\color{teal} #1}}
 
-\usepackage{booktabs}
-
 \usepackage{abraces}
 
 \title{Emergence in Network Automata}
@@ -245,7 +243,7 @@ A rule might be represented symbolically, for example, as:
 in which each semicolon-separated substring is a rule-part to be applied at nodes having a
 triad state equal to the part's index position in the rule string. For coding purposes, rule
 numbers are encoded as a mixed-radix integer between 0 and
-$(6 \times 6 \times 2)^8 \quad (722,204,136,308,736)$.
+$(6 \times 6 \times 2)^8 = 722,204,136,308,736$.
 
 \begin{marginfigure}
 \hspace{-4em}
@@ -374,7 +372,7 @@ Machine & Cycling & Collapsed & Undet. \\
 \textbf{R} & 0\% & 100\% & 0\% \\
 \cmidrule(r){2-4}
 \textbf{CM} & 99.07\% & --- & 0.03\% \\
-\textbf{RM} & 100.00\% & --- & 0.00\% \\
+\textbf{RM} & 100.00\% & --- & 0\% \\
 \bottomrule
 \end{tabular}
 \label{tab:Tab2}
@@ -382,17 +380,18 @@ Machine & Cycling & Collapsed & Undet. \\
 \vspace{3mm}
 
 The reason that nearly all \textbf{CM} runs end in state cycles is
-intuitive---because they allow multi-edges, they tend to generate structures
-like those in Figure \ref{fig:Multiedges} when operating
-under most of \textbf{CM}'s rules. As these structures enter the graph, they 
+intuitive---because \textbf{CM} allows multi-edges, it tends to generate structures
+like those in Figure \ref{fig:Multiedges} regardless of which rule is governing its execution.
+As these structures enter the graph, they 
 shrink the number of possible new out-edge destinations for their origin nodes,
 progressively decreasing the number of possible new states in the graph overall.
 
 Less inutuitive is the finding that all \textbf{RM} runs end in cycles---it would
 seem that the machine's continuously random edge reassignments would
 make state cycles impossible. In fact, \textbf{RM}'s graphs invariably devolve
-to a configuration in which every node's six possible new out-edge destinations
-are all the same node. An example of such a graph appears in Figure \ref{fig:TerminalRMGraph}.
+to configurations in which every node's six possible "new" out-edge destinations
+are the previous destination node of both its (multi-) out-edge, resulting in no
+change to the edges. An example of such a graph appears in Figure \ref{fig:TerminalRMGraph}.
 \begin{marginfigure}
 \vspace{-8cm}
 \includegraphics[scale=0.3]{sixchoices.png}
@@ -424,11 +423,11 @@ number of nodes in the graph can consequently decrease during execution,
 often to the point of complete collapse.
 Machine \textbf{R} is far more likely to produce graph collapses than
 \textbf{C} is (99.9\% vs. 59.2\% of runs). The reason is similar to the reason
-that \textbf{*M} machine runs collapse: just as \textbf{RM} produces multi-edges,
-random variation will ensure that \textbf{R}'s same edge rerouting logic
-will produce some number of structures that must be pruned out.
-\textbf{C}, on the other hand, is more or less likely
-to produce prohibited structures, depending on the rule in force for each particular
+that \textbf{*M} machine runs collapse: just as \textbf{RM} random operation produces multi-edges,
+\textbf{R}'s identical edge rerouting logic typically produces multi-edges in
+each iteration's draft output graph that must be pruned out before continuing
+execution. \textbf{C}, on the other hand, is more or less likely
+to produce prohibited structures, depending on the rule in force for the
 run.
 
 In runs in which \textbf{C} produces
@@ -449,11 +448,34 @@ or to the "settled" number of nodes in a cycling graph, as the terminal number o
 
 <Discuss collapse shapes, R vs C.>
 
-\begin{marginfigure}
-  \includegraphics{figA.png}
-  \caption{On average, the rule-based \textbf{C} machine executes more iterations than \textbf{R} before collapse occurs.}
-  \label{fig:figA}
-\end{marginfigure}
+\clearpage
+
+\begin{table}
+\caption{Table \ref{tab:TabQ}: Comparison of Graph Measures, \textbf{C} vs. \textbf{R}}
+\vspace{12mm}
+\centering
+\begin{tabular}{lcc}\toprule
+\addlinespace[3mm]
+Statistic  & Comparison & \\ \midrule
+\addlinespace[2mm]
+
+\# Avg. Run Length & Approx. twice that of \textbf{R} & \\
+Collapse Outcome & & \includegraphics[height=8cm]{figA.png} \\
+ & & \\
+\addlinespace[2mm]
+
+ & & \
+\# Iterations & & \\
+ & & \\
+\addlinespace[2mm]
+
+\# Terminal & & \\
+Components & & \\
+ & & \\ \bottomrule
+\end{tabular}
+\label{tab:TabQ}
+\end{table}
+\vspace{3mm}
 
 \subsection{In-Degree Entropy}
 
@@ -515,36 +537,6 @@ This is where things get more interesting.
 
 For this one, we'll have to dust off the old self-organizing criticality
 references. Are collapses like sandpile avalanches?
-
-\clearpage
-
-\begin{table}
-\caption{Table \ref{tab:TabQ}: Comparison of Graph Measures Across (Machine $\times$ Outcome)}
-\vspace{12mm}
-\centering
-\begin{tabular}{lcccccccc}\toprule
-\addlinespace[3mm]
-Machine:  & \multicolumn{2}{c}{\textbf{C}} & \multicolumn{2}{c}{\textbf{CM}} & \multicolumn{2}{c}{\textbf{R}} \\ \midrule
-\addlinespace[2mm]
-
-Outcome: & \textit{Cycling} & \textit{Collapsed} & \textit{Cycling} & \textit{Collapsed} & \textit{Cycling} & \textit{Collapsed} \\ \cmidrule(lr){2-2} \cmidrule(lr){3-3} \cmidrule(lr){4-4} \cmidrule(lr){5-5} \cmidrule(lr){6-6} \cmidrule(lr){7-7}
-\# Connected &  &  & \includegraphics[width=3cm, height=10cm]{rel_lo.png} & \grayout & \grayout & \\
-Components & $\approx$ 1 & $\approx$ 1 & & \grayout & \grayout & $\approx$ 1  \\
-  &  &  &  & \grayout & \grayout & \\
-\addlinespace[2mm]
-
-  &  &  &  & \grayout & \grayout & \\
-\# Iterations & $\approx$ 1 & $\approx$ 1 & & \grayout & \grayout & $\approx$ 1  \\
-  &  &  &  & \grayout & \grayout & \\
-\addlinespace[2mm]
-
-\# Terminal &  &  & highest & \grayout & \grayout & \\
-Components & $\approx$ 1 & $\approx$ 1 & & \grayout & \grayout & $\approx$ 1  \\
-  &  &  &  & \grayout & \grayout & \\ \bottomrule
-\end{tabular}
-\label{tab:TabQ}
-\end{table}
-\vspace{3mm}
 
 \subsection{Designed Rules}
 %Made to Order?
