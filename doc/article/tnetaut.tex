@@ -244,12 +244,12 @@ A rule might be represented symbolically, for example, as:
 \]
 in which each semicolon-separated substring is a rule-part to be applied at nodes having a
 triad state equal to the part's index position in the rule string. For coding purposes, rule
-numbers are encoded as a mixed-radix integer between 0 and
+numbers are carried as mixed-radix integers between 0 and
 $(6 \times 6 \times 2)^8 = 722,204,136,308,736$.
 
 \begin{marginfigure}
-\hspace{-4em}
-\includegraphics{sixlabeled.ps}
+\hspace{-2em}
+\includegraphics[height=3cm]{sixlabeled.ps}
 \caption{The six possible new destinations for node \textbf{*}'s out-edges}
 \label{fig:Sixlabeled}
 \end{marginfigure}
@@ -398,17 +398,16 @@ are, in fact, all the same node---the previous destination node of both its
 out-edges---resulting in no change to the edges and causing a tight state cycle.
 An example of such a graph appears in Figure \ref{fig:TerminalRMGraph}.
 
-\begin{marginfigure}
-\vspace{-8cm}
-\includegraphics[scale=0.3]{sixchoices.png}
-\caption{For each edge originating at the "*" node, there are six possible new destinations. (These
-are not necessarily six different nodes, but are more likely to be distinct nodes when
-multi-edges are not present.)}
-\label{fig:Sixnumbered}
-\end{marginfigure}
+%\begin{marginfigure}
+%\hspace{1em}
+%\includegraphics[height=3cm]{sixchoices.png}
+%\caption{For each edge originating at the "*" node, there are six possible new destinations. (These
+%are not necessarily six different nodes, but are more likely to be distinct nodes when
+%multi-edges are not present.)}
+%\label{fig:Sixnumbered}
+%\end{marginfigure}
 
 \begin{marginfigure}
-\vspace{2mm}
 \includegraphics{multiedges.ps}
 \caption{Structures with multi-edges reduce the number of possible new edge destinations for
 the origin ("*") node during each machine iteration.}
@@ -416,7 +415,6 @@ the origin ("*") node during each machine iteration.}
 \end{marginfigure}
 
 \begin{marginfigure}
-\vspace{4mm}
 \includegraphics{terminal_RM_graph.ps}
 \caption{A representative terminal graph from an \textbf{RM} simulation. The
 configuration is a one-state cycle even under locally random edge reassignment.}
@@ -434,19 +432,13 @@ random edge rerouting logic, and produce multi-edges with equal likelihood. Thes
 remain in \textbf{RM}'s graph, but must be pruned out of \textbf{R}'s graph
 before it can continue with execution, reducing its node count and making collapse
 more likely. The number of multi-edges \textbf{C} produces, on the other hand,
-is controlled by the rule under which it runs, and consequently varies widely as
+is determined by the rule under which it runs, and consequently varies widely as
 the machine is run with different rules.
 to the next.
-
-(Move this later) For both machine types, we refer to
-the number of nodes at the end of the iteration immediately preceding a collapse,
-or to the "settled" number of nodes in a cycling graph, as the terminal number of nodes.
 
 <Compare cycling behaviors. ?Cycle lengths vs nr iterations?>
 
 <Explain why further investigation of the *M machines was dropped.>
-
-<Explain why R collapses are far more likely.>
 
 <Discuss collapse shapes, R vs C.>
 
@@ -503,17 +495,17 @@ than twice the run length, suggesting that ...} \\
 
 Machine \textbf{C}, on average, generates graphs with a larger 
 maximum in-degree than in the random case of machine \textbf{R}, and also produces a
-larger number of distinct in-degrees (Figure \ref{fig:figB}).
-
-\begin{marginfigure}
-  \includegraphics{figB.png}
-  \caption{\textbf{C} produces graphs with a larger number of in-degrees.}
-  \label{fig:figB}
-\end{marginfigure}
+larger number of distinct in-degrees.
 
 Shannon's entropy [citation needed], computed on summary in-degree statistics and
-normalized\footnote{Explanation of normalization}, can be regarded a measure of
-a graph's "randomness."
+normalized,\footnote{
+Entropy calculation: \\
+\vspace{2mm}
+$p_{k}=$ fraction of nodes with degree k \\
+$K=$ number of distinct in-degrees \\
+\vspace{2mm}
+$entropy = \frac{\sum_{k=1}^{K} p_{k} log_{2}p_{k}} {log_{2}K}$}
+can be regarded a measure of a graph's "randomness."
 As would be expected, entropy is consistently large in the randomly generated
 initial graphs. Between the \textbf{R} and \textbf{C} machines, entropy in the terminal
 graphs for \textbf{C} is lower than that for the randomly operating R (Figure \ref{fig:figE}).
@@ -525,12 +517,6 @@ within its two-hop neighborhood.
 The effect is to "localize" the randomness, abruptly increasing apparent order in the
 random graph as soon as the first iteration is finished.
 
-The two \textbf{*M} machines that allow multi-edges to remain in the graph, \textbf{CM} and
-\textbf{RM}, almost invariably cycle because there are fewer possible new destinations for
-both members of a multi-edge when the machine applies the iteration rule (or random choice
-in the case of \textbf{RM}) at their origin node. <Refer to the diagram, then go on to
-explain that the effect is more pronounced for the random variant because...>
-
 \begin{marginfigure}
   \includegraphics{figE.png}
   \caption{In-degree entropy is largest in initial random graphs,
@@ -538,15 +524,7 @@ explain that the effect is more pronounced for the random variant because...>
   \label{fig:figE}
 \end{marginfigure}
 
-\begin{marginfigure}
-  \includegraphics{figDd1024.png}
-  \caption{\textbf{C}'s average clustering coefficients are larger than \textbf{R}'s.}
-  \label{fig:figDd1024}
-\end{marginfigure}
-
 \subsection{Sensitivity to Initial Conditions}
-
-<Discuss.>
 
 \subsection{Degree Distribution}
 

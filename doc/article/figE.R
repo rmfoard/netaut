@@ -1,4 +1,5 @@
-p <- ggplot(filter(idesummary, initnrnodes >= 256, entrytype == 'I' | entrytype == 'C' | entrytype == 'R')) +
+p <- ggplot(filter(idesummary, initnrnodes >= 256, entrytype == 'I' | entrytype == 'C' | entrytype == 'R',
+        initnrnodes != 384 & initnrnodes != 640 & initnrnodes != 896 & initnrnodes < 2000)) +
     geom_boxplot(
         mapping=aes(x=factor(initnrnodes), y=indegreeentropy)
     ) +
