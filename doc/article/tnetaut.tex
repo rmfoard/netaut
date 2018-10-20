@@ -455,9 +455,8 @@ Statistic  & Comparison \\ \midrule
 \makecell[tl]{
 Average \\%
 Run Length, \\%
-\\%
 Terminal \\%
-Node Count} &
+Graph Size} &
 \makecell[tl]{
 Between \textbf{C} and \textbf{R} runs ending in collapse, \\%
 \textbf{C} runs average nearly twice the number of \\%
@@ -484,10 +483,32 @@ than twice the run length, suggesting that ...} \\
 \end{marginfigure}
 
 \begin{marginfigure}
+  \vspace{1cm}
   \includegraphics{outcomes-finnn.png} \\
   \caption{Here is the caption.}
   \label{fig:OutcomesFinnn}
 \end{marginfigure}
+
+\subsection{Collapse Dynamics}
+
+There are striking differences in way that pruning shrinks the graph.
+Figures \ref{fig:RCollapseDynamics} and \ref{fig:CCollapseDynamics} each
+show the progressive reduction of graph size in machines \textbf{R}
+and \textbf{C}, respectively.
+
+\begin{figure}[htb]
+\includegraphics[height=10cm]{rcol_stepdown.png}
+\caption{Decrease in machine \textbf{R} graph size for 16 10-iteration runs
+on a 521-node graph}
+\label{fig:RCollapseDynamics}
+\end{figure}
+
+\begin{figure}[htb]
+\includegraphics[height=10cm]{ccol_stepdown.png}
+\caption{Decrease in machine \textbf{C} graph size for 16 10-iteration runs
+on a 521-node graph}
+\label{fig:CCollapseDynamics}
+\end{figure}
 
 \clearpage
 
@@ -499,7 +520,7 @@ larger number of distinct in-degrees.
 
 Shannon's entropy [citation needed], computed on summary in-degree statistics and
 normalized,\footnote{
-Entropy calculation: \\
+Normalized entropy calculation: \\
 \vspace{2mm}
 $p_{k}=$ fraction of nodes with degree k \\
 $K=$ number of distinct in-degrees \\
@@ -530,8 +551,8 @@ random graph as soon as the first iteration is finished.
 
 \subsection{Clustering}
 
-Terminal clustering coefficients for machine \textbf{C} are smaller than those for \textbf{R} in
-the large majority of cases (Figure \ref{fig:figDd1024}).
+%Terminal clustering coefficients for machine \textbf{C} are smaller than those for \textbf{R} in
+%the large majority of cases (Figure \ref{fig:figDd1024}).
 
 This is where things get more interesting.
 

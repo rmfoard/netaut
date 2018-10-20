@@ -8,6 +8,7 @@ p <- ggplot(filter(idesummary, initnrnodes >= 256, entrytype == 'I' | entrytype 
         plot.title = element_text(hjust = 0.5, size=16),
         plot.subtitle = element_text(hjust = 0.5),
         legend.title.align = 0.5,
+        axis.line = element_line(color="black"),
         panel.background = element_blank()
     ) +
     labs(
