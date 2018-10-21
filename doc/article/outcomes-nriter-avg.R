@@ -1,4 +1,5 @@
 # Average number of iterations
+# 'crm' db
 
 p <- ggplot() +
     geom_line(data=filter(
@@ -16,19 +17,18 @@ p <- ggplot() +
     ) +
     scale_color_manual(values=c("blue", "red")) +
     theme(
-        plot.title=element_text(hjust=0.5, size=16),
-        plot.subtitle=element_text(hjust=0.5),
+        legend.title=element_text(size=18),
+        legend.text=element_text(size=14),
+        axis.title=element_text(size=20),
         legend.title.align=0.5,
-        axis.line = element_line(color="black"),
+        axis.line = element_line(color="gray"),
         panel.background=element_blank()
     ) +
     labs(
-        title=paste("Average number of iterations"),
-        subtitle=paste("[outcomes-nriter]"),
         x="Initial graph size (nodes)",
         y="Average number of iterations"
     )
 
 print(p)
-dev.copy(png, filename="outcomes-nriter.png")
+dev.copy(png, filename="../outcomes-nriter-avg.png")
 dev.off()

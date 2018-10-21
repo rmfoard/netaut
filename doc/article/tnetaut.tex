@@ -97,7 +97,7 @@ of uncomplicated cellular automata to behave in complex ways. Researchers in the
 nascent field of complexity theory began studying similar phenomena, such as the
 sandpile avalanches first explored by Per Bak (true??).
 
-In \textit{A New Kind of Science} (199?), Stephen Wolfram methodically analyzed
+In \textit{A New Kind of Science} (199?), Stephen Wolfram systematically analyzed
 a variety of cellular automata types. He found particular inspiration in the
 behavior of a one-dimensional machine running "Rule 110." Among his observations were... (list
 irreducibility, etc.)
@@ -108,7 +108,7 @@ irreducibility, etc.)
 one-dimensional cellular automaton}
 \end{marginfigure}
 
-Wolfram and others have also suggested that some natural processes that were
+Wolfram and others have suggested that some natural processes that were
 previously thought to evolve by natural selection are instead
 manifestations of things that nature found "easy" to accomplish using
 the same fundamental principles that underlie simple automata.
@@ -129,37 +129,37 @@ was analyzed macroscopically, using aggregate statistics, and microscopically, b
 statistical and graphic snapshots from individual runs.
 
 \begin{marginfigure}
-\hspace{4em}
+\hspace{3em}
 \includegraphics[width=2.5cm]{evol2a_0.ps}
 \end{marginfigure}
 
 \begin{marginfigure}
-\hspace{4em}
+\hspace{3em}
 \includegraphics[width=2.5cm]{evol2a_1.ps}
 \end{marginfigure}
 
 \begin{marginfigure}
-\hspace{4em}
+\hspace{3em}
 \includegraphics[width=2.5cm]{evol2a_2.ps}
 \end{marginfigure}
 
 \begin{marginfigure}
-\hspace{4em}
+\hspace{3em}
 \includegraphics[width=2.5cm]{evol2a_3.ps}
 \end{marginfigure}
 
 \begin{marginfigure}
-\hspace{4em}
+\hspace{3em}
 \includegraphics[width=2.5cm]{evol2a_4.ps}
 \caption{Four iterations of machine \textbf{C}, rule fixrule,
-beginning with a randomly generated 8-node graph and terminating in a
+beginning with a randomly generated 32-node graph and terminating in a
 static configuration.}
 \end{marginfigure}
 
 Each simulation run begins with a randomly generated graph and progresses by
 iteratively modifying its edges and node states; changes are made according to a rule selected
 for the run. Each rule is effectively a simple program  that specifies, based on the state
-of each node and its two topological neighbors, how local changes should be applied during an
+of each node and its neighbors, how local changes should be applied during an
 iteration.
 
 \subsection{Graph Composition}
@@ -195,11 +195,11 @@ next iteration. The \textbf{CM} machine does not need this process because
 it is structurally incapable of altering its graph in a way thati violates its more
 relaxed structure restrictions. \textbf{CM} is otherwise identical to \textbf{C}.  
 
-An initial, random graph of size N is constructed by assigning each node
+An initial, random graph of N nodes is constructed by assigning each node
 a \textit{black} or \textit{white} state with equal likelihood.
-Two edges are attached to each node, with
+Two outbound edges are attached to each node, with
 the destination of each selected at random from all nodes. For \textbf{C} runs, the
-generator observes the constraint that both edges cannot have the same destination node.
+generator observes the constraint that the edges cannot share the same destination node.
 In all initial graphs, nodes have out-degree 2, but in-degree can vary from 0 to N.
 Initial graphs are a subset of the class of Erdos-Renyi random graphs (citation needed)
 \textit{G(n, p)} where \textit{n} is the number of nodes and \textit{p} is the probability
@@ -214,7 +214,7 @@ At the start of each simulation run, a rule is selected and an initial graph
 is generated.  The simulation proceeds in a series of
 iterations. During each, the rule is applied at each node, yielding a draft
 version of a new graph. For machine \textbf{CM}, the draft immediately becomes
-the input to the next iteration. In \textbf{C}, the draft may require pruning
+the input for the next iteration. In \textbf{C}, the draft may require pruning
 before becoming input to the next iteration. 
 
 During an iteration, each node in the current graph is examined in turn.
@@ -243,7 +243,10 @@ The replacement edge destinations (Figure \ref{fig:Sixlabeled}) are each one of:
     \item \textit{RR} - the current destination of its right neighbor's right-edge
 \end{itemize}
 \vspace{2mm}
-A rule might be represented symbolically, for example, as:
+A rule might be represented symbolically as a set of triples
+(\textit{new left-edge destination},
+\textit{new right-edge destination},
+\textit{new node state}), for example:
 \[
 \aunderbrace[l1r]{L,L,B}_{0}; \aunderbrace[l1r]{R,RR,W}_{1}; \aunderbrace[l1r]{L,R,W}_{2}; \aunderbrace[l1r]{LL,R,B}_{3}; \aunderbrace[l1r]{L,LL,B}_{4}; \aunderbrace[l1r]{RL,RR,W}_{5}; \aunderbrace[l1r]{RR,RR,B}_{6}; \aunderbrace[l1r]{R,L,B}_{7}
 \]
@@ -264,8 +267,9 @@ After all nodes in the original graph have been processed,
 the resulting draft copy is pruned if necessary.
 Applicable only for machine \textbf{C}, the pruning step removes
 any like-directed edges (multi-edges) that have been created between pairs
-of nodes in the draft copy; the process selectively removes nodes
-and redirects edges, cascading as required, until no prohibited structures remain.
+of nodes in the draft copy; the process, described in more detail below,
+selectively removes nodes and redirects edges, cascading as required,
+until no prohibited structures remain.
 If it is not empty, the pruned graph becomes the starting point for the next iteration;
 if it is empty, it is said to have collapsed.
 A simulation run ends when (1) the graph collapses, (2) a state cycle is detected,
@@ -275,8 +279,9 @@ or (3) a maximum number of iterations is reached.
 
 To help gauge the extent to which machines \textbf{C} and \textbf{CM}
 introduce order as they transform random starting graphs, simulators for counterpart
-machines \textbf{R} and \textbf{RM} were constructed. Like the rule-based \textbf{C*} machines,
-these change the graph iteratively, but make their changes \textit{randomly}.
+machines \textbf{R} and \textbf{RM} were constructed. Like the rule-based \textbf{C} and
+\textbf{CM} (\textbf{C*}) machines, these change the graph iteratively, but make their
+changes \textit{randomly}.
 As with the \textbf{C*} machines, though, the scope of edge destination changes for each node is
 limited to nodes reachable in its "two-hop" neighborhood. (The random machines need not alter nodes' states
 because node states have no effect on the \textbf{R*} machines' actions).
@@ -347,9 +352,9 @@ Constituent packages. How parameter values were selected and varied.
 \section{Results}
 
 Our first task was to understand the characteristic behaviors of each
-machine, in comparison with those of its random counterpart.
-In this section, a survey of qualitative and quantitative simulation results are
-presented, followed by sections on the more interesting aspects of outcomes.
+machine, comparing the machines and their random counterparts.
+In this section, a survey of qualitative and quantitative simulation results is
+presented, followed by sections on more specific aspects of behavior.
 
 \subsection{Summary of Terminal Outcomes---Cycles and Collapses}
 
@@ -400,7 +405,7 @@ seem that this machine's continuously random edge reassignments would
 make state cycles impossible. In fact, \textbf{RM}'s graphs invariably devolve
 to configurations in which every node's six possible "new" out-edge destinations
 are, in fact, all the same node---the previous destination node of both its
-out-edges---resulting in no change to the edges and causing a tight state cycle.
+out-edges---resulting in no change to the edges and causing a tight, one-state cycle.
 An example of such a graph appears in Figure \ref{fig:TerminalRMGraph}.
 
 %\begin{marginfigure}
@@ -439,7 +444,6 @@ before it can continue with execution, reducing its node count and making collap
 more likely. The number of multi-edges \textbf{C} produces, on the other hand,
 is determined by the rule under which it runs, and consequently varies widely as
 the machine is run with different rules.
-to the next.
 
 <Compare cycling behaviors. ?Cycle lengths vs nr iterations?>
 
@@ -482,15 +486,17 @@ than twice the run length, suggesting that ...} \\
 
 \begin{marginfigure}
   \vspace{-5cm}
-  \includegraphics{outcomes-nriter.png} \\
-  \caption{Here is the caption.}
+  \includegraphics{outcomes-nriter-avg.png} \\
+  \caption{Average number of iterations for machine \textbf{C} (cycling),
+\textbf{C} (collapsing), and \textbf{R} (collapsing).}
   \label{fig:OutcomesNriter}
 \end{marginfigure}
 
 \begin{marginfigure}
   \vspace{1cm}
-  \includegraphics{outcomes-finnn.png} \\
-  \caption{Here is the caption.}
+  \includegraphics{outcomes-finnn-dist.png} \\
+  \caption{Distribution of terminal graph sizes for machine \textbf{C} (cycling),
+\textbf{C} (collapsing), and \textbf{R} (collapsing) with initial graph size 1031.}
   \label{fig:OutcomesFinnn}
 \end{marginfigure}
 
