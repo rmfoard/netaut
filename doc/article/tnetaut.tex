@@ -485,7 +485,7 @@ than twice the run length, suggesting that ...} \\
 \end{table}
 
 \begin{marginfigure}
-  \vspace{-5cm}
+  \vspace{-4.5cm}
   \includegraphics{outcomes-nriter-avg.png} \\
   \caption{Average number of iterations for machine \textbf{C} (cycling),
 \textbf{C} (collapsing), and \textbf{R} (collapsing).}
@@ -500,7 +500,20 @@ than twice the run length, suggesting that ...} \\
   \label{fig:OutcomesFinnn}
 \end{marginfigure}
 
-\subsection{Collapse Dynamics}
+\subsection{Number of Iterations and Terminal Graph Size}
+
+There is remarkable consistency in the way that terminal graph size varies
+with number of iterations, cycling vs. collapsing outcomes.
+
+\begin{marginfigure}
+  \vspace{1cm}
+  \includegraphics{nriter-x-finnn-smooth.png} \\
+  \caption{Number of iterations $\times$ terminal graph size, machine \textbf{C},
+cycling and collapsing outcomes for varied initial graph sizes}
+  \label{fig:NriterXFinnn}
+\end{marginfigure}
+
+\subsection{Cascade Dynamics}
 
 There are striking differences in way that pruning shrinks the graph.
 Figures \ref{fig:RCollapseDynamics} and \ref{fig:CCollapseDynamics} each
@@ -510,15 +523,22 @@ and \textbf{C}, respectively.
 \begin{figure}[htb]
 \includegraphics[height=10cm]{rcol_stepdown.png}
 \caption{Decrease in machine \textbf{R} graph size for 16 10-iteration runs
-on a 521-node graph}
+on a 521-node graph with collapsing outcomes}
 \label{fig:RCollapseDynamics}
 \end{figure}
 
 \begin{figure}[htb]
 \includegraphics[height=10cm]{ccol_stepdown.png}
 \caption{Decrease in machine \textbf{C} graph size for 16 10-iteration runs
-on a 521-node graph}
+on a 521-node graph with collapsing outcomes}
 \label{fig:CCollapseDynamics}
+\end{figure}
+
+\begin{figure}[htb]
+\includegraphics[height=10cm]{ccyc_stepdown.png}
+\caption{Decrease in machine \textbf{C} graph size for 16 10-iteration runs
+on a 521-node graph with cycling outcomes}
+\label{fig:CCyclingDynamics}
 \end{figure}
 
 \clearpage
