@@ -1,6 +1,8 @@
 # Distribution - terminal graph size, select initnrnodes
 # 'primes' db
 
+print("verify database 'primes':")
+print(database)
 p <- ggplot() +
     geom_density(data=filter(
         sd,

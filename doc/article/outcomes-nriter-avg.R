@@ -1,6 +1,8 @@
 # Average number of iterations
 # 'crm' db
 
+print("verify database 'crm':")
+print(database)
 p <- ggplot() +
     geom_line(data=filter(
         sdavgs,
