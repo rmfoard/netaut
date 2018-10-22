@@ -22,6 +22,7 @@ void Machine::set_machineType(std::string type) { m_machineType = type; }
 static double Entropy(TVec<TPair<TInt, TInt> > degCnt) {
 
     // Total the frequencies.
+    // (The total should always equal 2 * (nodes in the graph).)
     int nrDegs = degCnt.Len();
     double totalFreq;
     for (int i = 0; i < nrDegs; i += 1) {
@@ -29,7 +30,7 @@ static double Entropy(TVec<TPair<TInt, TInt> > degCnt) {
         totalFreq += freq;
     }
 
-    // Compute and return Shannon's entropy.
+    // Compute and return Shannon's entropy, normalized.
     double sum = 0.0;
     for (int i = 0; i < nrDegs; i += 1) {
         int freq = degCnt[i].Val2;
