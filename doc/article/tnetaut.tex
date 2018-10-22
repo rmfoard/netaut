@@ -62,6 +62,9 @@
 
 \usepackage{makecell}
 
+\usepackage{floatrow} % for side-by-side figures
+\usepackage{mwe}
+
 \title{Emergence in Network Automata}
 \author{Richard Foard}
 \date{7 October 2018}  % if the \date{} command is left out, the current date will be used
@@ -151,7 +154,7 @@ statistical and graphic snapshots from individual runs.
 \begin{marginfigure}
 \hspace{3em}
 \includegraphics[width=2.5cm]{evol2a_4.ps}
-\caption{Four iterations of machine \textbf{C}, rule fixrule,
+\caption{Four iterations of machine \textbf{C}, rule 509914832650994,
 beginning with a randomly generated 32-node graph and terminating in a
 static configuration.}
 \end{marginfigure}
@@ -446,13 +449,7 @@ more likely. The number of multi-edges \textbf{C} produces, on the other hand,
 is determined by the rule under which it runs, and consequently varies widely as
 the machine is run with different rules.
 
-<Compare cycling behaviors. ?Cycle lengths vs nr iterations?>
-
-<Explain why further investigation of the *M machines was dropped.>
-
-<Discuss collapse shapes, R vs C.>
-
-%\clearpage
+\clearpage
 
 \begin{table}
 \centering
@@ -499,23 +496,17 @@ LastTopic & \\ \bottomrule
 \label{tab:TabQ}
 \end{table}
 
-\begin{marginfigure}
-  \vspace{-4.5cm}
-  \includegraphics{outcomes-nriter-avg.png} \\
-  \caption{Average number of iterations for machine \textbf{C} (cycling),
-\textbf{C} (collapsing), and \textbf{R} (collapsing).}
-  \label{fig:OutcomesNriter}
-\end{marginfigure}
+Some gratuitous text.
 
-\begin{marginfigure}
-  \vspace{1cm}
-  \includegraphics{outcomes-finnn-dist.png} \\
-  \caption{Distribution of terminal graph sizes for machine \textbf{C} (cycling),
-\textbf{C} (collapsing), and \textbf{R} (collapsing) with initial graph size 1031.}
-  \label{fig:OutcomesFinnn}
-\end{marginfigure}
-
-\clearpage
+\begin{figure}[!h]
+   \begin{floatrow}
+\ffigbox{\includegraphics[width=\linewidth]{outcomes-nriter-avg.png}}%
+    {\caption{Average number of iterations for machine \textbf{C} (cycling), \textbf{C} (collapsing), and \textbf{R} (collapsing).}\label{fig:OutcomesNriter}}
+\hfill
+\ffigbox{\includegraphics[width=\linewidth]{outcomes-finnn-dist.png}}%
+    {\caption{Distribution of terminal graph sizes for machine \textbf{C} (cycling), \textbf{C} (collapsing), and \textbf{R} (collapsing) with initial graph size 1031.}\label{fig:OutcomesFinnn}}
+    \end{floatrow}
+\end{figure}
 
 \begin{marginfigure}
   \vspace{1cm}
