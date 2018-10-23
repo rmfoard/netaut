@@ -16,13 +16,14 @@ p <- ggplot() +
     ) +
     scale_color_manual(values=c("blue", "red")) +
     theme(
-        plot.title=element_text(hjust=0.5, size=16),
-        plot.subtitle=element_text(hjust=0.5),
-        legend.title.align=0.5
+        legend.title=element_text(size=18),
+        legend.text=element_text(size=14),
+        axis.title=element_text(size=20),
+        legend.title.align=0.5,
+        axis.line = element_line(color="gray"),
+        panel.background=element_blank()
     ) +
     labs(
-        title=paste("Distribution of terminal clustering coefficient"),
-        subtitle=paste("[outcomes-acc-dist]"),
         x="Terminal average clustering coefficient"
     )
 

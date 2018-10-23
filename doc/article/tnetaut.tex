@@ -467,16 +467,20 @@ Graph Size} &
 \makecell[tl]{
 Between \textbf{C} and \textbf{R} runs ending in collapse, \\%
 \textbf{C} runs average nearly twice the number of \\%
-iterations (Figure \ref{fig:OutcomesNriter}) and end with much higher \\%
-pre-collapse node counts (Figure \ref{fig:OutcomesFinnn}). They \\%
-run longer and "fall farther." \\%
+iterations (Figure \ref{fig:OutcomesNriterAvg}) and end with much higher \\%
+pre-collapse node counts (Figure \ref{fig:OutcomesFinnnDist}). They \\%
+run longer and their node counts \\%
+"fall farther" when they collapse. \\%
+\\%
 \textbf{C} runs that end in state cycles terminate \\%
 with higher average node counts than \\%
-those for collapsing runs, but average more \\%
-than twice the run length. \\%
-Longer cycling \textbf{C} runs correlate with larger \\%
-terminal graphs until terminal size \\%
-approaches initial size, at which point \\%
+those for collapsing runs, despite \\%
+averaging more than twice the run length. \\%
+\\%
+Machine \textbf{C} runs lengths correlate \\%
+with terminal graphs sizes except in \\%
+the case of the largest sizes, which tend \\%
+to be produced in somewhat shorter runs. \\%
 run lengths decrease somewhat (Figure \ref{fig:NriterXFinnn})} \\
 
 \vspace{2mm}
@@ -487,8 +491,8 @@ Coefficient} &
 \makecell[tl]{
 Terminal clustering coefficients for \\%
 machine \textbf{C} are smaller than \\%
-those for \textbf{R} inthe large majority \\%
-of cases (Figure \ref{fig:figDd1024}).} \\
+those for \textbf{R} in the large majority \\%
+of cases (Figure \ref{fig:OutcomesAccDist}).} \\
 
 \vspace{2mm}
 LastTopic & \\ \bottomrule
@@ -496,24 +500,21 @@ LastTopic & \\ \bottomrule
 \label{tab:TabQ}
 \end{table}
 
-Some gratuitous text.
+\begin{marginfigure}
+  \vspace{-8cm}
+  \includegraphics{outcomes-acc-dist.png} \\
+  \caption{Distribution of terminal average clustering coefficients for machine \textbf{C} (cycling), \textbf{C} (collapsing), and \textbf{R} (collapsing).}\label{fig:OutcomesAccDist}
+\end{marginfigure}
 
 \begin{figure}[!h]
    \begin{floatrow}
 \ffigbox{\includegraphics[width=\linewidth]{outcomes-nriter-avg.png}}%
-    {\caption{Average number of iterations for machine \textbf{C} (cycling), \textbf{C} (collapsing), and \textbf{R} (collapsing).}\label{fig:OutcomesNriter}}
+    {\caption{Average number of iterations for machine \textbf{C} (cycling), \textbf{C} (collapsing), and \textbf{R} (collapsing).}\label{fig:OutcomesNriterAvg}}
 \hfill
 \ffigbox{\includegraphics[width=\linewidth]{outcomes-finnn-dist.png}}%
-    {\caption{Distribution of terminal graph sizes for machine \textbf{C} (cycling), \textbf{C} (collapsing), and \textbf{R} (collapsing) with initial graph size 1031.}\label{fig:OutcomesFinnn}}
+    {\caption{Distribution of terminal graph sizes for machine \textbf{C} (cycling), \textbf{C} (collapsing), and \textbf{R} (collapsing) with initial graph size 1031.}\label{fig:OutcomesFinnnDist}}
     \end{floatrow}
 \end{figure}
-
-\begin{marginfigure}
-  \vspace{1cm}
-  \includegraphics{figDd1024.png} \\
-  \caption{Clustering...}
-  \label{fig:figDd1024}
-\end{marginfigure}
 
 \begin{figure}
 \centering
