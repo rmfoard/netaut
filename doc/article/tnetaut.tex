@@ -62,6 +62,9 @@
 
 \usepackage{makecell}
 
+\usepackage{floatrow} % for side-by-side figures
+\usepackage{mwe}
+
 \title{Emergence in Network Automata}
 \author{Richard Foard}
 \date{7 October 2018}  % if the \date{} command is left out, the current date will be used
@@ -151,7 +154,7 @@ statistical and graphic snapshots from individual runs.
 \begin{marginfigure}
 \hspace{3em}
 \includegraphics[width=2.5cm]{evol2a_4.ps}
-\caption{Four iterations of machine \textbf{C}, rule fixrule,
+\caption{Four iterations of machine \textbf{C}, rule 509914832650994,
 beginning with a randomly generated 32-node graph and terminating in a
 static configuration.}
 \end{marginfigure}
@@ -244,18 +247,19 @@ The replacement edge destinations (Figure \ref{fig:Sixlabeled}) are each one of:
 \end{itemize}
 \vspace{2mm}
 A rule might be represented symbolically as a set of triples
-(\textit{new left-edge destination},
-\textit{new right-edge destination},
-\textit{new node state}), for example:
+(\textit{<new left-edge destination>},
+\textit{<new right-edge destination>},
+\textit{<new node state>}), for example:
 \[
-\aunderbrace[l1r]{L,L,B}_{0}; \aunderbrace[l1r]{R,RR,W}_{1}; \aunderbrace[l1r]{L,R,W}_{2}; \aunderbrace[l1r]{LL,R,B}_{3}; \aunderbrace[l1r]{L,LL,B}_{4}; \aunderbrace[l1r]{RL,RR,W}_{5}; \aunderbrace[l1r]{RR,RR,B}_{6}; \aunderbrace[l1r]{R,L,B}_{7}
+\aunderbrace[l1r]{(L,L,B)}_{0}\aunderbrace[l1r]{(R,RR,W)}_{1}\aunderbrace[l1r]{(L,R,W)}_{2}\aunderbrace[l1r]{(LL,R,B)}_{3}\aunderbrace[l1r]{(L,LL,B)}_{4}\aunderbrace[l1r]{(RL,RR,W)}_{5}\aunderbrace[l1r]{(RR,RR,B)}_{6}\aunderbrace[l1r]{(R,L,B)}_{7}
 \]
-in which each semicolon-separated substring is a rule-part to be applied at nodes having a
+in which each triple is a rule-part to be applied at nodes having a
 triad state equal to the part's index position in the rule string. For coding purposes, rule
 numbers are carried as mixed-radix integers between 0 and
 $(6 \times 6 \times 2)^8 = 722,204,136,308,736$.
 
 \begin{marginfigure}
+\vspace{-5mm}
 \hspace{-2em}
 \includegraphics[height=3cm]{sixlabeled.ps}
 \caption{The six possible new destinations for node \textbf{*}'s out-edges}
@@ -354,7 +358,7 @@ Constituent packages. How parameter values were selected and varied.
 Our first task was to understand the characteristic behaviors of each
 machine, comparing the machines and their random counterparts.
 In this section, a survey of qualitative and quantitative simulation results is
-presented, followed by sections on more specific aspects of behavior.
+presented, followed by an examination of more specific aspects of behavior.
 
 \subsection{Summary of Terminal Outcomes---Cycles and Collapses}
 
@@ -445,13 +449,7 @@ more likely. The number of multi-edges \textbf{C} produces, on the other hand,
 is determined by the rule under which it runs, and consequently varies widely as
 the machine is run with different rules.
 
-<Compare cycling behaviors. ?Cycle lengths vs nr iterations?>
-
-<Explain why further investigation of the *M machines was dropped.>
-
-<Discuss collapse shapes, R vs C.>
-
-%\clearpage
+\clearpage
 
 \begin{table}
 \centering
@@ -469,43 +467,54 @@ Graph Size} &
 \makecell[tl]{
 Between \textbf{C} and \textbf{R} runs ending in collapse, \\%
 \textbf{C} runs average nearly twice the number of \\%
-iterations (Figure \ref{fig:OutcomesNriter}) and end with much higher \\%
-pre-collapse node counts (Figure \ref{fig:OutcomesFinnn}). They \\%
-run longer and "fall farther." \\%
+iterations (Figure \ref{fig:OutcomesNriterAvg}) and end with much higher \\%
+pre-collapse node counts (Figure \ref{fig:OutcomesFinnnDist}). They \\%
+run longer and their node counts \\%
+"fall farther" when they collapse. \\%
+\\%
 \textbf{C} runs that end in state cycles terminate \\%
-with average node counts nearly identical with \\%
-those for collapsing runs, but average more \\%
-than twice the run length, suggesting that ...} \\
+with higher average node counts than \\%
+those for collapsing runs, despite \\%
+averaging more than twice the run length. \\%
+\\%
+Machine \textbf{C} runs lengths correlate \\%
+with terminal graphs sizes except in \\%
+the case of the largest sizes, which tend \\%
+to be produced in somewhat shorter runs. \\%
+run lengths decrease somewhat (Figure \ref{fig:NriterXFinnn})} \\
 
-\# Iterations & \\
+\vspace{2mm}
+\makecell[tl]{
+Average \\%
+Clustering \\%
+Coefficient} &
+\makecell[tl]{
+Terminal clustering coefficients for \\%
+machine \textbf{C} are smaller than \\%
+those for \textbf{R} in the large majority \\%
+of cases (Figure \ref{fig:OutcomesAccDist}).} \\
 
-\# Terminal & \\ \bottomrule
+\vspace{2mm}
+LastTopic & \\ \bottomrule
 \end{tabular}
 \label{tab:TabQ}
 \end{table}
 
 \begin{marginfigure}
-  \vspace{-4.5cm}
-  \includegraphics{outcomes-nriter-avg.png} \\
-  \caption{Average number of iterations for machine \textbf{C} (cycling),
-\textbf{C} (collapsing), and \textbf{R} (collapsing).}
-  \label{fig:OutcomesNriter}
+  \vspace{-8cm}
+  \includegraphics{outcomes-acc-dist.png} \\
+  \caption{Distribution of terminal average clustering coefficients for machine \textbf{C} (cycling), \textbf{C} (collapsing), and \textbf{R} (collapsing).}\label{fig:OutcomesAccDist}
 \end{marginfigure}
 
-\begin{marginfigure}
-  \vspace{1cm}
-  \includegraphics{outcomes-finnn-dist.png} \\
-  \caption{Distribution of terminal graph sizes for machine \textbf{C} (cycling),
-\textbf{C} (collapsing), and \textbf{R} (collapsing) with initial graph size 1031.}
-  \label{fig:OutcomesFinnn}
-\end{marginfigure}
-
-\clearpage
-
-\subsection{Number of Iterations and Terminal Graph Size}
-
-There is remarkable consistency in the way that terminal graph size varies
-with number of iterations, cycling vs. collapsing outcomes (Figure \ref{fig:NriterXFinnn}.
+\begin{figure}[!h]
+   \begin{floatrow}
+\ffigbox{\includegraphics[width=\linewidth]{outcomes-nriter-avg.png}}%
+    {\caption{Average number of iterations for machine \textbf{C} (cycling), \textbf{C} (collapsing), and \textbf{R} (collapsing).}\label{fig:OutcomesNriterAvg}}
+\hfill
+\ffigbox{\includegraphics[width=\linewidth]{outcomes-finnn-dist.png}}%
+    {\caption{Distribution of terminal graph sizes for machine \textbf{C} (cycling), \textbf{C} (collapsing), and \textbf{R} (collapsing) with initial graph size 1031.}\label{fig:OutcomesFinnnDist}}
+    \end{floatrow}
+\end{figure}
 
 \begin{figure}
 \centering
@@ -515,17 +524,19 @@ cycling and collapsing outcomes for varied initial graph sizes}
   \label{fig:NriterXFinnn}
 \end{figure}
 
-\subsection{Cascade Dynamics}
+\subsection{Cascade and Collapse Dynamics}
 
-There are striking differences in way that pruning shrinks the graph.
+There are striking differences in way that pruning shrinks the graph
+under machine \textbf{C} versus with machine \textbf{R}.
 Figures \ref{fig:RCollapseDynamics} and \ref{fig:CCollapseDynamics} each
-show the progressive reduction of graph size in machines \textbf{R}
-and \textbf{C}, respectively.
+show the progressive reductions in graph size. \textbf{R}'s graphs
+shrink in regular, linear fashion while \textbf{C}'s node counts
+step down in increments that vary widely from one to the next.
 
 \begin{figure}[htb]
 %\centering
 %\includegraphics[height=10cm]{rcol_stepdown.png}
-\includegraphics[width=4cm]{rcol_stepdown.png}
+\includegraphics{rcol_stepdown.png}
 \caption{Decrease in machine \textbf{R} graph size for 16 10-iteration runs
 on a 521-node graph with collapsing outcomes}
 \label{fig:RCollapseDynamics}
@@ -534,15 +545,20 @@ on a 521-node graph with collapsing outcomes}
 \begin{figure}[htb]
 %\centering
 %\includegraphics[height=10cm]{ccol_stepdown.png}
-\includegraphics[width=4cm]{ccol_stepdown.png}
-\caption{Decrease in machine \textbf{C} graph size for 16 10-iteration runs
+\includegraphics{ccol_stepdown.png}
+\caption{Change in machine \textbf{C} graph size for 16 10-iteration runs
 on a 521-node graph with collapsing outcomes}
 \label{fig:CCollapseDynamics}
 \end{figure}
 
+Graph size reduction in \textbf{C} runs that cycle step down in a similarly
+irregular pattern. (Here we need to investigate the distribution of the
+increments and draw parallels with other progressions as appropriate. Are
+these like sandpiles?)
+
 \begin{figure}[htb]
 \includegraphics[height=10cm]{ccyc_stepdown.png}
-\caption{Decrease in machine \textbf{C} graph size for 16 10-iteration runs
+\caption{Change in machine \textbf{C} graph size for 16 10-iteration runs
 on a 521-node graph with cycling outcomes}
 \label{fig:CCyclingDynamics}
 \end{figure}
@@ -585,11 +601,6 @@ random graph as soon as the first iteration is finished.
 \subsection{Sensitivity to Initial Conditions}
 
 \subsection{Degree Distribution}
-
-\subsection{Clustering}
-
-%Terminal clustering coefficients for machine \textbf{C} are smaller than those for \textbf{R} in
-%the large majority of cases (Figure \ref{fig:figDd1024}).
 
 This is where things get more interesting.
 
