@@ -20,6 +20,7 @@ To provision for generating netaut/hellosnap:
 -   cd snap
 -   make all
 ----(following Ubuntu upgrade -> 18)
+-   re-clone snap from github
 -   apply source patch to .../glib-core/bd.cpp, as documented in:
     https://github.com/jamen/snap/commit/7cfd9f09d51137f0b86967fcad43ce2ce95317a0
 -   (then re-make)
