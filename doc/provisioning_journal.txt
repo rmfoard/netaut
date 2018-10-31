@@ -137,6 +137,14 @@ To provision for generating netaut/hellosnap:
     - sudo apt-get install texlive-full
     - sudo apt-get install texmaker
     - sudo apt install xpdf
+----(following Ubuntu upgrade -> 18)
+-   in /usr/share/ghostscript/9.25/
+    (confirm that iccprofiles is an empty file, then)
+    sudo su
+    rm -r iccprofiles
+    ln -s /usr/share/color/icc/ghostscript iccprofiles
+    (I also did sudo apt install icc-profiles, not sure if it was a necessary prereq, though)
+----
 
 - install the 'exportasimages' extension to libreoffice Impress
     - search 'libreoffice exportasimages' to reach libreoffice.org site for extensions
