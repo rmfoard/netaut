@@ -4,11 +4,13 @@ To provision for generating netaut/hellosnap:
 
 - (install git, vim)
 
-- git config --global push.default simple
+-   git config --global push.default simple
+-   git config --global user.email "you@example.com"
+-   git config --global user.name "Your Name"
 
 - sudo apt install libpng-dev
 
-- download graphviz...gz
+- download graphviz...gz /* sudo apt install graphviz works, too! */
 -   gunzip ...gz
 -   tar xvf ...tar
 -   cd graphviz...
@@ -25,8 +27,6 @@ To provision for generating netaut/hellosnap:
     https://github.com/jamen/snap/commit/7cfd9f09d51137f0b86967fcad43ce2ce95317a0
 -   (then re-make)
 ----
-
-- sudo apt install gnuplot
 
 - (for graph-tool)
 -   add to /etc/apt/source-list
@@ -100,7 +100,7 @@ To provision for generating netaut/hellosnap:
         (in one case, 'make' still complained it was missing, so I
         re-./configure'ed using --disable-documentation
     - clone libpqxx from GitHub
-    - ./configure;make;make install
+    - ./configure;make;sudo make install
     - (for Makefile)
         - LIBS += lpqxx lpq (order matters!)
         - -I<include path is ~/libpqxx/include>
@@ -137,6 +137,14 @@ To provision for generating netaut/hellosnap:
     - sudo apt-get install texlive-full
     - sudo apt-get install texmaker
     - sudo apt install xpdf
+----(following Ubuntu upgrade -> 18)
+-   in /usr/share/ghostscript/9.25/
+    (confirm that iccprofiles is an empty file, then)
+    sudo su
+    rm -r iccprofiles
+    ln -s /usr/share/color/icc/ghostscript iccprofiles
+    (I also did sudo apt install icc-profiles, not sure if it was a necessary prereq, though)
+----
 
 - install the 'exportasimages' extension to libreoffice Impress
     - search 'libreoffice exportasimages' to reach libreoffice.org site for extensions
