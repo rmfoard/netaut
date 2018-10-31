@@ -21,6 +21,7 @@ CXXFLAGS += -O0 -fopenmp
 # turn on for crash debugging, get symbols with <prog> 2>&1 | c++filt
 CXXFLAGS += -g -rdynamic
 CXXFLAGS += -ggdb
+CXXFLAGS += -fPIC
 # turn on for OpenMP
 CXXOPENMP = 
 LDFLAGS +=

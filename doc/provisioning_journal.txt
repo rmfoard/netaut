@@ -19,6 +19,11 @@ To provision for generating netaut/hellosnap:
 - clone SNAP from Github into ~/snap
 -   cd snap
 -   make all
+----(following Ubuntu upgrade -> 18)
+-   apply source patch to .../glib-core/bd.cpp, as documented in:
+    https://github.com/jamen/snap/commit/7cfd9f09d51137f0b86967fcad43ce2ce95317a0
+-   (then re-make)
+----
 
 - sudo apt install gnuplot
 
@@ -46,6 +51,12 @@ To provision for generating netaut/hellosnap:
 -   the install step places a copy of libjsoncpp.a in /usr/lib/local, which is typically in ld's default search path
         (if not, edit ~/etc/ld.so.conf, which refs include's in /etc/ld.so.conf.d/, then refresh cache w/ldconfig)
 -   generate as in `g++ -std=c++11 myapp.cpp -ljsoncpp`
+----(following Ubuntu upgrade -> 18)
+-   Edit ~/jsoncpp/CMakelists.txt to include the lines:
+    # Added by RMF after upgrade to Ubuntu 18
+    SET(CMAKE_POSITION_INDEPENDENT_CODE ON)
+    # End of addition
+----
 
 - do not forget -std=c++11
 
