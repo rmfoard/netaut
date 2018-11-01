@@ -1,0 +1,61 @@
+Request for Extension of Funding
+Network Automata and Emergent Phenomena
+(I524L.0.0.0.3, concluded 10/31/2018)
+
+This IRAD project was initially funded at $15,000, for a period of performance
+ending October 31, 2018. I write to request a funding extension of $15,000, to
+cover additional research over a period ending March 31, 2019.
+
+
+Project Summary:
+
+Simple network automata, similar to cellular machines but using a notion of
+adjacency defined topologically rather than geometrically, are defined and
+simulated under a variety of initial conditions and generation rules.
+Their operation is characterized statistically, over large aggregates of simu-
+lation outcome data, and analytically, by inspection of noteworthy cases.
+
+
+Accomplished to date:
+
+- Defined a abstract, rule-based graph automaton for study*
+
+- Built an extensible simulator
+    - for the target machine
+    - for a randomly operating counterpart machine (for comparative analyses)
+
+- Created an automated workflow and data base for generating and storing
+simulation results in volume.
+
+- Captured outcome statistics from several million simulation runs.
+
+- Observed the emergence of order and structure out of random networks
+using varied generation rules, as measured for entropy, clustering, degree
+distribution, and other network qualities, with relatively low sensitivity to
+changes in initial conditions.
+
+- Failed to see among the machine-evolved graphs the "scale-free" degree
+distribution that characterizes many natural and man-made systems.
+
+
+Additional funding would support labor by the primary researcher and GTRI
+collaborators to:
+
+- Gauge the ability of machine learning methods to predict a simulation's
+outcome, given its initial rule-parameter.
+
+- Determine the applicability of select mathematical constructs, such as
+the sandpile model, to machine characteristics.
+
+- Explore search strategies within the machine's discrete, irregular,
+8-dimensional rule-space for rules with desirable behaviors.
+
+
+Contact Information:
+
+    Richard Foard (offices CRB 279A, WF 910)
+    richard.foard@gtri.gatech.edu
+    404-281-3487
+
+
+* A detailed machine description is attached.
