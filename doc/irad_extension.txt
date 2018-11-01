@@ -1,4 +1,4 @@
-Request for Extension of Funding
+Request for Extension of IRAD Funding
 Network Automata and Emergent Phenomena
 (I524L.0.0.0.3, concluded 10/31/2018)
 
@@ -14,6 +14,10 @@ adjacency defined topologically rather than geometrically, are defined and
 simulated under a variety of initial conditions and generation rules.
 Their operation is characterized statistically, over large aggregates of simu-
 lation outcome data, and analytically, by inspection of noteworthy cases.
+The research objective is to assess the potential of these and similar
+machines to serve in novel models of natural and social processes.
+By-products include a toolset with extended usefulness and the accumulation
+of a base of familiarity with, and knowledge in, the domain.
 
 
 Accomplished to date:
@@ -22,16 +26,16 @@ Accomplished to date:
 
 - Built an extensible simulator
     - for the target machine
-    - for a randomly operating counterpart machine (for comparative analyses)
+    - for a like-structured, randomly operating machine (for comparative analyses)
 
 - Created an automated workflow and data base for generating and storing
 simulation results in volume.
 
 - Captured outcome statistics from several million simulation runs.
 
-- Observed the emergence of order and structure out of random networks
+- Observed the emergence of order and structure out of random graphs, 
 using varied generation rules, as measured for entropy, clustering, degree
-distribution, and other network qualities, with relatively low sensitivity to
+distribution, and other network qualities. Noted relatively low sensitivity to
 changes in initial conditions.
 
 - Failed to see among the machine-evolved graphs the "scale-free" degree
@@ -41,14 +45,14 @@ distribution that characterizes many natural and man-made systems.
 Additional funding would support labor by the primary researcher and GTRI
 collaborators to:
 
-- Gauge the ability of machine learning methods to predict a simulation's
-outcome, given its initial rule-parameter.
+- Gauge the ability of machine learning methods to predict a machine's
+behavior, given its initial rule-parameter.
 
-- Determine the applicability of select mathematical constructs, such as
-the sandpile model, to machine characteristics.
+- Determine the applicability of mathematical constructs such as
+the sandpile model to machine characteristics.
 
 - Explore search strategies within the machine's discrete, irregular,
-8-dimensional rule-space for rules with desirable behaviors.
+8-dimensional rule-space for rules producing desirable behaviors.
 
 
 Contact Information:
