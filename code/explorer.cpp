@@ -21,7 +21,7 @@
 #include "machine2D.h"
 #include "machineR.h"
 
-#define VERSION "V181015.0"
+#define VERSION "V181109.0"
 
 //---------------
 // Command option settings
@@ -34,6 +34,7 @@ struct CommandOpts {
     int extendId;
     int printTape;
     int noWriteEndGraph;
+    int noChangeTopo;
     int nrNodes;
     int graphWriteStart;
     int graphWriteStride;
@@ -87,6 +88,7 @@ static struct option long_options[MAX_COMMAND_OPTIONS] = {
     {"no-console", no_argument, &cmdOpt.noConsole, 1},
     {"extend-id", no_argument, &cmdOpt.extendId, 1},
     {"no-write-end-graph", no_argument, &cmdOpt.noWriteEndGraph, 1},
+    {"no-change-topo", no_argument, &cmdOpt.noChangeTopo, 1},
     {"print-tape", no_argument, &cmdOpt.printTape, 1},
 
     {"cycle-check-depth", required_argument, 0, CO_CYCLE_CHECK_DEPTH},
@@ -348,6 +350,12 @@ void ParseCommand(const int argc, char* argv[]) {
         errorFound = true;
     }
 
+    if ((cmdOpt.machineTypeName == "R"|| cmdOpt.machineTypeName == "RM")
+      && cmdOpt.noChangeTopo) {
+        std::cerr << "error: --no-change-topo is not sensible for R* machine types" << std::endl;
+        errorFound = true;
+    }
+
     if (errorFound) exit(1);
 
     // Adjust --stat-start if user specified zero (0th is written unconditionally)
@@ -592,7 +600,7 @@ int main(const int argc, char* argv[]) {
 
     // Create the machine.
     m->BuildMachine(cmdOpt.ruleNr, cmdOpt.nrNodes, cmdOpt.cycleCheckDepth,
-      cmdOpt.tapeStructure, cmdOpt.tapePctBlack,cmdOpt.topoStructure);
+      cmdOpt.tapeStructure, cmdOpt.tapePctBlack, cmdOpt.topoStructure, cmdOpt.noChangeTopo);
 
     // Fabricate a run identifier.
     runId = RunId(m->get_machineType(), cmdOpt.ruleNr);

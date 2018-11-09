@@ -20,12 +20,13 @@ Machine::~Machine() {}
 
 //---------------
 void Machine2D::BuildMachine(rulenr_t ruleNr, int nrNodes, int cycleCheckDepth,
-  std::string tapeStructure, int tapePctBlack, std::string topoStructure) {
+  std::string tapeStructure, int tapePctBlack, std::string topoStructure, int noChangeTopo) {
     assert(m_machineType == "C" || m_machineType == "CM");
 
     m_rule = new Rule(ruleNr);
     m_ruleParts = m_rule->get_ruleParts();
     m_nrNodes = nrNodes;
+    m_noChangeTopo = noChangeTopo;
     m_cycleCheckDepth = cycleCheckDepth;
     m_graph = TNEGraph::New();
     m_nodeStates = new int[m_nrNodes];
@@ -117,12 +118,20 @@ void Machine2D::AdvanceNode(TNEGraph::TNodeI NIter) {
     // If applicable, confirm that the multi-edge invariant still holds.
     if (m_machineType == "C") assert(lNId != rNId);
 
-    // Apply the node action and note the provisional topological action
-    // in the scratchpad.
+    // Apply the node action.
     m_nextNodeStates[nNId] = nAction;
+
+    // If topological changes are disabled, just copy previous edges into
+    // the scratchpad. If not, note the provisional changes.
     assert(m_nextL[nNId] == -1 && m_nextR[nNId] == -1);
-    m_nextL[nNId] = newDsts[lAction];
-    m_nextR[nNId] = newDsts[rAction];
+    if (m_noChangeTopo) {
+        m_nextL[nNId] = newDsts[LEDGE];
+        m_nextR[nNId] = newDsts[REDGE];
+    }
+    else {
+        m_nextL[nNId] = newDsts[lAction];
+        m_nextR[nNId] = newDsts[rAction];
+    }
 
     delete newDsts;
 }
