@@ -22,7 +22,7 @@ public:
 
     MachineR(std::string type) : Machine() { m_machineType = type; };
     ~MachineR();
-    virtual void BuildMachine(rulenr_t, int, int, std::string, int, std::string);
+    virtual void BuildMachine(rulenr_t, int, int, std::string, int, std::string, int);
     virtual PNEGraph get_graph();
     virtual int* get_nodeStates();
     virtual int IterateMachine(int);
