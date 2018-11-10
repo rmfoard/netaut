@@ -191,3 +191,11 @@ To provision for generating netaut/hellosnap:
 - install mhash library
     - downloaded mhash from sourceforge
     - gunzip, tar xvf, ./configure, make
+
+--------------------------------
+After installing Ubuntu 18.04 on OfficeTower, graphic UI failed.
+sudo apt update
+sudo apt upgrade
+sudo apt install lightdm
+sudo systemctl set-default lightdm (or maybe lightdm.target?)
+reboot everything
