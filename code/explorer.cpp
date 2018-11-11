@@ -21,7 +21,7 @@
 #include "machine2D.h"
 #include "machineR.h"
 
-#define VERSION "V181109.0"
+#define VERSION "V181110.0"
 
 //---------------
 // Command option settings
@@ -50,6 +50,7 @@ struct CommandOpts {
     std::string recordName;
     std::string graphFileSuffix;
     std::string writeAsName;
+    std::string writeTapeName;
     char* ruleText;
     std::string tapeStructure;
     std::string topoStructure;
@@ -80,7 +81,8 @@ static std::string runId;
 #define CO_INIT_TAPE 1004
 #define CO_INIT_TOPO 1005
 #define CO_TAPE_PCT_BLACK 1006
-#define CO_WRITE_AS 1007
+#define CO_WRITE_GRAPH_AS 1007
+#define CO_WRITE_TAPE_AS 1014
 #define CO_RECORD 1013
 #define CO_NOOP 1008
 
@@ -109,7 +111,8 @@ static struct option long_options[MAX_COMMAND_OPTIONS] = {
     {"stat-start", required_argument, 0, CO_STAT_START},
     {"stat-stride", required_argument, 0, CO_STAT_STRIDE},
     {"stat-stop", required_argument, 0, CO_STAT_STOP},
-    {"write-as", required_argument, 0, CO_WRITE_AS},
+    {"write-graph-as", required_argument, 0, CO_WRITE_GRAPH_AS},
+    {"write-tape-as", required_argument, 0, CO_WRITE_TAPE_AS},
     {"record", required_argument, 0, CO_RECORD},
 
     {"help", no_argument, 0, CO_HELP},
@@ -165,6 +168,7 @@ void ParseCommand(const int argc, char* argv[]) {
     cmdOpt.machineTypeName = "";
     cmdOpt.graphFileSuffix = "";
     cmdOpt.writeAsName = "";
+    cmdOpt.writeTapeName = "";
     cmdOpt.recordName = "";
     cmdOpt.ruleText = NULL;
     cmdOpt.tapeStructure = "single-center";
@@ -296,8 +300,12 @@ void ParseCommand(const int argc, char* argv[]) {
             tapePctBlackSpecified = true;
             break;
 
-          case CO_WRITE_AS:
+          case CO_WRITE_GRAPH_AS:
             cmdOpt.writeAsName = optarg;
+            break;
+
+          case CO_WRITE_TAPE_AS:
+            cmdOpt.writeTapeName = optarg;
             break;
 
           case CO_RECORD:
@@ -433,6 +441,24 @@ void WriteGraph(Machine* m, const std::string graphFileSuffix,
 
     // Write state to the file (false => no labels provided).
     TSnap::SaveGViz(m->get_graph(), stateFName.c_str(), TStr(description.c_str()), false, nodeColorHash);
+}
+
+//---------------
+// WriteTape
+//
+// Add the current tape state to a text file.
+//---------------
+static
+void WriteTape(Machine* m, const std::string tapeFileName) {
+    std::ofstream tapeFile;
+
+    tapeFile.open(tapeFileName, std::ios::out | std::ios::app);
+    for (int i = 0; i < m->m_nrNodes; i += 1) {
+        if (i > 0) tapeFile << " ";
+        tapeFile << m->m_nodeStates[i];
+    }
+    tapeFile << std::endl;
+    tapeFile.close();
 }
 
 //---------------
@@ -627,6 +653,11 @@ int main(const int argc, char* argv[]) {
               && (iter - cmdOpt.graphWriteStart) % cmdOpt.graphWriteStride == 0) {
                 WriteGraph(m, cmdOpt.graphFileSuffix, iter, iter);
             }
+        }
+
+        // Write the tape state if specified.
+        if (cmdOpt.writeTapeName != "") {
+            WriteTape(m, cmdOpt.writeTapeName);
         }
 
         // Write a statistics snapshot if before iteration 0 or if specified.
