@@ -25,13 +25,13 @@ Accomplished to date:
 - Defined a abstract, rule-based graph automaton for study*
 
 - Built an extensible simulator
-    - for the target machine
-    - for a like-structured, randomly operating machine (for comparative analyses)
+    - for the target machines
+    - for a like-structured, randomly operating machines (for comparative analyses)
 
 - Created an automated workflow and data base for generating and storing
 simulation results in volume.
 
-- Captured outcome statistics from several million simulation runs.
+- Generated outcome statistics for several million simulation runs.
 
 - Observed the emergence of order and structure out of random graphs, 
 using varied generation rules, as measured for entropy, clustering, degree
@@ -48,11 +48,11 @@ collaborators to:
 - Gauge the ability of machine learning methods to predict a machine's
 behavior, given its initial rule-parameter.
 
-- Determine the applicability of mathematical constructs such as
-the sandpile model to machine characteristics.
+- Determine the applicability of mathematical constructs, such as
+the sandpile model, to machine characteristics.
 
-- Explore search strategies within the machine's discrete, irregular,
-8-dimensional rule-space for rules producing desirable behaviors.
+- Explore search strategies within the machine's enormous, discrete,
+irregular, 8-dimensional rule-space for rules producing desirable behaviors.
 
 
 Contact Information:

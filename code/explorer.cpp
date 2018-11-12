@@ -21,7 +21,7 @@
 #include "machine2D.h"
 #include "machineR.h"
 
-#define VERSION "V181110.0"
+#define VERSION "V181111.0"
 
 //---------------
 // Command option settings
@@ -35,6 +35,7 @@ struct CommandOpts {
     int printTape;
     int noWriteEndGraph;
     int noChangeTopo;
+    int tapeX;
     int nrNodes;
     int graphWriteStart;
     int graphWriteStride;
@@ -82,7 +83,6 @@ static std::string runId;
 #define CO_INIT_TOPO 1005
 #define CO_TAPE_PCT_BLACK 1006
 #define CO_WRITE_GRAPH_AS 1007
-#define CO_WRITE_TAPE_AS 1014
 #define CO_RECORD 1013
 #define CO_NOOP 1008
 
@@ -92,6 +92,7 @@ static struct option long_options[MAX_COMMAND_OPTIONS] = {
     {"no-write-end-graph", no_argument, &cmdOpt.noWriteEndGraph, 1},
     {"no-change-topo", no_argument, &cmdOpt.noChangeTopo, 1},
     {"print-tape", no_argument, &cmdOpt.printTape, 1},
+    {"tape-x", no_argument, &cmdOpt.tapeX, 1},
 
     {"cycle-check-depth", required_argument, 0, CO_CYCLE_CHECK_DEPTH},
     {"init-tape", required_argument, 0, CO_INIT_TAPE},
@@ -112,7 +113,6 @@ static struct option long_options[MAX_COMMAND_OPTIONS] = {
     {"stat-stride", required_argument, 0, CO_STAT_STRIDE},
     {"stat-stop", required_argument, 0, CO_STAT_STOP},
     {"write-graph-as", required_argument, 0, CO_WRITE_GRAPH_AS},
-    {"write-tape-as", required_argument, 0, CO_WRITE_TAPE_AS},
     {"record", required_argument, 0, CO_RECORD},
 
     {"help", no_argument, 0, CO_HELP},
@@ -153,6 +153,7 @@ void ParseCommand(const int argc, char* argv[]) {
     cmdOpt.noConsole = 0;
     cmdOpt.extendId = 0;
     cmdOpt.printTape = 0;
+    cmdOpt.tapeX = 0;
     cmdOpt.nrNodes = 256;
     cmdOpt.graphWriteStart = -1;
     cmdOpt.graphWriteStride = -1;
@@ -168,7 +169,6 @@ void ParseCommand(const int argc, char* argv[]) {
     cmdOpt.machineTypeName = "";
     cmdOpt.graphFileSuffix = "";
     cmdOpt.writeAsName = "";
-    cmdOpt.writeTapeName = "";
     cmdOpt.recordName = "";
     cmdOpt.ruleText = NULL;
     cmdOpt.tapeStructure = "single-center";
@@ -302,10 +302,6 @@ void ParseCommand(const int argc, char* argv[]) {
 
           case CO_WRITE_GRAPH_AS:
             cmdOpt.writeAsName = optarg;
-            break;
-
-          case CO_WRITE_TAPE_AS:
-            cmdOpt.writeTapeName = optarg;
             break;
 
           case CO_RECORD:
@@ -446,19 +442,19 @@ void WriteGraph(Machine* m, const std::string graphFileSuffix,
 //---------------
 // WriteTape
 //
-// Add the current tape state to a text file.
+// Print the current tape state to stderr.
 //---------------
 static
-void WriteTape(Machine* m, const std::string tapeFileName) {
-    std::ofstream tapeFile;
+void WriteTape(Machine* m, int tapeX) {
 
-    tapeFile.open(tapeFileName, std::ios::out | std::ios::app);
     for (int i = 0; i < m->m_nrNodes; i += 1) {
-        if (i > 0) tapeFile << " ";
-        tapeFile << m->m_nodeStates[i];
+        if (i > 0 && !tapeX) std::cerr << " ";
+        if (tapeX)
+            std::cerr << ((m->m_nodeStates[i]) ? "X" : " ");
+        else
+            std::cerr << m->m_nodeStates[i];
     }
-    tapeFile << std::endl;
-    tapeFile.close();
+    std::cerr << std::endl;
 }
 
 //---------------
@@ -656,9 +652,7 @@ int main(const int argc, char* argv[]) {
         }
 
         // Write the tape state if specified.
-        if (cmdOpt.writeTapeName != "") {
-            WriteTape(m, cmdOpt.writeTapeName);
-        }
+        if (cmdOpt.printTape) WriteTape(m, cmdOpt.tapeX);
 
         // Write a statistics snapshot if before iteration 0 or if specified.
         if (iter == 0) {
