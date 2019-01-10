@@ -1,1 +1,0 @@
-L,L,W;L,L,W;L,L,B;L,L,B;L,L,W;L,L,W;L,L,B;L,R,B
