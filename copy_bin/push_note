@@ -1,5 +1,0 @@
-curl -s \
-  --form-string "token=aemapsoea5hns9yms62ba2ms12c43i" \
-  --form-string "user=uuuuozupp7xe6zqzpom4jo69qgv1m1" \
-  --form-string "message=$1" \
-  https://api.pushover.net/1/messages.json
