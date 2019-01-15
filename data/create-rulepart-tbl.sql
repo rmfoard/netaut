@@ -1,9 +1,9 @@
 ---------------
--- ruleparts table: relates rulenr to its 8 rule-parts
+-- rulepart table: relates rulenr to its 8 rule-parts
 --
 ---------------
-CREATE TABLE ruleparts (
-    rulenr      bigint,
+CREATE TABLE crulepart (
+    rulenr      bigint NOT NULL PRIMARY KEY,
     rp7        integer,
     rp6        integer,
     rp5        integer,
