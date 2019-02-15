@@ -35,7 +35,7 @@ all: explorer
 $(CSNAP)/Snap.o:
 	$(MAKE) -C $(CSNAP)
 
-explorer: explorer.o machine.o machine.h machine2D.o machineR.o filter.o rule.o $(CSNAP)/Snap.o
+explorer: explorer.o machine.o machine2D.o machineR.o filter.o rule.o $(CSNAP)/Snap.o
 	$(CC) $(CXXFLAGS) -o $@ $@.o machine.o machine2D.o machineR.o filter.o rule.o $(CSNAP)/Snap.o $(LDFLAGS) $(LIBS)
 
 explorer.o: explorer.cpp machine.h machine2D.h machineR.h rule.h
