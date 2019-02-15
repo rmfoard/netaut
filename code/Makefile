@@ -30,40 +30,37 @@ LIBS += -lrt -ljsoncpp -lpthread -lpqxx -lpq
 
 ## Program-specific configuration
 
-DEMOS = \
-	demo \
-	\
-
-all: $(DEMOS)
-
-demo: demo.cpp $(CSNAP)/Snap.o
-	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
-
-ldtoy: ldtoy.o
-	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(LDFLAGS) $(LIBS)
-
-insEntropy: insEntropy.o
-	$(CC) $(CXXFLAGS) -o $@ $@.cpp -I$(CPQ) $(LDFLAGS) $(LIBS)
+all: explorer
 
 $(CSNAP)/Snap.o:
 	$(MAKE) -C $(CSNAP)
 
-explorer: explorer.cpp machine.cpp machine.h machine2D.cpp machine2D.h machineR.cpp machineR.h rule.h filter.o rule.o $(CSNAP)/Snap.o
-	$(CC) $(CXXFLAGS) -o $@ $@.cpp machine.cpp machine2D.cpp machineR.cpp filter.o rule.o $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) -I$(CBOOST) $(LDFLAGS) $(LIBS)
+explorer: explorer.o machine.o machine.h machine2D.o machineR.o filter.o rule.o $(CSNAP)/Snap.o
+	$(CC) $(CXXFLAGS) -o $@ $@.o machine.o machine2D.o machineR.o filter.o rule.o $(CSNAP)/Snap.o $(LDFLAGS) $(LIBS)
 
+explorer.o: explorer.cpp machine.h machine2D.h machineR.h rule.h
+	$(CC) $(CXXFLAGS) -c -o $@ explorer.cpp -I$(CSNAP) -I$(CGLIB) -I$(CBOOST)
+
+machine.o: machine.cpp rule.h machine.h
+	$(CC) $(CXXFLAGS) -c -o $@ machine.cpp -I$(CSNAP) -I$(CGLIB) -I$(CBOOST)
+
+machine2D.o: machine2D.cpp rule.h machine.h machine2D.h
+	$(CC) $(CXXFLAGS) -c -o $@ machine2D.cpp -I$(CSNAP) -I$(CGLIB) -I$(CBOOST)
+
+machineR.o: machineR.cpp rule.h machine.h machineR.h
+	$(CC) $(CXXFLAGS) -c -o $@ machineR.cpp -I$(CSNAP) -I$(CGLIB) -I$(CBOOST)
+
+# The following have not been audited/overhauled.
 randrule:	randrule.o
 	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(LDFLAGS) $(LIBS)
 
 rulesource:	rulesource.o
 	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(LDFLAGS) $(LIBS)
 
-toy:	toy.o
-	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(LDFLAGS) $(LIBS)
-
 txrule:	txrule.o rule.o
 	$(CC) $(CXXFLAGS) -o $@ $@.cpp rule.o $(LDFLAGS) $(LIBS)
 
-rule.o: rule.cpp rule.h
+rule.o: rule.cpp rule.h rulemask.h
 
 clean:
 	rm -f *.o $(DEMOS) rule
