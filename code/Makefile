@@ -50,6 +50,9 @@ machine2D.o: machine2D.cpp rule.h machine.h machine2D.h
 machineR.o: machineR.cpp rule.h machine.h machineR.h
 	$(CC) $(CXXFLAGS) -c -o $@ machineR.cpp -I$(CSNAP) -I$(CGLIB) -I$(CBOOST)
 
+runner.o: runner.cpp runner.h
+	$(CC) $(CXXFLAGS) -c -o $@ runner.cpp
+
 # The following have not been audited/overhauled.
 randrule:	randrule.o
 	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(LDFLAGS) $(LIBS)
