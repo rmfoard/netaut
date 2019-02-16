@@ -56,6 +56,9 @@ runner.o: runner.cpp runner.h
 searcher.o: searcher.cpp
 	$(CC) $(CXXFLAGS) -c -o $@ searcher.cpp -I$(CSNAP) -I$(CGLIB) -I$(CBOOST)
 
+searcher: searcher.o runner.o machine.o machine2D.o machineR.o filter.o rule.o $(CSNAP)/Snap.o
+	$(CC) $(CXXFLAGS) -o $@ $@.o machine.o machine2D.o machineR.o filter.o rule.o $(CSNAP)/Snap.o $(LDFLAGS) $(LIBS)
+
 # The following have not been audited/overhauled.
 randrule:	randrule.o
 	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(LDFLAGS) $(LIBS)
