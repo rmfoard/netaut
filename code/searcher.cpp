@@ -16,7 +16,6 @@
 #include <string>
 #include <vector>
 #include <json/json.h>
-#include "netaut.h"
 #include "rule.h"
 #include "machine.h"
 #include "machine2D.h"
