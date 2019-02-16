@@ -4,7 +4,6 @@
 #include <getopt.h>
 #include <json/json.h>
 #include "machine.h"
-#include "machine2D.h"
 
 //---------------
 class Machine2D : public Machine {

@@ -50,14 +50,16 @@ machine2D.o: machine2D.cpp rule.h machine.h machine2D.h
 machineR.o: machineR.cpp rule.h machine.h machineR.h
 	$(CC) $(CXXFLAGS) -c -o $@ machineR.cpp -I$(CSNAP) -I$(CGLIB) -I$(CBOOST)
 
-runner.o: runner.cpp runner.h
+runner.h: machine.h
+
+runner.o: runner.cpp runner.h netaut.h machine.h machine2D.h rule.h
 	$(CC) $(CXXFLAGS) -c -o $@ runner.cpp -I$(CSNAP) -I$(CGLIB) -I$(CBOOST)
 
-searcher.o: searcher.cpp
+searcher.o: searcher.cpp runner.h
 	$(CC) $(CXXFLAGS) -c -o $@ searcher.cpp -I$(CSNAP) -I$(CGLIB) -I$(CBOOST)
 
 searcher: searcher.o runner.o machine.o machine2D.o machineR.o filter.o rule.o $(CSNAP)/Snap.o
-	$(CC) $(CXXFLAGS) -o $@ $@.o machine.o machine2D.o machineR.o filter.o rule.o $(CSNAP)/Snap.o $(LDFLAGS) $(LIBS)
+	$(CC) $(CXXFLAGS) -o $@ $@.o runner.o machine.o machine2D.o machineR.o filter.o rule.o $(CSNAP)/Snap.o $(LDFLAGS) $(LIBS)
 
 # The following have not been audited/overhauled.
 randrule:	randrule.o

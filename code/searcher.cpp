@@ -298,44 +298,6 @@ void ParseCommand(const int argc, char* argv[]) {
     }
 
     // Check option consistency.
-    if ((cmdOpt.graphWriteStart >= 0 && cmdOpt.graphWriteStride < 0)
-      || (cmdOpt.graphWriteStart < 0 && cmdOpt.graphWriteStride >= 0)) {
-        std::cerr << "error: --graph-start and --graph-stride must both be specified" << std::endl;
-        errorFound = true;
-    }
-    if (cmdOpt.graphWriteStart >= 0 && cmdOpt.graphWriteStop < cmdOpt.graphWriteStart) {
-        std::cerr << "error: --graph-stop must be >= --graph-st" << std::endl;
-        errorFound = true;
-    }
-
-    if ((cmdOpt.statWriteStart >= 0 && cmdOpt.statWriteStride < 0)
-      || (cmdOpt.statWriteStart < 0 && cmdOpt.statWriteStride >= 0)) {
-        std::cerr << "error: --stat-start and --stat-stride must both be specified" << std::endl;
-        errorFound = true;
-    }
-    if (cmdOpt.statWriteStart >= 0 && cmdOpt.statWriteStop < cmdOpt.statWriteStart) {
-        std::cerr << "error: --stat-stop must be >= --stat-stop" << std::endl;
-        errorFound = true;
-    }
-
-    if (cmdOpt.recordName == "") {
-        std::cerr << "error: --record must be specified" << std::endl;
-        errorFound = true;
-    }
-
-    if (cmdOpt.machineTypeName != "C"
-      && cmdOpt.machineTypeName != "R"
-      && cmdOpt.machineTypeName != "CM"
-      && cmdOpt.machineTypeName != "RM") {
-        std::cerr << "error: --machine must be specified as C, R, CM, or RM" << std::endl;
-        errorFound = true;
-    }
-
-    if ((cmdOpt.machineTypeName == "R"|| cmdOpt.machineTypeName == "RM")
-      && cmdOpt.noChangeTopo) {
-        std::cerr << "error: --no-change-topo is not sensible for R* machine types" << std::endl;
-        errorFound = true;
-    }
 
     if (errorFound) exit(1);
 
@@ -378,9 +340,21 @@ std::string Compress(std::string in) {
 //---------------
 int main(const int argc, char* argv[]) {
 
-    cmdOpt.ruleNr = 15;
-
     // Parse the command.
     ParseCommand(argc, argv);
+
+    // Create a machine-runner.
+    Runner* r = new Runner(0000);
+
+    // Dispose of the machine-runner.
+    delete r;
+
+    // See if multiples hurt.
+    for (int i = 0; i < 100000; i += 1) {
+        r = new Runner(0001);
+        delete r;
+    }
+
+    std::cout << "finis." << std::endl;
     exit(0);
 }
