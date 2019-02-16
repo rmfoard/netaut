@@ -7,21 +7,22 @@
 #include <inttypes.h>
 #include <stdio.h>
 #include <stdint.h>
-#include <algorithm>
-#include <ctime>
-#include <chrono>
-#include <fstream>
+//#include <algorithm>
+//#include <ctime>
+//#include <chrono>
+//#include <fstream>
 #include <iostream>
 #include <limits>
 #include <string>
 #include <vector>
-#include <json/json.h>
-#include "rule.h"
-#include "machine.h"
-#include "machine2D.h"
-#include "machineR.h"
+//#include <json/json.h>
+#include "netaut.h"
+//#include "rule.h"
+//#include "machine.h"
+//#include "machine2D.h"
+//#include "machineR.h"
 
-#define VERSION "V181111.0"
+#define VERSION "V190216.0"
 
 //---------------
 // Command option settings
@@ -57,14 +58,6 @@ struct CommandOpts {
     std::string topoStructure;
 };
 static CommandOpts cmdOpt;
-
-// Output streams
-static std::ofstream recordSummOut;
-static std::ofstream recordIterOut;
-
-// Run identifier
-static std::string runId;
-
 
 //---------------
 // Command line parsing structure
@@ -121,23 +114,6 @@ static struct option long_options[MAX_COMMAND_OPTIONS] = {
 
 //---------------
 char* strAllocCpy(const char* src) { return strcpy(new char[strlen(src) + 1], src); }
-
-//---------------
-// RunId
-//---------------
-static
-std::string RunId(std::string machineType, rulenr_t ruleNr) {
-    std::time_t t = std::time(0);
-    std::tm* now = std::localtime(&t);
-    char* nowStr = strAllocCpy("yymmddhhmmss");
-    snprintf(nowStr, strlen(nowStr) + 1, "%02d%02d%02d%02d%02d%02d",
-      now->tm_year % 100, now->tm_mon+1, now->tm_mday,
-      now->tm_hour, now->tm_min, now->tm_sec);
-    return machineType
-      + "-" + std::to_string(ruleNr)
-      + "-" + std::string(nowStr)
-      + (cmdOpt.extendId ? ("-" + std::to_string(cmdOpt.randSeed)) : "");
-}
 
 //---------------
 // TODO: Learn where the hell 'optind' came from.
@@ -399,298 +375,11 @@ std::string Compress(std::string in) {
 }
 
 //---------------
-// WriteGraph
-//
-// Write the current machine state to a file.
-//---------------
-static
-void WriteGraph(Machine* m, const std::string graphFileSuffix,
-  const int numTag, int actualNrIterations) {
-    TIntStrH nodeColorHash = THash<TInt, TStr>();
-    int* nodeStates = m->get_nodeStates();
-    for (TNEGraph::TNodeI NIter = m->get_graph()->BegNI(); NIter < m->get_graph()->EndNI(); NIter++) {
-        int nId = NIter.GetId();
-        nodeColorHash.AddDat(nId, (nodeStates[nId] == NBLACK) ? "black" : "white");
-    }
-
-    // Compose the file name.
-    std::string suffix = "";
-    if (graphFileSuffix != "") suffix = "_" + graphFileSuffix;
-
-    std::string stateFName = "";
-    std::string baseName = "";
-    if (cmdOpt.writeAsName == "")
-        baseName = runId;
-    else
-        baseName = cmdOpt.writeAsName;
-
-    if (numTag < 0)
-        stateFName = baseName + suffix;
-    else
-        stateFName = baseName + suffix + "." + std::to_string(numTag);
-
-    stateFName += ".dot";
-
-    // Compose the description string.
-    std::string description = runId + " @"
-      + (numTag < 0 ? std::to_string(actualNrIterations) : std::to_string(numTag));
-
-    // Write state to the file (false => no labels provided).
-    TSnap::SaveGViz(m->get_graph(), stateFName.c_str(), TStr(description.c_str()), false, nodeColorHash);
-}
-
-//---------------
-// WriteTape
-//
-// Print the current tape state to stderr.
-//---------------
-static
-void WriteTape(Machine* m, int tapeX) {
-
-    for (int i = 0; i < m->m_nrNodes; i += 1) {
-        if (i > 0 && !tapeX) std::cerr << " ";
-        if (tapeX)
-            std::cerr << ((m->m_nodeStates[i]) ? "X" : " ");
-        else
-            std::cerr << m->m_nodeStates[i];
-    }
-    std::cerr << std::endl;
-}
-
-//---------------
-// WriteIterationStats
-//
-// Write (append) to a file that accumulates JSON-encoded per-iteration statistics.
-//---------------
-static
-void WriteIterationStats(Machine* machine, bool teeToConsole, int iterationNr) {
-    Json::Value info;
-
-    info["runId"] = runId;
-    info["iterationNr"] = iterationNr;
-
-    // Analyze connected components and count nodes.
-    Json::Value ccSizeCount;
-    TVec<TPair<TInt, TInt> > sizeCount;
-    TSnap::GetWccSzCnt(machine->get_graph(), sizeCount);
-    int nrCcs = 0;
-    int nrNodes = 0;
-    for (int i = 0; i < sizeCount.Len(); i += 1) {
-        Json::Value sizeCountPair;
-        sizeCountPair.append((int) sizeCount[i].Val1);
-        sizeCountPair.append((int) sizeCount[i].Val2);
-        nrNodes += sizeCount[i].Val1 * sizeCount[i].Val2;
-        ccSizeCount.append(sizeCountPair);
-        nrCcs += (int) sizeCount[i].Val2;
-    }
-    info["ccSizeCount"] = ccSizeCount;
-    info["nrCcSizes"] = sizeCount.Len();
-    info["nrCcs"] = nrCcs;
-    info["nrNodes"] = nrNodes;
-
-    // Triads (graph-theoretic sense)
-    TFltPrV DegCCfV;
-    int64 ClosedTriads, OpenTriads;
-    const double CCF = TSnap::GetClustCf(machine->get_graph(), DegCCfV, ClosedTriads, OpenTriads);
-    info["avgClustCoef"] = CCF;
-    info["nrClosedTriads"] = (uint64_t) TUInt64(ClosedTriads);
-    info["nrOpenTriads"] = (uint64_t) TUInt64(OpenTriads);
-
-    // Diameter stats
-    int FullDiam;
-    double EffDiam;
-    TSnap::GetBfsEffDiam(machine->get_graph(), 1000, false, EffDiam, FullDiam);
-    info["diameter"] = FullDiam;
-    info["effDiameter90Pctl"] = EffDiam;
-
-    // In-degree summary (also build vector 'nk' of node counts by in-degree)
-    Machine::DegStats degStats;
-    machine->GetDegStats(degStats);
-    Json::Value inDegreeCount;
-    int maxInDegree = 0;
-    for (int i = 0; i < degStats.nrInDeg; i += 1)
-        if (degStats.inDegCnt[i].Val1 > maxInDegree) maxInDegree = degStats.inDegCnt[i].Val1;
-    std::vector<int> nk(maxInDegree + 1, 0);
-
-    for (int i = 0; i < degStats.nrInDeg; i += 1) {
-        int inDegree = degStats.inDegCnt[i].Val1;
-        int nodeCount = degStats.inDegCnt[i].Val2;
-
-        Json::Value inDegreeCountPair;
-        inDegreeCountPair.append(inDegree);
-        inDegreeCountPair.append(nodeCount);
-        inDegreeCount.append(inDegreeCountPair);
-
-        nk[inDegree] = nodeCount;
-    }
-    info["inDegreeCount"] = inDegreeCount;
-    info["nrInDegrees"] = degStats.nrInDeg;
-    info["inDegreeEntropy"] = degStats.inDegEntropy;
-    info["estimatedInDegreeExponent"] = machine->EstimateDegExp(nk, maxInDegree);
-
-    // Out-degree summary
-    Json::Value outDegreeCount;
-    for (int i = 0; i < degStats.nrOutDeg; i += 1) {
-        Json::Value outDegreeCountPair;
-        outDegreeCountPair.append((int) degStats.outDegCnt[i].Val1);
-        outDegreeCountPair.append((int) degStats.outDegCnt[i].Val2);
-        outDegreeCount.append(outDegreeCountPair);
-    }
-    info["outDegreeCount"] = outDegreeCount;
-    info["nrOutDegrees"] = degStats.nrOutDeg;
-    info["outDegreeEntropy"] = degStats.outDegEntropy;
-
-    // Compose and write JSON.
-    Json::StreamWriterBuilder wBuilder;
-    std::string infoString = Compress(Json::writeString(wBuilder, info));
-    assert(!infoString.empty());
-    if (infoString[infoString.length() - 1] == '\n')
-        infoString.erase(infoString.length() - 1);
-
-    if (teeToConsole) std::cout << infoString << std::endl;
-    recordIterOut << infoString << std::endl;
-}
-
-//---------------
-// WriteSummary
-//
-// Write (append) to a file containing JSON-encoded run parameters and outcome statistics.
-//---------------
-static
-void WriteSummary(Machine* machine, int nrIterations, int cycleLength, int runTimeMs) {
-    Json::Value info;
-
-    // Record the run parameters.
-    info["runId"] = runId;
-    info["machineType"] = machine->get_machineType();
-    info["version"] = VERSION;
-    info["ruleNr"] = (Json::UInt64) machine->m_rule->get_ruleNr();
-    info["initNrNodes"] = machine->m_nrNodes;
-    info["maxIterations"] = cmdOpt.maxIterations;
-    info["cycleCheckDepth"] = cmdOpt.cycleCheckDepth;
-    info["tapeStructure"] = cmdOpt.tapeStructure;
-    info["topoStructure"] = cmdOpt.topoStructure;
-    info["randseed"] = cmdOpt.randSeed;
-
-    if (cmdOpt.tapeStructure == "random")
-        info["tapePctBlack"] = cmdOpt.tapePctBlack;
-    else
-        info["tapePctBlack"] = -1;
-
-    // Outcome measures
-    info["nrIterations"] = nrIterations;
-    info["cycleLength"] = cycleLength;
-    info["runTimeMs"] = runTimeMs;
-
-    // Add machine-specific information.
-    machine->AddSummaryInfo(info);
-
-    // Compose and write JSON.
-    Json::StreamWriterBuilder wBuilder;
-    std::string infoString = Compress(Json::writeString(wBuilder, info));
-    assert(!infoString.empty());
-    if (infoString[infoString.length() - 1] == '\n')
-        infoString.erase(infoString.length() - 1);
-
-    if (!cmdOpt.noConsole) std::cout << infoString;
-    recordSummOut << infoString << std::endl;
-}
-
-//---------------
 int main(const int argc, char* argv[]) {
 
     cmdOpt.ruleNr = 15;
 
     // Parse the command.
     ParseCommand(argc, argv);
-
-    Machine* m;
-    // Instantiate the machine.
-    if (cmdOpt.machineTypeName == "C" || cmdOpt.machineTypeName == "CM")
-        m = new Machine2D(cmdOpt.machineTypeName);
-    else if (cmdOpt.machineTypeName == "R" || cmdOpt.machineTypeName == "RM")
-        m = new MachineR(cmdOpt.machineTypeName);
-    else
-        assert(false);
-
-    // Translate ruletext if it is provided in lieu of a rule number.
-    if (cmdOpt.ruletextPresent) {
-        Rule* tmpRule = new Rule(cmdOpt.ruleText);
-        cmdOpt.ruleNr = tmpRule->get_ruleNr();
-        delete tmpRule;
-    }
-
-    // Create the machine.
-    m->BuildMachine(cmdOpt.ruleNr, cmdOpt.nrNodes, cmdOpt.cycleCheckDepth,
-      cmdOpt.tapeStructure, cmdOpt.tapePctBlack, cmdOpt.topoStructure, cmdOpt.noChangeTopo);
-
-    // Fabricate a run identifier.
-    runId = RunId(m->get_machineType(), cmdOpt.ruleNr);
-
-    // Open the output streams.
-    recordSummOut.open(cmdOpt.recordName + "_s.json", std::ios::app);
-    recordIterOut.open(cmdOpt.recordName + "_d.json", std::ios::app);
-    if (!recordSummOut.is_open() || !recordIterOut.is_open()) {
-        std::cerr << "error: can't open record output files" << std::endl;
-        exit(1);
-    }
-
-    // Run it, saving the graph and/or statistics periodically if specified.
-    auto start_time = std::chrono::high_resolution_clock::now();
-    int iter;
-    int cycleLength = 0;
-    int lastIterationStatsWritten = 0;
-    for (iter = 0; iter < cmdOpt.maxIterations; iter += 1) {
-
-        // Write a graph snapshot if specified.
-        if (cmdOpt.graphWriteStart >= 0) {
-            if (iter >= cmdOpt.graphWriteStart
-              && iter <= cmdOpt.graphWriteStop
-              && (iter - cmdOpt.graphWriteStart) % cmdOpt.graphWriteStride == 0) {
-                WriteGraph(m, cmdOpt.graphFileSuffix, iter, iter);
-            }
-        }
-
-        // Write the tape state if specified.
-        if (cmdOpt.printTape) WriteTape(m, cmdOpt.tapeX);
-
-        // Write a statistics snapshot if before iteration 0 or if specified.
-        if (iter == 0) {
-            WriteIterationStats(m, false, iter); // false => not to console
-        }
-        else if (cmdOpt.statWriteStart >= 0) {
-            if (cmdOpt.statWriteStart <= iter
-              && iter <= cmdOpt.statWriteStop
-              && (iter - cmdOpt.statWriteStart) % cmdOpt.statWriteStride == 0) {
-                WriteIterationStats(m, false, iter); // false => not to console
-                lastIterationStatsWritten = iter;
-            }
-        }
-
-        // Iterate once. Stop afterward if a state cycle or graph collapse was detected.
-        cycleLength = m->IterateMachine(iter);
-
-        if (cycleLength > 0 || cycleLength < 0) { iter += 1; break; }
-    } // The residual value of 'iter' is the actual number of iterations completed.
-
-    auto stop_time = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> elapsed_secs = stop_time - start_time;
-    int runTimeMs = elapsed_secs.count() * 1000;
-
-    // Write the end-state machine unless --no-write-end-state was present.
-    //   (-1 => no numeric tag for inclusion in file name)
-    if (!cmdOpt.noWriteEndGraph) WriteGraph(m, cmdOpt.graphFileSuffix, -1, iter);
-
-    // Write the last iteration's stats unless they've already been written.
-    if (lastIterationStatsWritten != iter - 1)
-        WriteIterationStats(m, !cmdOpt.noConsole, iter - 1); // -1 => iteration nr of last iteration
-
-    WriteSummary(m, iter, cycleLength, runTimeMs);
-
-    // Close record output files.
-    recordSummOut.close();
-    recordIterOut.close();
-
-    delete m;
     exit(0);
 }

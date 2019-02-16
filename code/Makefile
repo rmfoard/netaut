@@ -51,7 +51,10 @@ machineR.o: machineR.cpp rule.h machine.h machineR.h
 	$(CC) $(CXXFLAGS) -c -o $@ machineR.cpp -I$(CSNAP) -I$(CGLIB) -I$(CBOOST)
 
 runner.o: runner.cpp runner.h
-	$(CC) $(CXXFLAGS) -c -o $@ runner.cpp
+	$(CC) $(CXXFLAGS) -c -o $@ runner.cpp -I$(CSNAP) -I$(CGLIB) -I$(CBOOST)
+
+searcher.o: searcher.cpp
+	$(CC) $(CXXFLAGS) -c -o $@ searcher.cpp -I$(CSNAP) -I$(CGLIB) -I$(CBOOST)
 
 # The following have not been audited/overhauled.
 randrule:	randrule.o

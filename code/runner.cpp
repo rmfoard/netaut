@@ -1,3 +1,7 @@
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdelete-non-virtual-dtor"
+#include "Snap.h"
+#pragma GCC diagnostic pop
 #include <assert.h>
 //#include <getopt.h>
 //#include <inttypes.h>
@@ -12,9 +16,10 @@
 #include <string>
 //#include <vector>
 //#include <json/json.h>
-//#include "rule.h"
-//#include "machine.h"
-//#include "machine2D.h"
+#include "netaut.h"
+#include "rule.h"
+#include "machine.h"
+#include "machine2D.h"
 //#include "machineR.h"
 #include "runner.h"
 
@@ -27,6 +32,7 @@
 //
 //---------------
 Runner::Runner(int placeholder) {
+    Machine *m = new Machine2D("C");
 }
 
 //---------------
