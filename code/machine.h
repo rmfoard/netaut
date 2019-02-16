@@ -6,6 +6,7 @@
 #include <queue>
 #include <vector>
 #include "Snap.h"
+#include "rule.h"
 
 //---------------
 class Machine {

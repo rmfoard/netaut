@@ -32,7 +32,12 @@
 //
 //---------------
 Runner::Runner(int placeholder) {
-    Machine *m = new Machine2D("C");
+    m_machine = new Machine2D("C");
+}
+
+//---------------
+Runner::~Runner() {
+    delete m_machine;
 }
 
 //---------------
