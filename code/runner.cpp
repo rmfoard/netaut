@@ -11,7 +11,7 @@
 //#include <ctime>
 //#include <chrono>
 //#include <fstream>
-//#include <iostream>
+#include <iostream>
 //#include <limits>
 #include <string>
 //#include <vector>
@@ -31,13 +31,28 @@
 // Runner constructor
 //
 //---------------
-Runner::Runner(int placeholder) {
+Runner::Runner(rulenr_t rulenr) {
     m_machine = new Machine2D("C");
+    m_machine->BuildMachine(rulenr, 100, 200, "single-center", -1, "ring", 0);
+    // -1 => tapePctBlack (ignored), 0 => noChangeTopo (change is permitted)
 }
 
 //---------------
 Runner::~Runner() {
     delete m_machine;
+}
+
+//---------------
+void Runner::Run() {
+    int iter = 0;
+    int cycleLength;
+    for ( ; iter < 100; iter += 1) {
+        std::cout << "iteration: " << iter << std::endl;
+        // Iterate once. Stop afterward if a state cycle or graph collapse was detected.
+        cycleLength = m_machine->IterateMachine(iter);
+
+        if (cycleLength > 0 || cycleLength < 0) { iter += 1; break; }
+    } // The residual value of 'iter' is the actual number of iterations completed.
 }
 
 //---------------

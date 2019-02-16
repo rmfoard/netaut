@@ -330,12 +330,12 @@ void ParseCommand(const int argc, char* argv[]) {
 //
 // Return a string with whitespace removed.
 //---------------
-static
-std::string Compress(std::string in) {
-    std::string out = "";
-    for (char c : in) if (c != '\n' and c != '\t' and c != ' ') out += c;
-    return out;
-}
+//static
+//std::string Compress(std::string in) {
+//    std::string out = "";
+//    for (char c : in) if (c != '\n' and c != '\t' and c != ' ') out += c;
+//    return out;
+//}
 
 //---------------
 int main(const int argc, char* argv[]) {
@@ -344,14 +344,18 @@ int main(const int argc, char* argv[]) {
     ParseCommand(argc, argv);
 
     // Create a machine-runner.
-    Runner* r = new Runner(0000);
+    Runner* r = new Runner((rulenr_t) 89253798);
+
+    // Run the machine.
+    r->Run();
 
     // Dispose of the machine-runner.
     delete r;
 
     // See if multiples hurt.
-    for (int i = 0; i < 100000; i += 1) {
-        r = new Runner(0001);
+    for (int i = 0; i < 10; i += 1) {
+        r = new Runner((rulenr_t) 89253798);
+        r->Run();
         delete r;
     }
 
