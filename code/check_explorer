@@ -7,7 +7,7 @@ ml tmp_stdout_raw.txt | python -mjson.tool \
 | sed '/version/d' \
 | sed '/runId/d' \
 | sed '/runTimeMs/d' > tmp_stdout.txt
-if `diff tmp_stdout.txt ref_tmp_stdout.txt`; then
+if [ -z "`diff tmp_stdout.txt ref_tmp_stdout.txt`" ]; then
     echo 'PASS'
 else
     echo '*** FAIL ***'
