@@ -47,7 +47,7 @@ void Runner::Run() {
     int iter = 0;
     int cycleLength;
     for ( ; iter < 100; iter += 1) {
-        std::cout << "iteration: " << iter << std::endl;
+        //std::cout << "iteration: " << iter << std::endl;
         // Iterate once. Stop afterward if a state cycle or graph collapse was detected.
         cycleLength = m_machine->IterateMachine(iter);
 

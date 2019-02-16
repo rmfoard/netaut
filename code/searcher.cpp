@@ -88,13 +88,13 @@ void ParseCommand(const int argc, char* argv[]) {
     cmdOpt.nrNodes = 256;
     cmdOpt.cycleCheckDepth = 0;
     cmdOpt.rulePresent = false;
-    cmdOpt.machineTypeName = "";
+    cmdOpt.machineTypeName = "C";
     cmdOpt.recordName = "";
 
     while (true) {
 
         int option_index = 0;
-        c = getopt_long(argc, argv, "m:i:n:r:a:t:s:",
+        c = getopt_long(argc, argv, "m:i:n:r:a:t:s:", // disused
           long_options, &option_index);
 
         if (c == -1) // end of options?
@@ -186,18 +186,6 @@ void ParseCommand(const int argc, char* argv[]) {
     // Check 'nrNodes' generations for cycles unless depth was set explicitly.
     if (cmdOpt.cycleCheckDepth == 0) cmdOpt.cycleCheckDepth = cmdOpt.nrNodes;
 }
-
-//---------------
-// Compress
-//
-// Return a string with whitespace removed.
-//---------------
-//static
-//std::string Compress(std::string in) {
-//    std::string out = "";
-//    for (char c : in) if (c != '\n' and c != '\t' and c != ' ') out += c;
-//    return out;
-//}
 
 //---------------
 int main(const int argc, char* argv[]) {
