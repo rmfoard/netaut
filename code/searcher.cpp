@@ -199,6 +199,21 @@ int main(const int argc, char* argv[]) {
     // Run the machine.
     r->Run();
 
+    // Show the outcome data.
+    std::cout << "nrIterations: " << r->m_nrIterations << std::endl;
+    std::cout << "cycleLength: " << r->m_cycleLength << std::endl;
+    std::cout << "nrCcSizes: " << r->m_nrCcSizes << std::endl;
+    std::cout << "nrCcs: " << r->m_nrCcs << std::endl;
+    std::cout << "nrNodes: " << r->m_nrNodes << std::endl;
+    std::cout << "avgClustCoef: " << r->m_avgClustCoef << std::endl;
+    std::cout << "nrClosedTriads: " << r->m_nrClosedTriads << std::endl;
+    std::cout << "nrOpenTriads: " << r->m_nrOpenTriads << std::endl;
+    std::cout << "diameter: " << r->m_diameter << std::endl;
+    std::cout << "effDiameter90Pctl: " << r->m_effDiameter90Pctl << std::endl;
+    std::cout << "nrInDegrees: " << r->m_nrInDegrees << std::endl;
+    std::cout << "maxInDegree: " << r->m_maxInDegree << std::endl;
+    std::cout << "inDegreeEntropy: " << r->m_inDegreeEntropy << std::endl;
+
     // Dispose of the machine-runner.
     delete r;
 
