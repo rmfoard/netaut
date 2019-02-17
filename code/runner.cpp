@@ -33,6 +33,7 @@
 //---------------
 Runner::Runner(rulenr_t ruleNr, int nrNodes, int maxIterations, int cycleCheckDepth,
   std::string tapeStructure, int tapePctBlack, std::string topoStructure, int noChangeTopo) {
+    m_maxIterations = maxIterations;
     m_machine = new Machine2D("C");
     m_machine->BuildMachine(ruleNr, nrNodes, cycleCheckDepth, tapeStructure,
       tapePctBlack, topoStructure, noChangeTopo);
@@ -48,7 +49,6 @@ void Runner::Run() {
     int iter = 0;
     int cycleLength;
     for ( ; iter < 100; iter += 1) {
-        //std::cout << "iteration: " << iter << std::endl;
         // Iterate once. Stop afterward if a state cycle or graph collapse was detected.
         cycleLength = m_machine->IterateMachine(iter);
 

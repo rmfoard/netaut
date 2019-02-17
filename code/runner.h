@@ -14,6 +14,7 @@ public:
 
 private:
     Machine *m_machine;
+    int m_maxIterations;
 
     void Placeholder(int);
 

@@ -47,10 +47,10 @@ static CommandOpts cmdOpt;
 //
 #define MAX_COMMAND_OPTIONS 128
 
-#define CO_CYCLE_CHECK_DEPTH 1002
-#define CO_HELP 1003
-#define CO_RECORD 1013
-#define CO_NOOP 1008
+#define CO_CYCLE_CHECK_DEPTH 1001
+#define CO_HELP 1002
+#define CO_RECORD 1003
+#define CO_NOOP 1004
 
 static struct option long_options[MAX_COMMAND_OPTIONS] = {
     {"no-console", no_argument, &cmdOpt.noConsole, 1},
@@ -73,7 +73,6 @@ static struct option long_options[MAX_COMMAND_OPTIONS] = {
 char* strAllocCpy(const char* src) { return strcpy(new char[strlen(src) + 1], src); }
 
 //---------------
-// TODO: Learn where the hell 'optind' came from.
 static
 void ParseCommand(const int argc, char* argv[]) {
     int c;
@@ -83,7 +82,7 @@ void ParseCommand(const int argc, char* argv[]) {
     // TODO: Need we initialize the "flag" option vars?
     cmdOpt.ruleNr = 641;
     cmdOpt.maxIterations = 1031;
-    cmdOpt.randSeed = -1;
+    cmdOpt.randSeed = 1;
     cmdOpt.noConsole = 0;
     cmdOpt.extendId = 0;
     cmdOpt.nrNodes = 1031;
@@ -173,7 +172,6 @@ void ParseCommand(const int argc, char* argv[]) {
     }
 
     // Check option consistency.
-
     if (errorFound) exit(1);
 
     // Warn if any non-option command arguments are present.
