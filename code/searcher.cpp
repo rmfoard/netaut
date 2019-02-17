@@ -224,4 +224,19 @@ int main(const int argc, char* argv[]) {
 
     std::cout << "finis." << std::endl;
     exit(0);
+/*
+    pool <- POOLSIZE random rules
+    do
+        note the average fitness in the pool // (fitness is computed on demand)
+        newpoolsize <- 0
+        while newpoolsize < POOLSIZE
+            newpool += 2 parent chromosomes selected with fitness bias from pool
+            mutate the 2
+            recombine the 2
+            newpool += the resulting 2 mutined chromosomes
+        end
+        pool <- newpool
+    until pool is deemed finished
+    finis.
+*/
 }
