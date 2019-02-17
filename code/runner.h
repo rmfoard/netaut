@@ -1,5 +1,6 @@
 #ifndef RUNNER_H
 #define RUNNER_H
+#include <string>
 #include "netaut.h"
 #include "machine.h"
 
@@ -7,7 +8,18 @@
 class Runner {
 
 public:
+    static bool s_defaultsSet;
+
+    static int s_initNrNodes;
+    static int s_maxIterations;
+    static int s_cycleCheckDepth;
+    static std::string s_tapeStructure;
+    static int s_tapePctBlack;
+    static std::string s_topoStructure;
+    static int s_noChangeTopo;
+
     Runner(rulenr_t, int, int, int, std::string, int, std::string, int);
+    Runner(rulenr_t);
     ~Runner();
 
     void Run();
@@ -32,6 +44,5 @@ private:
     int m_maxIterations;
 
     void Placeholder(int);
-
 };
 #endif

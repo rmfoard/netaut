@@ -25,6 +25,8 @@
 
 #define VERSION "V190216.0"
 
+void SetRunnerDefaults(int, int, int, std::string, int, std::string, int);
+
 //---------------
 // Command option settings
 //
@@ -192,9 +194,12 @@ int main(const int argc, char* argv[]) {
     // Parse the command.
     ParseCommand(argc, argv);
 
+    // Set Runner/Machine default parameters.
+    SetRunnerDefaults(cmdOpt.nrNodes, cmdOpt.maxIterations, cmdOpt.cycleCheckDepth, "single-center", -1, "ring", 0);
+    // -1 => (unused) tapePctBlack, 0 => noChangeTopo
+
     // Create a machine-runner.
-    Runner* r = new Runner(cmdOpt.ruleNr, cmdOpt.nrNodes, cmdOpt.maxIterations, cmdOpt.cycleCheckDepth,
-      "single-center", -1, "ring", 0); // -1 => (unused) tapePctBlack, 0 => noChangeTopo
+    Runner* r = new Runner((rulenr_t) cmdOpt.ruleNr);
 
     // Run the machine.
     r->Run();

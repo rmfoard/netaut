@@ -18,6 +18,35 @@
 #include "runner.h"
 
 //===============
+// class Runner static storage
+//===============
+    bool Runner::s_defaultsSet = false;
+
+    int Runner::s_initNrNodes;
+    int Runner::s_maxIterations;
+    int Runner::s_cycleCheckDepth;
+    std::string Runner::s_tapeStructure;
+    int Runner::s_tapePctBlack;
+    std::string Runner::s_topoStructure;
+    int Runner::s_noChangeTopo;
+
+//===============
+// class Runner-associated static methods
+//===============
+void SetRunnerDefaults(int initNrNodes, int maxIterations, int cycleCheckDepth,
+  std::string tapeStructure, int tapePctBlack, std::string topoStructure, int noChangeTopo) {
+    Runner::s_initNrNodes = initNrNodes;
+    Runner::s_maxIterations = maxIterations;
+    Runner::s_cycleCheckDepth = cycleCheckDepth;
+    Runner::s_tapeStructure = tapeStructure;
+    Runner::s_tapePctBlack = tapePctBlack;
+    Runner::s_topoStructure = topoStructure;
+    Runner::s_noChangeTopo = noChangeTopo;
+
+    Runner::s_defaultsSet = true;
+}
+
+//===============
 // class Runner methods
 //===============
 
@@ -29,8 +58,17 @@ Runner::Runner(rulenr_t ruleNr, int nrNodes, int maxIterations, int cycleCheckDe
   std::string tapeStructure, int tapePctBlack, std::string topoStructure, int noChangeTopo) {
     m_maxIterations = maxIterations;
     m_machine = new Machine2D("C");
-    m_machine->BuildMachine(ruleNr, nrNodes, cycleCheckDepth, tapeStructure,
-      tapePctBlack, topoStructure, noChangeTopo);
+    m_machine->BuildMachine(ruleNr, nrNodes, cycleCheckDepth, tapeStructure, tapePctBlack, topoStructure, noChangeTopo);
+}
+
+//---------------
+Runner::Runner(rulenr_t ruleNr) {
+    assert(s_defaultsSet);
+
+    m_maxIterations = s_maxIterations;
+    m_machine = new Machine2D("C");
+    m_machine->BuildMachine(ruleNr, s_initNrNodes, s_cycleCheckDepth, s_tapeStructure,
+      s_tapePctBlack, s_topoStructure, s_noChangeTopo);
 }
 
 //---------------
