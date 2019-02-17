@@ -194,7 +194,7 @@ int main(const int argc, char* argv[]) {
     ParseCommand(argc, argv);
 
     // Set Runner/Machine default parameters.
-    Runner::SetRunnerDefaults(cmdOpt.nrNodes, cmdOpt.maxIterations, cmdOpt.cycleCheckDepth, "single-center", -1, "ring", 0);
+    Runner::SetDefaults(cmdOpt.nrNodes, cmdOpt.maxIterations, cmdOpt.cycleCheckDepth, "single-center", -1, "ring", 0);
     // -1 => (unused) tapePctBlack, 0 => noChangeTopo
 
     // Create a machine-runner.
