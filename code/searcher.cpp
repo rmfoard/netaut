@@ -21,6 +21,7 @@
 //#include "machine.h"
 //#include "machine2D.h"
 //#include "machineR.h"
+#include "chromosome.h"
 #include "runner.h"
 
 #define VERSION "V190216.0"
@@ -197,12 +198,15 @@ int main(const int argc, char* argv[]) {
     Runner::SetDefaults(cmdOpt.nrNodes, cmdOpt.maxIterations, cmdOpt.cycleCheckDepth, "single-center", -1, "ring", 0);
     // -1 => (unused) tapePctBlack, 0 => noChangeTopo
 
-    // Create a machine-runner.
-    Runner* r = new Runner((rulenr_t) cmdOpt.ruleNr);
+    // Exercise the Chromosome class.
+    Chromosome* c = new Chromosome(cmdOpt.ruleNr);
+    std::cout << "fitness: " << c->get_fitness() << std::endl;
+    delete c;
 
-    // Run the machine.
-    r->Run();
+    std::cout << "finis." << std::endl;
+    exit(0);
 
+/*
     // Show the outcome data.
     std::cout << "nrIterations: " << r->m_nrIterations << std::endl;
     std::cout << "cycleLength: " << r->m_cycleLength << std::endl;
@@ -220,9 +224,8 @@ int main(const int argc, char* argv[]) {
 
     // Dispose of the machine-runner.
     delete r;
+*/
 
-    std::cout << "finis." << std::endl;
-    exit(0);
 /*
     pool <- POOLSIZE random rules
     do

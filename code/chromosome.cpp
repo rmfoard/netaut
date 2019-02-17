@@ -9,6 +9,7 @@
 #include <vector>
 #include "netaut.h"
 #include "chromosome.h"
+#include "runner.h"
 
 //===============
 // class Chromosome methods
@@ -20,7 +21,7 @@
 //---------------
 Chromosome::Chromosome(rulenr_t ruleNr) {
     m_ruleNr = ruleNr;
-    m_fitness = -1.0;
+    m_fitness = -1;
 }
 
 //---------------
@@ -35,7 +36,10 @@ rulenr_t Chromosome::get_ruleNr() {
 //---------------
 double Chromosome::get_fitness() {
     if (m_fitness < 0) {
-        m_fitness = 0.0; // stub for Runner invocation
+        Runner* r = new Runner(m_ruleNr);
+        r->Run();
+        m_fitness = r->m_nrCcs;
+        assert(m_fitness >= 0);
     }
     return m_fitness;
 }
