@@ -33,7 +33,7 @@
 //===============
 // class Runner-associated static methods
 //===============
-void SetRunnerDefaults(int initNrNodes, int maxIterations, int cycleCheckDepth,
+void Runner::SetRunnerDefaults(int initNrNodes, int maxIterations, int cycleCheckDepth,
   std::string tapeStructure, int tapePctBlack, std::string topoStructure, int noChangeTopo) {
     Runner::s_initNrNodes = initNrNodes;
     Runner::s_maxIterations = maxIterations;

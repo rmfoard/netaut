@@ -21,6 +21,7 @@ public:
     Runner(rulenr_t, int, int, int, std::string, int, std::string, int);
     Runner(rulenr_t);
     ~Runner();
+    static void SetRunnerDefaults(int, int, int, std::string, int, std::string, int);
 
     void Run();
 
