@@ -81,12 +81,13 @@ void ParseCommand(const int argc, char* argv[]) {
 
     // Set command options to default values.
     // TODO: Need we initialize the "flag" option vars?
-    cmdOpt.maxIterations = 128;
+    cmdOpt.ruleNr = 641;
+    cmdOpt.maxIterations = 1031;
     cmdOpt.randSeed = -1;
     cmdOpt.noConsole = 0;
     cmdOpt.extendId = 0;
-    cmdOpt.nrNodes = 256;
-    cmdOpt.cycleCheckDepth = 0;
+    cmdOpt.nrNodes = 1031;
+    cmdOpt.cycleCheckDepth = 1031;
     cmdOpt.rulePresent = false;
     cmdOpt.machineTypeName = "C";
     cmdOpt.recordName = "";
@@ -194,20 +195,14 @@ int main(const int argc, char* argv[]) {
     ParseCommand(argc, argv);
 
     // Create a machine-runner.
-    Runner* r = new Runner((rulenr_t) 89253798);
+    Runner* r = new Runner(cmdOpt.ruleNr, cmdOpt.nrNodes, cmdOpt.maxIterations, cmdOpt.cycleCheckDepth,
+      "single-center", -1, "ring", 0); // -1 => (unused) tapePctBlack, 0 => noChangeTopo
 
     // Run the machine.
     r->Run();
 
     // Dispose of the machine-runner.
     delete r;
-
-    // See if multiples hurt.
-    for (int i = 0; i < 10; i += 1) {
-        r = new Runner((rulenr_t) 89253798);
-        r->Run();
-        delete r;
-    }
 
     std::cout << "finis." << std::endl;
     exit(0);

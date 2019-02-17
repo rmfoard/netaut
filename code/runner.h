@@ -7,7 +7,7 @@
 class Runner {
 
 public:
-    Runner(rulenr_t);
+    Runner(rulenr_t, int, int, int, std::string, int, std::string, int);
     ~Runner();
 
     void Run();

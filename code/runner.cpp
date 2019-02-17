@@ -31,10 +31,11 @@
 // Runner constructor
 //
 //---------------
-Runner::Runner(rulenr_t rulenr) {
+Runner::Runner(rulenr_t ruleNr, int nrNodes, int maxIterations, int cycleCheckDepth,
+  std::string tapeStructure, int tapePctBlack, std::string topoStructure, int noChangeTopo) {
     m_machine = new Machine2D("C");
-    m_machine->BuildMachine(rulenr, 100, 200, "single-center", -1, "ring", 0);
-    // -1 => tapePctBlack (ignored), 0 => noChangeTopo (change is permitted)
+    m_machine->BuildMachine(ruleNr, nrNodes, cycleCheckDepth, tapeStructure,
+      tapePctBlack, topoStructure, noChangeTopo);
 }
 
 //---------------
