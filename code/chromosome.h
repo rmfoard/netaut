@@ -11,6 +11,7 @@ public:
 
     rulenr_t get_ruleNr();
     double get_fitness();
+    void put_fitness(double);
 
 private:
     void Placeholder(int);

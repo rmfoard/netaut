@@ -67,6 +67,12 @@ searcher.o: searcher.cpp runner.h chromosome.h
 searcher: searcher.o runner.o chromosome.o pool.o machine.o machine2D.o machineR.o filter.o rule.o $(CSNAP)/Snap.o
 	$(CC) $(CXXFLAGS) -o $@ $@.o runner.o chromosome.o pool.o machine.o machine2D.o machineR.o filter.o rule.o $(CSNAP)/Snap.o $(LDFLAGS) $(LIBS)
 
+toy.o: toy.cpp
+	$(CC) $(CXXFLAGS) -c -o $@ toy.cpp
+
+toy: toy.o
+	$(CC) $(CXXFLAGS) -o $@ $@.o $(LDFLAGS) $(LIBS)
+
 # The following have not been audited/overhauled.
 randrule:	randrule.o
 	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(LDFLAGS) $(LIBS)

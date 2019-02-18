@@ -9,14 +9,17 @@
 class Pool {
 
 public:
-    Pool();
+    Pool(int);
     ~Pool();
 
-    //double get_fitness();
+    int get_size();
+    Chromosome* get_entry(int);
+    bool read(std::string);
+    void put_entry(Chromosome*, int);
+    bool write(std::string);
 
 private:
-    void Placeholder(int);
-
+    int m_size;
     std::vector<Chromosome*> m_pool;
 };
 #endif

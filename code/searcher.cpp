@@ -7,12 +7,15 @@
 #include <inttypes.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <sys/types.h>
+#include <unistd.h>
 //#include <algorithm>
 //#include <ctime>
 //#include <chrono>
 #include <fstream>
 #include <iostream>
 #include <limits>
+#include <random>
 #include <string>
 #include <vector>
 //#include <json/json.h>
@@ -27,7 +30,20 @@
 
 #define VERSION "V190216.0"
 
+#define POOLSIZE 100
+
+// Set up the Mersenne Twister random number generator.
+// 'pMersenne' will point to a seeded instantiation of the generator.
+// 'rn05' is an instantiated wrapper that yields uniform [0, 5] when called with
+// a generator.
+static std::mt19937* pMersenne;
+static std::uniform_int_distribution<int> rn05(0, 5);
+
 static std::ofstream journal;
+
+static void FillRandomPool(Pool*);
+static rulenr_t GenRandRule();
+static void ParseCommand(const int, char**);
 
 
 //---------------
@@ -43,7 +59,9 @@ struct CommandOpts {
     unsigned int cycleCheckDepth;
     bool rulePresent;
     std::string machineTypeName;
-    std::string recordName;
+    std::string journalName;
+    std::string snapName;
+    std::string resumeFromName;
 };
 static CommandOpts cmdOpt;
 
@@ -54,8 +72,10 @@ static CommandOpts cmdOpt;
 
 #define CO_CYCLE_CHECK_DEPTH 1001
 #define CO_HELP 1002
-#define CO_RECORD 1003
+#define CO_JOURNAL 1003
 #define CO_NOOP 1004
+#define CO_SNAP 1005
+#define CO_RESUME 1006
 
 static struct option long_options[MAX_COMMAND_OPTIONS] = {
     {"no-console", no_argument, &cmdOpt.noConsole, 1},
@@ -68,7 +88,9 @@ static struct option long_options[MAX_COMMAND_OPTIONS] = {
     {"noop", no_argument, 0, CO_NOOP},
     {"randseed", required_argument, 0, 'a'},
     {"rule", required_argument, 0, 'r'},
-    {"record", required_argument, 0, CO_RECORD},
+    {"log", required_argument, 0, CO_JOURNAL},
+    {"snapshot", required_argument, 0, CO_SNAP},
+    {"resume-from", required_argument, 0, CO_RESUME},
 
     {"help", no_argument, 0, CO_HELP},
     {0, 0, 0, 0}
@@ -78,7 +100,40 @@ static struct option long_options[MAX_COMMAND_OPTIONS] = {
 char* strAllocCpy(const char* src) { return strcpy(new char[strlen(src) + 1], src); }
 
 //---------------
-static
+void FillRandomPool(Pool* p) {
+    int size = p->get_size();
+    for (int i = 0; i < size; i += 1) p->put_entry(new Chromosome(GenRandRule()), i);
+}
+
+//---------------
+// GenRandRule
+//
+// Generate a random MachineS rule.
+//---------------
+rulenr_t GenRandRule() {
+
+    rulenr_t rr = 0;
+
+    // For each of the 8 triad-state rule parts...
+    for (int i = 0; i < 8; i += 1) {
+        int leftAction = rn05(*pMersenne);
+        int rightAction;
+
+        // Disallow identical left- and right-actions (that would
+        // create multi-edges).
+        do {
+            rightAction = rn05(*pMersenne);
+        } while (rightAction == leftAction);
+
+        // Shift in the rule part, encoded as a mixed-radix (6, 6, 2) number,
+        // to develop the radix 72 (6*6*2) rule number.
+        int nodeAction = rn05(*pMersenne) % 2;
+        rr = (72 * rr) + ((leftAction * 6 + rightAction) * 2) + nodeAction;
+    }
+    return rr;
+}
+
+//---------------
 void ParseCommand(const int argc, char* argv[]) {
     int c;
     bool errorFound = false;
@@ -94,7 +149,9 @@ void ParseCommand(const int argc, char* argv[]) {
     cmdOpt.cycleCheckDepth = 1031;
     cmdOpt.rulePresent = false;
     cmdOpt.machineTypeName = "C";
-    cmdOpt.recordName = "log";
+    cmdOpt.journalName = "log";
+    cmdOpt.snapName = "searcher_snapshot";
+    cmdOpt.resumeFromName = "";
 
     while (true) {
 
@@ -160,8 +217,16 @@ void ParseCommand(const int argc, char* argv[]) {
             }
             exit(0);
 
-          case CO_RECORD:
-            cmdOpt.recordName = optarg;
+          case CO_JOURNAL:
+            cmdOpt.journalName = optarg;
+            break;
+
+          case CO_SNAP:
+            cmdOpt.snapName = optarg;
+            break;
+
+          case CO_RESUME:
+            cmdOpt.resumeFromName = optarg;
             break;
 
           case CO_NOOP:
@@ -197,30 +262,48 @@ int main(const int argc, char* argv[]) {
     // Parse the command.
     ParseCommand(argc, argv);
 
+    // Set Runner/Machine default parameters.
+    Runner::SetDefaults(cmdOpt.nrNodes, cmdOpt.maxIterations, cmdOpt.cycleCheckDepth, "single-center", -1, "ring", 0);
+    // -1 => (unused) tapePctBlack, 0 => noChangeTopo
+
+    // Instantiate a seeded Mersenne random number generator.
+    // Use seed 1 unless a seed was specified in the command.
+    if (cmdOpt.randSeed == -1) cmdOpt.randSeed = 1;
+    pMersenne = new std::mt19937((std::mt19937::result_type) cmdOpt.randSeed);
+
     // Open the journal.
-    journal.open(cmdOpt.recordName + ".log", std::ios::app);
+    journal.open(cmdOpt.journalName + ".log", std::ios::app);
     if (!journal.is_open()) {
         std::cerr << "error: can't open the log file" << std::endl;
         exit(1);
     }
     journal << "start" << std::endl;
 
-    // Set Runner/Machine default parameters.
-    Runner::SetDefaults(cmdOpt.nrNodes, cmdOpt.maxIterations, cmdOpt.cycleCheckDepth, "single-center", -1, "ring", 0);
-    // -1 => (unused) tapePctBlack, 0 => noChangeTopo
+    // Prepare the snapshot file name.
+    cmdOpt.snapName = cmdOpt.snapName + "_" + std::to_string(getpid()) + ".txt";
 
-    // Exercise the Chromosome class.
-    Chromosome* c = new Chromosome(cmdOpt.ruleNr);
-    std::cout << "fitness: " << c->get_fitness() << std::endl;
-    delete c;
+    // Create a random pool or read it if we're resuming from a file.
+    Pool* pool = new Pool(POOLSIZE);
+    if (cmdOpt.resumeFromName != "") {
+        std::cerr << "Resuming using pool from: " << cmdOpt.resumeFromName << std::endl;
+        journal << "Resuming using pool from: " << cmdOpt.resumeFromName << std::endl;
+        if (!pool->read(cmdOpt.resumeFromName)) {
+            std::cerr << "error: unable to read pool from: " << cmdOpt.resumeFromName << std::endl;
+            journal << "error: unable to read pool from: " << cmdOpt.resumeFromName << std::endl;
+            journal.close();
+            exit(1);
+        }
+    }
+    else {
+        FillRandomPool(pool);
+    }
+    assert(pool->write(cmdOpt.snapName));
 
-    // Exercise the Pool class.
-    Pool* p = new Pool();
-    delete p;
-
-    std::cout << "finis." << std::endl;
+    delete pool;
     journal << "stop" << std::endl;
     journal.close();
+
+    std::cout << "finis." << std::endl;
     exit(0);
 
 /*

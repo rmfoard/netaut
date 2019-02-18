@@ -28,10 +28,7 @@ Chromosome::Chromosome(rulenr_t ruleNr) {
 Chromosome::~Chromosome() {
 }
 
-//---------------
-rulenr_t Chromosome::get_ruleNr() {
-    return m_ruleNr;
-}
+rulenr_t Chromosome::get_ruleNr() { return m_ruleNr; }
 
 //---------------
 double Chromosome::get_fitness() {
@@ -42,6 +39,11 @@ double Chromosome::get_fitness() {
         assert(m_fitness >= 0);
     }
     return m_fitness;
+}
+
+//---------------
+void Chromosome::put_fitness(double fitness) {
+    m_fitness = fitness;
 }
 
 //---------------
