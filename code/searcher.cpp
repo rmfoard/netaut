@@ -22,6 +22,7 @@
 //#include "machine2D.h"
 //#include "machineR.h"
 #include "chromosome.h"
+#include "pool.h"
 #include "runner.h"
 
 #define VERSION "V190216.0"
@@ -212,6 +213,10 @@ int main(const int argc, char* argv[]) {
     Chromosome* c = new Chromosome(cmdOpt.ruleNr);
     std::cout << "fitness: " << c->get_fitness() << std::endl;
     delete c;
+
+    // Exercise the Pool class.
+    Pool* p = new Pool();
+    delete p;
 
     std::cout << "finis." << std::endl;
     journal << "stop" << std::endl;
