@@ -10,7 +10,7 @@
 //#include <algorithm>
 //#include <ctime>
 //#include <chrono>
-//#include <fstream>
+#include <fstream>
 #include <iostream>
 #include <limits>
 #include <string>
@@ -25,6 +25,8 @@
 #include "runner.h"
 
 #define VERSION "V190216.0"
+
+static std::ofstream journal;
 
 
 //---------------
@@ -91,7 +93,7 @@ void ParseCommand(const int argc, char* argv[]) {
     cmdOpt.cycleCheckDepth = 1031;
     cmdOpt.rulePresent = false;
     cmdOpt.machineTypeName = "C";
-    cmdOpt.recordName = "";
+    cmdOpt.recordName = "log";
 
     while (true) {
 
@@ -194,6 +196,14 @@ int main(const int argc, char* argv[]) {
     // Parse the command.
     ParseCommand(argc, argv);
 
+    // Open the journal.
+    journal.open(cmdOpt.recordName + ".log", std::ios::app);
+    if (!journal.is_open()) {
+        std::cerr << "error: can't open the log file" << std::endl;
+        exit(1);
+    }
+    journal << "start" << std::endl;
+
     // Set Runner/Machine default parameters.
     Runner::SetDefaults(cmdOpt.nrNodes, cmdOpt.maxIterations, cmdOpt.cycleCheckDepth, "single-center", -1, "ring", 0);
     // -1 => (unused) tapePctBlack, 0 => noChangeTopo
@@ -204,6 +214,8 @@ int main(const int argc, char* argv[]) {
     delete c;
 
     std::cout << "finis." << std::endl;
+    journal << "stop" << std::endl;
+    journal.close();
     exit(0);
 
 /*
