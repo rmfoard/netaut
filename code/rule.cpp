@@ -174,7 +174,7 @@ int Rule::dstIndex(const char* dstStr) {
 //---------------
 void Rule::CheckRuleNr(rulenr_t ruleNr) {
     if (ruleNr > get_maxRuleNr())
-        throw std::runtime_error("rule number overflow");
+        throw std::runtime_error(std::string("rule number overflow") + std::to_string(ruleNr));
 }
 
 //---------------
