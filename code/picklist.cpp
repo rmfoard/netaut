@@ -1,10 +1,7 @@
 #include <assert.h>
-//#include <inttypes.h>
 #include <stdio.h>
-//#include <stdint.h>
-//#include <algorithm>
+#include <algorithm>
 #include <iostream>
-//#include <limits>
 #include <string>
 #include <vector>
 #include "netaut.h"
@@ -38,7 +35,10 @@ PickList::PickList(Pool* basePool) {
         m_list[ix].normFitness = m_list[ix].c->get_fitness() / totFitness;
     }
 
-    // TODO: Sort by decreasing fitness.
+    // Sort by decreasing fitness.
+    //std::sort(m_list.begin(), m_list.end(),
+    std::sort(&m_list[0], &m_list[poolSize-1],
+      [](const PickElt& a, const PickElt& b) { return a.normFitness > b.normFitness; });
 
     // Pass the list adding cumulative fitness.
     double cumFitness = m_list[0].normFitness;
