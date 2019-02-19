@@ -55,6 +55,14 @@ void changepn(int **pp) {
 int main(const int argc, char** argv) {
     std::cout << "initium" << std::endl;
 
+    rulenr_t bignum = 722204136308736; // 72**8
+    for (int i = 1; i <= 50; i += 1) {
+        rulenr_t v = ((rulenr_t) 1) << i;
+        std::cout << "1 << " << i << " => " << v << "; ";
+        std::cout << (bignum ^ v) << std::endl;
+    }
+
+/*
     int* pn = new int;
     *pn = 1;
 
@@ -66,6 +74,6 @@ int main(const int argc, char** argv) {
 #endif
 
     std::cout << *pn << std::endl;
-
+*/
     std::cout << "finis." << std::endl;
 }
