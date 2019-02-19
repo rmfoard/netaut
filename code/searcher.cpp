@@ -23,8 +23,8 @@
 
 #define VERSION "V190219.0"
 
-#define POOLSIZE 100 // must be multiple of 4
-#define MAXGENERATIONS 10
+#define POOLSIZE 40 // must be multiple of 4
+#define MAXGENERATIONS 100
 #define PROBMUTATE 10 // /100.0
 
 // Set up the Mersenne Twister random number generator.
@@ -143,6 +143,7 @@ void FillRandomPool(Pool* p) {
 
 //---------------
 void FlipABit(rulenr_t& rn) {
+    rn = rn ^ (((rulenr_t) 1) << Uniform(0, 49));
 }
 
 //---------------
@@ -176,20 +177,32 @@ rulenr_t GenRandRule() {
 //---------------
 void MutateAndCross(Chromosome* maC, Chromosome* paC, Chromosome*& c1C, Chromosome*& c2C) {
     rulenr_t c1ruleNr = maC->get_ruleNr();
-    double c1fitness = maC->get_fitness();
-    if (Uniform(0, 99) < PROBMUTATE) {
-        FlipABit(c1ruleNr);
-        c1fitness = -1;
-    }
-    c1C = new Chromosome(c1ruleNr, c1fitness);
-
     rulenr_t c2ruleNr = paC->get_ruleNr();
-    double c2fitness = paC->get_fitness();
-    if (Uniform(0, 99) < PROBMUTATE) {
-        FlipABit(c2ruleNr);
-        c2fitness = -1;
-    }
-    c2C = new Chromosome(c2ruleNr, c2fitness);
+
+    // Mutate.
+    if (Uniform(0, 99) < PROBMUTATE) FlipABit(c1ruleNr);
+    if (Uniform(0, 99) < PROBMUTATE) FlipABit(c2ruleNr);
+
+    // Exchange a bit.
+    int bitNr = Uniform(0, 49);
+    rulenr_t mask = ((rulenr_t) 1) << bitNr;
+
+    rulenr_t newC1ruleNr;
+    rulenr_t newC2ruleNr;
+
+    if (mask && c1ruleNr == mask)
+        newC2ruleNr = c2ruleNr | mask;
+    else
+        newC2ruleNr = c2ruleNr & ~mask;
+
+    if (mask && c2ruleNr == mask)
+        newC1ruleNr = c1ruleNr | mask;
+    else
+        newC1ruleNr = c1ruleNr & ~mask;
+
+    // TODO: Optimize for no change in rules, wary of flips.
+    c1C = new Chromosome(newC1ruleNr, -1);
+    c2C = new Chromosome(newC2ruleNr, -1);
 }
 
 //---------------
