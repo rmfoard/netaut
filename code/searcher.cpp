@@ -9,21 +9,13 @@
 #include <stdint.h>
 #include <sys/types.h>
 #include <unistd.h>
-//#include <algorithm>
-//#include <ctime>
-//#include <chrono>
 #include <fstream>
 #include <iostream>
 #include <limits>
 #include <random>
 #include <string>
 #include <vector>
-//#include <json/json.h>
 #include "netaut.h"
-//#include "rule.h"
-//#include "machine.h"
-//#include "machine2D.h"
-//#include "machineR.h"
 #include "chromosome.h"
 #include "pool.h"
 #include "picklist.h"
@@ -32,7 +24,7 @@
 #define VERSION "V190216.0"
 
 #define POOLSIZE 12
-#define MAXGENERATIONS 1
+#define MAXGENERATIONS 2
 
 // Set up the Mersenne Twister random number generator.
 // 'pMersenne' will point to a seeded instantiation of the generator.
