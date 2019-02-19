@@ -322,7 +322,7 @@ int main(const int argc, char* argv[]) {
     journal << "start" << std::endl;
 
     // Prepare the snapshot file name.
-    cmdOpt.snapName = cmdOpt.snapName + "_" + std::to_string(getpid()) + ".txt";
+    cmdOpt.snapName = cmdOpt.snapName + "_snap_" + std::to_string(getpid()) + ".txt";
 
     // Create a random pool or read it if we're resuming from a file.
     Pool* pool = new Pool(POOLSIZE);
