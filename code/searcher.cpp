@@ -143,7 +143,7 @@ void FillRandomPool(Pool* p) {
 
 //---------------
 void FlipABit(rulenr_t& rn) {
-    rn = rn ^ (((rulenr_t) 1) << Uniform(0, 49));
+    rn = rn ^ (((rulenr_t) 1) << Uniform(0, 48));
 }
 
 //---------------
@@ -184,7 +184,7 @@ void MutateAndCross(Chromosome* maC, Chromosome* paC, Chromosome*& c1C, Chromoso
     if (Uniform(0, 99) < PROBMUTATE) FlipABit(c2ruleNr);
 
     // Exchange a bit.
-    int bitNr = Uniform(0, 49);
+    int bitNr = Uniform(0, 48);
     rulenr_t mask = ((rulenr_t) 1) << bitNr;
 
     rulenr_t newC1ruleNr;
