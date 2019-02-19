@@ -31,7 +31,8 @@
 
 #define VERSION "V190216.0"
 
-#define POOLSIZE 100
+#define POOLSIZE 12
+#define MAXGENERATIONS 1
 
 // Set up the Mersenne Twister random number generator.
 // 'pMersenne' will point to a seeded instantiation of the generator.
@@ -42,9 +43,12 @@ static std::uniform_int_distribution<int> rn05(0, 5);
 
 static std::ofstream journal;
 
+static void ChooseParents(Pool*, Chromosome*&, Chromosome*&);
 static void FillRandomPool(Pool*);
 static rulenr_t GenRandRule();
+static void MutateAndCross(Chromosome*, Chromosome*, Chromosome*&, Chromosome*&);
 static void ParseCommand(const int, char**);
+static double SimulateGeneration(int, Pool*&);
 
 
 //---------------
@@ -101,6 +105,18 @@ static struct option long_options[MAX_COMMAND_OPTIONS] = {
 char* strAllocCpy(const char* src) { return strcpy(new char[strlen(src) + 1], src); }
 
 //---------------
+void ChooseParents(Pool* pool, Chromosome*& maC, Chromosome*& paC) {
+    // TODO: Use an object copy instead.
+    rulenr_t maRuleNr = pool->get_entry(0)->get_ruleNr();
+    double maFitness = pool->get_entry(0)->get_fitness();
+    maC = new Chromosome(maRuleNr, maFitness);
+
+    rulenr_t paRuleNr = pool->get_entry(1)->get_ruleNr();
+    double paFitness = pool->get_entry(1)->get_fitness();
+    paC = new Chromosome(paRuleNr, paFitness);
+}
+
+//---------------
 void FillRandomPool(Pool* p) {
     int size = p->get_size();
     for (int i = 0; i < size; i += 1) p->put_entry(new Chromosome(GenRandRule()), i);
@@ -132,6 +148,12 @@ rulenr_t GenRandRule() {
         rr = (72 * rr) + ((leftAction * 6 + rightAction) * 2) + nodeAction;
     }
     return rr;
+}
+
+//---------------
+void MutateAndCross(Chromosome* maC, Chromosome* paC, Chromosome*& c1C, Chromosome*& c2C) {
+    c1C = new Chromosome(paC->get_ruleNr() + 100 /*test*/, paC->get_fitness());
+    c2C = new Chromosome(maC->get_ruleNr() + 100 /*test*/, maC->get_fitness());
 }
 
 //---------------
@@ -258,6 +280,33 @@ void ParseCommand(const int argc, char* argv[]) {
 }
 
 //---------------
+double SimulateGeneration(int generationNr, Pool*& pool) {
+    Pool* newPool = new Pool(pool->get_size());
+    int newPoolSize = 0;
+    assert(POOLSIZE % 4 == 0); // TODO: static_assert?
+
+    while (newPoolSize < POOLSIZE) {
+        Chromosome* maC;
+        Chromosome* paC;
+
+        // Choose 2 parents (copies) from pool, insert in new pool.
+        ChooseParents(pool, maC, paC);
+        newPool->put_entry(maC, newPoolSize++);
+        newPool->put_entry(paC, newPoolSize++);
+
+        // Create 2 children, insert in new pool.
+        Chromosome* c1C;
+        Chromosome* c2C;
+        MutateAndCross(maC, paC, c1C, c2C);
+        newPool->put_entry(c1C, newPoolSize++);
+        newPool->put_entry(c2C, newPoolSize++);
+    }
+    delete pool;
+    pool = newPool;
+    return pool->AvgFitness();
+}
+
+//---------------
 int main(const int argc, char* argv[]) {
 
     // Parse the command.
@@ -298,17 +347,26 @@ int main(const int argc, char* argv[]) {
     else {
         FillRandomPool(pool);
     }
-    std::cout << "pool->AvgFitness(): " << pool->AvgFitness() << std::endl;
-    PickList* pl = new PickList(pool);
+    /*PickList* pl = new PickList(pool);
     for (int ix = 0; ix < pl->get_basePool()->get_size(); ix += 1) {
         PickElt pe = pl->get_elt(ix);
         std::cout << pe.normFitness << " " << pe.cumFitness << std::endl;
-    }
+    }*/
 
-    //assert(pool->Write(cmdOpt.snapName));
+    // Simulate reproduction until...
+    int generationNr = 0;
+    double statistic = 0.0;
+    while (generationNr < MAXGENERATIONS && statistic < 100000.0) { // TODO: Replace the test.
+        assert(pool->Write(cmdOpt.snapName));
+        statistic = SimulateGeneration(generationNr, pool); // Replaces pool
+        generationNr += 1;
+    }
+    assert(pool->Write(cmdOpt.snapName));
 
     delete pool;
+    /*
     delete pl;
+    */
     journal << "stop" << std::endl;
     journal.close();
 

@@ -25,6 +25,12 @@ Chromosome::Chromosome(rulenr_t ruleNr) {
 }
 
 //---------------
+Chromosome::Chromosome(rulenr_t ruleNr, double fitness) {
+    m_ruleNr = ruleNr;
+    m_fitness = fitness;
+}
+
+//---------------
 Chromosome::~Chromosome() {
 }
 

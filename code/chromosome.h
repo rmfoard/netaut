@@ -7,6 +7,7 @@ class Chromosome {
 
 public:
     Chromosome(rulenr_t);
+    Chromosome(rulenr_t, double);
     ~Chromosome();
 
     rulenr_t get_ruleNr();

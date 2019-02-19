@@ -36,8 +36,7 @@ PickList::PickList(Pool* basePool) {
     }
 
     // Sort by decreasing fitness.
-    //std::sort(m_list.begin(), m_list.end(),
-    std::sort(&m_list[0], &m_list[poolSize-1],
+    std::sort(&m_list[0], &m_list[poolSize],
       [](const PickElt& a, const PickElt& b) { return a.normFitness > b.normFitness; });
 
     // Pass the list adding cumulative fitness.
