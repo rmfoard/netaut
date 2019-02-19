@@ -23,7 +23,7 @@
 
 #define VERSION "V190216.0"
 
-#define POOLSIZE 12
+#define POOLSIZE 12 // must be multiple of 4
 #define MAXGENERATIONS 2
 
 // Set up the Mersenne Twister random number generator.
@@ -98,14 +98,38 @@ char* strAllocCpy(const char* src) { return strcpy(new char[strlen(src) + 1], sr
 
 //---------------
 void ChooseParents(Pool* pool, Chromosome*& maC, Chromosome*& paC) {
-    // TODO: Use an object copy instead.
-    rulenr_t maRuleNr = pool->get_entry(0)->get_ruleNr();
-    double maFitness = pool->get_entry(0)->get_fitness();
-    maC = new Chromosome(maRuleNr, maFitness);
+    // Create a "pick list" of all rules in the pool, arranged from
+    // most to least fit, with each accompanied by a cumulative (from
+    // the top of the list) fitness figure. A rule's associated cumu-
+    // lative fitness represents, in a sense, the total fitness of
+    // the rule and all more-fit rules. Fitness values are normalized.
+    PickList* pl = new PickList(pool);
 
-    rulenr_t paRuleNr = pool->get_entry(1)->get_ruleNr();
-    double paFitness = pool->get_entry(1)->get_fitness();
-    paC = new Chromosome(paRuleNr, paFitness);
+    // Select a target total fitness value randomly from [0.0, 1.0].
+    // Scan down the list until reaching a cumulative fitness
+    // greater than the target; use this location as the end of
+    // a range of rules from which to select parent rules randomly.
+    //
+    // The intent is to bias the selection process strongly, but
+    // not wholly, toward fitter rules.
+    double targetCumFitness = Uniform(1, 100) / 100.0;
+
+    int ix = 0;
+    for ( ; (ix < pool->get_size()) && (pl->get_elt(ix).cumFitness <= targetCumFitness); ix += 1) ;
+    // Note that ix can end up "off the end."
+    if (ix == 0) ix = 1; // special case -- can't "back up 1" from 0
+
+    // Choose two parents from the selected range.
+    int maIx = Uniform(0, ix-1);
+    int paIx = Uniform(0, ix-1);
+
+    // Create and return the parent chromosomes.
+    Chromosome* origMaC = pl->get_elt(maIx).c;
+    Chromosome* origPaC = pl->get_elt(paIx).c;
+
+    // TODO: Use an object copy.
+    maC = new Chromosome(origMaC->get_ruleNr(), origMaC->get_fitness());
+    paC = new Chromosome(origPaC->get_ruleNr(), origPaC->get_fitness());
 }
 
 //---------------
@@ -319,16 +343,18 @@ int main(const int argc, char* argv[]) {
         std::cerr << "error: can't open the log file" << std::endl;
         exit(1);
     }
-    journal << "start" << std::endl;
+    journal << "info: starting" << std::endl;
 
     // Prepare the snapshot file name.
     cmdOpt.snapName = cmdOpt.snapName + "_snap_" + std::to_string(getpid()) + ".txt";
+    std::cerr << "info: saving continuously updated pool snapshots in: " << cmdOpt.snapName << std::endl;
+    journal << "info: saving continuously updated pool snapshots in: " << cmdOpt.snapName << std::endl;
 
     // Create a random pool or read it if we're resuming from a file.
     Pool* pool = new Pool(POOLSIZE);
     if (cmdOpt.resumeFromName != "") {
-        std::cerr << "Resuming using pool from: " << cmdOpt.resumeFromName << std::endl;
-        journal << "Resuming using pool from: " << cmdOpt.resumeFromName << std::endl;
+        std::cerr << "info: resuming using pool from: " << cmdOpt.resumeFromName << std::endl;
+        journal << "info: resuming using pool from: " << cmdOpt.resumeFromName << std::endl;
         if (!pool->Read(cmdOpt.resumeFromName)) {
             std::cerr << "error: unable to read pool from: " << cmdOpt.resumeFromName << std::endl;
             journal << "error: unable to read pool from: " << cmdOpt.resumeFromName << std::endl;
@@ -359,7 +385,7 @@ int main(const int argc, char* argv[]) {
     /*
     delete pl;
     */
-    journal << "stop" << std::endl;
+    journal << "info: stopping" << std::endl;
     journal.close();
 
     std::cout << "finis." << std::endl;
