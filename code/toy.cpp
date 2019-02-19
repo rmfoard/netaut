@@ -1,0 +1,71 @@
+#define POOLSIZE 100
+
+#include <iostream>
+#include <vector>
+#include "chromosome.h"
+
+Chromosome::Chromosome(rulenr_t r) {
+    m_ruleNr = r;
+}
+
+Chromosome::~Chromosome() {}
+
+class Pool {
+
+public:
+    Pool();
+    ~Pool();
+
+    std::vector<Chromosome*> m_fred;
+};
+
+//---------------
+Pool::Pool() {
+    std::cout << "Pool()" << std::endl;
+    m_fred.reserve(100);
+    for (int i = 0; i < 100; i += 1) m_fred[i] = new Chromosome((rulenr_t) i);
+}
+
+Pool::~Pool() {
+    std::cout << "~Pool()" << std::endl;
+    for (int i = 0; i < 100; i += 1) delete m_fred[i];
+}
+
+//---------------
+#define REF
+#ifdef REF
+void changepn(int*& pn) {
+    int* pm = new int;
+    *pm = 2;
+
+    delete pn;
+    pn = pm;
+}
+#endif
+#ifndef REF
+void changepn(int **pp) {
+    int* pm = new int;
+    *pm = 2;
+
+    *pp = pm;
+}
+#endif
+
+//---------------
+int main(const int argc, char** argv) {
+    std::cout << "initium" << std::endl;
+
+    int* pn = new int;
+    *pn = 1;
+
+#ifdef REF
+    changepn(pn);
+#endif
+#ifndef REF
+    changepn(&pn);
+#endif
+
+    std::cout << *pn << std::endl;
+
+    std::cout << "finis." << std::endl;
+}
