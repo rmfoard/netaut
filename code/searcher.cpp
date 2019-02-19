@@ -21,10 +21,11 @@
 #include "picklist.h"
 #include "runner.h"
 
-#define VERSION "V190216.0"
+#define VERSION "V190219.0"
 
-#define POOLSIZE 12 // must be multiple of 4
-#define MAXGENERATIONS 2
+#define POOLSIZE 100 // must be multiple of 4
+#define MAXGENERATIONS 10
+#define PROBMUTATE 10 // /100.0
 
 // Set up the Mersenne Twister random number generator.
 // 'pMersenne' will point to a seeded instantiation of the generator.
@@ -37,10 +38,12 @@ static std::ofstream journal;
 
 static void ChooseParents(Pool*, Chromosome*&, Chromosome*&);
 static void FillRandomPool(Pool*);
+static void FlipABit(rulenr_t&);
 static rulenr_t GenRandRule();
 static void MutateAndCross(Chromosome*, Chromosome*, Chromosome*&, Chromosome*&);
 static void ParseCommand(const int, char**);
 static double SimulateGeneration(int, Pool*&);
+static int Uniform(int, int);
 
 
 //---------------
@@ -124,18 +127,22 @@ void ChooseParents(Pool* pool, Chromosome*& maC, Chromosome*& paC) {
     int paIx = Uniform(0, ix-1);
 
     // Create and return the parent chromosomes.
-    Chromosome* origMaC = pl->get_elt(maIx).c;
-    Chromosome* origPaC = pl->get_elt(paIx).c;
+    Chromosome* prevMaC = pl->get_elt(maIx).c;
+    Chromosome* prevPaC = pl->get_elt(paIx).c;
 
     // TODO: Use an object copy.
-    maC = new Chromosome(origMaC->get_ruleNr(), origMaC->get_fitness());
-    paC = new Chromosome(origPaC->get_ruleNr(), origPaC->get_fitness());
+    maC = new Chromosome(prevMaC->get_ruleNr(), prevMaC->get_fitness());
+    paC = new Chromosome(prevPaC->get_ruleNr(), prevPaC->get_fitness());
 }
 
 //---------------
 void FillRandomPool(Pool* p) {
     int size = p->get_size();
     for (int i = 0; i < size; i += 1) p->put_entry(new Chromosome(GenRandRule()), i);
+}
+
+//---------------
+void FlipABit(rulenr_t& rn) {
 }
 
 //---------------
@@ -168,8 +175,21 @@ rulenr_t GenRandRule() {
 
 //---------------
 void MutateAndCross(Chromosome* maC, Chromosome* paC, Chromosome*& c1C, Chromosome*& c2C) {
-    c1C = new Chromosome(paC->get_ruleNr() + 100 /*test*/, paC->get_fitness());
-    c2C = new Chromosome(maC->get_ruleNr() + 100 /*test*/, maC->get_fitness());
+    rulenr_t c1ruleNr = maC->get_ruleNr();
+    double c1fitness = maC->get_fitness();
+    if (Uniform(0, 99) < PROBMUTATE) {
+        FlipABit(c1ruleNr);
+        c1fitness = -1;
+    }
+    c1C = new Chromosome(c1ruleNr, c1fitness);
+
+    rulenr_t c2ruleNr = paC->get_ruleNr();
+    double c2fitness = paC->get_fitness();
+    if (Uniform(0, 99) < PROBMUTATE) {
+        FlipABit(c2ruleNr);
+        c2fitness = -1;
+    }
+    c2C = new Chromosome(c2ruleNr, c2fitness);
 }
 
 //---------------
@@ -178,7 +198,6 @@ void ParseCommand(const int argc, char* argv[]) {
     bool errorFound = false;
 
     // Set command options to default values.
-    // TODO: Need we initialize the "flag" option vars?
     cmdOpt.ruleNr = 641;
     cmdOpt.maxIterations = 1031;
     cmdOpt.randSeed = 1;
@@ -217,7 +236,6 @@ void ParseCommand(const int argc, char* argv[]) {
 
           case 'a':
             cmdOpt.randSeed = atoi(optarg);
-            srand(cmdOpt.randSeed); // plant seed at this first opportunity
             break;
 
           case 'r':
@@ -280,6 +298,9 @@ void ParseCommand(const int argc, char* argv[]) {
        }
     }
 
+    // Seed the simpler random number generator.
+    srand(cmdOpt.randSeed);
+
     // Check option consistency.
     if (errorFound) exit(1);
 
@@ -323,6 +344,13 @@ double SimulateGeneration(int generationNr, Pool*& pool) {
 }
 
 //---------------
+int Uniform(int lo, int hi) {
+    assert(0 <= lo && lo <= hi);
+    if (hi == 0 && lo == 0) return 0;
+    return lo + (rand() % (hi - lo + 1));
+}
+
+//---------------
 int main(const int argc, char* argv[]) {
 
     // Parse the command.
@@ -333,8 +361,6 @@ int main(const int argc, char* argv[]) {
     // -1 => (unused) tapePctBlack, 0 => noChangeTopo
 
     // Instantiate a seeded Mersenne random number generator.
-    // Use seed 1 unless a seed was specified in the command.
-    if (cmdOpt.randSeed == -1) cmdOpt.randSeed = 1;
     pMersenne = new std::mt19937((std::mt19937::result_type) cmdOpt.randSeed);
 
     // Open the journal.
@@ -375,6 +401,7 @@ int main(const int argc, char* argv[]) {
     int generationNr = 0;
     double statistic = 0.0;
     while (generationNr < MAXGENERATIONS && statistic < 100000.0) { // TODO: Replace the test.
+        std::cout << "generation " << generationNr << " " << statistic << std::endl;
         assert(pool->Write(cmdOpt.snapName));
         statistic = SimulateGeneration(generationNr, pool); // Replaces pool
         generationNr += 1;
@@ -390,40 +417,4 @@ int main(const int argc, char* argv[]) {
 
     std::cout << "finis." << std::endl;
     exit(0);
-
-/*
-    // Show the outcome data.
-    std::cout << "nrIterations: " << r->m_nrIterations << std::endl;
-    std::cout << "cycleLength: " << r->m_cycleLength << std::endl;
-    std::cout << "nrCcSizes: " << r->m_nrCcSizes << std::endl;
-    std::cout << "nrCcs: " << r->m_nrCcs << std::endl;
-    std::cout << "nrNodes: " << r->m_nrNodes << std::endl;
-    std::cout << "avgClustCoef: " << r->m_avgClustCoef << std::endl;
-    std::cout << "nrClosedTriads: " << r->m_nrClosedTriads << std::endl;
-    std::cout << "nrOpenTriads: " << r->m_nrOpenTriads << std::endl;
-    std::cout << "diameter: " << r->m_diameter << std::endl;
-    std::cout << "effDiameter90Pctl: " << r->m_effDiameter90Pctl << std::endl;
-    std::cout << "nrInDegrees: " << r->m_nrInDegrees << std::endl;
-    std::cout << "maxInDegree: " << r->m_maxInDegree << std::endl;
-    std::cout << "inDegreeEntropy: " << r->m_inDegreeEntropy << std::endl;
-
-    // Dispose of the machine-runner.
-    delete r;
-*/
-
-/*
-    pool <- POOLSIZE random rules
-    do
-        note the average fitness in the pool // (fitness is computed on demand)
-        newpoolsize <- 0
-        while newpoolsize < POOLSIZE
-            newpool += 2 parent chromosomes selected with fitness bias from pool
-            mutate the 2
-            recombine the 2
-            newpool += the resulting 2 mutined chromosomes
-        end
-        pool <- newpool
-    until pool is deemed finished
-    finis.
-*/
 }
