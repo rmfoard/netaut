@@ -26,6 +26,7 @@
 //#include "machineR.h"
 #include "chromosome.h"
 #include "pool.h"
+#include "picklist.h"
 #include "runner.h"
 
 #define VERSION "V190216.0"
@@ -287,7 +288,7 @@ int main(const int argc, char* argv[]) {
     if (cmdOpt.resumeFromName != "") {
         std::cerr << "Resuming using pool from: " << cmdOpt.resumeFromName << std::endl;
         journal << "Resuming using pool from: " << cmdOpt.resumeFromName << std::endl;
-        if (!pool->read(cmdOpt.resumeFromName)) {
+        if (!pool->Read(cmdOpt.resumeFromName)) {
             std::cerr << "error: unable to read pool from: " << cmdOpt.resumeFromName << std::endl;
             journal << "error: unable to read pool from: " << cmdOpt.resumeFromName << std::endl;
             journal.close();
@@ -297,9 +298,17 @@ int main(const int argc, char* argv[]) {
     else {
         FillRandomPool(pool);
     }
-    assert(pool->write(cmdOpt.snapName));
+    std::cout << "pool->AvgFitness(): " << pool->AvgFitness() << std::endl;
+    PickList* pl = new PickList(pool);
+    for (int ix = 0; ix < pl->get_basePool()->get_size(); ix += 1) {
+        PickElt pe = pl->get_elt(ix);
+        std::cout << pe.normFitness << " " << pe.cumFitness << std::endl;
+    }
+
+    //assert(pool->Write(cmdOpt.snapName));
 
     delete pool;
+    delete pl;
     journal << "stop" << std::endl;
     journal.close();
 

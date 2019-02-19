@@ -61,11 +61,14 @@ chromosome.o: chromosome.cpp chromosome.h netaut.h runner.h
 pool.o: pool.cpp pool.h chromosome.h netaut.h runner.h
 	$(CC) $(CXXFLAGS) -c -o $@ pool.cpp -I$(CSNAP) -I$(CGLIB) -I$(CBOOST)
 
-searcher.o: searcher.cpp runner.h chromosome.h
+picklist.o: picklist.cpp picklist.h pool.h chromosome.h netaut.h runner.h
+	$(CC) $(CXXFLAGS) -c -o $@ picklist.cpp -I$(CSNAP) -I$(CGLIB) -I$(CBOOST)
+
+searcher.o: searcher.cpp runner.h chromosome.h picklist.h pool.h
 	$(CC) $(CXXFLAGS) -c -o $@ searcher.cpp -I$(CSNAP) -I$(CGLIB) -I$(CBOOST)
 
-searcher: searcher.o runner.o chromosome.o pool.o machine.o machine2D.o machineR.o filter.o rule.o $(CSNAP)/Snap.o
-	$(CC) $(CXXFLAGS) -o $@ $@.o runner.o chromosome.o pool.o machine.o machine2D.o machineR.o filter.o rule.o $(CSNAP)/Snap.o $(LDFLAGS) $(LIBS)
+searcher: searcher.o runner.o chromosome.o pool.o picklist.o machine.o machine2D.o machineR.o filter.o rule.o $(CSNAP)/Snap.o
+	$(CC) $(CXXFLAGS) -o $@ $@.o runner.o chromosome.o pool.o picklist.o machine.o machine2D.o machineR.o filter.o rule.o $(CSNAP)/Snap.o $(LDFLAGS) $(LIBS)
 
 toy.o: toy.cpp
 	$(CC) $(CXXFLAGS) -c -o $@ toy.cpp

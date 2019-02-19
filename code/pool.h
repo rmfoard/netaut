@@ -14,9 +14,11 @@ public:
 
     int get_size();
     Chromosome* get_entry(int);
-    bool read(std::string);
     void put_entry(Chromosome*, int);
-    bool write(std::string);
+
+    double AvgFitness();
+    bool Read(std::string);
+    bool Write(std::string);
 
 private:
     int m_size;

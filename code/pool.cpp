@@ -30,12 +30,18 @@ Pool::~Pool() {
 
 Chromosome* Pool::get_entry(int ix) { return m_pool[ix]; }
 int Pool::get_size() { return m_size; }
-void Pool::put_entry(Chromosome* c, int ix) {
-    m_pool[ix] = c;
+void Pool::put_entry(Chromosome* c, int ix) { m_pool[ix] = c; }
+
+//---------------
+double Pool::AvgFitness() {
+    if (m_size == 0) return 0.0;
+    double sum = 0.0;
+    for (int ix = 0; ix < m_size; ix += 1) sum += m_pool[ix]->get_fitness();
+    return sum / m_size;
 }
 
 //---------------
-bool Pool::read(std::string filename) {
+bool Pool::Read(std::string filename) {
     std::ifstream infile;
     infile.open(filename, std::ios::in);
     if (!infile.is_open()) return false;
@@ -54,7 +60,7 @@ bool Pool::read(std::string filename) {
 }
 
 //---------------
-bool Pool::write(std::string filename) {
+bool Pool::Write(std::string filename) {
     if (m_size == 0) return false;
     std::ofstream outfile;
     outfile.open(filename, std::ios::trunc);
