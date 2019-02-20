@@ -23,7 +23,7 @@
 
 #define VERSION "V190219.0"
 
-#define POOLSIZE 40 // must be multiple of 4
+#define POOLSIZE 80 // must be multiple of 4
 #define MAXGENERATIONS 100
 #define PROBMUTATE 10 // /100.0
 
@@ -404,17 +404,13 @@ int main(const int argc, char* argv[]) {
     else {
         FillRandomPool(pool);
     }
-    /*PickList* pl = new PickList(pool);
-    for (int ix = 0; ix < pl->get_basePool()->get_size(); ix += 1) {
-        PickElt pe = pl->get_elt(ix);
-        std::cout << pe.normFitness << " " << pe.cumFitness << std::endl;
-    }*/
 
     // Simulate reproduction until...
     int generationNr = 0;
     double statistic = 0.0;
     while (generationNr < MAXGENERATIONS && statistic < 100000.0) { // TODO: Replace the test.
-        std::cout << "generation " << generationNr << " " << statistic << std::endl;
+        std::cerr << "generation " << generationNr << " " << statistic << std::endl;
+        journal << "generation " << generationNr << " " << statistic << std::endl;
         assert(pool->Write(cmdOpt.snapName));
         statistic = SimulateGeneration(generationNr, pool); // Replaces pool
         generationNr += 1;
@@ -422,9 +418,6 @@ int main(const int argc, char* argv[]) {
     assert(pool->Write(cmdOpt.snapName));
 
     delete pool;
-    /*
-    delete pl;
-    */
     journal << "info: stopping" << std::endl;
     journal.close();
 
