@@ -88,7 +88,7 @@ class Rule {
 public:
     // Constructors, from "rule number," "rule parts," and "rule text."
     Rule(const rulenr_t);
-    Rule(const int*);
+    Rule(const std::string, const int*);
     Rule(const char*);
     // TODO: Understand destructor declaration.
 

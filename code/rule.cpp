@@ -55,18 +55,34 @@ Rule::Rule(const rulenr_t ruleNr) {
 }
 
 //---------------
-// Rule constructor: from an int array of rule part numbers
+// Rule constructor: from an int array of rule-parts or sub-parts
 //
 //---------------
-Rule::Rule(const int* ruleParts) {
+Rule::Rule(const std::string partsType, const int* parts) {
     rulenr_t ruleNr = 0;
-    rulenr_t increase;
-    for (int partNr = 0; partNr < NR_TRIAD_STATES; partNr += 1) {
-        increase = ruleParts[partNr] * Raise(NR_ACTIONS, partNr);
-        assert(ruleParts[partNr] < NR_ACTIONS);
-        assert(increase <= (RULENR_MAX - ruleNr));
-        ruleNr += increase;
+    if (partsType == "parts") {
+        rulenr_t increase;
+        for (int partNr = 0; partNr < NR_TRIAD_STATES; partNr += 1) {
+            increase = parts[partNr] * Raise(NR_ACTIONS, partNr);
+            assert(parts[partNr] < NR_ACTIONS);
+            assert(increase <= (RULENR_MAX - ruleNr));
+            ruleNr += increase;
+        }
     }
+    else if (partsType == "subparts") {
+        rulenr_t multiplier = 1;
+        for (int ix = 0; ix < NR_TRIAD_STATES * 3; ix += 3) {
+            int part = parts[ix+0] * NR_DSTS * 2
+              + parts[ix+1] * 2
+              + parts[ix+2];
+            ruleNr += part * multiplier;
+            multiplier *= NR_ACTIONS;
+        }
+    }
+    else {
+        assert(false);
+    }
+
     Rule::CheckRuleNr(ruleNr);
     m_ruleNr = ruleNr;
 }
