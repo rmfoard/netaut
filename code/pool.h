@@ -17,8 +17,9 @@ public:
     void put_entry(Chromosome*, int);
 
     double AvgFitness();
-    bool Read(std::string);
-    bool Write(std::string);
+    bool Contains(const rulenr_t);
+    bool Read(const std::string);
+    bool Write(const std::string);
 
 private:
     int m_size;

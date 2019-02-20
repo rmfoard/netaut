@@ -24,7 +24,7 @@
 
 #define VERSION "V190219.0"
 
-#define POOLSIZE 80 // must be multiple of 4
+#define POOLSIZE 40
 #define MAXGENERATIONS 100
 #define PROBMUTATE 10 // /100.0
 #define NR_SUBPARTS (NR_TRIAD_STATES * 3)
@@ -38,7 +38,7 @@ static std::uniform_int_distribution<int> rn05(0, 5);
 
 static std::ofstream journal;
 
-static void ChooseParents(Pool*, Chromosome*&, Chromosome*&);
+static void ChooseParents(Pool*, PickList*, Chromosome*&, Chromosome*&);
 static void Cross(rulenr_t&, rulenr_t&);
 static void FillRandomPool(Pool*);
 static rulenr_t GenRandRule();
@@ -99,18 +99,21 @@ static struct option long_options[MAX_COMMAND_OPTIONS] = {
     {0, 0, 0, 0}
 };
 
+static void ShowParts(std::string title, int* parts) {
+/*
+    std::cout << title << ": ";
+    for (int i = 0; i < 24; i += 1) {
+        std::cout << parts[i] << " ";
+    }
+    std::cout << std::endl;
+*/
+}
+
 //---------------
 char* strAllocCpy(const char* src) { return strcpy(new char[strlen(src) + 1], src); }
 
 //---------------
-void ChooseParents(Pool* pool, Chromosome*& maC, Chromosome*& paC) {
-    // Create a "pick list" of all rules in the pool, arranged from
-    // most to least fit, with each accompanied by a cumulative (from
-    // the top of the list) fitness figure. A rule's associated cumu-
-    // lative fitness represents, in a sense, the total fitness of
-    // the rule and all more-fit rules. Fitness values are normalized.
-    PickList* pl = new PickList(pool);
-
+void ChooseParents(Pool* pool, PickList* pl, Chromosome*& maC, Chromosome*& paC) {
     // Select a target total fitness value randomly from [0.0, 1.0].
     // Scan down the list until reaching a cumulative fitness
     // greater than the target; use this location as the end of
@@ -123,11 +126,16 @@ void ChooseParents(Pool* pool, Chromosome*& maC, Chromosome*& paC) {
     int ix = 0;
     for ( ; (ix < pool->get_size()) && (pl->get_elt(ix).cumFitness <= targetCumFitness); ix += 1) ;
     // Note that ix can end up "off the end."
-    if (ix == 0) ix = 1; // special case -- can't "back up 1" from 0
+    // Ensure that the range has at least 2 elements.
+    if (ix < 2) ix = 2;
+ix = pool->get_size(); // force big selection range
 
-    // Choose two parents from the selected range.
-    int maIx = Uniform(0, ix-1);
-    int paIx = Uniform(0, ix-1);
+    // Choose two different parents from the selected range.
+    int maIx, paIx;
+    do {
+        maIx = Uniform(0, ix-1);
+        paIx = Uniform(0, ix-1);
+    } while (pl->get_elt(maIx).c->get_ruleNr() == pl->get_elt(paIx).c->get_ruleNr());
 
     // Create and return the parent chromosomes.
     Chromosome* prevMaC = pl->get_elt(maIx).c;
@@ -155,6 +163,8 @@ static void Cross(rulenr_t& rn1, rulenr_t& rn2) {
     r1subParts[ix] = r2subParts[ix];
     r2subParts[ix] = tmp;
 
+ShowParts("r1subParts: ", r1subParts);
+ShowParts("r2subParts: ", r2subParts);
     Rule* newR1 = new Rule("subparts", r1subParts);
     Rule* newR2 = new Rule("subparts", r2subParts);
     rn1 = newR1->get_ruleNr();
@@ -210,7 +220,7 @@ void Mutate(rulenr_t& rn) {
 
     // Randomly alter a randomly chosen sub-part.
     int spIx = Uniform(0, NR_SUBPARTS-1);
-    if ((spIx % 2) == 0) { // If it's a node state [0, 1], invert it.
+    if ((spIx % 3) == 2) { // If it's a node state [0, 1], invert it.
         subParts[spIx] = 1 - subParts[spIx];
     }
     else { // It's an edge destination specifier [0, 5], select a different one.
@@ -221,6 +231,7 @@ void Mutate(rulenr_t& rn) {
         subParts[spIx] = newDst;
     }
 
+ShowParts("subParts: ", subParts);
     Rule* newRule = new Rule("subparts", subParts);
     rn = newRule->get_ruleNr();
     delete subParts;
@@ -260,7 +271,7 @@ void ParseCommand(const int argc, char* argv[]) {
     cmdOpt.rulePresent = false;
     cmdOpt.machineTypeName = "C";
     cmdOpt.journalName = "searcher";
-    cmdOpt.snapName = "snapshot";
+    cmdOpt.snapName = "snapshot.txt";
     cmdOpt.resumeFromName = "";
 
     while (true) {
@@ -372,23 +383,59 @@ void ParseCommand(const int argc, char* argv[]) {
 double SimulateGeneration(int generationNr, Pool*& pool) {
     Pool* newPool = new Pool(pool->get_size());
     int newPoolSize = 0;
-    assert(POOLSIZE % 4 == 0); // TODO: static_assert?
+
+    // Create a "pick list" of all rules in the pool, arranged from
+    // most to least fit, with each accompanied by a cumulative (from
+    // the top of the list) fitness figure. A rule's associated cumu-
+    // lative fitness represents, in a sense, the total fitness of
+    // the rule and all more-fit rules. Fitness values are normalized.
+    PickList* pickList = new PickList(pool);
 
     while (newPoolSize < POOLSIZE) {
         Chromosome* maC;
         Chromosome* paC;
 
-        // Choose 2 parents (copies) from pool, insert in new pool.
-        ChooseParents(pool, maC, paC);
-        newPool->put_entry(maC, newPoolSize++);
-        newPool->put_entry(paC, newPoolSize++);
+        // Choose 2 parents (copies) from the existing pool.
+        // Insert them in the new pool if they're not already in.
+        ChooseParents(pool, pickList, maC, paC);
+        if (newPool->Contains(maC->get_ruleNr()))
+            delete maC;
+        else {
+            newPool->put_entry(maC, newPoolSize);
+            if (++newPoolSize == POOLSIZE) {
+                delete paC;
+                break;
+            }
+        }
 
-        // Create 2 children, insert in new pool.
+        if (newPool->Contains(paC->get_ruleNr()))
+            delete paC;
+        else {
+            newPool->put_entry(paC, newPoolSize);
+            if (++newPoolSize == POOLSIZE) break;
+        }
+
+        // Create 2 children and insert them in the new pool if
+        // they're not already in.
         Chromosome* c1C;
         Chromosome* c2C;
         MutateAndCross(maC, paC, c1C, c2C);
-        newPool->put_entry(c1C, newPoolSize++);
-        newPool->put_entry(c2C, newPoolSize++);
+        if (newPool->Contains(c1C->get_ruleNr()))
+            delete c1C;
+        else {
+            newPool->put_entry(c1C, newPoolSize);
+            if (++newPoolSize == POOLSIZE) {
+                delete c2C;
+                break;
+            }
+        }
+
+        if (newPool->Contains(c2C->get_ruleNr()))
+            delete c2C;
+        else {
+            newPool->put_entry(c2C, newPoolSize);
+            ++newPoolSize;
+        }
     }
     delete pool;
     pool = newPool;

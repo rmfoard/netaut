@@ -50,7 +50,7 @@ bool MapMatchesMask(RuleMask rMap, RuleMask gMask) {
 //---------------
 Rule::Rule(const rulenr_t ruleNr) {
     static_assert(sizeof(rulenr_t) == sizeof(uintmax_t), "faulty type size assumption");
-    CheckRuleNr(ruleNr);
+    CheckRuleNr(ruleNr, "Rule(rulenr_t)");
     m_ruleNr = ruleNr;
 }
 
@@ -72,7 +72,7 @@ Rule::Rule(const std::string partsType, int* parts) {
     else if (partsType == "subparts") {
         rulenr_t multiplier = 1;
         for (int ix = 0; ix < NR_TRIAD_STATES * 3; ix += 3) {
-            int part = parts[ix+0] * NR_DSTS * 2
+            rulenr_t part = parts[ix+0] * NR_DSTS * 2
               + parts[ix+1] * 2
               + parts[ix+2];
             ruleNr += part * multiplier;
@@ -83,7 +83,7 @@ Rule::Rule(const std::string partsType, int* parts) {
         assert(false);
     }
 
-    Rule::CheckRuleNr(ruleNr);
+    Rule::CheckRuleNr(ruleNr, "Rule(\"subparts\",..)");
     m_ruleNr = ruleNr;
 }
 
@@ -113,7 +113,7 @@ Rule::Rule(const char* ruleText) {
         m_ruleNr = m_ruleNr + (rulePart * Raise(NR_ACTIONS, partNr));
         tok = strtok(NULL, " ,-;");
     }
-    CheckRuleNr(m_ruleNr);
+    CheckRuleNr(m_ruleNr, "Rule(ruleText)");
     delete text;
 }
 
@@ -188,9 +188,9 @@ int Rule::dstIndex(const char* dstStr) {
 //
 // Checks for overlarge rule number.
 //---------------
-void Rule::CheckRuleNr(rulenr_t ruleNr) {
+void Rule::CheckRuleNr(rulenr_t ruleNr, std::string illumination) {
     if (ruleNr > get_maxRuleNr())
-        throw std::runtime_error(std::string("rule number overflow") + std::to_string(ruleNr));
+        throw std::runtime_error(std::string("rule number overflow, ") + illumination + ", ruleNr: " + std::to_string(ruleNr));
 }
 
 //---------------

@@ -41,7 +41,15 @@ double Pool::AvgFitness() {
 }
 
 //---------------
-bool Pool::Read(std::string filename) {
+bool Pool::Contains(const rulenr_t ruleNr) {
+    for (int ix = 0; ix < m_size; ix += 1)
+        if (m_pool[ix] && m_pool[ix]->get_ruleNr() == ruleNr) return true;
+
+    return false;
+}
+
+//---------------
+bool Pool::Read(const std::string filename) {
     std::ifstream infile;
     infile.open(filename, std::ios::in);
     if (!infile.is_open()) return false;
@@ -60,7 +68,7 @@ bool Pool::Read(std::string filename) {
 }
 
 //---------------
-bool Pool::Write(std::string filename) {
+bool Pool::Write(const std::string filename) {
     if (m_size == 0) return false;
     std::ofstream outfile;
     outfile.open(filename, std::ios::trunc);

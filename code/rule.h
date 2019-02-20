@@ -102,7 +102,7 @@ public:
     bool PassesFilter(const Filter& filter);
 
 private:
-    void CheckRuleNr(const rulenr_t);
+    void CheckRuleNr(const rulenr_t, const std::string);
     int dstIndex(const char*);
 
     rulenr_t m_ruleNr;
