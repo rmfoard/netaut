@@ -128,7 +128,6 @@ void ChooseParents(Pool* pool, PickList* pl, Chromosome*& maC, Chromosome*& paC)
     // Note that ix can end up "off the end."
     // Ensure that the range has at least 2 elements.
     if (ix < 2) ix = 2;
-ix = pool->get_size(); // force big selection range
 
     // Choose two different parents from the selected range.
     int maIx, paIx;
