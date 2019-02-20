@@ -384,7 +384,7 @@ int main(const int argc, char* argv[]) {
     }
     journal << "info: starting, poolsize: "
       << POOLSIZE << " randseed: "
-      << cmdOpt.randseed << " snapshot: "
+      << cmdOpt.randSeed << " snapshot: "
       << cmdOpt.snapName
       << std::endl;
 
