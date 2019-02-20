@@ -19,6 +19,7 @@
 #include "chromosome.h"
 #include "pool.h"
 #include "picklist.h"
+#include "rule.h"
 #include "runner.h"
 
 #define VERSION "V190219.0"
@@ -26,6 +27,7 @@
 #define POOLSIZE 80 // must be multiple of 4
 #define MAXGENERATIONS 100
 #define PROBMUTATE 10 // /100.0
+#define NR_SUBPARTS (NR_TRIAD_STATES * 3)
 
 // Set up the Mersenne Twister random number generator.
 // 'pMersenne' will point to a seeded instantiation of the generator.
@@ -37,9 +39,10 @@ static std::uniform_int_distribution<int> rn05(0, 5);
 static std::ofstream journal;
 
 static void ChooseParents(Pool*, Chromosome*&, Chromosome*&);
+static void Cross(rulenr_t&, rulenr_t&);
 static void FillRandomPool(Pool*);
-static void FlipABit(rulenr_t&);
 static rulenr_t GenRandRule();
+static void Mutate(rulenr_t&);
 static void MutateAndCross(Chromosome*, Chromosome*, Chromosome*&, Chromosome*&);
 static void ParseCommand(const int, char**);
 static double SimulateGeneration(int, Pool*&);
@@ -136,14 +139,39 @@ void ChooseParents(Pool* pool, Chromosome*& maC, Chromosome*& paC) {
 }
 
 //---------------
-void FillRandomPool(Pool* p) {
-    int size = p->get_size();
-    for (int i = 0; i < size; i += 1) p->put_entry(new Chromosome(GenRandRule()), i);
+static void Cross(rulenr_t& rn1, rulenr_t& rn2) {
+    // Get the rules' sub-parts.
+    Rule* r1 = new Rule(rn1);
+    Rule* r2 = new Rule(rn2);
+    int* r1subParts = r1->get_ruleSubParts();
+    int* r2subParts = r2->get_ruleSubParts();
+
+    // Ensure that the swap changes both (and that the loop termination condition holds).
+    assert(rn1 != rn2);
+    int ix = Uniform(0, NR_SUBPARTS-1);
+    while (r1subParts[ix] == r2subParts[ix]) ix = (ix + 1) % NR_SUBPARTS;
+
+    int tmp = r1subParts[ix];
+    r1subParts[ix] = r2subParts[ix];
+    r2subParts[ix] = tmp;
+
+    Rule* newR1 = new Rule("subparts", r1subParts);
+    Rule* newR2 = new Rule("subparts", r2subParts);
+    rn1 = newR1->get_ruleNr();
+    rn2 = newR2->get_ruleNr();
+
+    delete r1subParts;
+    delete r2subParts;
+    delete r1;
+    delete r2;
+    delete newR1;
+    delete newR2;
 }
 
 //---------------
-void FlipABit(rulenr_t& rn) {
-    rn = rn ^ (((rulenr_t) 1) << Uniform(0, 42));
+void FillRandomPool(Pool* p) {
+    int size = p->get_size();
+    for (int i = 0; i < size; i += 1) p->put_entry(new Chromosome(GenRandRule()), i);
 }
 
 //---------------
@@ -175,34 +203,45 @@ rulenr_t GenRandRule() {
 }
 
 //---------------
+void Mutate(rulenr_t& rn) {
+    // Get the rule's sub-parts.
+    Rule* origRule = new Rule(rn);
+    int* subParts = origRule->get_ruleSubParts();
+
+    // Randomly alter a randomly chosen sub-part.
+    int spIx = Uniform(0, NR_SUBPARTS-1);
+    if ((spIx % 2) == 0) { // If it's a node state [0, 1], invert it.
+        subParts[spIx] = 1 - subParts[spIx];
+    }
+    else { // It's an edge destination specifier [0, 5], select a different one.
+        int newDst;
+        do {
+            newDst = Uniform(0, 5);
+        } while (newDst == subParts[spIx]);
+        subParts[spIx] = newDst;
+    }
+
+    Rule* newRule = new Rule("subparts", subParts);
+    rn = newRule->get_ruleNr();
+    delete subParts;
+    delete origRule;
+    delete newRule;
+}
+
+//---------------
 void MutateAndCross(Chromosome* maC, Chromosome* paC, Chromosome*& c1C, Chromosome*& c2C) {
-    rulenr_t c1ruleNr = maC->get_ruleNr();
-    rulenr_t c2ruleNr = paC->get_ruleNr();
+    rulenr_t c1rn = maC->get_ruleNr();
+    rulenr_t c2rn = paC->get_ruleNr();
 
     // Mutate.
-    if (Uniform(0, 99) < PROBMUTATE) FlipABit(c1ruleNr);
-    if (Uniform(0, 99) < PROBMUTATE) FlipABit(c2ruleNr);
+    if (Uniform(0, 99) < PROBMUTATE) Mutate(c1rn);
+    if (Uniform(0, 99) < PROBMUTATE) Mutate(c2rn);
 
-    // Exchange a bit.
-    int bitNr = Uniform(0, 42);
-    rulenr_t mask = ((rulenr_t) 1) << bitNr;
+    // Cross.
+    Cross(c1rn, c2rn);
 
-    rulenr_t newC1ruleNr;
-    rulenr_t newC2ruleNr;
-
-    if (mask && c1ruleNr == mask)
-        newC2ruleNr = c2ruleNr | mask;
-    else
-        newC2ruleNr = c2ruleNr & ~mask;
-
-    if (mask && c2ruleNr == mask)
-        newC1ruleNr = c1ruleNr | mask;
-    else
-        newC1ruleNr = c1ruleNr & ~mask;
-
-    // TODO: Optimize for no change in rules, wary of flips.
-    c1C = new Chromosome(newC1ruleNr, -1);
-    c2C = new Chromosome(newC2ruleNr, -1);
+    c1C = new Chromosome(c1rn, -1); // -1 => absent fitness
+    c2C = new Chromosome(c2rn, -1);
 }
 
 //---------------

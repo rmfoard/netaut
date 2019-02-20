@@ -58,7 +58,7 @@ Rule::Rule(const rulenr_t ruleNr) {
 // Rule constructor: from an int array of rule-parts or sub-parts
 //
 //---------------
-Rule::Rule(const std::string partsType, const int* parts) {
+Rule::Rule(const std::string partsType, int* parts) {
     rulenr_t ruleNr = 0;
     if (partsType == "parts") {
         rulenr_t increase;
@@ -132,7 +132,7 @@ rulenr_t Rule::get_maxRuleNr() { return Raise(NR_ACTIONS, NR_TRIAD_STATES) - 1; 
 //---------------
 // get_ruleParts
 //---------------
-const int* Rule::get_ruleParts() {
+int* Rule::get_ruleParts() {
     int* rp = new int[NR_TRIAD_STATES];
     rulenr_t dividend = m_ruleNr;
     for (int triadState = 0; triadState < NR_TRIAD_STATES; triadState += 1) {
@@ -145,7 +145,7 @@ const int* Rule::get_ruleParts() {
 //---------------
 // get_ruleSubParts
 //---------------
-const int* Rule::get_ruleSubParts() {
+int* Rule::get_ruleSubParts() {
     int* rsp = new int[NR_TRIAD_STATES * 3];
     rulenr_t dividend = m_ruleNr;
     for (int triadState = 0; triadState < NR_TRIAD_STATES; triadState += 1) {
@@ -163,7 +163,7 @@ const int* Rule::get_ruleSubParts() {
 //---------------
 std::string Rule::get_ruleText() {
     std::string rt = std::string("");
-    const int* rp = get_ruleParts();
+    int* rp = get_ruleParts();
     for (int partNr = 0; partNr < NR_TRIAD_STATES; partNr += 1) {
         rt += RulePartText(rp[partNr]);
         if (partNr < NR_TRIAD_STATES - 1) rt += ";";
