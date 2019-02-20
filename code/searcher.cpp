@@ -220,8 +220,8 @@ void ParseCommand(const int argc, char* argv[]) {
     cmdOpt.cycleCheckDepth = 1031;
     cmdOpt.rulePresent = false;
     cmdOpt.machineTypeName = "C";
-    cmdOpt.journalName = "log";
-    cmdOpt.snapName = "searcher_snapshot";
+    cmdOpt.journalName = "searcher";
+    cmdOpt.snapName = "snapshot";
     cmdOpt.resumeFromName = "";
 
     while (true) {
@@ -376,18 +376,17 @@ int main(const int argc, char* argv[]) {
     // Instantiate a seeded Mersenne random number generator.
     pMersenne = new std::mt19937((std::mt19937::result_type) cmdOpt.randSeed);
 
-    // Open the journal.
+    // Open the journal and log parameters.
     journal.open(cmdOpt.journalName + ".log", std::ios::app);
     if (!journal.is_open()) {
         std::cerr << "error: can't open the log file" << std::endl;
         exit(1);
     }
-    journal << "info: starting" << std::endl;
-
-    // Prepare the snapshot file name.
-    cmdOpt.snapName = cmdOpt.snapName + "_snap_" + std::to_string(getpid()) + ".txt";
-    std::cerr << "info: saving continuously updated pool snapshots in: " << cmdOpt.snapName << std::endl;
-    journal << "info: saving continuously updated pool snapshots in: " << cmdOpt.snapName << std::endl;
+    journal << "info: starting, poolsize: "
+      << POOLSIZE << " randseed: "
+      << cmdOpt.randseed << " snapshot: "
+      << cmdOpt.snapName
+      << std::endl;
 
     // Create a random pool or read it if we're resuming from a file.
     Pool* pool = new Pool(POOLSIZE);
