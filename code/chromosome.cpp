@@ -43,6 +43,7 @@ double Chromosome::get_fitness() {
         r->Run();
         m_fitness = r->m_nrCcs;
         assert(m_fitness >= 0);
+        delete r;
     }
     return m_fitness;
 }
