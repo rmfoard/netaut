@@ -20,6 +20,7 @@ public:
 
     Pool* get_basePool();
     PickElt get_elt(int);
+    void Log(std::ostream&, int, int);
 
 
 private:

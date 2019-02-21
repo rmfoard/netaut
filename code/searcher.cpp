@@ -380,9 +380,6 @@ void ParseCommand(const int argc, char* argv[]) {
 
 //---------------
 double SimulateGeneration(int generationNr, Pool*& pool) {
-    Pool* newPool = new Pool(pool->get_size());
-    int newPoolSize = 0;
-
     // Create a "pick list" of all rules in the pool, arranged from
     // most to least fit, with each accompanied by a cumulative (from
     // the top of the list) fitness figure. A rule's associated cumu-
@@ -390,6 +387,12 @@ double SimulateGeneration(int generationNr, Pool*& pool) {
     // the rule and all more-fit rules. Fitness values are normalized.
     PickList* pickList = new PickList(pool);
 
+    // Log the current pool state to the journal.
+    pickList->Log(std::cout, cmdOpt.randSeed, generationNr);
+
+    // Create and fill the next generation pool.
+    Pool* newPool = new Pool(pool->get_size());
+    int newPoolSize = 0;
     while (newPoolSize < POOLSIZE) {
         Chromosome* maC;
         Chromosome* paC;
@@ -504,7 +507,5 @@ int main(const int argc, char* argv[]) {
     delete pool;
     journal << "info: stopping" << std::endl;
     journal.close();
-
-    std::cout << "finis." << std::endl;
     exit(0);
 }
