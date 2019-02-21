@@ -397,25 +397,9 @@ double SimulateGeneration(int generationNr, Pool*& pool) {
         Chromosome* maC;
         Chromosome* paC;
 
-        // Choose 2 parents (copies) from the existing pool.
-        // Insert them in the new pool if they're not already in.
+        // Choose 2 distinct parents (copies thereof) from the existing pool.
         ChooseParents(pool, pickList, maC, paC);
-        if (newPool->Contains(maC->get_ruleNr()))
-            delete maC;
-        else {
-            newPool->put_entry(maC, newPoolSize);
-            if (++newPoolSize == POOLSIZE) {
-                delete paC;
-                break;
-            }
-        }
-
-        if (newPool->Contains(paC->get_ruleNr()))
-            delete paC;
-        else {
-            newPool->put_entry(paC, newPoolSize);
-            if (++newPoolSize == POOLSIZE) break;
-        }
+        assert(maC->get_ruleNr() != paC->get_ruleNr());
 
         // Create 2 children and insert them in the new pool if
         // they're not already in.
@@ -436,6 +420,25 @@ double SimulateGeneration(int generationNr, Pool*& pool) {
             delete c2C;
         else {
             newPool->put_entry(c2C, newPoolSize);
+            if (++newPoolSize == POOLSIZE) break;
+        }
+
+        // Insert the parents in the new pool if they're not already in.
+        // (note that if the kids fill it, the parents don't make it)
+        if (newPool->Contains(maC->get_ruleNr()))
+            delete maC;
+        else {
+            newPool->put_entry(maC, newPoolSize);
+            if (++newPoolSize == POOLSIZE) {
+                delete paC;
+                break;
+            }
+        }
+
+        if (newPool->Contains(paC->get_ruleNr()))
+            delete paC;
+        else {
+            newPool->put_entry(paC, newPoolSize);
             ++newPoolSize;
         }
     }
