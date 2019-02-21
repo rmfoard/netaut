@@ -242,10 +242,32 @@ ShowParts("subParts: ", subParts);
 void MutateAndCross(Chromosome* maC, Chromosome* paC, Chromosome*& c1C, Chromosome*& c2C) {
     rulenr_t c1rn = maC->get_ruleNr();
     rulenr_t c2rn = paC->get_ruleNr();
+    //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+    if (maC->get_ruleNr() == paC->get_ruleNr()) {
+        std::cerr << "r==r 3" << std::endl;
+        assert(false);
+    }
+    //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+    //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+    if (c1rn == c2rn) {
+        std::cerr << "r==r 4" << std::endl;
+        assert(false);
+    }
+    //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
-    // Mutate.
-    if (Uniform(0, 99) < PROBMUTATE) Mutate(c1rn);
-    if (Uniform(0, 99) < PROBMUTATE) Mutate(c2rn);
+    // Possibly mutate exactly one of the pair.
+    if (Uniform(0, 99) < PROBMUTATE) {
+        Mutate(c1rn);
+        int sink = Uniform(0, 99); // preserve repeatability
+    }
+    else
+        if (Uniform(0, 99) < PROBMUTATE) Mutate(c2rn);
+    //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+    if (c1rn == c2rn) {
+        std::cerr << "r==r 5" << std::endl;
+        assert(false);
+    }
+    //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
     // Cross.
     Cross(c1rn, c2rn);
@@ -387,7 +409,7 @@ double SimulateGeneration(int generationNr, Pool*& pool) {
     // the rule and all more-fit rules. Fitness values are normalized.
     PickList* pickList = new PickList(pool);
 
-    // Log the current pool state to the journal.
+    // Log the current pool state to stdout.
     pickList->Log(std::cout, cmdOpt.randSeed, generationNr);
 
     // Create and fill the next generation pool.
@@ -399,12 +421,24 @@ double SimulateGeneration(int generationNr, Pool*& pool) {
 
         // Choose 2 distinct parents (copies thereof) from the existing pool.
         ChooseParents(pool, pickList, maC, paC);
-        assert(maC->get_ruleNr() != paC->get_ruleNr());
+        //assert(maC->get_ruleNr() != paC->get_ruleNr());
+        //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        if (maC->get_ruleNr() == paC->get_ruleNr()) {
+            std::cerr << "r==r 1" << std::endl;
+            assert(false);
+        }
+        //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
         // Create 2 children and insert them in the new pool if
         // they're not already in.
         Chromosome* c1C;
         Chromosome* c2C;
+        //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        if (maC->get_ruleNr() == paC->get_ruleNr()) {
+            std::cerr << "r==r 2" << std::endl;
+            assert(false);
+        }
+        //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
         MutateAndCross(maC, paC, c1C, c2C);
         if (newPool->Contains(c1C->get_ruleNr()))
             delete c1C;
@@ -443,6 +477,7 @@ double SimulateGeneration(int generationNr, Pool*& pool) {
         }
     }
     delete pool;
+    delete pickList;
     pool = newPool;
     return pool->AvgFitness();
 }
