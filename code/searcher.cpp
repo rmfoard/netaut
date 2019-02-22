@@ -22,7 +22,7 @@
 #include "rule.h"
 #include "runner.h"
 
-#define VERSION "V190219.0"
+#define VERSION "V190222.0"
 
 #define POOLSIZE 40
 #define MAXGENERATIONS 100
@@ -59,8 +59,10 @@ struct CommandOpts {
     int noConsole;
     int extendId;
     int nrNodes;
+    int maxGenerations;
     unsigned int cycleCheckDepth;
     bool rulePresent;
+    double cumFitnessExp;
     std::string machineTypeName;
     std::string journalName;
     std::string snapName;
@@ -79,6 +81,8 @@ static CommandOpts cmdOpt;
 #define CO_NOOP 1004
 #define CO_SNAP 1005
 #define CO_RESUME 1006
+#define CO_MAXGENERATIONS 1007
+#define CO_CUMFITNESSEXP 1008
 
 static struct option long_options[MAX_COMMAND_OPTIONS] = {
     {"no-console", no_argument, &cmdOpt.noConsole, 1},
@@ -90,7 +94,8 @@ static struct option long_options[MAX_COMMAND_OPTIONS] = {
     {"nodes", required_argument, 0, 'n'},
     {"noop", no_argument, 0, CO_NOOP},
     {"randseed", required_argument, 0, 'a'},
-    {"rule", required_argument, 0, 'r'},
+    {"max-generations", required_argument, 0, CO_MAXGENERATIONS},
+    {"cum-fitness-exp", required_argument, 0, CO_CUMFITNESSEXP},
     {"log", required_argument, 0, CO_JOURNAL},
     {"snapshot", required_argument, 0, CO_SNAP},
     {"resume-from", required_argument, 0, CO_RESUME},
@@ -98,16 +103,6 @@ static struct option long_options[MAX_COMMAND_OPTIONS] = {
     {"help", no_argument, 0, CO_HELP},
     {0, 0, 0, 0}
 };
-
-static void ShowParts(std::string title, int* parts) {
-/*
-    std::cout << title << ": ";
-    for (int i = 0; i < 24; i += 1) {
-        std::cout << parts[i] << " ";
-    }
-    std::cout << std::endl;
-*/
-}
 
 //---------------
 char* strAllocCpy(const char* src) { return strcpy(new char[strlen(src) + 1], src); }
@@ -162,8 +157,6 @@ static void Cross(rulenr_t& rn1, rulenr_t& rn2) {
     r1subParts[ix] = r2subParts[ix];
     r2subParts[ix] = tmp;
 
-ShowParts("r1subParts: ", r1subParts);
-ShowParts("r2subParts: ", r2subParts);
     Rule* newR1 = new Rule("subparts", r1subParts);
     Rule* newR2 = new Rule("subparts", r2subParts);
     rn1 = newR1->get_ruleNr();
@@ -230,7 +223,6 @@ void Mutate(rulenr_t& rn) {
         subParts[spIx] = newDst;
     }
 
-ShowParts("subParts: ", subParts);
     Rule* newRule = new Rule("subparts", subParts);
     rn = newRule->get_ruleNr();
     delete subParts;
@@ -275,8 +267,10 @@ void ParseCommand(const int argc, char* argv[]) {
     cmdOpt.noConsole = 0;
     cmdOpt.extendId = 0;
     cmdOpt.nrNodes = 1031;
-    cmdOpt.cycleCheckDepth = 1031;
+    cmdOpt.maxGenerations = 100;
+    cmdOpt.cycleCheckDepth = 16;
     cmdOpt.rulePresent = false;
+    cmdOpt.cumFitnessExp = 1.0;
     cmdOpt.machineTypeName = "C";
     cmdOpt.journalName = "searcher";
     cmdOpt.snapName = "snapshot.txt";
@@ -336,6 +330,16 @@ void ParseCommand(const int argc, char* argv[]) {
                 std::cerr << "warning: 0 cycle-check-depth is replaced with nrNodes" << std::endl;
             break;
 
+          case CO_MAXGENERATIONS:
+            cmdOpt.maxGenerations = atoi(optarg);
+            break;
+
+          case CO_CUMFITNESSEXP:
+            cmdOpt.cumFitnessExp = atof(optarg);
+            if (cmdOpt.cumFitnessExp <= 0)
+                std::cerr << "warning: nonpositive exponent" << std::endl;
+            break;
+
           case CO_HELP:
             printf("Command options:\n");
             for (auto entry : long_options) if (entry.name != NULL) {
@@ -382,9 +386,6 @@ void ParseCommand(const int argc, char* argv[]) {
         while (optind < argc) printf ("%s ", argv[optind++]);
         putchar ('\n');
     }
-
-    // Check 'nrNodes' generations for cycles unless depth was set explicitly.
-    if (cmdOpt.cycleCheckDepth == 0) cmdOpt.cycleCheckDepth = cmdOpt.nrNodes;
 }
 
 //---------------
@@ -394,7 +395,7 @@ double SimulateGeneration(int generationNr, Pool*& pool) {
     // the top of the list) fitness figure. A rule's associated cumu-
     // lative fitness represents, in a sense, the total fitness of
     // the rule and all more-fit rules. Fitness values are normalized.
-    PickList* pickList = new PickList(pool);
+    PickList* pickList = new PickList(pool, cmdOpt.cumFitnessExp);
 
     // Log the current pool state to stdout.
     pickList->Log(std::cout, cmdOpt.randSeed, generationNr);
@@ -508,9 +509,9 @@ int main(const int argc, char* argv[]) {
     // Simulate reproduction until...
     int generationNr = 0;
     double statistic = pool->AvgFitness();
-    std::cerr << MAXGENERATIONS << " generations" << std::endl;
+    std::cerr << cmdOpt.maxGenerations << " generations" << std::endl;
     std::cerr << "gen max avg" << std::endl;
-    while (generationNr < MAXGENERATIONS && statistic < 100000.0) { // TODO: Replace the test.
+    while (generationNr < cmdOpt.maxGenerations && statistic < 100000.0) { // TODO: Replace the test.
         std::cerr
           << generationNr << " "
           << statistic << " "

@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <math.h>
 #include <stdio.h>
 #include <algorithm>
 #include <iostream>
@@ -15,8 +16,9 @@
 // PickList constructor
 //
 //---------------
-PickList::PickList(Pool* basePool) {
+PickList::PickList(Pool* basePool, double cumFitnessExp) {
     m_basePool = basePool;
+    m_cumFitnessExp = cumFitnessExp;
     int poolSize = basePool->get_capacity();
     m_list.reserve(poolSize);
 
@@ -37,12 +39,12 @@ PickList::PickList(Pool* basePool) {
     std::sort(&m_list[0], &m_list[poolSize],
       [](const PickElt& a, const PickElt& b) { return a.normFitness > b.normFitness; });
 
-    // Pass the list adding cumulative fitness.
+    // Pass the list adding cumulative [exponentiated] fitness.
     double cumFitness = m_list[0].normFitness;
-    m_list[0].cumFitness = cumFitness;
+    m_list[0].cumFitness = pow(cumFitness, cumFitnessExp);
     for (int ix = 1; ix < poolSize; ix += 1) {
         cumFitness += m_list[ix].normFitness;
-        m_list[ix].cumFitness = cumFitness;
+        m_list[ix].cumFitness = pow(cumFitness, cumFitnessExp);
     }
 }
 
@@ -51,6 +53,7 @@ PickList::~PickList() {
 }
 
 Pool* PickList::get_basePool() { return m_basePool; }
+double PickList::get_cumFitnessExp() { return m_cumFitnessExp; }
 PickElt PickList::get_elt(int ix) { return m_list[ix]; }
 
 //---------------

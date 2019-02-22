@@ -15,16 +15,18 @@ struct PickElt {
 class PickList {
 
 public:
-    PickList(Pool*);
+    PickList(Pool*, double);
     ~PickList();
 
     Pool* get_basePool();
+    double get_cumFitnessExp();
     PickElt get_elt(int);
     void Log(std::ostream&, int, int);
 
 
 private:
     Pool* m_basePool;
+    double m_cumFitnessExp;
     std::vector<PickElt> m_list;
 };
 #endif
