@@ -42,10 +42,13 @@ double Chromosome::get_fitness() {
         Runner* r = new Runner(m_ruleNr);
         r->Run();
 
+/* Clustering Coefficient = 0.30
         if (r->m_avgClustCoef > 0.3)
             m_fitness = 1.0 - (r->m_avgClustCoef - 0.3);
         else
             m_fitness = 1.0 - (0.3 - r->m_avgClustCoef);
+*/
+        m_fitness = r->m_nrCcs / (double) r->m_nrNodes;
         assert(m_fitness >= 0);
         delete r;
     }
