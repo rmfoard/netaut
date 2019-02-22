@@ -24,7 +24,6 @@
 
 #define VERSION "V190222.0"
 
-#define POOLSIZE 40
 #define MAXGENERATIONS 100
 #define PROBMUTATE 10 // /100.0
 #define NR_SUBPARTS (NR_TRIAD_STATES * 3)
@@ -63,6 +62,7 @@ struct CommandOpts {
     unsigned int cycleCheckDepth;
     bool rulePresent;
     double cumFitnessExp;
+    int poolSize;
     std::string machineTypeName;
     std::string journalName;
     std::string snapName;
@@ -83,6 +83,7 @@ static CommandOpts cmdOpt;
 #define CO_RESUME 1006
 #define CO_MAXGENERATIONS 1007
 #define CO_CUMFITNESSEXP 1008
+#define CO_POOLSIZE 1009
 
 static struct option long_options[MAX_COMMAND_OPTIONS] = {
     {"no-console", no_argument, &cmdOpt.noConsole, 1},
@@ -96,6 +97,7 @@ static struct option long_options[MAX_COMMAND_OPTIONS] = {
     {"randseed", required_argument, 0, 'a'},
     {"max-generations", required_argument, 0, CO_MAXGENERATIONS},
     {"cum-fitness-exp", required_argument, 0, CO_CUMFITNESSEXP},
+    {"pool-size", required_argument, 0, CO_POOLSIZE},
     {"log", required_argument, 0, CO_JOURNAL},
     {"snapshot", required_argument, 0, CO_SNAP},
     {"resume-from", required_argument, 0, CO_RESUME},
@@ -256,6 +258,83 @@ void MutateAndCross(Chromosome* maC, Chromosome* paC, Chromosome*& c1C, Chromoso
 }
 
 //---------------
+double SimulateGeneration(int generationNr, Pool*& pool) {
+    // Create a "pick list" of all rules in the pool, arranged from
+    // most to least fit, with each accompanied by a cumulative (from
+    // the top of the list) fitness figure. A rule's associated cumu-
+    // lative fitness represents, in a sense, the total fitness of
+    // the rule and all more-fit rules. Fitness values are normalized.
+    PickList* pickList = new PickList(pool, cmdOpt.cumFitnessExp);
+
+    // Log the current pool state to stdout.
+    pickList->Log(std::cout, cmdOpt.randSeed, generationNr);
+
+    // Create and fill the next generation pool.
+    Pool* newPool = new Pool(pool->get_capacity());
+    int newPoolNrElts = 0;
+    while (newPoolNrElts < cmdOpt.poolSize) {
+        Chromosome* maC;
+        Chromosome* paC;
+
+        // Choose 2 distinct parents (copies thereof) from the existing pool.
+        ChooseParents(pool, pickList, maC, paC);
+        //assert(maC->get_ruleNr() != paC->get_ruleNr());
+
+        // Create 2 children and insert them in the new pool if
+        // they're not already in.
+        Chromosome* c1C;
+        Chromosome* c2C;
+        MutateAndCross(maC, paC, c1C, c2C);
+        if (newPool->Contains(c1C->get_ruleNr()))
+            delete c1C;
+        else {
+            newPool->put_entry(c1C, newPoolNrElts);
+            if (++newPoolNrElts == cmdOpt.poolSize) {
+                delete c2C;
+                break;
+            }
+        }
+
+        if (newPool->Contains(c2C->get_ruleNr()))
+            delete c2C;
+        else {
+            newPool->put_entry(c2C, newPoolNrElts);
+            if (++newPoolNrElts == cmdOpt.poolSize) break;
+        }
+
+        // Insert the parents in the new pool if they're not already in.
+        // (note that if the kids fill it, the parents don't make it)
+        if (newPool->Contains(maC->get_ruleNr()))
+            delete maC;
+        else {
+            newPool->put_entry(maC, newPoolNrElts);
+            if (++newPoolNrElts == cmdOpt.poolSize) {
+                delete paC;
+                break;
+            }
+        }
+
+        if (newPool->Contains(paC->get_ruleNr()))
+            delete paC;
+        else {
+            newPool->put_entry(paC, newPoolNrElts);
+            ++newPoolNrElts;
+        }
+    }
+    delete pool;
+    delete pickList;
+    pool = newPool;
+    return pool->AvgFitness();
+}
+
+//---------------
+int Uniform(int lo, int hi) {
+    assert(0 <= lo && lo <= hi);
+    if (hi == 0 && lo == 0) return 0;
+    return lo + (rand() % (hi - lo + 1));
+}
+
+//---------------
 void ParseCommand(const int argc, char* argv[]) {
     int c;
     bool errorFound = false;
@@ -271,6 +350,7 @@ void ParseCommand(const int argc, char* argv[]) {
     cmdOpt.cycleCheckDepth = 16;
     cmdOpt.rulePresent = false;
     cmdOpt.cumFitnessExp = 1.0;
+    cmdOpt.poolSize = 40;
     cmdOpt.machineTypeName = "C";
     cmdOpt.journalName = "searcher";
     cmdOpt.snapName = "snapshot.txt";
@@ -340,6 +420,14 @@ void ParseCommand(const int argc, char* argv[]) {
                 std::cerr << "warning: nonpositive exponent" << std::endl;
             break;
 
+          case CO_POOLSIZE:
+            cmdOpt.poolSize = atoi(optarg);
+            if (cmdOpt.poolSize < 2) {
+                std::cerr << "error: pool-size must be >= 2" << std::endl;
+                errorFound = true;
+            }
+            break;
+
           case CO_HELP:
             printf("Command options:\n");
             for (auto entry : long_options) if (entry.name != NULL) {
@@ -389,83 +477,6 @@ void ParseCommand(const int argc, char* argv[]) {
 }
 
 //---------------
-double SimulateGeneration(int generationNr, Pool*& pool) {
-    // Create a "pick list" of all rules in the pool, arranged from
-    // most to least fit, with each accompanied by a cumulative (from
-    // the top of the list) fitness figure. A rule's associated cumu-
-    // lative fitness represents, in a sense, the total fitness of
-    // the rule and all more-fit rules. Fitness values are normalized.
-    PickList* pickList = new PickList(pool, cmdOpt.cumFitnessExp);
-
-    // Log the current pool state to stdout.
-    pickList->Log(std::cout, cmdOpt.randSeed, generationNr);
-
-    // Create and fill the next generation pool.
-    Pool* newPool = new Pool(pool->get_capacity());
-    int newPoolNrElts = 0;
-    while (newPoolNrElts < POOLSIZE) {
-        Chromosome* maC;
-        Chromosome* paC;
-
-        // Choose 2 distinct parents (copies thereof) from the existing pool.
-        ChooseParents(pool, pickList, maC, paC);
-        //assert(maC->get_ruleNr() != paC->get_ruleNr());
-
-        // Create 2 children and insert them in the new pool if
-        // they're not already in.
-        Chromosome* c1C;
-        Chromosome* c2C;
-        MutateAndCross(maC, paC, c1C, c2C);
-        if (newPool->Contains(c1C->get_ruleNr()))
-            delete c1C;
-        else {
-            newPool->put_entry(c1C, newPoolNrElts);
-            if (++newPoolNrElts == POOLSIZE) {
-                delete c2C;
-                break;
-            }
-        }
-
-        if (newPool->Contains(c2C->get_ruleNr()))
-            delete c2C;
-        else {
-            newPool->put_entry(c2C, newPoolNrElts);
-            if (++newPoolNrElts == POOLSIZE) break;
-        }
-
-        // Insert the parents in the new pool if they're not already in.
-        // (note that if the kids fill it, the parents don't make it)
-        if (newPool->Contains(maC->get_ruleNr()))
-            delete maC;
-        else {
-            newPool->put_entry(maC, newPoolNrElts);
-            if (++newPoolNrElts == POOLSIZE) {
-                delete paC;
-                break;
-            }
-        }
-
-        if (newPool->Contains(paC->get_ruleNr()))
-            delete paC;
-        else {
-            newPool->put_entry(paC, newPoolNrElts);
-            ++newPoolNrElts;
-        }
-    }
-    delete pool;
-    delete pickList;
-    pool = newPool;
-    return pool->AvgFitness();
-}
-
-//---------------
-int Uniform(int lo, int hi) {
-    assert(0 <= lo && lo <= hi);
-    if (hi == 0 && lo == 0) return 0;
-    return lo + (rand() % (hi - lo + 1));
-}
-
-//---------------
 int main(const int argc, char* argv[]) {
 
     // Parse the command.
@@ -485,13 +496,13 @@ int main(const int argc, char* argv[]) {
         exit(1);
     }
     journal << "info: starting, poolcapacity: "
-      << POOLSIZE << " randseed: "
+      << cmdOpt.poolSize << " randseed: "
       << cmdOpt.randSeed << " snapshot: "
       << cmdOpt.snapName
       << std::endl;
 
     // Create a random pool or read it if we're resuming from a file.
-    Pool* pool = new Pool(POOLSIZE);
+    Pool* pool = new Pool(cmdOpt.poolSize);
     if (cmdOpt.resumeFromName != "") {
         std::cerr << "info: resuming using pool from: " << cmdOpt.resumeFromName << std::endl;
         journal << "info: resuming using pool from: " << cmdOpt.resumeFromName << std::endl;
