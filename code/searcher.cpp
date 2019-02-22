@@ -124,7 +124,7 @@ void ChooseParents(Pool* pool, PickList* pl, Chromosome*& maC, Chromosome*& paC)
     double targetCumFitness = Uniform(1, 100) / 100.0;
 
     int ix = 0;
-    for ( ; (ix < pool->get_size()) && (pl->get_elt(ix).cumFitness <= targetCumFitness); ix += 1) ;
+    for ( ; (ix < pool->get_capacity()) && (pl->get_elt(ix).cumFitness <= targetCumFitness); ix += 1) ;
     // Note that ix can end up "off the end."
     // Ensure that the range has at least 2 elements.
     if (ix < 2) ix = 2;
@@ -179,8 +179,8 @@ ShowParts("r2subParts: ", r2subParts);
 
 //---------------
 void FillRandomPool(Pool* p) {
-    int size = p->get_size();
-    for (int i = 0; i < size; i += 1) p->put_entry(new Chromosome(GenRandRule()), i);
+    int capacity = p->get_capacity();
+    for (int i = 0; i < capacity; i += 1) p->put_entry(new Chromosome(GenRandRule()), i);
 }
 
 //---------------
@@ -400,9 +400,9 @@ double SimulateGeneration(int generationNr, Pool*& pool) {
     pickList->Log(std::cout, cmdOpt.randSeed, generationNr);
 
     // Create and fill the next generation pool.
-    Pool* newPool = new Pool(pool->get_size());
-    int newPoolSize = 0;
-    while (newPoolSize < POOLSIZE) {
+    Pool* newPool = new Pool(pool->get_capacity());
+    int newPoolNrElts = 0;
+    while (newPoolNrElts < POOLSIZE) {
         Chromosome* maC;
         Chromosome* paC;
 
@@ -418,8 +418,8 @@ double SimulateGeneration(int generationNr, Pool*& pool) {
         if (newPool->Contains(c1C->get_ruleNr()))
             delete c1C;
         else {
-            newPool->put_entry(c1C, newPoolSize);
-            if (++newPoolSize == POOLSIZE) {
+            newPool->put_entry(c1C, newPoolNrElts);
+            if (++newPoolNrElts == POOLSIZE) {
                 delete c2C;
                 break;
             }
@@ -428,8 +428,8 @@ double SimulateGeneration(int generationNr, Pool*& pool) {
         if (newPool->Contains(c2C->get_ruleNr()))
             delete c2C;
         else {
-            newPool->put_entry(c2C, newPoolSize);
-            if (++newPoolSize == POOLSIZE) break;
+            newPool->put_entry(c2C, newPoolNrElts);
+            if (++newPoolNrElts == POOLSIZE) break;
         }
 
         // Insert the parents in the new pool if they're not already in.
@@ -437,8 +437,8 @@ double SimulateGeneration(int generationNr, Pool*& pool) {
         if (newPool->Contains(maC->get_ruleNr()))
             delete maC;
         else {
-            newPool->put_entry(maC, newPoolSize);
-            if (++newPoolSize == POOLSIZE) {
+            newPool->put_entry(maC, newPoolNrElts);
+            if (++newPoolNrElts == POOLSIZE) {
                 delete paC;
                 break;
             }
@@ -447,8 +447,8 @@ double SimulateGeneration(int generationNr, Pool*& pool) {
         if (newPool->Contains(paC->get_ruleNr()))
             delete paC;
         else {
-            newPool->put_entry(paC, newPoolSize);
-            ++newPoolSize;
+            newPool->put_entry(paC, newPoolNrElts);
+            ++newPoolNrElts;
         }
     }
     delete pool;
@@ -483,7 +483,7 @@ int main(const int argc, char* argv[]) {
         std::cerr << "error: can't open the log file" << std::endl;
         exit(1);
     }
-    journal << "info: starting, poolsize: "
+    journal << "info: starting, poolcapacity: "
       << POOLSIZE << " randseed: "
       << cmdOpt.randSeed << " snapshot: "
       << cmdOpt.snapName

@@ -41,7 +41,11 @@ double Chromosome::get_fitness() {
     if (m_fitness < 0) {
         Runner* r = new Runner(m_ruleNr);
         r->Run();
-        m_fitness = r->m_nrCcs;
+
+        if (r->m_avgClustCoef > 0.3)
+            m_fitness = 1.0 - (r->m_avgClustCoef - 0.3);
+        else
+            m_fitness = 1.0 - (0.3 - r->m_avgClustCoef);
         assert(m_fitness >= 0);
         delete r;
     }

@@ -12,7 +12,7 @@ public:
     Pool(int);
     ~Pool();
 
-    int get_size();
+    int get_capacity();
     Chromosome* get_entry(int);
     void put_entry(Chromosome*, int);
 
@@ -22,7 +22,7 @@ public:
     bool Write(const std::string);
 
 private:
-    int m_size;
+    int m_capacity;
     std::vector<Chromosome*> m_pool;
 };
 #endif

@@ -17,7 +17,7 @@
 //---------------
 PickList::PickList(Pool* basePool) {
     m_basePool = basePool;
-    int poolSize = basePool->get_size();
+    int poolSize = basePool->get_capacity();
     m_list.reserve(poolSize);
 
     // Assign a list entry for each pool member and accumulate
@@ -55,7 +55,7 @@ PickElt PickList::get_elt(int ix) { return m_list[ix]; }
 
 //---------------
 void PickList::Log(std::ostream& out, int randSeed, int generationNr) {
-    int poolSize = m_basePool->get_size();
+    int poolSize = m_basePool->get_capacity();
     for (int ix = 0; ix < poolSize; ix += 1) {
     out
       << randSeed << " "
