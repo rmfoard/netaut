@@ -508,8 +508,14 @@ int main(const int argc, char* argv[]) {
     // Simulate reproduction until...
     int generationNr = 0;
     double statistic = 0.0;
+    std::cerr << MAXGENERATIONS << " generations" << std::endl;
+    std::cerr << "gen avg max" << std::endl;
     while (generationNr < MAXGENERATIONS && statistic < 100000.0) { // TODO: Replace the test.
-        std::cerr << "generation " << generationNr << " " << statistic << std::endl;
+        std::cerr
+          << generationNr << " "
+          << statistic << " "
+          << pool->MaxFitness()
+          << std::endl;
         journal << "generation " << generationNr << " " << statistic << std::endl;
         assert(pool->Write(cmdOpt.snapName));
         statistic = SimulateGeneration(generationNr, pool); // Replaces pool

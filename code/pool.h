@@ -18,6 +18,7 @@ public:
 
     double AvgFitness();
     bool Contains(const rulenr_t);
+    double MaxFitness();
     bool Read(const std::string);
     bool Write(const std::string);
 

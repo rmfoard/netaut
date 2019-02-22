@@ -34,7 +34,7 @@ void Pool::put_entry(Chromosome* c, int ix) { m_pool[ix] = c; }
 
 //---------------
 double Pool::AvgFitness() {
-    if (m_capacity == 0) return 0.0;
+    assert(m_capacity > 0);
     double sum = 0.0;
     for (int ix = 0; ix < m_capacity; ix += 1) sum += m_pool[ix]->get_fitness();
     return sum / m_capacity;
@@ -46,6 +46,15 @@ bool Pool::Contains(const rulenr_t ruleNr) {
         if (m_pool[ix] && m_pool[ix]->get_ruleNr() == ruleNr) return true;
 
     return false;
+}
+
+//---------------
+double Pool::MaxFitness() {
+    assert(m_capacity > 0);
+    double maxV = m_pool[0]->get_fitness();
+    for (int ix = 0; ix < m_capacity; ix += 1)
+        if (m_pool[ix]->get_fitness() > maxV) maxV = m_pool[ix]->get_fitness();
+    return maxV;
 }
 
 //---------------
