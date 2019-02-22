@@ -48,7 +48,7 @@ double Chromosome::get_fitness() {
         else
             m_fitness = 1.0 - (0.3 - r->m_avgClustCoef);
 */
-        m_fitness = r->m_nrCcs / (double) r->m_nrNodes;
+        m_fitness = r->m_nrCcs / (double) Runner::s_initNrNodes;
         assert(m_fitness >= 0);
         delete r;
     }
