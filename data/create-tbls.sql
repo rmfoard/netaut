@@ -37,7 +37,8 @@ CREATE TABLE d (
     nrNodes             integer,
     nrOpenTriads        bigint,
     nrOutDegrees        integer,
-    outDegreeEntropy    double precision
+    outDegreeEntropy    double precision,
+    estInDegreeExponent double precision
 );
 -----------------
 -- t table: triad counts

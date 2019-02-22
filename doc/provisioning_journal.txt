@@ -4,11 +4,13 @@ To provision for generating netaut/hellosnap:
 
 - (install git, vim)
 
-- git config --global push.default simple
+-   git config --global push.default simple
+-   git config --global user.email "you@example.com"
+-   git config --global user.name "Your Name"
 
 - sudo apt install libpng-dev
 
-- download graphviz...gz
+- download graphviz...gz /* sudo apt install graphviz works, too! */
 -   gunzip ...gz
 -   tar xvf ...tar
 -   cd graphviz...
@@ -19,8 +21,12 @@ To provision for generating netaut/hellosnap:
 - clone SNAP from Github into ~/snap
 -   cd snap
 -   make all
-
-- sudo apt install gnuplot
+----(following Ubuntu upgrade -> 18)
+-   re-clone snap from github
+-   apply source patch to .../glib-core/bd.cpp, as documented in:
+    https://github.com/jamen/snap/commit/7cfd9f09d51137f0b86967fcad43ce2ce95317a0
+-   (then re-make)
+----
 
 - (for graph-tool)
 -   add to /etc/apt/source-list
@@ -34,14 +40,6 @@ To provision for generating netaut/hellosnap:
 -   from current source .tar: gunzip, tar xvf
 -   make, sudo make install
 
-- install leveldb
--   download from github
--   README => mkdir -p build && cd build
--   (see README for build commands)
--   manually sudo cp -r ~/leveldb/include/leveldb into /usr/local/include/
--   manually sudo cp ~/leveldb/build/libleveldb.a into /usr/local/lib/
--   use, e.g., #include <leveldb/db.h>
-
 - install jsoncpp
 -   clone from github into ~/jsoncpp
 -   cd jsoncpp
@@ -54,6 +52,12 @@ To provision for generating netaut/hellosnap:
 -   the install step places a copy of libjsoncpp.a in /usr/lib/local, which is typically in ld's default search path
         (if not, edit ~/etc/ld.so.conf, which refs include's in /etc/ld.so.conf.d/, then refresh cache w/ldconfig)
 -   generate as in `g++ -std=c++11 myapp.cpp -ljsoncpp`
+----(following Ubuntu upgrade -> 18)
+-   Edit ~/jsoncpp/CMakelists.txt to include the lines:
+    # Added by RMF after upgrade to Ubuntu 18
+    SET(CMAKE_POSITION_INDEPENDENT_CODE ON)
+    # End of addition
+----
 
 - do not forget -std=c++11
 
@@ -96,10 +100,15 @@ To provision for generating netaut/hellosnap:
         (in one case, 'make' still complained it was missing, so I
         re-./configure'ed using --disable-documentation
     - clone libpqxx from GitHub
-    - ./configure;make;make install
+    - ./configure;make;sudo make install
     - (for Makefile)
         - LIBS += lpqxx lpq (order matters!)
         - -I<include path is ~/libpqxx/include>
+
+-install boost
+    - download from https://www.boost.org/users/history/version_1_67_0.html (the .gz) to ~
+    - gunzip
+    - tar xvf
 
 -install R
     - sudo apt-get install r-base
@@ -128,19 +137,18 @@ To provision for generating netaut/hellosnap:
     - sudo apt-get install texlive-full
     - sudo apt-get install texmaker
     - sudo apt install xpdf
+----(following Ubuntu upgrade -> 18)
+-   in /usr/share/ghostscript/9.25/
+    (confirm that iccprofiles is an empty file, then)
+    sudo su
+    rm -r iccprofiles
+    ln -s /usr/share/color/icc/ghostscript iccprofiles
+    (I also did sudo apt install icc-profiles, not sure if it was a necessary prereq, though)
+----
 
-- install yEd
-    - (download .sh installer from yworks.com/Downloads)
-- install yEd
--   downloaded .sh install script, chmod +x
--   (also installs a JRE in the yEd dir, which must be writable
--   next time try sudo ...sh and place in /usr/bin?)
-
-- install inkscape
-    - (had a false start with a failed install of flatpak first, aborted)
-    - sudo add-apt-repository ppa:inkscape.dev/stable
-    - sudo apt update
-    - sudo apt install inkscape
+- install the 'exportasimages' extension to libreoffice Impress
+    - search 'libreoffice exportasimages' to reach libreoffice.org site for extensions
+    - download and run 'in' libreoffice
 
 - install pip, etc.
     $ sudo apt-get install python-pip python-dev build-essential 
@@ -155,6 +163,39 @@ To provision for generating netaut/hellosnap:
 (Deferred enabling doxygen)
 (Deferred enabling googletest to run SNAP's tests)
 
+- install yEd
+    downloaded .sh install script, chmod +x
+    (also installs a JRE in the yEd dir, which must be writable
+    next time try sudo ...sh and place in /usr/bin?)
+
+- install dia graphic editor
+    - Download linux/ubuntu package from: http://dia-installer.de/download/linux.html.en
+    - Activate link from browser download icon (starts UI)
+    - Click 'Install' (twice, for some reason, until asked for sudo credentials)
+    - Invoke from shell 'dia', then grab gnome icon and slide into place in app tray
+
+- install inkscape
+    - (had a false start with a failed install of flatpak first, aborted)
+    - sudo add-apt-repository ppa:inkscape.dev/stable
+    - sudo apt update
+    - sudo apt install inkscape
+
+- install leveldb
+-   download from github
+-   README => mkdir -p build && cd build
+-   (see README for build commands)
+-   manually sudo cp -r ~/leveldb/include/leveldb into /usr/local/include/
+-   manually sudo cp ~/leveldb/build/libleveldb.a into /usr/local/lib/
+-   use, e.g., #include <leveldb/db.h>
+
 - install mhash library
     - downloaded mhash from sourceforge
     - gunzip, tar xvf, ./configure, make
+
+--------------------------------
+After installing Ubuntu 18.04 on OfficeTower, graphic UI failed.
+sudo apt update
+sudo apt upgrade
+sudo apt install lightdm
+sudo systemctl set-default lightdm (or maybe lightdm.target?)
+reboot everything

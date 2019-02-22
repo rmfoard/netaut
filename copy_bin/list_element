@@ -1,1 +1,0 @@
-~/netaut/data/ml "$1" | python -mjson.tool | grep "$2"

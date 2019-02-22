@@ -4,7 +4,9 @@
 #include <getopt.h>
 #include <json/json.h>
 #include <queue>
+#include <vector>
 #include "Snap.h"
+#include "rule.h"
 
 //---------------
 class Machine {
@@ -29,7 +31,7 @@ public:
 
     std::string get_machineType();
     void set_machineType(std::string);
-    virtual void BuildMachine(rulenr_t, int, int, std::string, int, std::string) = 0;
+    virtual void BuildMachine(rulenr_t, int, int, std::string, int, std::string, int) = 0;
     virtual PNEGraph get_graph() = 0;
     virtual int* get_nodeStates() = 0;
     virtual int IterateMachine(int) = 0;
@@ -49,9 +51,11 @@ public:
     virtual bool StateMatchesCurrent(MachineState) = 0;
 
     void GetDegStats(DegStats&);
+    double EstimateDegExp(std::vector<int>&, int);
 
     std::string m_machineType;
     int m_nrNodes;
+    int m_noChangeTopo;
 
     Rule* m_rule;
     const int* m_ruleParts;

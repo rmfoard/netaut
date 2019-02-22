@@ -17,7 +17,7 @@
 
 //---------------
 void MachineR::BuildMachine(rulenr_t ruleNr, int nrNodes, int cycleCheckDepth,
-  std::string tapeStructure, int tapePctBlack, std::string topoStructure) {
+  std::string tapeStructure, int tapePctBlack, std::string topoStructure, int noChangeTopo) {
     assert(m_machineType == "R" || m_machineType == "RM");
 
     m_rule = new Rule(ruleNr);

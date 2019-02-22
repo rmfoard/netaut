@@ -1,0 +1,15 @@
+pushd /home/richard/netaut/code
+make explorer
+cd ../data
+rm tmp_*
+../code/explorer --record tmp --machine C --rule 641 --nodes 100 --randseed 641 > tmp_stdout_raw.txt
+ml tmp_stdout_raw.txt | python -mjson.tool \
+| sed '/version/d' \
+| sed '/runId/d' \
+| sed '/runTimeMs/d' > tmp_stdout.txt
+if [ -z "`diff tmp_stdout.txt ref_tmp_stdout.txt`" ]; then
+    echo 'PASS'
+else
+    echo '*** FAIL ***'
+fi
+popd

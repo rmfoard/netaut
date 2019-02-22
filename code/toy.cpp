@@ -1,50 +1,79 @@
-#include <assert.h>
-#include <getopt.h>
-#include <inttypes.h>
-#include <stdio.h>
-#include <stdint.h>
-#include <algorithm>
-#include <fstream>
-#include <functional>
+#define POOLSIZE 100
+
 #include <iostream>
-#include <random>
-#include <string>
-#include "rule.h"
+#include <vector>
+#include "chromosome.h"
 
-static std::mt19937::result_type seed = 641;
-static auto r6 = std::bind(std::uniform_int_distribution<int>(0, 5), std::mt19937(seed));
+Chromosome::Chromosome(rulenr_t r) {
+    m_ruleNr = r;
+}
+
+Chromosome::~Chromosome() {}
+
+class Pool {
+
+public:
+    Pool();
+    ~Pool();
+
+    std::vector<Chromosome*> m_fred;
+};
 
 //---------------
-// GenRandRule
-//
-// Generate a random MachineS rule.
-//---------------
-static
-rulenr_t GenRandRule() {
-    rulenr_t rr = 0;
+Pool::Pool() {
+    std::cout << "Pool()" << std::endl;
+    m_fred.reserve(100);
+    for (int i = 0; i < 100; i += 1) m_fred[i] = new Chromosome((rulenr_t) i);
+}
 
-    // For each of the 8 triad-state rule parts...
-    for (int i = 0; i < 8; i += 1) {
-        int leftAction = r6();
-        int rightAction;
-
-        // Disallow identical left- and right-actions (that would
-        // create multi-edges).
-        do {
-            rightAction = r6();
-        } while (rightAction == leftAction);
-
-        // Shift in the rule part, encoded as a mixed-radix (6, 6, 2) number,
-        // to develop the radix 72 (6*6*2) rule number.
-        int nodeAction = r6() % 2;
-        rr = (72 * rr) + ((leftAction * 6 + rightAction) * 2) + nodeAction;
-    }
-    return rr;
+Pool::~Pool() {
+    std::cout << "~Pool()" << std::endl;
+    for (int i = 0; i < 100; i += 1) delete m_fred[i];
 }
 
 //---------------
-int main() {
+#define REF
+#ifdef REF
+void changepn(int*& pn) {
+    int* pm = new int;
+    *pm = 2;
 
-    for (int i = 1; i <= 10000; i++) std::cout << GenRandRule() << std::endl;
-    exit(0);
+    delete pn;
+    pn = pm;
+}
+#endif
+#ifndef REF
+void changepn(int **pp) {
+    int* pm = new int;
+    *pm = 2;
+
+    *pp = pm;
+}
+#endif
+
+//---------------
+int main(const int argc, char** argv) {
+    std::cout << "initium" << std::endl;
+
+    rulenr_t bignum = 722204136308736; // 72**8
+    for (int i = 1; i <= 50; i += 1) {
+        rulenr_t v = ((rulenr_t) 1) << i;
+        std::cout << "1 << " << i << " => " << v << "; ";
+        std::cout << (bignum ^ v) << std::endl;
+    }
+
+/*
+    int* pn = new int;
+    *pn = 1;
+
+#ifdef REF
+    changepn(pn);
+#endif
+#ifndef REF
+    changepn(&pn);
+#endif
+
+    std::cout << *pn << std::endl;
+*/
+    std::cout << "finis." << std::endl;
 }

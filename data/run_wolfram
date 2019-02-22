@@ -1,0 +1,12 @@
+if [ $# -ne 2 ]; then
+    echo 'usage: run_wolfram <rule #> <other arg(s)>'
+    echo '  (quote multiple "other args" and...) consider setting:'
+    echo '  --print-tape, --tape-x, --nodes, --max-iterations, --cycle-check-depth'
+else
+    ../code/explorer \
+        $2 \
+        --rule `python wolfram_to_C.py $1` \
+        --record tmp \
+        --machine C \
+        --no-change-topo
+fi

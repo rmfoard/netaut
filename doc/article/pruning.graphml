@@ -170,7 +170,7 @@
           <y:Geometry height="20.0" width="20.0" x="231.5" y="320.0"/>
           <y:Fill hasColor="false" transparent="false"/>
           <y:BorderStyle color="#000000" raised="false" type="dotted" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.96875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#808080" verticalTextPosition="bottom" visible="true" width="12.208984375" x="3.8955078125" y="1.015625">A<y:LabelModel>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.96875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#202020" verticalTextPosition="bottom" visible="true" width="12.208984375" x="3.8955078125" y="1.015625">A<y:LabelModel>
               <y:SmartNodeLabelModel distance="4.0"/>
             </y:LabelModel>
             <y:ModelParameter>
@@ -537,7 +537,7 @@
           <y:Geometry height="20.0" width="20.0" x="252.5" y="492.5"/>
           <y:Fill hasColor="false" transparent="false"/>
           <y:BorderStyle color="#000000" raised="false" type="dotted" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.96875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#808080" verticalTextPosition="bottom" visible="true" width="12.208984375" x="3.8955078125" y="1.015625">A<y:LabelModel>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.96875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#202020" verticalTextPosition="bottom" visible="true" width="12.208984375" x="3.8955078125" y="1.015625">A<y:LabelModel>
               <y:SmartNodeLabelModel distance="4.0"/>
             </y:LabelModel>
             <y:ModelParameter>
@@ -626,7 +626,7 @@
           <y:Geometry height="172.5" width="135.0" x="-217.5" y="243.75"/>
           <y:Fill hasColor="false" transparent="false"/>
           <y:BorderStyle hasColor="false" raised="false" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="FreeSans" fontSize="22" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="28.18670654296875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="71.195068359375" x="31.9024658203125" y="72.15664672851562">Case I.<y:LabelModel>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="DejaVu Sans" fontSize="18" fontStyle="italic" hasBackgroundColor="false" hasLineColor="false" height="24.953125" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="64.802734375" x="35.0986328125" y="73.7734375">Case I.<y:LabelModel>
               <y:SmartNodeLabelModel distance="4.0"/>
             </y:LabelModel>
             <y:ModelParameter>
@@ -643,7 +643,7 @@
           <y:Geometry height="172.5" width="135.0" x="-217.5" y="416.25"/>
           <y:Fill hasColor="false" transparent="false"/>
           <y:BorderStyle hasColor="false" raised="false" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="FreeSans" fontSize="22" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="28.18670654296875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="77.30770874023438" x="28.846145629882812" y="72.15664672851562">Case II.<y:LabelModel>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="DejaVu Sans" fontSize="18" fontStyle="italic" hasBackgroundColor="false" hasLineColor="false" height="24.953125" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="70.111328125" x="32.4443359375" y="73.7734375">Case II.<y:LabelModel>
               <y:SmartNodeLabelModel distance="4.0"/>
             </y:LabelModel>
             <y:ModelParameter>
@@ -660,7 +660,7 @@
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
             <y:Point x="10.5" y="309.0"/>
           </y:Path>
-          <y:LineStyle color="#000000" type="line" width="1.0"/>
+          <y:LineStyle color="#FF0000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
           <y:Arc height="21.0" ratio="1.0" type="fixedRatio"/>
         </y:ArcEdge>
@@ -672,7 +672,7 @@
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
             <y:Point x="10.5" y="346.79998779296875"/>
           </y:Path>
-          <y:LineStyle color="#000000" type="dashed" width="1.0"/>
+          <y:LineStyle color="#FF0000" type="dashed" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
           <y:Arc height="-16.80000114440918" ratio="-0.800000011920929" type="fixedRatio"/>
         </y:ArcEdge>
@@ -708,7 +708,7 @@
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
             <y:Point x="-66.9375" y="345.09375"/>
           </y:Path>
-          <y:LineStyle color="#FF0000" type="line" width="1.0"/>
+          <y:LineStyle color="#0000FF" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
           <y:Arc height="7.098429203033447" ratio="0.375" type="fixedRatio"/>
         </y:ArcEdge>
@@ -720,7 +720,7 @@
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
             <y:Point x="-63.0" y="309.0"/>
           </y:Path>
-          <y:LineStyle color="#FF0000" type="line" width="1.0"/>
+          <y:LineStyle color="#0000FF" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
           <y:Arc height="0.0" ratio="0.0" type="fixedRatio"/>
         </y:ArcEdge>
@@ -768,7 +768,7 @@
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
             <y:Point x="255.84339904785156" y="295.5481262207031"/>
           </y:Path>
-          <y:LineStyle color="#FF0000" type="line" width="1.0"/>
+          <y:LineStyle color="#0000FF" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
           <y:Arc height="13.99017333984375" ratio="0.3660377562046051" type="fixedRatio"/>
         </y:ArcEdge>
@@ -780,7 +780,7 @@
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
             <y:Point x="255.84339904785156" y="364.4518737792969"/>
           </y:Path>
-          <y:LineStyle color="#FF0000" type="line" width="1.0"/>
+          <y:LineStyle color="#0000FF" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
           <y:Arc height="-13.99017333984375" ratio="-0.3660377562046051" type="fixedRatio"/>
         </y:ArcEdge>
@@ -794,7 +794,7 @@
             <y:Point x="66.0" y="534.5"/>
             <y:Point x="66.0" y="502.5"/>
           </y:Path>
-          <y:LineStyle color="#000000" type="line" width="1.0"/>
+          <y:LineStyle color="#FF0000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
         </y:QuadCurveEdge>
       </data>
@@ -807,7 +807,7 @@
             <y:Point x="6.5" y="472.5"/>
             <y:Point x="6.5" y="502.5"/>
           </y:Path>
-          <y:LineStyle color="#000000" type="dashed" width="1.0"/>
+          <y:LineStyle color="#FF0000" type="dashed" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
         </y:QuadCurveEdge>
       </data>
@@ -842,7 +842,7 @@
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
             <y:Point x="-15.924999237060547" y="513.7000122070312"/>
           </y:Path>
-          <y:LineStyle color="#FF0000" type="line" width="1.0"/>
+          <y:LineStyle color="#0000FF" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
           <y:Arc height="-22.367847442626953" ratio="-1.0333333015441895" type="fixedRatio"/>
         </y:ArcEdge>
@@ -854,7 +854,7 @@
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
             <y:Point x="-7.0" y="530.5"/>
           </y:Path>
-          <y:LineStyle color="#FF0000" type="line" width="1.0"/>
+          <y:LineStyle color="#0000FF" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
           <y:Arc height="-7.82623815536499" ratio="-0.3333333432674408" type="fixedRatio"/>
         </y:ArcEdge>
@@ -902,7 +902,7 @@
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
             <y:Point x="213.14999389648438" y="479.04998779296875"/>
           </y:Path>
-          <y:LineStyle color="#FF0000" type="line" width="1.0"/>
+          <y:LineStyle color="#0000FF" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
           <y:Arc height="-9.000173568725586" ratio="-0.7666666507720947" type="fixedRatio"/>
         </y:ArcEdge>
@@ -914,7 +914,7 @@
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
             <y:Point x="214.375" y="523.5"/>
           </y:Path>
-          <y:LineStyle color="#FF0000" type="line" width="1.0"/>
+          <y:LineStyle color="#0000FF" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
           <y:Arc height="11.739356994628906" ratio="1.0" type="fixedRatio"/>
         </y:ArcEdge>

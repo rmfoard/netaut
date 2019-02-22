@@ -50,24 +50,40 @@ bool MapMatchesMask(RuleMask rMap, RuleMask gMask) {
 //---------------
 Rule::Rule(const rulenr_t ruleNr) {
     static_assert(sizeof(rulenr_t) == sizeof(uintmax_t), "faulty type size assumption");
-    CheckRuleNr(ruleNr);
+    CheckRuleNr(ruleNr, "Rule(rulenr_t)");
     m_ruleNr = ruleNr;
 }
 
 //---------------
-// Rule constructor: from an int array of rule part numbers
+// Rule constructor: from an int array of rule-parts or sub-parts
 //
 //---------------
-Rule::Rule(const int* ruleParts) {
+Rule::Rule(const std::string partsType, int* parts) {
     rulenr_t ruleNr = 0;
-    rulenr_t increase;
-    for (int partNr = 0; partNr < NR_TRIAD_STATES; partNr += 1) {
-        increase = ruleParts[partNr] * Raise(NR_ACTIONS, partNr);
-        assert(ruleParts[partNr] < NR_ACTIONS);
-        assert(increase <= (RULENR_MAX - ruleNr));
-        ruleNr += increase;
+    if (partsType == "parts") {
+        rulenr_t increase;
+        for (int partNr = 0; partNr < NR_TRIAD_STATES; partNr += 1) {
+            increase = parts[partNr] * Raise(NR_ACTIONS, partNr);
+            assert(parts[partNr] < NR_ACTIONS);
+            assert(increase <= (RULENR_MAX - ruleNr));
+            ruleNr += increase;
+        }
     }
-    Rule::CheckRuleNr(ruleNr);
+    else if (partsType == "subparts") {
+        rulenr_t multiplier = 1;
+        for (int ix = 0; ix < NR_TRIAD_STATES * 3; ix += 3) {
+            rulenr_t part = parts[ix+0] * NR_DSTS * 2
+              + parts[ix+1] * 2
+              + parts[ix+2];
+            ruleNr += part * multiplier;
+            multiplier *= NR_ACTIONS;
+        }
+    }
+    else {
+        assert(false);
+    }
+
+    Rule::CheckRuleNr(ruleNr, "Rule(\"subparts\",..)");
     m_ruleNr = ruleNr;
 }
 
@@ -97,7 +113,7 @@ Rule::Rule(const char* ruleText) {
         m_ruleNr = m_ruleNr + (rulePart * Raise(NR_ACTIONS, partNr));
         tok = strtok(NULL, " ,-;");
     }
-    CheckRuleNr(m_ruleNr);
+    CheckRuleNr(m_ruleNr, "Rule(ruleText)");
     delete text;
 }
 
@@ -116,7 +132,7 @@ rulenr_t Rule::get_maxRuleNr() { return Raise(NR_ACTIONS, NR_TRIAD_STATES) - 1; 
 //---------------
 // get_ruleParts
 //---------------
-const int* Rule::get_ruleParts() {
+int* Rule::get_ruleParts() {
     int* rp = new int[NR_TRIAD_STATES];
     rulenr_t dividend = m_ruleNr;
     for (int triadState = 0; triadState < NR_TRIAD_STATES; triadState += 1) {
@@ -129,7 +145,7 @@ const int* Rule::get_ruleParts() {
 //---------------
 // get_ruleSubParts
 //---------------
-const int* Rule::get_ruleSubParts() {
+int* Rule::get_ruleSubParts() {
     int* rsp = new int[NR_TRIAD_STATES * 3];
     rulenr_t dividend = m_ruleNr;
     for (int triadState = 0; triadState < NR_TRIAD_STATES; triadState += 1) {
@@ -147,7 +163,7 @@ const int* Rule::get_ruleSubParts() {
 //---------------
 std::string Rule::get_ruleText() {
     std::string rt = std::string("");
-    const int* rp = get_ruleParts();
+    int* rp = get_ruleParts();
     for (int partNr = 0; partNr < NR_TRIAD_STATES; partNr += 1) {
         rt += RulePartText(rp[partNr]);
         if (partNr < NR_TRIAD_STATES - 1) rt += ";";
@@ -172,9 +188,9 @@ int Rule::dstIndex(const char* dstStr) {
 //
 // Checks for overlarge rule number.
 //---------------
-void Rule::CheckRuleNr(rulenr_t ruleNr) {
+void Rule::CheckRuleNr(rulenr_t ruleNr, std::string illumination) {
     if (ruleNr > get_maxRuleNr())
-        throw std::runtime_error("rule number overflow");
+        throw std::runtime_error(std::string("rule number overflow, ") + illumination + ", ruleNr: " + std::to_string(ruleNr));
 }
 
 //---------------

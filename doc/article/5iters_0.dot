@@ -1,0 +1,33 @@
+/*****
+C-177828939654904-181012164715 @0
+*****/
+
+digraph G {
+  graph [splines=false overlap=false]
+  node  [shape=ellipse, width=0.3, height=0.3, label=""]
+  0 [style=filled, fillcolor="white"];
+  1 [style=filled, fillcolor="black"];
+  2 [style=filled, fillcolor="black"];
+  3 [style=filled, fillcolor="black"];
+  4 [style=filled, fillcolor="white"];
+  5 [style=filled, fillcolor="black"];
+  6 [style=filled, fillcolor="black"];
+  7 [style=filled, fillcolor="black"];
+  0 -> 0;
+  0 -> 2;
+  1 -> 5;
+  1 -> 3;
+  2 -> 5;
+  2 -> 2;
+  3 -> 2;
+  3 -> 5;
+  4 -> 2;
+  4 -> 0;
+  5 -> 1;
+  5 -> 3;
+  6 -> 7;
+  6 -> 6;
+  7 -> 0;
+  7 -> 1;
+  label = "Initial (random) graph";  fontsize=18;
+}

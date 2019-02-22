@@ -14,13 +14,15 @@
 #include <iostream>
 #include <limits>
 #include <string>
+#include <vector>
 #include <json/json.h>
+#include "netaut.h"
 #include "rule.h"
 #include "machine.h"
 #include "machine2D.h"
 #include "machineR.h"
 
-#define VERSION "V180924.0"
+#define VERSION "V190216.0"
 
 //---------------
 // Command option settings
@@ -33,6 +35,8 @@ struct CommandOpts {
     int extendId;
     int printTape;
     int noWriteEndGraph;
+    int noChangeTopo;
+    int tapeX;
     int nrNodes;
     int graphWriteStart;
     int graphWriteStride;
@@ -48,6 +52,7 @@ struct CommandOpts {
     std::string recordName;
     std::string graphFileSuffix;
     std::string writeAsName;
+    std::string writeTapeName;
     char* ruleText;
     std::string tapeStructure;
     std::string topoStructure;
@@ -78,7 +83,7 @@ static std::string runId;
 #define CO_INIT_TAPE 1004
 #define CO_INIT_TOPO 1005
 #define CO_TAPE_PCT_BLACK 1006
-#define CO_WRITE_AS 1007
+#define CO_WRITE_GRAPH_AS 1007
 #define CO_RECORD 1013
 #define CO_NOOP 1008
 
@@ -86,7 +91,9 @@ static struct option long_options[MAX_COMMAND_OPTIONS] = {
     {"no-console", no_argument, &cmdOpt.noConsole, 1},
     {"extend-id", no_argument, &cmdOpt.extendId, 1},
     {"no-write-end-graph", no_argument, &cmdOpt.noWriteEndGraph, 1},
+    {"no-change-topo", no_argument, &cmdOpt.noChangeTopo, 1},
     {"print-tape", no_argument, &cmdOpt.printTape, 1},
+    {"tape-x", no_argument, &cmdOpt.tapeX, 1},
 
     {"cycle-check-depth", required_argument, 0, CO_CYCLE_CHECK_DEPTH},
     {"init-tape", required_argument, 0, CO_INIT_TAPE},
@@ -106,7 +113,7 @@ static struct option long_options[MAX_COMMAND_OPTIONS] = {
     {"stat-start", required_argument, 0, CO_STAT_START},
     {"stat-stride", required_argument, 0, CO_STAT_STRIDE},
     {"stat-stop", required_argument, 0, CO_STAT_STOP},
-    {"write-as", required_argument, 0, CO_WRITE_AS},
+    {"write-graph-as", required_argument, 0, CO_WRITE_GRAPH_AS},
     {"record", required_argument, 0, CO_RECORD},
 
     {"help", no_argument, 0, CO_HELP},
@@ -147,6 +154,7 @@ void ParseCommand(const int argc, char* argv[]) {
     cmdOpt.noConsole = 0;
     cmdOpt.extendId = 0;
     cmdOpt.printTape = 0;
+    cmdOpt.tapeX = 0;
     cmdOpt.nrNodes = 256;
     cmdOpt.graphWriteStart = -1;
     cmdOpt.graphWriteStride = -1;
@@ -293,7 +301,7 @@ void ParseCommand(const int argc, char* argv[]) {
             tapePctBlackSpecified = true;
             break;
 
-          case CO_WRITE_AS:
+          case CO_WRITE_GRAPH_AS:
             cmdOpt.writeAsName = optarg;
             break;
 
@@ -344,6 +352,12 @@ void ParseCommand(const int argc, char* argv[]) {
       && cmdOpt.machineTypeName != "CM"
       && cmdOpt.machineTypeName != "RM") {
         std::cerr << "error: --machine must be specified as C, R, CM, or RM" << std::endl;
+        errorFound = true;
+    }
+
+    if ((cmdOpt.machineTypeName == "R"|| cmdOpt.machineTypeName == "RM")
+      && cmdOpt.noChangeTopo) {
+        std::cerr << "error: --no-change-topo is not sensible for R* machine types" << std::endl;
         errorFound = true;
     }
 
@@ -427,6 +441,24 @@ void WriteGraph(Machine* m, const std::string graphFileSuffix,
 }
 
 //---------------
+// WriteTape
+//
+// Print the current tape state to stderr.
+//---------------
+static
+void WriteTape(Machine* m, int tapeX) {
+
+    for (int i = 0; i < m->m_nrNodes; i += 1) {
+        if (i > 0 && !tapeX) std::cerr << " ";
+        if (tapeX)
+            std::cerr << ((m->m_nodeStates[i]) ? "X" : " ");
+        else
+            std::cerr << m->m_nodeStates[i];
+    }
+    std::cerr << std::endl;
+}
+
+//---------------
 // WriteIterationStats
 //
 // Write (append) to a file that accumulates JSON-encoded per-iteration statistics.
@@ -472,19 +504,30 @@ void WriteIterationStats(Machine* machine, bool teeToConsole, int iterationNr) {
     info["diameter"] = FullDiam;
     info["effDiameter90Pctl"] = EffDiam;
 
-    // In-degree summary
+    // In-degree summary (also build vector 'nk' of node counts by in-degree)
     Machine::DegStats degStats;
     machine->GetDegStats(degStats);
     Json::Value inDegreeCount;
+    int maxInDegree = 0;
+    for (int i = 0; i < degStats.nrInDeg; i += 1)
+        if (degStats.inDegCnt[i].Val1 > maxInDegree) maxInDegree = degStats.inDegCnt[i].Val1;
+    std::vector<int> nk(maxInDegree + 1, 0);
+
     for (int i = 0; i < degStats.nrInDeg; i += 1) {
+        int inDegree = degStats.inDegCnt[i].Val1;
+        int nodeCount = degStats.inDegCnt[i].Val2;
+
         Json::Value inDegreeCountPair;
-        inDegreeCountPair.append((int) degStats.inDegCnt[i].Val1);
-        inDegreeCountPair.append((int) degStats.inDegCnt[i].Val2);
+        inDegreeCountPair.append(inDegree);
+        inDegreeCountPair.append(nodeCount);
         inDegreeCount.append(inDegreeCountPair);
+
+        nk[inDegree] = nodeCount;
     }
     info["inDegreeCount"] = inDegreeCount;
     info["nrInDegrees"] = degStats.nrInDeg;
     info["inDegreeEntropy"] = degStats.inDegEntropy;
+    info["estimatedInDegreeExponent"] = machine->EstimateDegExp(nk, maxInDegree);
 
     // Out-degree summary
     Json::Value outDegreeCount;
@@ -580,7 +623,7 @@ int main(const int argc, char* argv[]) {
 
     // Create the machine.
     m->BuildMachine(cmdOpt.ruleNr, cmdOpt.nrNodes, cmdOpt.cycleCheckDepth,
-      cmdOpt.tapeStructure, cmdOpt.tapePctBlack,cmdOpt.topoStructure);
+      cmdOpt.tapeStructure, cmdOpt.tapePctBlack, cmdOpt.topoStructure, cmdOpt.noChangeTopo);
 
     // Fabricate a run identifier.
     runId = RunId(m->get_machineType(), cmdOpt.ruleNr);
@@ -608,6 +651,9 @@ int main(const int argc, char* argv[]) {
                 WriteGraph(m, cmdOpt.graphFileSuffix, iter, iter);
             }
         }
+
+        // Write the tape state if specified.
+        if (cmdOpt.printTape) WriteTape(m, cmdOpt.tapeX);
 
         // Write a statistics snapshot if before iteration 0 or if specified.
         if (iter == 0) {

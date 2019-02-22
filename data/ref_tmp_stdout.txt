@@ -1,0 +1,68 @@
+[
+    {
+        "avgClustCoef": 0.0,
+        "ccSizeCount": [
+            [
+                98,
+                1
+            ]
+        ],
+        "diameter": 97,
+        "effDiameter90Pctl": 66.50967741935484,
+        "estimatedInDegreeExponent": 1.3745771639497573,
+        "inDegreeCount": [
+            [
+                1,
+                2
+            ],
+            [
+                2,
+                94
+            ],
+            [
+                3,
+                2
+            ]
+        ],
+        "inDegreeEntropy": 0.18097519948921978,
+        "iterationNr": 1,
+        "nrCcSizes": 1,
+        "nrCcs": 1,
+        "nrClosedTriads": 0,
+        "nrInDegrees": 3,
+        "nrNodes": 98,
+        "nrOpenTriads": 96,
+        "nrOutDegrees": 1,
+        "outDegreeCount": [
+            [
+                2,
+                98
+            ]
+        ],
+        "outDegreeEntropy": 0.0,
+    },
+    {
+        "cycleCheckDepth": 100,
+        "cycleLength": -1,
+        "hashCollisions": 0,
+        "initNrNodes": 100,
+        "machineType": "C",
+        "maxIterations": 128,
+        "nrIterations": 2,
+        "randseed": 641,
+        "ruleNr": 641,
+        "tapePctBlack": -1,
+        "tapeStructure": "single-center",
+        "topoStructure": "ring",
+        "triadOccurrences": [
+            97,
+            1,
+            1,
+            2,
+            2,
+            0,
+            0,
+            95
+        ],
+    }
+]

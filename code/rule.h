@@ -87,8 +87,8 @@ class Rule {
 
 public:
     // Constructors, from "rule number," "rule parts," and "rule text."
-    Rule(const rulenr_t);
-    Rule(const int*);
+    Rule(rulenr_t);
+    Rule(const std::string, int*);
     Rule(const char*);
     // TODO: Understand destructor declaration.
 
@@ -96,13 +96,13 @@ public:
 
     rulenr_t get_ruleNr();
     rulenr_t get_maxRuleNr();
-    const int* get_ruleParts();
-    const int* get_ruleSubParts();
+    int* get_ruleParts();
+    int* get_ruleSubParts();
     std::string get_ruleText();
     bool PassesFilter(const Filter& filter);
 
 private:
-    void CheckRuleNr(const rulenr_t);
+    void CheckRuleNr(const rulenr_t, const std::string);
     int dstIndex(const char*);
 
     rulenr_t m_ruleNr;

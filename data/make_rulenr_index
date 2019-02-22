@@ -1,0 +1,20 @@
+# Script to create a csv table relating rule number to either
+# its equivalent rule-parts or rulemap
+#
+if [ $# -lt 2 ]; then
+    echo "usage: $0 parts|map <rulenr list file> > <index csv file>"
+    exit 1
+fi
+
+# Create the relation in blank-separated columns.
+for rulenr in `cat $2`; do
+    echo $rulenr `../code/txrule --$1 $rulenr`
+done > 11.tmp
+
+# Remove multiple blanks
+cat 11.tmp | tr --squeeze-repeats ' ' > 12.tmp
+rm 11.tmp
+
+# Change all blanks to commas.
+cat 12.tmp | tr ' ' ','
+rm 12.tmp

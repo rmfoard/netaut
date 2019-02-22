@@ -253,7 +253,9 @@ As with the \textbf{C*} machines, though, the scope of changes at each node is
 limited to the destinations of its two out-edges. (The random machines need not alter nodes' states
 because node states have no effect on the \textbf{R*} machines' actions).
 The \textbf{R} machine applies the same pruning process that \textbf{C} uses. As
-with \textbf{CM}, no pruning step is requied in \textbf{RM} simulations.
+with \textbf{CM}, no pruning step is required in \textbf{RM} simulations.
+
+<Insert here a chart showing the differences among the four machines>
 
 \subsection{The Pruning Process}
 
@@ -305,7 +307,7 @@ Initial graphs are finite, and each iteration
 either maintains the number of nodes or, in the case of \textbf{C} and \textbf{R},
 reduces it by pruning.  It is consequently certain that all machine runs will terminate,
 either in a state cycle or in a graph collapse; this holds true
-for \textbf{C}, \textbf{CM}, and their random counterparts.
+for \textbf{C}, \textbf{CM}, and their random counterparts \textbf{R} and \textbf{RM}.
 The possibility that a graph will traverse an astronomical number
 of states\footnote{The number of possible states for an N-node graph is:
 \[
@@ -326,21 +328,13 @@ Machine & Cycling & Collapsed & Undet. \\
 \midrule
 C & 40.77\% & 59.22\% & 0.01\% \\
 R & 0.01\% & 99.99\% & 0\% \\
+\cmidrule(r){2-3}
 CM & 99.07\% & --- & 0.03\% \\
 RM & 100.00\% & --- & 0.00\% \\
 \bottomrule
 \end{tabular}
 \label{tab:Tab1}
 \end{table}
-
-%BOOKMARK%
-
-Machine \textbf{C} is far less likely to produce graph collapses than
-\textbf{R} is (59.3\% vs. 99.9\% of runs). In cases where \textbf{C} produces
-collapses, average run length is consistently greater than
-for \textbf{R} (Figure \ref{fig:figA}). For both machine types, we refer to
-the number of nodes at the end of the iteration immediately preceding a collapse,
-or to the "settled" number of nodes in a cycling graph, as the terminal number of nodes.
 
 \begin{figure}
 %  \fbox{\includegraphics[width=\linewidth, scale=0.6]{figA.png}}
@@ -349,18 +343,11 @@ or to the "settled" number of nodes in a cycling graph, as the terminal number o
   \label{fig:figA}
 \end{figure}
 
-\subsection{Degree and Entropy}
+\subsection{In-Degree Entropy}
 
 Machine \textbf{C}, on average, generates graphs with a larger 
-maximum in-degree than in the random case (Figure \ref{fig:figC}), and also produces a
+maximum in-degree than in the random case, and also produces a
 larger number of distinct in-degrees (Figure \ref{fig:figB}).
-
-\begin{figure}
-  %\fbox{\includegraphics[width=\linewidth, scale=0.7]{figC.png}}
-  \includegraphics[width=\linewidth, scale=0.7]{figC.png}
-  \caption{\textbf{C} produces a larger maximum in-degree than \textbf{R}.}
-  \label{fig:figC}
-\end{figure}
 
 \begin{figure}
   %\fbox{\includegraphics[width=\linewidth, scale=0.7]{figB.png}}
@@ -379,7 +366,14 @@ The drop in average entropy between initial graphs and the \textbf{R} machine's 
 graphs seems surprising on its face, but is accounted for by the restriction that
 \textbf{R}'s topological changes, like \textbf{C}'s, may only redirect a node's out-edge
 to one of its neighbors or their neighbors.
-The effect is to "localize" the randomness, increasing apparent order in the graph.
+The effect is to "localize" the randomness, increasing apparent order in the random graph as
+soon as the first iteration is completed.
+
+The two \textbf{*M} machines that allow multi-edges to remain in the graph, \textbf{CM} and
+\textbf{RM}, almost invariably cycle because there are fewer possible new destinations for
+both members of a multi-edge when the machine applies the iteration rule (or random choice
+in the case of \textbf{RM}) at their origin node. <Refer to the diagram, then go on to
+explain that the effect is more pronounced for the random variant because...>
 
 \begin{figure}
   %\fbox{\includegraphics[width=\linewidth, scale=0.7]{figE.png}}
@@ -399,60 +393,50 @@ The effect is to "localize" the randomness, increasing apparent order in the gra
 \subsection{Cycles and Collapses}
 %Unhappy Endings?
 
+Machine \textbf{C} is far less likely to produce graph collapses than
+\textbf{R} is (59.3\% vs. 99.9\% of runs). In cases where \textbf{C} produces
+collapses, average run length is consistently greater than
+for \textbf{R} (Figure \ref{fig:figA}). For both machine types, we refer to
+the number of nodes at the end of the iteration immediately preceding a collapse,
+or to the "settled" number of nodes in a cycling graph, as the terminal number of nodes.
+
+<Compare cycling behaviors. ?Cycle lengths vs nr iterations?>
+
+<Explain why further investigation of the *M machines was dropped.>
+
+<Explain why R collapses are far more likely.>
+
+<Discuss collapse shapes, R vs C.>
+
+\subsection{Sensitivity to Initial Conditions}
+
+<Discuss.>
+
+\subsection{Degree Distribution}
+
 \subsection{Clustering}
 
 Terminal clustering coefficients for machine \textbf{C} are smaller than those for \textbf{R} in
 the large majority of cases (Figure \ref{fig:figDd1024}).
-
-\subsection{Sensitivity to Initial Conditions}
 
 This is where things get more interesting.
 
 For this one, we'll have to dust off the old self-organizing criticality
 references. Are collapses like sandpile avalanches?
 
-\subsection{Self-Organization}
-%Made to Order?
-
-\subsection{Predictability}
-%Learning the Hard Way?
-
-\subsection{Mathematical Analysis}
-%Doing the Math?
-
 \subsection{Designed Rules}
+%Made to Order?
+%Learning the Hard Way?
 %Designer Rules? Rules by Design?
 
 \subsection{Interesting Configurations}
 %Photo Opps?
 Sorter?
 
-\subsection{Cycles}
-%In the Long Run?
-
-\begin{table}
-\caption{Example table}
-\centering
-\begin{tabular}{llr}
-\toprule
-\multicolumn{2}{c}{Name} \\
-\cmidrule(r){1-2}
-First name & Last Name & Grade \\
-\midrule
-John & Doe & $7.5$ \\
-Richard & Miles & $2$ \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-Some dummy text was here.
-
 \begin{equation}
 \label{eq:emc}
 e = mc^2
 \end{equation}
-
-Some dummy text was here.
 
 %------------------------------------------------
 

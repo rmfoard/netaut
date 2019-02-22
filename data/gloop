@@ -1,0 +1,22 @@
+# gloop machine --local|noop nodes runs maxiters tape topo checkDepth recordBaseName rule+seedFile
+#
+#
+runnr=1
+while [ $runnr -le $4 ]; do
+    ../code/explorer \
+    `../code/rulesource --source ${10}` \
+    $2 \
+    --machine $1 \
+    --no-write-end-graph \
+    --no-console \
+    --nodes $3 \
+    --max-iterations $5 \
+    --init-tape $6 \
+    --init-topo $7 \
+    --cycle-check-depth $8 \
+    --record $9 \
+    --graph-start 0 \
+    --graph-stride 1 \
+    --write-as iter_$runnr
+    ((runnr++))
+done
