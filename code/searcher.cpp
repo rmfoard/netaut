@@ -24,8 +24,35 @@
 
 #define VERSION "V190222.0"
 
-#define MAXGENERATIONS 100
-#define PROBMUTATE 10 // /100.0
+// This program runs a genetic search for rules that, when run in an instance
+// of automaton C, produce a fitness statistic that exceeds 'target-fitness'.
+//
+// In summary, it:
+// (1) Generates 'pool-size' random rules, creating an initial rule (or "chromosome")
+//  pool,
+// (2) Repeatedly fills a new pool by choosing pairs of parent rules from
+//  the existing pool using a process that is biased toward higher-fitness rules
+//  to a degree tunable using 'cum-fitness-exp'.
+// (3) Mutating each parent with probability 'prob-mutation'.
+// (4) "Crossing" the parents by exchanging a randomly selected rule-subpart.
+//
+// - Duplicate rules are never inserted in the nascent pool.
+// - Random number generation can be seeded with the --randseed <seed> command
+// line option.
+// - Each newly generated rule is recorded along with its fitness. Evolution
+// stops when either 'max-generations' pools have been processed or the number
+// of rules exceeding 'target-fitness' exceeds 'stop-after'.
+//
+// Results are recorded in files with the root name specified with command
+// line option --record <rootname>:
+//
+// - <rootname>_s.json contains parameter values and summary statistics.
+// - <rootname>_p.json contains the rules and fitnesses for each generation.
+// - <rootname>_rulepath.txt contains a list of all generated rules and their
+// fitnesses.
+
+#define MAXGENERATIONS 100 // (to be replaced with a command line parameter)
+#define PROBMUTATE 10 // /100.0 (to be replaced with a command line parameter)
 #define NR_SUBPARTS (NR_TRIAD_STATES * 3)
 
 // Set up the Mersenne Twister random number generator.
