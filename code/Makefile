@@ -17,12 +17,17 @@ UNAME := $(shell uname)
 # Linux flags
 CC = g++
 CXXFLAGS += -std=c++11 -Wall
-CXXFLAGS += -Wall -Wno-delete-non-virtual-dtor # Suppress voluminous SNAP compiler warnings.
 CXXFLAGS += -O0 -fopenmp
+
+# Suppress voluminous SNAP compiler warnings.
+CXXFLAGS += -Wall -Wno-delete-non-virtual-dtor
+CXXFLAGS += -Wall -Wno-misleading-indentation
+
 # turn on for crash debugging, get symbols with <prog> 2>&1 | c++filt
 CXXFLAGS += -g -rdynamic
 CXXFLAGS += -ggdb
 CXXFLAGS += -fPIC
+
 # turn on for OpenMP
 CXXOPENMP = 
 LDFLAGS +=
