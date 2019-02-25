@@ -50,6 +50,12 @@
 // - <rootname>_p.json contains the rules and fitnesses for each generation.
 // - <rootname>_rulepath.txt contains a list of all generated rules and their
 // fitnesses.
+//
+// This program also accepts command line parameters that configure the operation
+// of the automata:
+// - --nodes
+// - --cycle-check-depth
+// - --max-iterations
 
 #define MAXGENERATIONS 100 // (to be replaced with a command line parameter)
 #define PROBMUTATE 10 // /100.0 (to be replaced with a command line parameter)
