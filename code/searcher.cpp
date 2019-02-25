@@ -56,6 +56,12 @@
 // - --nodes
 // - --cycle-check-depth
 // - --max-iterations
+//
+// Notes:
+// - Duplicate rules never appear in the same pool. They may, however, appear
+// in different generations of the pools. This results in some double-counting
+// in the running tally 'nrFitRules'.
+//
 
 #define NR_SUBPARTS (NR_TRIAD_STATES * 3)
 
@@ -84,7 +90,9 @@ static int nrFitRules = 0;
 // Procedures
 //
 static void ChooseParents(Pool*, PickList*, Chromosome*&, Chromosome*&);
+static double Compactness(Pool*);
 static void Cross(rulenr_t&, rulenr_t&);
+static double Distance(Pool*, int, int);
 static void FillRandomPool(Pool*);
 static rulenr_t GenRandRule();
 static void Mutate(rulenr_t&);
@@ -200,7 +208,18 @@ void ChooseParents(Pool* pool, PickList* pl, Chromosome*& maC, Chromosome*& paC)
 }
 
 //---------------
-static void Cross(rulenr_t& rn1, rulenr_t& rn2) {
+double Compactness(Pool* p) {
+    double totInterDistance = 0.0;
+    for (int i = 0; i < p->get_capacity(); i += 1) {
+        for (int j = 0; j < i; j += 1) {
+            totInterDistance += Distance(p, i, j);
+        }
+    }
+    return totInterDistance / p->get_capacity();
+}
+
+//---------------
+void Cross(rulenr_t& rn1, rulenr_t& rn2) {
     // Get the rules' sub-parts.
     Rule* r1 = new Rule(rn1);
     Rule* r2 = new Rule(rn2);
@@ -227,6 +246,25 @@ static void Cross(rulenr_t& rn1, rulenr_t& rn2) {
     delete r2;
     delete newR1;
     delete newR2;
+}
+
+//---------------
+double Distance(Pool* p, int i, int j) {
+    Rule* iRule = new Rule(p->get_entry(i)->get_ruleNr());
+    Rule* jRule = new Rule(p->get_entry(j)->get_ruleNr());
+    int* iSubParts = iRule->get_ruleSubParts();
+    int* jSubParts = jRule->get_ruleSubParts();
+
+    double sumsq = 0.0;
+    for (int px = 0; px < NR_SUBPARTS; px += 1)
+        sumsq += pow(iSubParts[px] - jSubParts[px], 2.0);
+
+    delete iSubParts;
+    delete jSubParts;
+    delete iRule;
+    delete jRule;
+
+    return pow(sumsq, 0.5);
 }
 
 //---------------
@@ -649,9 +687,12 @@ int main(const int argc, char* argv[]) {
     // Write a snapshot of the pool state before each generation advance.
     int generationNr = 0;
     double statistic = pool->AvgFitness();
+    std::cerr << "gen avgFit maxFit compact cumFitRules" << std::endl;
     do {
-        std::cerr << generationNr << " " << statistic << " " << pool->MaxFitness() << " " << nrFitRules << std::endl;
-        journalFS << generationNr << " " << statistic << " " << pool->MaxFitness() << " " << nrFitRules << std::endl;
+        std::cerr << generationNr << " " << statistic << " " << pool->MaxFitness()
+          << " " << Compactness(pool) << " " << nrFitRules << std::endl;
+        journalFS << generationNr << " " << statistic << " " << pool->MaxFitness()
+          << " " << Compactness(pool) << " " << nrFitRules << std::endl;
         assert(pool->Write(snapName));
         RecordPool(generationNr, pool);
         statistic = SimulateGeneration(generationNr, pool); // Replaces pool
