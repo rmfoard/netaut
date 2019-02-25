@@ -91,6 +91,7 @@ static void Mutate(rulenr_t&);
 static void MutateAndCross(int, Chromosome*, Chromosome*, Chromosome*&, Chromosome*&);
 static Chromosome* NoteNewRule(int, Chromosome*);
 static void ParseCommand(const int, char**);
+static void RecordPool(int, Pool*);
 static double SimulateGeneration(int, Pool*&);
 static int Uniform(int, int);
 
@@ -305,20 +306,28 @@ void MutateAndCross(int generationNr, Chromosome* maC, Chromosome* paC, Chromoso
         c1rn = orig1rn;
         c2rn = orig2rn;
     }
+    assert(c1rn != c2rn);
 
-    // Pick a rule-part and exchange it.
+    // Pick a rule-part and exchange it, changing both arguments.
     Cross(c1rn, c2rn);
 
     c1C = new Chromosome(c1rn, -1); // -1 => absent fitness
     c2C = new Chromosome(c2rn, -1);
-    NoteNewRule(generationNr, c1C);
-    NoteNewRule(generationNr, c2C);
 }
 
 //---------------
 Chromosome* NoteNewRule(int generationNr, Chromosome* c) {
     rulepathFS << generationNr << " " << c->get_ruleNr() << " " << c->get_fitness() << std::endl;
+    if (c->get_fitness() > cmdOpt.targetFitness) nrFitRules += 1;
     return c;
+}
+
+//---------------
+void RecordPool(int generationNr, Pool* p) {
+    for (int ix = 0; ix < p->get_capacity(); ix += 1)
+        genFS << generationNr << " "
+          << p->get_entry(ix)->get_ruleNr() << " "
+          << p->get_entry(ix)->get_fitness() << std::endl;
 }
 
 //---------------
@@ -329,9 +338,6 @@ double SimulateGeneration(int generationNr, Pool*& pool) {
     // lative fitness represents, in a sense, the total fitness of
     // the rule and all more-fit rules. Fitness values are normalized.
     PickList* pickList = new PickList(pool, cmdOpt.cumFitnessExp);
-
-    // Log the current pool state to stdout.
-    pickList->Log(std::cout, cmdOpt.randSeed, generationNr);
 
     // Create and fill the next generation pool.
     Pool* newPool = new Pool(pool->get_capacity());
@@ -344,15 +350,17 @@ double SimulateGeneration(int generationNr, Pool*& pool) {
         ChooseParents(pool, pickList, maC, paC);
         //assert(maC->get_ruleNr() != paC->get_ruleNr());
 
-        // Create 2 children and insert them in the new pool if
-        // they're not already in.
+        // Create 2 children. If they're not already in the new pool, insert
+        // them and record them in the rulepath.
         Chromosome* c1C;
         Chromosome* c2C;
         MutateAndCross(generationNr, maC, paC, c1C, c2C);
+
         if (newPool->Contains(c1C->get_ruleNr()))
             delete c1C;
         else {
             newPool->put_entry(c1C, newPoolNrElts);
+            NoteNewRule(generationNr, c1C);
             if (++newPoolNrElts == cmdOpt.poolSize) {
                 delete c2C;
                 break;
@@ -363,6 +371,7 @@ double SimulateGeneration(int generationNr, Pool*& pool) {
             delete c2C;
         else {
             newPool->put_entry(c2C, newPoolNrElts);
+            NoteNewRule(generationNr, c2C);
             if (++newPoolNrElts == cmdOpt.poolSize) break;
         }
 
@@ -641,9 +650,10 @@ int main(const int argc, char* argv[]) {
     int generationNr = 0;
     double statistic = pool->AvgFitness();
     do {
-        std::cerr << generationNr << " " << statistic << " " << pool->MaxFitness() << std::endl;
-        journalFS << generationNr << " " << statistic << " " << pool->MaxFitness() << std::endl;
+        std::cerr << generationNr << " " << statistic << " " << pool->MaxFitness() << " " << nrFitRules << std::endl;
+        journalFS << generationNr << " " << statistic << " " << pool->MaxFitness() << " " << nrFitRules << std::endl;
         assert(pool->Write(snapName));
+        RecordPool(generationNr, pool);
         statistic = SimulateGeneration(generationNr, pool); // Replaces pool
         generationNr += 1;
     } while (generationNr < cmdOpt.maxGenerations
@@ -651,6 +661,7 @@ int main(const int argc, char* argv[]) {
 
     // Snapshot and record/report the final pool state.
     assert(pool->Write(snapName));
+    RecordPool(generationNr, pool);
     std::cerr << generationNr << " " << statistic << " " << pool->MaxFitness() << std::endl;
     journalFS << generationNr << " " << statistic << " " << pool->MaxFitness() << std::endl;
 

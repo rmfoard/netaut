@@ -55,17 +55,3 @@ PickList::~PickList() {
 Pool* PickList::get_basePool() { return m_basePool; }
 double PickList::get_cumFitnessExp() { return m_cumFitnessExp; }
 PickElt PickList::get_elt(int ix) { return m_list[ix]; }
-
-//---------------
-void PickList::Log(std::ostream& out, int randSeed, int generationNr) {
-    int poolSize = m_basePool->get_capacity();
-    for (int ix = 0; ix < poolSize; ix += 1) {
-    out
-      << randSeed << " "
-      << generationNr << " "
-      << m_list[ix].c->get_ruleNr() << " "
-      << m_list[ix].c->get_fitness() << " "
-      << m_list[ix].normFitness << " "
-      << m_list[ix].cumFitness << std::endl;
-    }
-}

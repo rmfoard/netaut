@@ -21,7 +21,6 @@ public:
     Pool* get_basePool();
     double get_cumFitnessExp();
     PickElt get_elt(int);
-    void Log(std::ostream&, int, int);
 
 
 private:
