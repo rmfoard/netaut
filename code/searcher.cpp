@@ -336,8 +336,12 @@ void MutateAndCross(int generationNr, Chromosome* maC, Chromosome* paC, Chromoso
 
     // Possibly mutate exactly one member of the pair.
     assert(c1rn != c2rn);
-    if (Uniform(0, 99) < cmdOpt.probMutation) Mutate(c1rn);
-    else if (Uniform(0, 99) < cmdOpt.probMutation) Mutate(c2rn);
+    if (Uniform(0, 99) < cmdOpt.probMutation) {
+        do Mutate(c1rn); while(Uniform(0, 99) < cmdOpt.probMutation);
+    }
+    else if (Uniform(0, 99) < cmdOpt.probMutation) {
+        do Mutate(c2rn); while(Uniform(0, 99) < cmdOpt.probMutation);
+    }
 
     // Undo if a mutation left the rules equal.
     if (c1rn == c2rn) {
