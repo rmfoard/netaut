@@ -22,7 +22,7 @@
 #include "rule.h"
 #include "runner.h"
 
-#define VERSION "V190222.0"
+#define VERSION "V190225.0"
 
 // This program runs a genetic search for rules that, when run in an instance
 // of automaton C, produce a fitness statistic that exceeds 'target-fitness'.
@@ -47,9 +47,9 @@
 // line option --record <rootname>:
 //
 // - <rootname>_s.json contains parameter values and summary statistics.
-// - <rootname>_p.json contains the rules and fitnesses for each generation.
-// - <rootname>_rulepath.txt contains a list of all generated rules and their
-// fitnesses.
+// - <rootname>_g.txt contains the rules and fitnesses for each generation.
+// - <rootname>_rp.txt contains a list of all generated rules ("rulepath")
+//  and their fitnesses.
 //
 // This program also accepts command line parameters that configure the operation
 // of the automata:
@@ -57,18 +57,25 @@
 // - --cycle-check-depth
 // - --max-iterations
 
-#define MAXGENERATIONS 100 // (to be replaced with a command line parameter)
-#define PROBMUTATE 10 // /100.0 (to be replaced with a command line parameter)
 #define NR_SUBPARTS (NR_TRIAD_STATES * 3)
 
 // Set up the Mersenne Twister random number generator.
-// 'pMersenne' will point to a seeded instantiation of the generator.
+// 'pMersenne' will point to a seeded instance of the generator.
 // 'rn05' is an instantiated wrapper that yields uniform [0, 5] when called with
 // a generator.
 static std::mt19937* pMersenne;
 static std::uniform_int_distribution<int> rn05(0, 5);
 
-static std::ofstream journal;
+static std::ofstream journalFS;
+static std::ofstream snapFS;
+static std::ofstream sumFS;
+static std::ofstream genFS;
+static std::ofstream rulepathFS;
+static std::string snapName;
+static std::string sumName;
+static std::string genName;
+static std::string rulepathName;
+static int nrFitRules = 0;
 
 static void ChooseParents(Pool*, PickList*, Chromosome*&, Chromosome*&);
 static void Cross(rulenr_t&, rulenr_t&);
@@ -92,13 +99,16 @@ struct CommandOpts {
     int extendId;
     int nrNodes;
     int maxGenerations;
+    int stopAfter;
+    int probMutation;
     unsigned int cycleCheckDepth;
     bool rulePresent;
     double cumFitnessExp;
+    double targetFitness;
     int poolSize;
     std::string machineTypeName;
+    std::string rootName;
     std::string journalName;
-    std::string snapName;
     std::string resumeFromName;
 };
 static CommandOpts cmdOpt;
@@ -112,11 +122,14 @@ static CommandOpts cmdOpt;
 #define CO_HELP 1002
 #define CO_JOURNAL 1003
 #define CO_NOOP 1004
-#define CO_SNAP 1005
 #define CO_RESUME 1006
 #define CO_MAXGENERATIONS 1007
 #define CO_CUMFITNESSEXP 1008
 #define CO_POOLSIZE 1009
+#define CO_PROBMUTATION 1010
+#define CO_ROOTNAME 1011
+#define CO_STOPAFTER 1012
+#define CO_TARGET 1013
 
 static struct option long_options[MAX_COMMAND_OPTIONS] = {
     {"no-console", no_argument, &cmdOpt.noConsole, 1},
@@ -132,8 +145,11 @@ static struct option long_options[MAX_COMMAND_OPTIONS] = {
     {"cum-fitness-exp", required_argument, 0, CO_CUMFITNESSEXP},
     {"pool-size", required_argument, 0, CO_POOLSIZE},
     {"log", required_argument, 0, CO_JOURNAL},
-    {"snapshot", required_argument, 0, CO_SNAP},
     {"resume-from", required_argument, 0, CO_RESUME},
+    {"prob-mutation", required_argument, 0, CO_PROBMUTATION},
+    {"record", required_argument, 0, CO_ROOTNAME},
+    {"stop-after", required_argument, 0, CO_STOPAFTER},
+    {"target-fitness", required_argument, 0, CO_TARGET},
 
     {"help", no_argument, 0, CO_HELP},
     {0, 0, 0, 0}
@@ -274,8 +290,8 @@ void MutateAndCross(Chromosome* maC, Chromosome* paC, Chromosome*& c1C, Chromoso
 
     // Possibly mutate exactly one member of the pair.
     assert(c1rn != c2rn);
-    if (Uniform(0, 99) < PROBMUTATE) Mutate(c1rn);
-    else if (Uniform(0, 99) < PROBMUTATE) Mutate(c2rn);
+    if (Uniform(0, 99) < cmdOpt.probMutation) Mutate(c1rn);
+    else if (Uniform(0, 99) < cmdOpt.probMutation) Mutate(c2rn);
 
     // Undo if a mutation left the rules equal.
     if (c1rn == c2rn) {
@@ -384,9 +400,12 @@ void ParseCommand(const int argc, char* argv[]) {
     cmdOpt.rulePresent = false;
     cmdOpt.cumFitnessExp = 1.0;
     cmdOpt.poolSize = 40;
+    cmdOpt.stopAfter = 0;
+    cmdOpt.targetFitness = 1.0;
+    cmdOpt.probMutation = 20;
     cmdOpt.machineTypeName = "C";
     cmdOpt.journalName = "searcher";
-    cmdOpt.snapName = "snapshot.txt";
+    cmdOpt.rootName = "";
     cmdOpt.resumeFromName = "";
 
     while (true) {
@@ -474,8 +493,28 @@ void ParseCommand(const int argc, char* argv[]) {
             cmdOpt.journalName = optarg;
             break;
 
-          case CO_SNAP:
-            cmdOpt.snapName = optarg;
+          case CO_PROBMUTATION:
+            cmdOpt.probMutation = atoi(optarg);
+            if (cmdOpt.probMutation < 0 || cmdOpt.probMutation > 100) {
+                std::cerr << "error: 0 <= prob-mutation <= 100" << std::endl;
+                exit(1);
+            }
+            break;
+
+          case CO_ROOTNAME:
+            cmdOpt.rootName = optarg;
+            break;
+
+          case CO_STOPAFTER:
+            cmdOpt.stopAfter = atoi(optarg);
+            break;
+
+          case CO_TARGET:
+            cmdOpt.targetFitness = atof(optarg);
+            if (cmdOpt.targetFitness < 0.0 || cmdOpt.targetFitness > 1.00) {
+                std::cerr << "error: 0.0 <= target-fitness <= 1.0" << std::endl;
+                exit(1);
+            }
             break;
 
           case CO_RESUME:
@@ -496,6 +535,16 @@ void ParseCommand(const int argc, char* argv[]) {
 
     // Seed the simpler random number generator.
     srand(cmdOpt.randSeed);
+
+    // Create output file names.
+    if (cmdOpt.rootName == "") {
+        std::cerr << "error: --record <root file name> must be specified" << std::endl;
+        errorFound = true;
+    }
+    snapName = cmdOpt.rootName + "_snap.txt";
+    sumName = cmdOpt.rootName + "_s.json";
+    genName = cmdOpt.rootName + "_g.txt";
+    rulepathName = cmdOpt.rootName + "_r.txt";
 
     // Check option consistency.
     if (errorFound) exit(1);
@@ -523,26 +572,45 @@ int main(const int argc, char* argv[]) {
     pMersenne = new std::mt19937((std::mt19937::result_type) cmdOpt.randSeed);
 
     // Open the journal and log parameters.
-    journal.open(cmdOpt.journalName + ".log", std::ios::app);
-    if (!journal.is_open()) {
+    journalFS.open(cmdOpt.journalName + ".log", std::ios::app);
+    if (!journalFS.is_open()) {
         std::cerr << "error: can't open the log file" << std::endl;
         exit(1);
     }
-    journal << "info: starting, poolcapacity: "
+    // Open the output files.
+    sumFS.open(sumName, std::ios::trunc);
+    if (!sumFS.is_open()) {
+        std::cerr << "error: can't open the summary file " << sumName << std::endl;
+        exit(1);
+    }
+    genFS.open(genName, std::ios::trunc);
+    if (!genFS.is_open()) {
+        std::cerr << "error: can't open the generation file " << genName << std::endl;
+        exit(1);
+    }
+    rulepathFS.open(rulepathName, std::ios::trunc);
+    if (!rulepathFS.is_open()) {
+        std::cerr << "error: can't open the rulepath file " << rulepathName << std::endl;
+        exit(1);
+    }
+
+    // Write summary information.
+    sumFS << "info: starting, poolcapacity: "
       << cmdOpt.poolSize << " randseed: "
       << cmdOpt.randSeed << " snapshot: "
-      << cmdOpt.snapName
+      << snapName
       << std::endl;
+    sumFS.close();
 
     // Create a random pool or read it if we're resuming from a file.
     Pool* pool = new Pool(cmdOpt.poolSize);
     if (cmdOpt.resumeFromName != "") {
         std::cerr << "info: resuming using pool from: " << cmdOpt.resumeFromName << std::endl;
-        journal << "info: resuming using pool from: " << cmdOpt.resumeFromName << std::endl;
+        journalFS << "info: resuming using pool from: " << cmdOpt.resumeFromName << std::endl;
         if (!pool->Read(cmdOpt.resumeFromName)) {
             std::cerr << "error: unable to read pool from: " << cmdOpt.resumeFromName << std::endl;
-            journal << "error: unable to read pool from: " << cmdOpt.resumeFromName << std::endl;
-            journal.close();
+            journalFS << "error: unable to read pool from: " << cmdOpt.resumeFromName << std::endl;
+            journalFS.close();
             exit(1);
         }
     }
@@ -550,26 +618,30 @@ int main(const int argc, char* argv[]) {
         FillRandomPool(pool);
     }
 
-    // Simulate reproduction until...
+    // Simulate reproduction until reaching maxGenerations or nrFitRules > stopAfter.
     int generationNr = 0;
     double statistic = pool->AvgFitness();
     std::cerr << cmdOpt.maxGenerations << " generations" << std::endl;
-    std::cerr << "gen max avg" << std::endl;
+    std::cerr << "gen avg max" << std::endl;
+    assert(pool->Write(snapName));
     while (generationNr < cmdOpt.maxGenerations && statistic < 100000.0) { // TODO: Replace the test.
         std::cerr
           << generationNr << " "
           << statistic << " "
           << pool->MaxFitness()
           << std::endl;
-        journal << "generation " << generationNr << " " << statistic << std::endl;
-        assert(pool->Write(cmdOpt.snapName));
+        journalFS << "generation " << generationNr << " " << statistic << std::endl;
+        assert(pool->Write(snapName));
         statistic = SimulateGeneration(generationNr, pool); // Replaces pool
         generationNr += 1;
     }
-    assert(pool->Write(cmdOpt.snapName));
+    sumFS.close();
+    assert(pool->Write(snapName));
 
     delete pool;
-    journal << "info: stopping" << std::endl;
-    journal.close();
+    journalFS << "info: stopping" << std::endl;
+    journalFS.close();
+    genFS.close();
+    rulepathFS.close();
     exit(0);
 }
