@@ -22,7 +22,7 @@
 #include "rule.h"
 #include "runner.h"
 
-#define VERSION "V190225.0"
+#define VERSION "V190225.1"
 
 // This program runs a genetic search for rules that, when run in an instance
 // of automaton C, produce a fitness statistic that exceeds 'target-fitness'.
