@@ -14,7 +14,7 @@ public:
 
     int get_capacity();
     Chromosome* get_entry(int);
-    void put_entry(Chromosome*, int);
+    Chromosome* put_entry(Chromosome*, int);
 
     double AvgFitness();
     bool Contains(const rulenr_t);

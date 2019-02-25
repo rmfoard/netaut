@@ -30,7 +30,7 @@ Pool::~Pool() {
 
 Chromosome* Pool::get_entry(int ix) { return m_pool[ix]; }
 int Pool::get_capacity() { return m_capacity; }
-void Pool::put_entry(Chromosome* c, int ix) { m_pool[ix] = c; }
+Chromosome* Pool::put_entry(Chromosome* c, int ix) { m_pool[ix] = c; return c; }
 
 //---------------
 double Pool::AvgFitness() {

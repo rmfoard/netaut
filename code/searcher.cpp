@@ -59,6 +59,9 @@
 
 #define NR_SUBPARTS (NR_TRIAD_STATES * 3)
 
+//---------------
+// Global structures
+//
 // Set up the Mersenne Twister random number generator.
 // 'pMersenne' will point to a seeded instance of the generator.
 // 'rn05' is an instantiated wrapper that yields uniform [0, 5] when called with
@@ -77,12 +80,16 @@ static std::string genName;
 static std::string rulepathName;
 static int nrFitRules = 0;
 
+//---------------
+// Procedures
+//
 static void ChooseParents(Pool*, PickList*, Chromosome*&, Chromosome*&);
 static void Cross(rulenr_t&, rulenr_t&);
 static void FillRandomPool(Pool*);
 static rulenr_t GenRandRule();
 static void Mutate(rulenr_t&);
-static void MutateAndCross(Chromosome*, Chromosome*, Chromosome*&, Chromosome*&);
+static void MutateAndCross(int, Chromosome*, Chromosome*, Chromosome*&, Chromosome*&);
+static Chromosome* NoteNewRule(int, Chromosome*);
 static void ParseCommand(const int, char**);
 static double SimulateGeneration(int, Pool*&);
 static int Uniform(int, int);
@@ -223,8 +230,8 @@ static void Cross(rulenr_t& rn1, rulenr_t& rn2) {
 
 //---------------
 void FillRandomPool(Pool* p) {
-    int capacity = p->get_capacity();
-    for (int i = 0; i < capacity; i += 1) p->put_entry(new Chromosome(GenRandRule()), i);
+    // Makes the shady assumption that no duplicates are generated.
+    for (int i = 0; i < p->get_capacity(); i += 1) p->put_entry(new Chromosome(GenRandRule()), i);
 }
 
 //---------------
@@ -282,7 +289,7 @@ void Mutate(rulenr_t& rn) {
 }
 
 //---------------
-void MutateAndCross(Chromosome* maC, Chromosome* paC, Chromosome*& c1C, Chromosome*& c2C) {
+void MutateAndCross(int generationNr, Chromosome* maC, Chromosome* paC, Chromosome*& c1C, Chromosome*& c2C) {
     rulenr_t c1rn = maC->get_ruleNr();
     rulenr_t c2rn = paC->get_ruleNr();
     rulenr_t orig1rn = c1rn;
@@ -304,6 +311,14 @@ void MutateAndCross(Chromosome* maC, Chromosome* paC, Chromosome*& c1C, Chromoso
 
     c1C = new Chromosome(c1rn, -1); // -1 => absent fitness
     c2C = new Chromosome(c2rn, -1);
+    NoteNewRule(generationNr, c1C);
+    NoteNewRule(generationNr, c2C);
+}
+
+//---------------
+Chromosome* NoteNewRule(int generationNr, Chromosome* c) {
+    rulepathFS << generationNr << " " << c->get_ruleNr() << " " << c->get_fitness() << std::endl;
+    return c;
 }
 
 //---------------
@@ -333,7 +348,7 @@ double SimulateGeneration(int generationNr, Pool*& pool) {
         // they're not already in.
         Chromosome* c1C;
         Chromosome* c2C;
-        MutateAndCross(maC, paC, c1C, c2C);
+        MutateAndCross(generationNr, maC, paC, c1C, c2C);
         if (newPool->Contains(c1C->get_ruleNr()))
             delete c1C;
         else {
@@ -578,7 +593,7 @@ int main(const int argc, char* argv[]) {
         exit(1);
     }
     // Open the output files.
-    sumFS.open(sumName, std::ios::trunc);
+    sumFS.open(sumName, std::ios::app);
     if (!sumFS.is_open()) {
         std::cerr << "error: can't open the summary file " << sumName << std::endl;
         exit(1);
@@ -593,14 +608,6 @@ int main(const int argc, char* argv[]) {
         std::cerr << "error: can't open the rulepath file " << rulepathName << std::endl;
         exit(1);
     }
-
-    // Write summary information.
-    sumFS << "info: starting, poolcapacity: "
-      << cmdOpt.poolSize << " randseed: "
-      << cmdOpt.randSeed << " snapshot: "
-      << snapName
-      << std::endl;
-    sumFS.close();
 
     // Create a random pool or read it if we're resuming from a file.
     Pool* pool = new Pool(cmdOpt.poolSize);
@@ -618,30 +625,39 @@ int main(const int argc, char* argv[]) {
         FillRandomPool(pool);
     }
 
+    // Write the initial rulepath entries.
+    for (int ix = 0; ix < pool->get_capacity(); ix += 1) NoteNewRule(0, pool->get_entry(ix));
+
+    // Write summary information.
+    sumFS << "info: starting, poolcapacity: "
+      << cmdOpt.poolSize << " randseed: "
+      << cmdOpt.randSeed << " snapshot: "
+      << snapName << " max-generations: " << cmdOpt.maxGenerations
+      << std::endl;
+    sumFS.close();
+
     // Simulate reproduction until reaching maxGenerations or nrFitRules > stopAfter.
+    // Write a snapshot of the pool state before each generation advance.
     int generationNr = 0;
     double statistic = pool->AvgFitness();
-    std::cerr << cmdOpt.maxGenerations << " generations" << std::endl;
-    std::cerr << "gen avg max" << std::endl;
-    assert(pool->Write(snapName));
-    while (generationNr < cmdOpt.maxGenerations && statistic < 100000.0) { // TODO: Replace the test.
-        std::cerr
-          << generationNr << " "
-          << statistic << " "
-          << pool->MaxFitness()
-          << std::endl;
-        journalFS << "generation " << generationNr << " " << statistic << std::endl;
+    do {
+        std::cerr << generationNr << " " << statistic << " " << pool->MaxFitness() << std::endl;
+        journalFS << generationNr << " " << statistic << " " << pool->MaxFitness() << std::endl;
         assert(pool->Write(snapName));
         statistic = SimulateGeneration(generationNr, pool); // Replaces pool
         generationNr += 1;
-    }
-    sumFS.close();
+    } while (generationNr < cmdOpt.maxGenerations
+            && (cmdOpt.stopAfter == 0 || nrFitRules <= cmdOpt.stopAfter));
+
+    // Snapshot and record/report the final pool state.
     assert(pool->Write(snapName));
+    std::cerr << generationNr << " " << statistic << " " << pool->MaxFitness() << std::endl;
+    journalFS << generationNr << " " << statistic << " " << pool->MaxFitness() << std::endl;
 
     delete pool;
-    journalFS << "info: stopping" << std::endl;
-    journalFS.close();
     genFS.close();
     rulepathFS.close();
+    journalFS << "info: stopping" << std::endl;
+    journalFS.close();
     exit(0);
 }
