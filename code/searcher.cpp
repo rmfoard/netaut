@@ -9,6 +9,9 @@
 #include <stdint.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <algorithm>
+#include <ctime>
+#include <chrono>
 #include <fstream>
 #include <iostream>
 #include <limits>
@@ -85,6 +88,7 @@ static std::string snapName;
 static std::string sumName;
 static std::string genName;
 static std::string rulepathName;
+static std::string runId;
 static int nrFitRules = 0;
 
 //---------------
@@ -101,7 +105,9 @@ static void Mutate(rulenr_t&);
 static void MutateAndCross(int, Chromosome*, Chromosome*, Chromosome*&, Chromosome*&);
 static Chromosome* NoteNewRule(int, Chromosome*);
 static void ParseCommand(const int, char**);
+static void PostProcess();
 static void RecordPool(int, Pool*);
+static std::string RunId(std::string);
 static double SimulateGeneration(int, Pool*&);
 static int Uniform(int, int);
 static void WriteSummary();
@@ -129,6 +135,7 @@ struct CommandOpts {
     std::string rootName;
     std::string journalName;
     std::string resumeFromName;
+    std::string runIdPrefix;
 };
 static CommandOpts cmdOpt;
 
@@ -149,6 +156,7 @@ static CommandOpts cmdOpt;
 #define CO_ROOTNAME 1011
 #define CO_STOPAFTER 1012
 #define CO_TARGET 1013
+#define CO_RUNIDPREFIX 1014
 
 static struct option long_options[MAX_COMMAND_OPTIONS] = {
     {"no-console", no_argument, &cmdOpt.noConsole, 1},
@@ -165,6 +173,7 @@ static struct option long_options[MAX_COMMAND_OPTIONS] = {
     {"pool-size", required_argument, 0, CO_POOLSIZE},
     {"log", required_argument, 0, CO_JOURNAL},
     {"resume-from", required_argument, 0, CO_RESUME},
+    {"runid-prefix", required_argument, 0, CO_RUNIDPREFIX},
     {"prob-mutation", required_argument, 0, CO_PROBMUTATION},
     {"record", required_argument, 0, CO_ROOTNAME},
     {"stop-after", required_argument, 0, CO_STOPAFTER},
@@ -373,17 +382,78 @@ void MutateAndCross(int generationNr, Chromosome* maC, Chromosome* paC, Chromoso
 
 //---------------
 Chromosome* NoteNewRule(int generationNr, Chromosome* c) {
-    rulepathFS << generationNr << " " << c->get_ruleNr() << " " << c->get_fitness() << std::endl;
+    rulepathFS
+      << generationNr << " "
+      << c->get_ruleNr() << " "
+      << c->get_fitness() << std::endl;
     if (c->get_fitness() > cmdOpt.targetFitness) nrFitRules += 1;
     return c;
 }
 
 //---------------
+void PostProcess() {
+    // Close and re-open the rulepath file for reading.
+    rulepathFS.close();
+
+    std::ifstream rulepathInFS;
+    rulepathInFS.open(rulepathName, std::ios::in);
+    if (!rulepathInFS.is_open()) {
+        std::cerr << "error: can't open " << rulepathName << " for reading" << std::endl;
+        journalFS << "error: can't open " << rulepathName << " for reading" << std::endl;
+        exit(1);
+    }
+
+    // Count the lines.
+    std::string line;
+    int nrLines = 0;
+    while (getline(rulepathInFS, line)) nrLines += 1;
+
+    // Allocate and fill a vector of structures.
+    struct RulepathEntry {
+        int generationNr;
+        rulenr_t ruleNr;
+        double fitness;
+    };
+    std::vector<RulepathEntry> rps;
+    rps.reserve(nrLines);
+
+    rulepathInFS.seekg(0); // rewind
+    for (int lineNr = 0; lineNr < nrLines; lineNr += 1) {
+        rulepathInFS >> rps[lineNr].generationNr >> rps[lineNr].ruleNr >> rps[lineNr].fitness;
+    }
+for (int i = 0; i < nrLines; i += 1)
+    std::cerr << rps[i].generationNr << std::endl;
+
+    // Sort the structures by increasing rule number.
+    std::sort(&rps[0], &rps[nrLines],
+      [](const RulepathEntry& a, const RulepathEntry& b) { return a.ruleNr < b.ruleNr; });
+
+std::cerr << std::endl;
+for (int i = 0; i < 15; i += 1)
+    std::cerr << rps[i].ruleNr << std::endl;
+
+rulepathInFS.close(); ////
+}
+
+//---------------
 void RecordPool(int generationNr, Pool* p) {
     for (int ix = 0; ix < p->get_capacity(); ix += 1)
-        genFS << generationNr << " "
+        genFS
+          << runId << " "
+          << generationNr << " "
           << p->get_entry(ix)->get_ruleNr() << " "
           << p->get_entry(ix)->get_fitness() << std::endl;
+}
+
+//---------------
+std::string RunId(std::string prefix) {
+    std::time_t t = std::time(0);
+    std::tm* now = std::localtime(&t);
+    char* nowStr = strAllocCpy("yymmddhhmmss");
+    snprintf(nowStr, strlen(nowStr) + 1, "%02d%02d%02d%02d%02d%02d",
+      now->tm_year % 100, now->tm_mon+1, now->tm_mday,
+      now->tm_hour, now->tm_min, now->tm_sec);
+    return prefix + "-" + std::string(nowStr);
 }
 
 //---------------
@@ -465,16 +535,18 @@ int Uniform(int lo, int hi) {
 
 //---------------
 void WriteSummary() {
+    // Compose and write summary info encoded in JSON.
     Json::Value info;
-
-    sumFS << "info: starting, poolcapacity: "
-      << cmdOpt.poolSize << " randseed: "
-      << cmdOpt.randSeed << " snapshot: "
-      << snapName << " max-generations: " << cmdOpt.maxGenerations
-      << std::endl;
-
-    // Compose and write JSON.
-    info["runId"] = "RunId";
+    info["runId"] = runId;
+    info["randSeed"] = cmdOpt.randSeed;
+    info["poolSize"] = cmdOpt.poolSize;
+    info["probMutation"] = cmdOpt.probMutation;
+    info["maxGenerations"] = cmdOpt.maxGenerations;
+    info["cumFitnessExp"] = cmdOpt.cumFitnessExp;
+    info["targetFitness"] = cmdOpt.targetFitness;
+    info["stopAfter"] = cmdOpt.stopAfter;
+    info["nrNodes"] = cmdOpt.nrNodes;
+    info["maxIterations"] = cmdOpt.maxIterations;
 
     Json::StreamWriterBuilder wBuilder;
     std::string infoString = Compress(Json::writeString(wBuilder, info));
@@ -511,6 +583,7 @@ void ParseCommand(const int argc, char* argv[]) {
     cmdOpt.journalName = "searcher";
     cmdOpt.rootName = "";
     cmdOpt.resumeFromName = "";
+    cmdOpt.runIdPrefix = "S";
 
     while (true) {
 
@@ -625,6 +698,10 @@ void ParseCommand(const int argc, char* argv[]) {
             cmdOpt.resumeFromName = optarg;
             break;
 
+          case CO_RUNIDPREFIX:
+            cmdOpt.runIdPrefix = optarg;
+            break;
+
           case CO_NOOP:
             break;
 
@@ -675,19 +752,25 @@ int main(const int argc, char* argv[]) {
     // Instantiate a seeded Mersenne random number generator.
     pMersenne = new std::mt19937((std::mt19937::result_type) cmdOpt.randSeed);
 
-    // Open the journal and log parameters.
+    // Compose a run identifier string.
+    runId = RunId(cmdOpt.runIdPrefix);
+
+    // Open the journal and announce.
     journalFS.open(cmdOpt.journalName + ".log", std::ios::app);
     if (!journalFS.is_open()) {
         std::cerr << "error: can't open the log file" << std::endl;
         exit(1);
     }
+    std::cerr << "searcher " << VERSION << " " << runId << std::endl;
+    journalFS << "searcher " << VERSION << " " << runId << std::endl;
+
     // Open the output files.
     sumFS.open(sumName, std::ios::app);
     if (!sumFS.is_open()) {
         std::cerr << "error: can't open the summary file " << sumName << std::endl;
         exit(1);
     }
-    genFS.open(genName, std::ios::trunc);
+    genFS.open(genName, std::ios::app);
     if (!genFS.is_open()) {
         std::cerr << "error: can't open the generation file " << genName << std::endl;
         exit(1);
@@ -701,8 +784,8 @@ int main(const int argc, char* argv[]) {
     // Create a random pool or read it if we're resuming from a file.
     Pool* pool = new Pool(cmdOpt.poolSize);
     if (cmdOpt.resumeFromName != "") {
-        std::cerr << "info: resuming using pool from: " << cmdOpt.resumeFromName << std::endl;
-        journalFS << "info: resuming using pool from: " << cmdOpt.resumeFromName << std::endl;
+        std::cerr << "resuming using pool from: " << cmdOpt.resumeFromName << std::endl;
+        journalFS << "resuming using pool from: " << cmdOpt.resumeFromName << std::endl;
         if (!pool->Read(cmdOpt.resumeFromName)) {
             std::cerr << "error: unable to read pool from: " << cmdOpt.resumeFromName << std::endl;
             journalFS << "error: unable to read pool from: " << cmdOpt.resumeFromName << std::endl;
@@ -734,6 +817,10 @@ int main(const int argc, char* argv[]) {
     } while (generationNr < cmdOpt.maxGenerations
             && (cmdOpt.stopAfter == 0 || nrFitRules <= cmdOpt.stopAfter));
 
+    // Post-process the rulepath file to remove lines with duplicate rule
+    // numbers, allowing true counts of the number of [,fit] rules generated.
+    PostProcess();
+
     // Snapshot and record/report the final pool state.
     assert(pool->Write(snapName));
     RecordPool(generationNr, pool);
@@ -745,8 +832,7 @@ int main(const int argc, char* argv[]) {
 
     delete pool;
     genFS.close();
-    rulepathFS.close();
-    journalFS << "info: stopping" << std::endl;
+    journalFS << "stopping" << std::endl;
     journalFS.close();
     exit(0);
 }
