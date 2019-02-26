@@ -71,7 +71,7 @@ picklist.o: picklist.cpp picklist.h pool.h chromosome.h netaut.h runner.h
 	$(CC) $(CXXFLAGS) -c -o $@ picklist.cpp -I$(CSNAP) -I$(CGLIB) -I$(CBOOST)
 
 searcher.o: searcher.cpp runner.h chromosome.h picklist.h pool.h rule.h
-	$(CC) $(CXXFLAGS) -c -o $@ searcher.cpp -I$(CSNAP) -I$(CGLIB) -I$(CBOOST)
+	$(CC) $(CXXFLAGS) -c -o $@ searcher.cpp -I$(CSNAP) -I$(CGLIB) -I$(CBOOST) $(LDFLAGS) $(LIBS)
 
 searcher: searcher.o runner.o chromosome.o pool.o picklist.o machine.o machine2D.o machineR.o filter.o rule.o $(CSNAP)/Snap.o
 	$(CC) $(CXXFLAGS) -o $@ $@.o runner.o chromosome.o pool.o picklist.o machine.o machine2D.o machineR.o filter.o rule.o $(CSNAP)/Snap.o $(LDFLAGS) $(LIBS)

@@ -15,6 +15,7 @@
 #include <random>
 #include <string>
 #include <vector>
+#include <json/json.h>
 #include "netaut.h"
 #include "chromosome.h"
 #include "pool.h"
@@ -91,6 +92,7 @@ static int nrFitRules = 0;
 //
 static void ChooseParents(Pool*, PickList*, Chromosome*&, Chromosome*&);
 static double Compactness(Pool*);
+static std::string Compress(std::string);
 static void Cross(rulenr_t&, rulenr_t&);
 static double Distance(Pool*, int, int);
 static void FillRandomPool(Pool*);
@@ -102,6 +104,7 @@ static void ParseCommand(const int, char**);
 static void RecordPool(int, Pool*);
 static double SimulateGeneration(int, Pool*&);
 static int Uniform(int, int);
+static void WriteSummary();
 
 
 //---------------
@@ -216,6 +219,17 @@ double Compactness(Pool* p) {
         }
     }
     return totInterDistance / p->get_capacity();
+}
+
+//---------------
+// Compress
+//
+// Return a string with whitespace removed.
+//---------------
+std::string Compress(std::string in) {
+    std::string out = "";
+    for (char c : in) if (c != '\n' and c != '\t' and c != ' ') out += c;
+    return out;
 }
 
 //---------------
@@ -450,6 +464,30 @@ int Uniform(int lo, int hi) {
 }
 
 //---------------
+void WriteSummary() {
+    Json::Value info;
+
+    sumFS << "info: starting, poolcapacity: "
+      << cmdOpt.poolSize << " randseed: "
+      << cmdOpt.randSeed << " snapshot: "
+      << snapName << " max-generations: " << cmdOpt.maxGenerations
+      << std::endl;
+
+    // Compose and write JSON.
+    info["runId"] = "RunId";
+
+    Json::StreamWriterBuilder wBuilder;
+    std::string infoString = Compress(Json::writeString(wBuilder, info));
+    assert(!infoString.empty());
+    if (infoString[infoString.length() - 1] == '\n')
+        infoString.erase(infoString.length() - 1);
+
+    std::cout << infoString << std::endl;
+    sumFS << infoString << std::endl;
+    sumFS.close();
+}
+
+//---------------
 void ParseCommand(const int argc, char* argv[]) {
     int c;
     bool errorFound = false;
@@ -679,14 +717,6 @@ int main(const int argc, char* argv[]) {
     // Write the initial rulepath entries.
     for (int ix = 0; ix < pool->get_capacity(); ix += 1) NoteNewRule(0, pool->get_entry(ix));
 
-    // Write summary information.
-    sumFS << "info: starting, poolcapacity: "
-      << cmdOpt.poolSize << " randseed: "
-      << cmdOpt.randSeed << " snapshot: "
-      << snapName << " max-generations: " << cmdOpt.maxGenerations
-      << std::endl;
-    sumFS.close();
-
     // Simulate reproduction until reaching maxGenerations or nrFitRules > stopAfter.
     // Write a snapshot of the pool state before each generation advance.
     int generationNr = 0;
@@ -709,6 +739,9 @@ int main(const int argc, char* argv[]) {
     RecordPool(generationNr, pool);
     std::cerr << generationNr << " " << statistic << " " << pool->MaxFitness() << std::endl;
     journalFS << generationNr << " " << statistic << " " << pool->MaxFitness() << std::endl;
+
+    // Write summary information.
+    WriteSummary();
 
     delete pool;
     genFS.close();
