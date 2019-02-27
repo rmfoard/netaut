@@ -26,7 +26,7 @@
 #include "rule.h"
 #include "runner.h"
 
-#define VERSION "V190225.1"
+#define VERSION "V190227.0"
 
 // This program runs a genetic search for rules that, when run in an instance
 // of automaton C, produce a fitness statistic that exceeds 'target-fitness'.
@@ -91,6 +91,7 @@ static std::string rulepathName;
 static std::string runId;
 static int nrFitRules = 0;
 static int nrTotRules = 0;
+static int nrGenerations;
 
 //---------------
 // Procedures
@@ -560,6 +561,7 @@ void WriteSummary() {
     info["poolSize"] = cmdOpt.poolSize;
     info["probMutation"] = cmdOpt.probMutation;
     info["maxGenerations"] = cmdOpt.maxGenerations;
+    info["nrGenerations"] = nrGenerations;
     info["cumFitnessExp"] = cmdOpt.cumFitnessExp;
     info["targetFitness"] = cmdOpt.targetFitness;
     info["stopAfter"] = cmdOpt.stopAfter;
@@ -836,16 +838,15 @@ int main(const int argc, char* argv[]) {
         generationNr += 1;
     } while (generationNr < cmdOpt.maxGenerations
             && (cmdOpt.stopAfter == 0 || nrFitRules <= cmdOpt.stopAfter));
+    nrGenerations = generationNr;
 
     // Post-process the rulepath file to remove lines with duplicate rule
     // numbers, allowing true counts of the number of [,fit] rules generated.
     PostProcess();
 
-    // Snapshot and record/report the final pool state.
+    // Snapshot and record the final pool state.
     assert(pool->Write(snapName));
     RecordPool(generationNr, pool);
-    std::cerr << generationNr << " " << statistic << " " << pool->MaxFitness() << std::endl;
-    journalFS << generationNr << " " << statistic << " " << pool->MaxFitness() << std::endl;
 
     // Write summary information.
     WriteSummary();
