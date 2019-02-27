@@ -91,7 +91,26 @@ static std::string rulepathName;
 static std::string runId;
 static int nrFitRules = 0;
 static int nrTotRules = 0;
+static int nrDistinctRules = 0;
 static int nrGenerations;
+
+// Names of candidate statistics for fitness search
+static std::vector<std::string> statNames {
+    "cycleLength",
+    "nrIterations",
+    "finNrNodes",
+    "avgClustCoef",
+    "diameter",
+    "effDiameter90Pctl",
+    "inDegreeEntropy",
+    "nrInDegrees",
+    "outDegreeEntropy",
+    "nrOutDegrees",
+    "nrCcSizes",
+    "nrCcs",
+    "nrOpenTriangles",
+    "nrClosedTriangles"
+};
 
 //---------------
 // Procedures
@@ -124,7 +143,7 @@ struct CommandOpts {
     int randSeed;
     int noConsole;
     int extendId;
-    int nrNodes;
+    int initNrNodes;
     int maxGenerations;
     int stopAfter;
     int probMutation;
@@ -132,12 +151,17 @@ struct CommandOpts {
     bool rulePresent;
     double cumFitnessExp;
     double targetFitness;
+    double statMin;
+    double statMax;
     int poolSize;
     std::string machineTypeName;
+    std::string tapeStructure;
+    std::string topoStructure;
     std::string rootName;
     std::string journalName;
     std::string resumeFromName;
     std::string runIdPrefix;
+    std::string statName;
 };
 static CommandOpts cmdOpt;
 
@@ -156,9 +180,12 @@ static CommandOpts cmdOpt;
 #define CO_POOLSIZE 1009
 #define CO_PROBMUTATION 1010
 #define CO_ROOTNAME 1011
-#define CO_STOPAFTER 1012
-#define CO_TARGET 1013
 #define CO_RUNIDPREFIX 1014
+#define CO_STATNAME 1015
+#define CO_STATMIN 1016
+#define CO_STATMAX 1017
+#define CO_TAPESTRUCT 1018
+#define CO_TOPOSTRUCT 1019
 
 static struct option long_options[MAX_COMMAND_OPTIONS] = {
     {"no-console", no_argument, &cmdOpt.noConsole, 1},
@@ -167,6 +194,8 @@ static struct option long_options[MAX_COMMAND_OPTIONS] = {
     {"cycle-check-depth", required_argument, 0, CO_CYCLE_CHECK_DEPTH},
     {"max-iterations", required_argument, 0, 'i'},
     {"machine", required_argument, 0, 'm'},
+    {"tape-structure", required_argument, 0, CO_TAPESTRUCT},
+    {"topo-structure", required_argument, 0, CO_TOPOSTRUCT},
     {"nodes", required_argument, 0, 'n'},
     {"noop", no_argument, 0, CO_NOOP},
     {"randseed", required_argument, 0, 'a'},
@@ -176,10 +205,11 @@ static struct option long_options[MAX_COMMAND_OPTIONS] = {
     {"log", required_argument, 0, CO_JOURNAL},
     {"resume-from", required_argument, 0, CO_RESUME},
     {"runid-prefix", required_argument, 0, CO_RUNIDPREFIX},
+    {"stat-name", required_argument, 0, CO_STATNAME},
+    {"stat-min", required_argument, 0, CO_STATMIN},
+    {"stat-max", required_argument, 0, CO_STATMAX},
     {"prob-mutation", required_argument, 0, CO_PROBMUTATION},
     {"record", required_argument, 0, CO_ROOTNAME},
-    {"stop-after", required_argument, 0, CO_STOPAFTER},
-    {"target-fitness", required_argument, 0, CO_TARGET},
 
     {"help", no_argument, 0, CO_HELP},
     {0, 0, 0, 0}
@@ -425,6 +455,7 @@ void PostProcess() {
     for (int lineNr = 0; lineNr < nrLines; lineNr += 1) {
         rulepathInFS >> rps[lineNr].generationNr >> rps[lineNr].ruleNr >> rps[lineNr].fitness;
     }
+    nrTotRules = nrLines;
 
     // Sort the structures by increasing rule number.
     std::sort(&rps[0], &rps[nrLines],
@@ -443,10 +474,9 @@ void PostProcess() {
             sx += 1;
         }
     }
-    nrLines = wx;
 
     // Record statistics.
-    nrTotRules = nrLines;
+    nrDistinctRules = wx;
     nrFitRules = 0;
     for (int i = 0; i < nrLines; i += 1)
         if (rps[i].fitness > cmdOpt.targetFitness) nrFitRules += 1;
@@ -557,17 +587,24 @@ void WriteSummary() {
     // Compose and write summary info encoded in JSON.
     Json::Value info;
     info["runId"] = runId;
+    info["machineTypeName"] = cmdOpt.machineTypeName;
+    info["tapeStructure"] = cmdOpt.tapeStructure;
+    info["topoStructure"] = cmdOpt.topoStructure;
     info["randSeed"] = cmdOpt.randSeed;
     info["poolSize"] = cmdOpt.poolSize;
     info["probMutation"] = cmdOpt.probMutation;
     info["maxGenerations"] = cmdOpt.maxGenerations;
     info["nrGenerations"] = nrGenerations;
     info["cumFitnessExp"] = cmdOpt.cumFitnessExp;
-    info["targetFitness"] = cmdOpt.targetFitness;
-    info["stopAfter"] = cmdOpt.stopAfter;
-    info["nrNodes"] = cmdOpt.nrNodes;
+    info["initNrNodes"] = cmdOpt.initNrNodes;
     info["maxIterations"] = cmdOpt.maxIterations;
+    info["cycleCheckDepth"] = cmdOpt.cycleCheckDepth;
+    info["statName"] = cmdOpt.statName;
+    info["statMin"] = cmdOpt.statMin;
+    info["statMax"] = cmdOpt.statMax;
+
     info["nrTotRules"] = nrTotRules;
+    info["nrDistinctRules"] = nrDistinctRules;
     info["nrFitRules"] = nrFitRules;
 
     Json::StreamWriterBuilder wBuilder;
@@ -592,7 +629,7 @@ void ParseCommand(const int argc, char* argv[]) {
     cmdOpt.randSeed = 1;
     cmdOpt.noConsole = 0;
     cmdOpt.extendId = 0;
-    cmdOpt.nrNodes = 1031;
+    cmdOpt.initNrNodes = 1031;
     cmdOpt.maxGenerations = 100;
     cmdOpt.cycleCheckDepth = 16;
     cmdOpt.rulePresent = false;
@@ -602,10 +639,15 @@ void ParseCommand(const int argc, char* argv[]) {
     cmdOpt.targetFitness = 1.0;
     cmdOpt.probMutation = 20;
     cmdOpt.machineTypeName = "C";
+    cmdOpt.tapeStructure = "single-center";
+    cmdOpt.topoStructure = "ring";
     cmdOpt.journalName = "searcher";
     cmdOpt.rootName = "";
     cmdOpt.resumeFromName = "";
     cmdOpt.runIdPrefix = "S";
+    cmdOpt.statName = "";
+    cmdOpt.statMin = -1.0;
+    cmdOpt.statMax = -1.0;
 
     while (true) {
 
@@ -624,10 +666,12 @@ void ParseCommand(const int argc, char* argv[]) {
 
           case 'i':
             cmdOpt.maxIterations = atoi(optarg);
+            cmdOpt.statMin = 0.0;
+            cmdOpt.statMax = 1.0;
             break;
 
           case 'n':
-            cmdOpt.nrNodes = atoi(optarg);
+            cmdOpt.initNrNodes = atoi(optarg);
             break;
 
           case 'a':
@@ -655,10 +699,18 @@ void ParseCommand(const int argc, char* argv[]) {
             }
             break;
 
+          case CO_TAPESTRUCT:
+            cmdOpt.tapeStructure = optarg;
+            break;
+
+          case CO_TOPOSTRUCT:
+            cmdOpt.topoStructure = optarg;
+            break;
+
           case CO_CYCLE_CHECK_DEPTH:
             cmdOpt.cycleCheckDepth = atoi(optarg);
             if (cmdOpt.cycleCheckDepth == 0)
-                std::cerr << "warning: 0 cycle-check-depth is replaced with nrNodes" << std::endl;
+                std::cerr << "warning: 0 cycle-check-depth is replaced with initNrNodes" << std::endl;
             break;
 
           case CO_MAXGENERATIONS:
@@ -704,24 +756,28 @@ void ParseCommand(const int argc, char* argv[]) {
             cmdOpt.rootName = optarg;
             break;
 
-          case CO_STOPAFTER:
-            cmdOpt.stopAfter = atoi(optarg);
-            break;
-
-          case CO_TARGET:
-            cmdOpt.targetFitness = atof(optarg);
-            if (cmdOpt.targetFitness < 0.0 || cmdOpt.targetFitness > 1.00) {
-                std::cerr << "error: 0.0 <= target-fitness <= 1.0" << std::endl;
-                exit(1);
-            }
-            break;
-
           case CO_RESUME:
             cmdOpt.resumeFromName = optarg;
             break;
 
           case CO_RUNIDPREFIX:
             cmdOpt.runIdPrefix = optarg;
+            break;
+
+          case CO_STATNAME:
+            if (std::find(std::begin(statNames), std::end(statNames), optarg) == std::end(statNames)) {
+                std::cerr << "error: '" << optarg << "' is not recognized as a statistic name." << std::endl;
+                exit(1);
+            }
+            cmdOpt.statName = optarg;
+            break;
+
+          case CO_STATMIN:
+            cmdOpt.statMin = atof(optarg);
+            break;
+
+          case CO_STATMAX:
+            cmdOpt.statMax = atof(optarg);
             break;
 
           case CO_NOOP:
@@ -749,7 +805,20 @@ void ParseCommand(const int argc, char* argv[]) {
     genName = cmdOpt.rootName + "_g.txt";
     rulepathName = cmdOpt.rootName + "_r.txt";
 
-    // Check option consistency.
+    // Check option reasonability, consistency.
+    if (cmdOpt.statName == "") {
+        std::cerr << "error: --stat-name <name> must be present in the command line." << std::endl;
+        errorFound = true;
+    }
+
+    if (cmdOpt.statMin > 0.0 && cmdOpt.statMax > 0.0 && cmdOpt.statMin >= cmdOpt.statMax) {
+        std::cerr << "error: the --stat-max value must be greater than the --stat-min value." << std::endl;
+        errorFound = true;
+    } else if (cmdOpt.statMin < 0.0 && cmdOpt.statMax < 0.0) {
+        std::cerr << "error: either --stat-min <value> or --stat-max <value> must be present in the command line." << std::endl;
+        errorFound = true;
+    }
+
     if (errorFound) exit(1);
 
     // Warn if any non-option command arguments are present.
@@ -768,7 +837,7 @@ int main(const int argc, char* argv[]) {
     ParseCommand(argc, argv);
 
     // Set Runner/Machine default parameters.
-    Runner::SetDefaults(cmdOpt.nrNodes, cmdOpt.maxIterations, cmdOpt.cycleCheckDepth, "single-center", -1, "ring", 0);
+    Runner::SetDefaults(cmdOpt.initNrNodes, cmdOpt.maxIterations, cmdOpt.cycleCheckDepth, "single-center", -1, "ring", 0);
     // -1 => (unused) tapePctBlack, 0 => noChangeTopo
 
     // Instantiate a seeded Mersenne random number generator.

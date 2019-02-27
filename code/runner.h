@@ -30,7 +30,7 @@ public:
     double m_cycleLength;
     double m_nrCcSizes;
     double m_nrCcs;
-    double m_nrNodes;
+    double m_finNrNodes;
     double m_avgClustCoef;
     double m_nrClosedTriads;
     double m_nrOpenTriads;

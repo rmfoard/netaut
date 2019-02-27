@@ -102,7 +102,7 @@ void Runner::Run() {
     }
     m_nrCcSizes = sizeCount.Len();
     m_nrCcs = nrCcs;
-    m_nrNodes = nrNodes;
+    m_finNrNodes = nrNodes;
 
     // Triads (graph-theoretic sense)
     TFltPrV DegCCfV;
