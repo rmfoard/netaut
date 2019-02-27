@@ -665,8 +665,6 @@ void ParseCommand(const int argc, char* argv[]) {
 
           case 'i':
             cmdOpt.maxIterations = atoi(optarg);
-            cmdOpt.statMin = 0.0;
-            cmdOpt.statMax = 1.0;
             break;
 
           case 'n':
@@ -899,10 +897,8 @@ int main(const int argc, char* argv[]) {
     double statistic = pool->AvgFitness();
     std::cerr << "gen avgFit maxFit compact cumFitRules" << std::endl;
     do {
-        std::cerr << generationNr << " " << statistic << " " << pool->MaxFitness()
-          << " " << Compactness(pool) << " " << nrFitRules << std::endl;
-        journalFS << generationNr << " " << statistic << " " << pool->MaxFitness()
-          << " " << Compactness(pool) << " " << nrFitRules << std::endl;
+        std::cerr << generationNr << " " << statistic << " " << pool->MaxFitness() << std::endl;
+        journalFS << generationNr << " " << statistic << " " << pool->MaxFitness() << std::endl;
         assert(pool->Write(snapName));
         RecordPool(generationNr, pool);
         statistic = SimulateGeneration(generationNr, pool); // Replaces pool

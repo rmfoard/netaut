@@ -66,7 +66,7 @@ double Chromosome::get_fitness() {
     // Set 'v' to the value of the statistic of interest.
     double v = -1;
     if (s_statName == "nrCcs") v = r->m_nrCcs;
-    if (s_statName == "cycleLength") v = r->m_cycleLength;
+    if (s_statName == "cycleLength") v = (r->m_cycleLength < 0 ? 0 : r->m_cycleLength);
     if (s_statName == "nrIterations") v = r->m_nrIterations;
     if (s_statName == "finNrNodes") v = r->m_finNrNodes;
     if (s_statName == "avgClustCoef") v = r->m_avgClustCoef;
