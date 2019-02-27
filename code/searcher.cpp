@@ -408,7 +408,7 @@ void PostProcess() {
     int nrLines = 0;
     while (getline(rulepathInFS, line)) nrLines += 1;
 
-    // Allocate and fill a vector of structures.
+    // Rewind the file, allocate and fill a vector of structures.
     struct RulepathEntry {
         int generationNr;
         rulenr_t ruleNr;
@@ -428,8 +428,22 @@ void PostProcess() {
     std::sort(&rps[0], &rps[nrLines],
       [](const RulepathEntry& a, const RulepathEntry& b) { return a.ruleNr < b.ruleNr; });
 
-for (int i = 0; i < nrLines; i += 1)
-    std::cout << rps[i].generationNr << " " << rps[i].ruleNr << " " << rps[i].fitness << std::endl;
+    // Compress out the entries with duplicate rule numbers.
+    rulenr_t matchVal = rps[0].ruleNr;
+    int wx = 1;
+    int sx = 1;
+    while (sx < nrLines) {
+        while (sx < nrLines && rps[sx].ruleNr == matchVal) sx += 1;
+        if (sx < nrLines) {
+            rps[wx] = rps[sx];
+            wx += 1;
+            matchVal = rps[sx].ruleNr;
+            sx += 1;
+        }
+    }
+    nrLines = wx;
+
+    for (int i = 0; i < nrLines; i += 1) std::cerr << rps[i].ruleNr << std::endl;
 
     rulepathInFS.close();
 }

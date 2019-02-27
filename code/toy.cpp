@@ -56,22 +56,29 @@ void changepn(int **pp) {
 int main(const int argc, char** argv) {
     std::cout << "initium" << std::endl;
 
+    int a[100];
+    int n = 0;
+    do {
+        std::cin >> a[n++];
+    } while (a[n-1] > 0);
+    n = n-1;
+    std::cout << n << " elements" << std::endl;
 
-    int i;
-    long l;
-    double d;
-    unsigned long long ull;
+    int mv = a[0];
+    int wx = 1;
+    int sx = 1;
+    while (sx < n) {
+        while (sx < n && a[sx] == mv) sx += 1;
+        if (sx < n) {
+            a[wx] = a[sx];
+            wx += 1;
+            mv = a[sx];
+            sx += 1;
+        }
+    }
+    n = wx;
 
-    struct RulepathEntry {
-        int generationNr;
-        rulenr_t ruleNr;
-        double fitness;
-    } s;
-    std::cin >> s.generationNr >> s.ruleNr >> s.fitness;
-    std::cout << "i: " << s.generationNr
-        << ", ull: " << s.ruleNr
-        << ", d: " << s.fitness
-        << std::endl;
+    for (int ix = 0; ix < n; ix += 1) std::cout << a[ix] << std::endl;
 /*
     rulenr_t bignum = 722204136308736; // 72**8
     for (int i = 1; i <= 50; i += 1) {
