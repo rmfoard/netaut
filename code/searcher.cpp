@@ -96,6 +96,7 @@ static int nrGenerations;
 
 // Names of candidate statistics for fitness search
 static std::vector<std::string> statNames {
+    "nrCcs",
     "cycleLength",
     "nrIterations",
     "finNrNodes",
@@ -104,12 +105,10 @@ static std::vector<std::string> statNames {
     "effDiameter90Pctl",
     "inDegreeEntropy",
     "nrInDegrees",
-    "outDegreeEntropy",
-    "nrOutDegrees",
     "nrCcSizes",
-    "nrCcs",
-    "nrOpenTriangles",
-    "nrClosedTriangles"
+    "maxInDegree",
+    "nrOpenTriads",
+    "nrClosedTriads"
 };
 
 //---------------
@@ -792,19 +791,6 @@ void ParseCommand(const int argc, char* argv[]) {
        }
     }
 
-    // Seed the simpler random number generator.
-    srand(cmdOpt.randSeed);
-
-    // Create output file names.
-    if (cmdOpt.rootName == "") {
-        std::cerr << "error: --record <root file name> must be specified" << std::endl;
-        errorFound = true;
-    }
-    snapName = cmdOpt.rootName + "_snap.txt";
-    sumName = cmdOpt.rootName + "_s.json";
-    genName = cmdOpt.rootName + "_g.txt";
-    rulepathName = cmdOpt.rootName + "_r.txt";
-
     // Check option reasonability, consistency.
     if (cmdOpt.statName == "") {
         std::cerr << "error: --stat-name <name> must be present in the command line." << std::endl;
@@ -820,6 +806,19 @@ void ParseCommand(const int argc, char* argv[]) {
     }
 
     if (errorFound) exit(1);
+
+    // Seed the simpler random number generator.
+    srand(cmdOpt.randSeed);
+
+    // Create output file names.
+    if (cmdOpt.rootName == "") {
+        std::cerr << "error: --record <root file name> must be specified" << std::endl;
+        errorFound = true;
+    }
+    snapName = cmdOpt.rootName + "_snap.txt";
+    sumName = cmdOpt.rootName + "_s.json";
+    genName = cmdOpt.rootName + "_g.txt";
+    rulepathName = cmdOpt.rootName + "_r.txt";
 
     // Warn if any non-option command arguments are present.
     if (optind < argc) {
@@ -839,6 +838,9 @@ int main(const int argc, char* argv[]) {
     // Set Runner/Machine default parameters.
     Runner::SetDefaults(cmdOpt.initNrNodes, cmdOpt.maxIterations, cmdOpt.cycleCheckDepth, "single-center", -1, "ring", 0);
     // -1 => (unused) tapePctBlack, 0 => noChangeTopo
+
+    // Prime the fitness evaluation mechanism.
+    Chromosome::SetParameters(cmdOpt.statName, cmdOpt.statMin, cmdOpt.statMax);
 
     // Instantiate a seeded Mersenne random number generator.
     pMersenne = new std::mt19937((std::mt19937::result_type) cmdOpt.randSeed);

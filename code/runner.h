@@ -39,6 +39,8 @@ public:
     double m_nrInDegrees;
     double m_maxInDegree;
     double m_inDegreeEntropy;
+    double m_nrOpenTriangles;
+    double m_nrClosedTriangles;
 
 private:
     Machine *m_machine;

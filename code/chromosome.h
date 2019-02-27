@@ -6,9 +6,17 @@
 class Chromosome {
 
 public:
+    static bool s_paramsSet;
+
+    static std::string s_statName;
+    static double s_statMin;
+    static double s_statMax;
+
     Chromosome(rulenr_t);
     Chromosome(rulenr_t, double);
     ~Chromosome();
+
+    static void SetParameters(std::string, double, double);
 
     rulenr_t get_ruleNr();
     double get_fitness();
