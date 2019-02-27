@@ -90,6 +90,7 @@ static std::string genName;
 static std::string rulepathName;
 static std::string runId;
 static int nrFitRules = 0;
+static int nrTotRules = 0;
 
 //---------------
 // Procedures
@@ -443,7 +444,11 @@ void PostProcess() {
     }
     nrLines = wx;
 
-    for (int i = 0; i < nrLines; i += 1) std::cerr << rps[i].ruleNr << std::endl;
+    // Record statistics.
+    nrTotRules = nrLines;
+    nrFitRules = 0;
+    for (int i = 0; i < nrLines; i += 1)
+        if (rps[i].fitness > cmdOpt.targetFitness) nrFitRules += 1;
 
     rulepathInFS.close();
 }
@@ -560,6 +565,8 @@ void WriteSummary() {
     info["stopAfter"] = cmdOpt.stopAfter;
     info["nrNodes"] = cmdOpt.nrNodes;
     info["maxIterations"] = cmdOpt.maxIterations;
+    info["nrTotRules"] = nrTotRules;
+    info["nrFitRules"] = nrFitRules;
 
     Json::StreamWriterBuilder wBuilder;
     std::string infoString = Compress(Json::writeString(wBuilder, info));
