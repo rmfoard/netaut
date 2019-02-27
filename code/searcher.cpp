@@ -417,22 +417,21 @@ void PostProcess() {
     std::vector<RulepathEntry> rps;
     rps.reserve(nrLines);
 
-    rulepathInFS.seekg(0); // rewind
+    rulepathInFS.close();
+    rulepathInFS.open(rulepathName, std::ios::in);
+    //rulepathInFS.seekg(0); // rewind why doesn't this work?
     for (int lineNr = 0; lineNr < nrLines; lineNr += 1) {
         rulepathInFS >> rps[lineNr].generationNr >> rps[lineNr].ruleNr >> rps[lineNr].fitness;
     }
-for (int i = 0; i < nrLines; i += 1)
-    std::cerr << rps[i].generationNr << std::endl;
 
     // Sort the structures by increasing rule number.
     std::sort(&rps[0], &rps[nrLines],
       [](const RulepathEntry& a, const RulepathEntry& b) { return a.ruleNr < b.ruleNr; });
 
-std::cerr << std::endl;
-for (int i = 0; i < 15; i += 1)
-    std::cerr << rps[i].ruleNr << std::endl;
+for (int i = 0; i < nrLines; i += 1)
+    std::cout << rps[i].generationNr << " " << rps[i].ruleNr << " " << rps[i].fitness << std::endl;
 
-rulepathInFS.close(); ////
+    rulepathInFS.close();
 }
 
 //---------------

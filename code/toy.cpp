@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <vector>
+#include "netaut.h"
 #include "chromosome.h"
 
 Chromosome::Chromosome(rulenr_t r) {
@@ -55,13 +56,30 @@ void changepn(int **pp) {
 int main(const int argc, char** argv) {
     std::cout << "initium" << std::endl;
 
+
+    int i;
+    long l;
+    double d;
+    unsigned long long ull;
+
+    struct RulepathEntry {
+        int generationNr;
+        rulenr_t ruleNr;
+        double fitness;
+    } s;
+    std::cin >> s.generationNr >> s.ruleNr >> s.fitness;
+    std::cout << "i: " << s.generationNr
+        << ", ull: " << s.ruleNr
+        << ", d: " << s.fitness
+        << std::endl;
+/*
     rulenr_t bignum = 722204136308736; // 72**8
     for (int i = 1; i <= 50; i += 1) {
         rulenr_t v = ((rulenr_t) 1) << i;
         std::cout << "1 << " << i << " => " << v << "; ";
         std::cout << (bignum ^ v) << std::endl;
     }
-
+*/
 /*
     int* pn = new int;
     *pn = 1;
