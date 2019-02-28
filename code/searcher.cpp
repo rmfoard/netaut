@@ -70,8 +70,8 @@
 // - If stat-min and stat-max appear, stat-minuend must also be given. Maximize the
 //   stat-minuend-complemented distance to the min/max midpoint. "Fit" rules are
 //   those where stat-min <= statistic <= stat-max.
-// - If stat-min and stat-minuend appear, maximize the stat-minuend-complemented
-//   statistic. "Fit" rules have statistic stat-minuend - statistic > stat-min. (TODO: check)
+// - If stat-max and stat-minuend appear, maximize the stat-minuend-complemented
+//   statistic. "Fit" rules have statistic statistic < stat-max.
 //
 // Notes:
 // - Duplicate rules never appear in the same pool. They may, however, appear
@@ -496,13 +496,18 @@ void PostProcess() {
     // Record statistics.
     nrDistinctRules = wx;
 
-    // TODO: Compute nrFitRules here.
+    // Count the number of distinct rules deemed "fit."
     nrFitRules = 0;
     for (int i = 0; i < nrDistinctRules; i += 1) {
         if (cmdOpt.statMin >= 0 && cmdOpt.statMax >= 0) {
             if (cmdOpt.statMin <= rps[i].fitness && rps[i].fitness <= cmdOpt.statMax) nrFitRules += 1;
         }
-        else if (xxx
+        else if (cmdOpt.statMin >= 0 && cmdOpt.statMinuend < 0) {
+            if (rps[i].fitness >= cmdOpt.statMin) nrFitRules += 1;
+        }
+        else if (cmdOpt.statMax >= 0 && cmdOpt.statMinuend >= 0) {
+            if (cmdOpt.statMinuend - rps[i].fitness < cmdOpt.statMax) nrFitRules += 1;
+        } else assert(false);
     }
 
     rulepathInFS.close();
@@ -547,7 +552,6 @@ double SimulateGeneration(int generationNr, Pool*& pool) {
 
         // Choose 2 distinct parents (copies thereof) from the existing pool.
         ChooseParents(pool, pickList, maC, paC);
-        //assert(maC->get_ruleNr() != paC->get_ruleNr());
 
         // Create 2 children. If they're not already in the new pool, insert
         // them and record them in the rulepath.

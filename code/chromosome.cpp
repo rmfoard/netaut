@@ -99,7 +99,12 @@ double Chromosome::get_fitness() {
         m_fitness = s_statMinuend - v;
     } else assert(false);
 
-    assert(m_fitness >= 0);
+    // Prevent negative fitness values.
+    if (m_fitness < 0) {
+        std::cerr << "exception: negative fitness value " << m_fitness << " was truncated to 0" << std::endl;
+        m_fitness = 0;
+    }
+
     return m_fitness;
 }
 
