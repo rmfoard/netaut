@@ -500,7 +500,7 @@ void PostProcess() {
     nrFitRules = 0;
     for (int i = 0; i < nrDistinctRules; i += 1) {
         if (cmdOpt.statMin >= 0 && cmdOpt.statMax >= 0) {
-            if (cmdOpt.statMin <= rps[i].fitness && rps[i].fitness <= cmdOpt.statMax) nrFitRules += 1;
+            if (cmdOpt.statMin <= (cmdOpt.statMinuend - rps[i].fitness) && (cmdOpt.statMinuend - rps[i].fitness) <= cmdOpt.statMax) nrFitRules += 1;
         }
         else if (cmdOpt.statMin >= 0 && cmdOpt.statMinuend < 0) {
             if (rps[i].fitness >= cmdOpt.statMin) nrFitRules += 1;
