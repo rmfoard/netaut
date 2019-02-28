@@ -312,8 +312,15 @@ double Distance(Pool* p, int i, int j) {
     int* jSubParts = jRule->get_ruleSubParts();
 
     double sumsq = 0.0;
-    for (int px = 0; px < NR_SUBPARTS; px += 1)
-        sumsq += pow(iSubParts[px] - jSubParts[px], 2.0);
+    for (int px = 0; px < NR_SUBPARTS; px += 1) {
+        double contrib = pow(iSubParts[px] - jSubParts[px], 2.0);
+        // Magnify the contribution of the node state sub-parts.
+        if ((px % 3) == 2) {
+            assert(contrib <= 1);
+            contrib *= 36 * 36;
+        }
+        sumsq += contrib;
+    }
 
     delete iSubParts;
     delete jSubParts;
@@ -909,8 +916,8 @@ int main(const int argc, char* argv[]) {
     double statistic = pool->AvgFitness();
     std::cerr << "gen avgFit maxFit compact cumFitRules" << std::endl;
     do {
-        std::cerr << generationNr << " " << statistic << " " << pool->MaxFitness() << std::endl;
-        journalFS << generationNr << " " << statistic << " " << pool->MaxFitness() << std::endl;
+        std::cerr << generationNr << " " << statistic << " " << pool->MaxFitness() << " " << Compactness(pool) << std::endl;
+        journalFS << generationNr << " " << statistic << " " << pool->MaxFitness() << " " << Compactness(pool) << std::endl;
         assert(pool->Write(snapName));
         RecordPool(generationNr, pool);
         statistic = SimulateGeneration(generationNr, pool); // Replaces pool

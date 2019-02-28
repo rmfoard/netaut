@@ -86,6 +86,7 @@ double Chromosome::get_fitness() {
     if (s_statMin >= 0 && s_statMax >= 0 && s_statMinuend >= 0.0) {
         double target = (s_statMin + s_statMax) / 2.0;
         m_fitness = s_statMinuend - std::abs(v - target);
+        //std::cerr << "v: " << v << " target: " << target << " fitness: " << m_fitness << std::endl;
     }
 
     // ...or if maximizing,
