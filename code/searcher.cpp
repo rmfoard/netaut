@@ -33,38 +33,49 @@
 //
 // In summary, it:
 // (1) Generates 'pool-size' random rules, creating an initial rule (or "chromosome")
-//  pool,
+//     pool,
 // (2) Repeatedly fills a new pool by choosing pairs of parent rules from
-//  the existing pool using a process that is biased toward higher-fitness rules
-//  to a degree tunable using 'cum-fitness-exp'.
+//     the existing pool using a process that is biased toward higher-fitness rules
+//     to a degree tunable using 'cum-fitness-exp'.
 // (3) Mutating each parent with probability 'prob-mutation'.
 // (4) "Crossing" the parents by exchanging a randomly selected rule-subpart.
 //
 // - Duplicate rules are never inserted in the nascent pool.
 // - Random number generation can be seeded with the --randseed <seed> command
-// line option.
+//   line option.
 // - Each newly generated rule is recorded along with its fitness. Evolution
-// stops when either 'max-generations' pools have been processed or the number
-// of rules exceeding 'target-fitness' exceeds 'stop-after'.
+//   stops when either 'max-generations' pools have been processed or the number
+//   of rules exceeding 'target-fitness' exceeds 'stop-after'.
 //
 // Results are recorded in files with the root name specified with command
 // line option --record <rootname>:
 //
-// - <rootname>_s.json contains parameter values and summary statistics.
-// - <rootname>_g.txt contains the rules and fitnesses for each generation.
-// - <rootname>_rp.txt contains a list of all generated rules ("rulepath")
-//  and their fitnesses.
+// - <rootname>_s.json contains parameter values and summary statistics (append).
+// - <rootname>_g.txt contains the rules and fitnesses for each generation (append).
+// - <rootname>_r.txt contains a list of all generated rules ("rulepath") (replace).
+//   and their fitnesses.
+// - <rootname>_snap.txt contains a snapshot of the pool state (replace).
 //
 // This program also accepts command line parameters that configure the operation
 // of the automata:
 // - --nodes
 // - --cycle-check-depth
 // - --max-iterations
+// - --tape-structure
+// - --topo-structure
+//
+// On the effects of and interactions among --stat-min, --stat-max, and --stat-minuend:
+// - If stat-min appears alone, maximize the statistic. "Fit" rules are those for
+//   which statistic >= stat-min.
+// - If stat-min and stat-max appear, stat-minuend must also be given. Maximize the
+//   stat-minuend-complemented distance to the min/max midpoint. "Fit" rules are
+//   those where stat-min <= statistic <= stat-max.
+// - If stat-min and stat-minuend appear, maximize the stat-minuend-complemented
+//   statistic. "Fit" rules have statistic stat-minuend - statistic > stat-min. (TODO: check)
 //
 // Notes:
 // - Duplicate rules never appear in the same pool. They may, however, appear
-// in different generations of the pools. This results in some double-counting
-// in the running tally 'nrFitRules'.
+// in different generations of the same pool.
 //
 
 #define NR_SUBPARTS (NR_TRIAD_STATES * 3)
