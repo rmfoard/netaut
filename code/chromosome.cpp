@@ -16,14 +16,16 @@
     std::string Chromosome::s_statName;
     double Chromosome::s_statMin;
     double Chromosome::s_statMax;
+    double Chromosome::s_statMinuend;
 
 //===============
 // class Runner-associated static methods
 //===============
-void Chromosome::SetParameters(std::string statName, double statMin, double statMax) {
+void Chromosome::SetParameters(std::string statName, double statMin, double statMax, double statMinuend) {
     Chromosome::s_statName = statName;
     Chromosome::s_statMin = statMin;
     Chromosome::s_statMax = statMax;
+    Chromosome::s_statMinuend = statMinuend;
 
     Chromosome::s_paramsSet = true;
 }
@@ -81,20 +83,20 @@ double Chromosome::get_fitness() {
     assert(v >= 0);
 
     // Compute the fitness if we seek the [center of] a range,
-    if (s_statMin >= 0 && s_statMax >= 0) {
+    if (s_statMin >= 0 && s_statMax >= 0 && s_statMinuend >= 0.0) {
         double target = (s_statMin + s_statMax) / 2.0;
-        m_fitness = 1.0 / std::abs(v - target);
+        m_fitness = s_statMinuend - std::abs(v - target);
     }
 
     // ...or if maximizing,
     else if (s_statMin >= 0 && s_statMax < 0) {
-        m_fitness = v - s_statMin;
+        m_fitness = v;
     }
 
     // ...or minimizing.
-    else {
-        m_fitness = s_statMax - v;
-    }
+    else if (s_statMax >= 0.0 && s_statMinuend >= 0.0) {
+        m_fitness = s_statMinuend - v;
+    } else assert(false);
 
     assert(m_fitness >= 0);
     return m_fitness;

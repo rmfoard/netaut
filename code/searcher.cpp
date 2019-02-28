@@ -149,9 +149,9 @@ struct CommandOpts {
     unsigned int cycleCheckDepth;
     bool rulePresent;
     double cumFitnessExp;
-    double targetFitness;
     double statMin;
     double statMax;
+    double statMinuend;
     int poolSize;
     std::string machineTypeName;
     std::string tapeStructure;
@@ -183,6 +183,7 @@ static CommandOpts cmdOpt;
 #define CO_STATNAME 1015
 #define CO_STATMIN 1016
 #define CO_STATMAX 1017
+#define CO_STATMINUEND 1020
 #define CO_TAPESTRUCT 1018
 #define CO_TOPOSTRUCT 1019
 
@@ -207,6 +208,7 @@ static struct option long_options[MAX_COMMAND_OPTIONS] = {
     {"stat-name", required_argument, 0, CO_STATNAME},
     {"stat-min", required_argument, 0, CO_STATMIN},
     {"stat-max", required_argument, 0, CO_STATMAX},
+    {"stat-minuend", required_argument, 0, CO_STATMINUEND},
     {"prob-mutation", required_argument, 0, CO_PROBMUTATION},
     {"record", required_argument, 0, CO_ROOTNAME},
 
@@ -417,7 +419,6 @@ Chromosome* NoteNewRule(int generationNr, Chromosome* c) {
       << generationNr << " "
       << c->get_ruleNr() << " "
       << c->get_fitness() << std::endl;
-    if (c->get_fitness() > cmdOpt.targetFitness) nrFitRules += 1;
     return c;
 }
 
@@ -476,10 +477,7 @@ void PostProcess() {
 
     // Record statistics.
     nrDistinctRules = wx;
-    nrFitRules = 0;
-    for (int i = 0; i < nrLines; i += 1)
-        if (rps[i].fitness > cmdOpt.targetFitness) nrFitRules += 1;
-
+    // TODO: Compute nrFitRules here.
     rulepathInFS.close();
 }
 
@@ -601,6 +599,7 @@ void WriteSummary() {
     info["statName"] = cmdOpt.statName;
     info["statMin"] = cmdOpt.statMin;
     info["statMax"] = cmdOpt.statMax;
+    info["statMinuend"] = cmdOpt.statMinuend;
 
     info["nrTotRules"] = nrTotRules;
     info["nrDistinctRules"] = nrDistinctRules;
@@ -635,7 +634,6 @@ void ParseCommand(const int argc, char* argv[]) {
     cmdOpt.cumFitnessExp = 1.0;
     cmdOpt.poolSize = 40;
     cmdOpt.stopAfter = 0;
-    cmdOpt.targetFitness = 1.0;
     cmdOpt.probMutation = 20;
     cmdOpt.machineTypeName = "C";
     cmdOpt.tapeStructure = "single-center";
@@ -647,6 +645,7 @@ void ParseCommand(const int argc, char* argv[]) {
     cmdOpt.statName = "";
     cmdOpt.statMin = -1.0;
     cmdOpt.statMax = -1.0;
+    cmdOpt.statMinuend = -1.0;
 
     while (true) {
 
@@ -777,6 +776,10 @@ void ParseCommand(const int argc, char* argv[]) {
             cmdOpt.statMax = atof(optarg);
             break;
 
+          case CO_STATMINUEND:
+            cmdOpt.statMinuend = atof(optarg);
+            break;
+
           case CO_NOOP:
             break;
 
@@ -798,8 +801,17 @@ void ParseCommand(const int argc, char* argv[]) {
     if (cmdOpt.statMin > 0.0 && cmdOpt.statMax > 0.0 && cmdOpt.statMin >= cmdOpt.statMax) {
         std::cerr << "error: the --stat-max value must be greater than the --stat-min value." << std::endl;
         errorFound = true;
-    } else if (cmdOpt.statMin < 0.0 && cmdOpt.statMax < 0.0) {
-        std::cerr << "error: either --stat-min <value> or --stat-max <value> must be present in the command line." << std::endl;
+    }
+    if (cmdOpt.statMin > 0.0 && cmdOpt.statMax > 0.0 && cmdOpt.statMinuend < 0.0) {
+        std::cerr << "error: --stat-min & --stat-max must be accompanied by --stat-minuend" << std::endl;
+        errorFound = true;
+    }
+    if (cmdOpt.statMin < 0.0 && cmdOpt.statMax < 0.0) {
+        std::cerr << "error: either --stat-min or --stat-max & --stat-minuend must be present in the command line." << std::endl;
+        errorFound = true;
+    }
+    if (cmdOpt.statMax >= 0.0 && cmdOpt.statMinuend < 0.0) {
+        std::cerr << "error: --stat-max must be accompanied by --stat-minuend" << std::endl;
         errorFound = true;
     }
 
@@ -838,7 +850,7 @@ int main(const int argc, char* argv[]) {
     // -1 => (unused) tapePctBlack, 0 => noChangeTopo
 
     // Prime the fitness evaluation mechanism.
-    Chromosome::SetParameters(cmdOpt.statName, cmdOpt.statMin, cmdOpt.statMax);
+    Chromosome::SetParameters(cmdOpt.statName, cmdOpt.statMin, cmdOpt.statMax, cmdOpt.statMinuend);
 
     // Instantiate a seeded Mersenne random number generator.
     pMersenne = new std::mt19937((std::mt19937::result_type) cmdOpt.randSeed);
