@@ -1,1 +1,0 @@
-./searcher --record tmp --stat-name avgClustCoef --stat-min 0 --max-generations 4 --nodes 32 $*
