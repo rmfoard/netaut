@@ -622,7 +622,6 @@ void WriteSummary() {
     info["poolSize"] = cmdOpt.poolSize;
     info["probMutation"] = cmdOpt.probMutation;
     info["maxGenerations"] = cmdOpt.maxGenerations;
-    info["nrGenerations"] = nrGenerations;
     info["cumFitnessExp"] = cmdOpt.cumFitnessExp;
     info["initNrNodes"] = cmdOpt.initNrNodes;
     info["maxIterations"] = cmdOpt.maxIterations;
