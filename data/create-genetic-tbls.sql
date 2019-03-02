@@ -3,7 +3,7 @@
 --
 -----------------
 CREATE TABLE gs (
-    grunId              varchar(256) NOT NULL PRIMARY KEY,
+    runId              varchar(256) NOT NULL PRIMARY KEY,
     cumFitnessExp       double precision,
     cycleCheckDepth     integer,
     initNrNodes         integer,
@@ -29,7 +29,7 @@ CREATE TABLE gs (
 --
 -----------------
 CREATE TABLE gg (
-    grunId              varchar(256) NOT NULL REFERENCES gs(grunid),
+    runId              varchar(256) NOT NULL REFERENCES gs(runid),
     generationNr        integer,
     ruleNr              bigint,
     statValue           double precision

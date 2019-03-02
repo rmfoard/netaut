@@ -11,7 +11,7 @@ def main():
 
     # List of fields to be included in the main (_gs.)csv file (in order)
     gs_names = [
-        'grunId',
+        'runId',
         'cumFitnessExp',
         'cycleCheckDepth',
         'initNrNodes',
@@ -33,7 +33,7 @@ def main():
     ]
 
     gg_names = [
-        'grunId',
+        'runId',
         'generationNr',
         'ruleNr',
         'statValue'
@@ -41,7 +41,7 @@ def main():
 
     # Pass the main (_s.) json file writing _gs.csv (run parameters and stats)
     with open(basename + '_s.json', 'r') as jsonfile:
-        with open(basename + '_s.csv', 'w') as gs_f:
+        with open(basename + '_gs.csv', 'w') as gs_f:
             gs_writer = csv.DictWriter(gs_f, fieldnames=gs_names, extrasaction='ignore')
             gs_writer.writeheader()
 
@@ -51,7 +51,7 @@ def main():
                 if len(line) < 2:
                     continue
                 gs_dct = json.loads(line)
-                grun_id = gs_dct['grunId']
+                run_id = gs_dct['runId']
                 gs_writer.writerow(gs_dct)
 
     # Pass the by-generation pool contents file writing _gg.csv
@@ -66,10 +66,10 @@ def main():
                 if len(line) < 2:
                     continue
                 gg_dct = {}
-                fields = line.split(' ')
-                gg_dct['grunId'] = fields[0]
+                fields = line[:-1].split(' ')
+                gg_dct['runId'] = fields[0]
                 gg_dct['generationNr'] = fields[1]
-                gg_dct['rulenr'] = fields[2]
+                gg_dct['ruleNr'] = fields[2]
                 gg_dct['statValue'] = fields[3]
                 gg_writer.writerow(gg_dct)
 
