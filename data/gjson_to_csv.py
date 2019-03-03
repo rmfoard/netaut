@@ -54,14 +54,14 @@ def main():
                 gs_dct = json.loads(line)
                 gs_writer.writerow(gs_dct)
 
-    # Pass the by-generation pool contents file writing _gp.csv
-    with open(basename + '_g.txt', 'r') as genPoolFile:
+    # Pass the accumulative rulepath file writing _gp.csv
+    with open(basename + '_p.txt', 'r') as rulePathFile:
         with open(basename + '_gp.csv', 'w') as gp_f:
             gp_writer = csv.DictWriter(gp_f, fieldnames=gp_names, extrasaction='ignore')
             gp_writer.writeheader()
 
             line_number = 1
-            for line in genPoolFile:
+            for line in rulePathFile:
                 line_number += 1
                 if len(line) < 2:
                     continue
