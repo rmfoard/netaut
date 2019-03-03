@@ -3,7 +3,7 @@
 --
 -----------------
 CREATE TABLE gs (
-    runId              varchar(256) NOT NULL PRIMARY KEY,
+    runId               varchar(256) NOT NULL PRIMARY KEY,
     cumFitnessExp       double precision,
     cycleCheckDepth     integer,
     initNrNodes         integer,
@@ -11,7 +11,7 @@ CREATE TABLE gs (
     maxGenerations      integer,
     maxIterations       integer,
     nrDistinctRules     integer,
-    nrFitRules          integer
+    nrFitRules          integer,
     nrTotRules          integer,
     poolSize            integer,
     probMutation        double precision,
@@ -21,7 +21,7 @@ CREATE TABLE gs (
     statMinuend         double precision,
     statName            varchar(32),
     tapeStructure       varchar(32),
-    topoStructure       varchar(32),
+    topoStructure       varchar(32)
 );
 
 -----------------
@@ -29,7 +29,7 @@ CREATE TABLE gs (
 --
 -----------------
 CREATE TABLE gg (
-    runId              varchar(256) NOT NULL REFERENCES gs(runid),
+    runId               varchar(256) NOT NULL,
     generationNr        integer,
     ruleNr              bigint,
     statValue           double precision
