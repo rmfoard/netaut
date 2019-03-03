@@ -99,7 +99,7 @@ static std::string snapName;
 static std::string sumName;
 static std::string genName;
 static std::string rulepathName;
-static std::string runId;
+static std::string grunId;
 static int nrFitRules = 0;
 static int nrTotRules = 0;
 static int nrDistinctRules = 0;
@@ -170,7 +170,7 @@ struct CommandOpts {
     std::string rootName;
     std::string journalName;
     std::string resumeFromName;
-    std::string runIdPrefix;
+    std::string grunIdPrefix;
     std::string statName;
 };
 static CommandOpts cmdOpt;
@@ -517,7 +517,7 @@ void PostProcess() {
 void RecordPool(int generationNr, Pool* p) {
     for (int ix = 0; ix < p->get_capacity(); ix += 1)
         genFS
-          << runId << " "
+          << grunId << " "
           << generationNr << " "
           << p->get_entry(ix)->get_ruleNr() << " "
           << p->get_entry(ix)->get_fitness() << std::endl;
@@ -614,7 +614,7 @@ int Uniform(int lo, int hi) {
 void WriteSummary() {
     // Compose and write summary info encoded in JSON.
     Json::Value info;
-    info["runId"] = runId;
+    info["grunId"] = grunId;
     info["machineTypeName"] = cmdOpt.machineTypeName;
     info["tapeStructure"] = cmdOpt.tapeStructure;
     info["topoStructure"] = cmdOpt.topoStructure;
@@ -671,7 +671,7 @@ void ParseCommand(const int argc, char* argv[]) {
     cmdOpt.journalName = "searcher";
     cmdOpt.rootName = "";
     cmdOpt.resumeFromName = "";
-    cmdOpt.runIdPrefix = "S";
+    cmdOpt.grunIdPrefix = "S";
     cmdOpt.statName = "";
     cmdOpt.statMin = -1.0;
     cmdOpt.statMax = -1.0;
@@ -787,7 +787,7 @@ void ParseCommand(const int argc, char* argv[]) {
             break;
 
           case CO_RUNIDPREFIX:
-            cmdOpt.runIdPrefix = optarg;
+            cmdOpt.grunIdPrefix = optarg;
             break;
 
           case CO_STATNAME:
@@ -886,7 +886,7 @@ int main(const int argc, char* argv[]) {
     pMersenne = new std::mt19937((std::mt19937::result_type) cmdOpt.randSeed);
 
     // Compose a run identifier string.
-    runId = RunId(cmdOpt.runIdPrefix);
+    grunId = RunId(cmdOpt.grunIdPrefix);
 
     // Open the journal and announce.
     journalFS.open(cmdOpt.journalName + ".log", std::ios::app);
@@ -894,8 +894,8 @@ int main(const int argc, char* argv[]) {
         std::cerr << "error: can't open the log file" << std::endl;
         exit(1);
     }
-    std::cerr << "searcher " << VERSION << " " << runId << std::endl;
-    journalFS << "searcher " << VERSION << " " << runId << std::endl;
+    std::cerr << "searcher " << VERSION << " " << grunId << std::endl;
+    journalFS << "searcher " << VERSION << " " << grunId << std::endl;
 
     // Open the output files.
     sumFS.open(sumName, std::ios::app);
