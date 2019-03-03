@@ -5,12 +5,12 @@ fi
 if [ -z $3 ]; then
     psql $1 <<EOF
     \copy gs from $2_gs.csv delimiter ',' csv header
-    \copy gg from $2_gg.csv delimiter ',' csv header
+    \copy gp from $2_gp.csv delimiter ',' csv header
 EOF
 else
     psql $1 <<EOF
     set search_path to $2, public;
     \copy gs from $3_gs.csv delimiter ',' csv header
-    \copy gg from $3_gg.csv delimiter ',' csv header
+    \copy gp from $3_gp.csv delimiter ',' csv header
 EOF
 fi
