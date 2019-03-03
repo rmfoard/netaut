@@ -33,5 +33,5 @@ CREATE TABLE gp (
     grunId               varchar(256) NOT NULL,
     generationNr        integer,
     ruleNr              bigint,
-    statValue           double precision
+    fitness             double precision
 );
