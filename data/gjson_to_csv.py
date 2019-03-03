@@ -67,7 +67,6 @@ def main():
                     continue
                 gp_dct = {}
                 fields = line[:-1].split(' ')
-                print 'fields: ' + str(fields)
                 gp_dct['grunId'] = fields[0]
                 gp_dct['generationNr'] = fields[1]
                 gp_dct['ruleNr'] = fields[2]
