@@ -53,6 +53,8 @@
 // - <rootname>_g.txt contains the rules and fitnesses for each generation (append).
 // - <rootname>_r.txt contains a list of all generated rules ("rulepath") (replace).
 //   and their fitnesses.
+// - <rootname>_p.txt contains a list of all distinct generated rules and
+//   and their (minuend-adjusted) fitnesses.
 // - <rootname>_snap.txt contains a snapshot of the pool state (replace).
 //
 // This program also accepts command line parameters that configure the operation
@@ -94,10 +96,12 @@ static std::ofstream snapFS;
 static std::ofstream sumFS;
 static std::ofstream genFS;
 static std::ofstream rulepathFS;
+static std::ofstream rulepathCumFS;
 static std::string snapName;
 static std::string sumName;
 static std::string genName;
 static std::string rulepathName;
+static std::string rulepathCumName;
 static std::string grunId;
 static int nrFitRules = 0;
 static int nrTotRules = 0;
@@ -467,7 +471,6 @@ void PostProcess() {
 
     rulepathInFS.close();
     rulepathInFS.open(rulepathName, std::ios::in);
-    //rulepathInFS.seekg(0); // rewind why doesn't this work?
     for (int lineNr = 0; lineNr < nrLines; lineNr += 1) {
         rulepathInFS >> rps[lineNr].generationNr >> rps[lineNr].ruleNr >> rps[lineNr].fitness;
     }
@@ -494,18 +497,30 @@ void PostProcess() {
     // Record statistics.
     nrDistinctRules = wx;
 
-    // Count the number of distinct rules deemed "fit."
+    // Count the number of distinct rules deemed "fit" and append an entry
+    // to the accumulative rulepath file.
     nrFitRules = 0;
     for (int i = 0; i < nrDistinctRules; i += 1) {
+        double adjFitness;
         if (cmdOpt.statMin >= 0 && cmdOpt.statMax >= 0) {
             if (cmdOpt.statMin <= (cmdOpt.statMinuend - rps[i].fitness) && (cmdOpt.statMinuend - rps[i].fitness) <= cmdOpt.statMax) nrFitRules += 1;
+            assert(cmdOpt.statMinuend >= 0);
+            adjFitness = cmdOpt.statMinuend - rps[i].fitness;
         }
         else if (cmdOpt.statMin >= 0 && cmdOpt.statMinuend < 0) {
             if (rps[i].fitness >= cmdOpt.statMin) nrFitRules += 1;
+            adjFitness = rps[i].fitness;
         }
         else if (cmdOpt.statMax >= 0 && cmdOpt.statMinuend >= 0) {
             if (cmdOpt.statMinuend - rps[i].fitness < cmdOpt.statMax) nrFitRules += 1;
+            adjFitness = cmdOpt.statMinuend - rps[i].fitness;
         } else assert(false);
+
+        rulepathCumFS
+          << grunId << " "
+          << rps[i].generationNr << " "
+          << rps[i].ruleNr << " "
+          << adjFitness << std::endl;
     }
 
     rulepathInFS.close();
@@ -856,6 +871,7 @@ void ParseCommand(const int argc, char* argv[]) {
     sumName = cmdOpt.rootName + "_s.json";
     genName = cmdOpt.rootName + "_g.txt";
     rulepathName = cmdOpt.rootName + "_r.txt";
+    rulepathCumName = cmdOpt.rootName + "_p.txt";
 
     // Warn if any non-option command arguments are present.
     if (optind < argc) {
@@ -910,6 +926,11 @@ int main(const int argc, char* argv[]) {
         std::cerr << "error: can't open the rulepath file " << rulepathName << std::endl;
         exit(1);
     }
+    rulepathCumFS.open(rulepathCumName, std::ios::app);
+    if (!rulepathCumFS.is_open()) {
+        std::cerr << "error: can't open the cumulative rulepath file " << rulepathCumName << std::endl;
+        exit(1);
+    }
 
     // Create a random pool or read it if we're resuming from a file.
     Pool* pool = new Pool(cmdOpt.poolSize);
@@ -936,8 +957,25 @@ int main(const int argc, char* argv[]) {
     double statistic = pool->AvgFitness();
     std::cerr << "gen avgFit maxFit compact cumFitRules" << std::endl;
     do {
-        std::cerr << generationNr << " " << statistic << " " << pool->MaxFitness() << " " << Compactness(pool) << std::endl;
-        journalFS << generationNr << " " << statistic << " " << pool->MaxFitness() << " " << Compactness(pool) << std::endl;
+        double adjFitness;
+        double adjMaxFitness;
+        if (cmdOpt.statMin >= 0 && cmdOpt.statMax >= 0) {
+            assert(cmdOpt.statMinuend >= 0);
+            adjFitness = cmdOpt.statMinuend - statistic;
+            adjMaxFitness = cmdOpt.statMinuend - pool->MaxFitness();
+        }
+        else if (cmdOpt.statMin >= 0 && cmdOpt.statMinuend < 0) {
+            adjFitness = statistic;
+            adjMaxFitness = pool->MaxFitness();
+        }
+        else if (cmdOpt.statMax >= 0 && cmdOpt.statMinuend >= 0) {
+            adjFitness = cmdOpt.statMinuend - statistic;
+            adjMaxFitness = cmdOpt.statMinuend - pool->MaxFitness();
+        } else assert(false);
+
+        std::cerr << generationNr << " " << adjFitness << " " << adjMaxFitness << " " << Compactness(pool) << std::endl;
+        journalFS << generationNr << " " << adjFitness << " " << adjMaxFitness << " " << Compactness(pool) << std::endl;
+
         assert(pool->Write(snapName));
         RecordPool(generationNr, pool);
         statistic = SimulateGeneration(generationNr, pool); // Replaces pool
@@ -947,6 +985,8 @@ int main(const int argc, char* argv[]) {
 
     // Post-process the rulepath file to remove lines with duplicate rule
     // numbers, allowing true counts of the number of [,fit] rules generated.
+    // Also record the rulepath (with minuend-adjusted fitnesses) in the
+    // accumulative rulepath file.
     PostProcess();
 
     // Snapshot and record the final pool state.
@@ -958,6 +998,7 @@ int main(const int argc, char* argv[]) {
 
     delete pool;
     genFS.close();
+    rulepathCumFS.close();
     journalFS << "stopping" << std::endl;
     journalFS.close();
     exit(0);
