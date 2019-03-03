@@ -23,7 +23,7 @@ def main():
         'nrTotRules',
         'poolSize',
         'probMutation',
-        'randseed',
+        'randSeed',
         'statMax',
         'statMin',
         'statMinuend',
