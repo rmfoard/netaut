@@ -21,14 +21,15 @@ CREATE TABLE gs (
     statMinuend         double precision,
     statName            varchar(32),
     tapeStructure       varchar(32),
+    termAvgFitness      double precision,
     topoStructure       varchar(32)
 );
 
 -----------------
--- gg table: pool rules for each generation
+-- gp table: accumulative rule path
 --
 -----------------
-CREATE TABLE gg (
+CREATE TABLE gp (
     grunId               varchar(256) NOT NULL,
     generationNr        integer,
     ruleNr              bigint,

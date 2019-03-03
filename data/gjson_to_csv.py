@@ -29,14 +29,15 @@ def main():
         'statMinuend',
         'statName',
         'tapeStructure',
+        'termAvgFitness',
         'topoStructure'
     ]
 
-    gg_names = [
+    gp_names = [
         'grunId',
+        'fitness',
         'generationNr',
-        'ruleNr',
-        'statValue'
+        'ruleNr'
     ]
 
     # Pass the main (_s.) json file writing _gs.csv (run parameters and stats)
@@ -51,27 +52,26 @@ def main():
                 if len(line) < 2:
                     continue
                 gs_dct = json.loads(line)
-                run_id = gs_dct['grunId']
                 gs_writer.writerow(gs_dct)
 
-    # Pass the by-generation pool contents file writing _gg.csv
+    # Pass the by-generation pool contents file writing _gp.csv
     with open(basename + '_g.txt', 'r') as genPoolFile:
-        with open(basename + '_gg.csv', 'w') as gg_f:
-            gg_writer = csv.DictWriter(gg_f, fieldnames=gg_names, extrasaction='ignore')
-            gg_writer.writeheader()
+        with open(basename + '_gp.csv', 'w') as gp_f:
+            gp_writer = csv.DictWriter(gp_f, fieldnames=gp_names, extrasaction='ignore')
+            gp_writer.writeheader()
 
             line_number = 1
             for line in genPoolFile:
                 line_number += 1
                 if len(line) < 2:
                     continue
-                gg_dct = {}
+                gp_dct = {}
                 fields = line[:-1].split(' ')
-                gg_dct['grunId'] = fields[0]
-                gg_dct['generationNr'] = fields[1]
-                gg_dct['ruleNr'] = fields[2]
-                gg_dct['statValue'] = fields[3]
-                gg_writer.writerow(gg_dct)
+                gp_dct['grunId'] = fields[0]
+                gp_dct['generationNr'] = fields[1]
+                gp_dct['ruleNr'] = fields[2]
+                gp_dct['fitness'] = fields[3]
+                gp_writer.writerow(gp_dct)
 
 
 if __name__ == '__main__':

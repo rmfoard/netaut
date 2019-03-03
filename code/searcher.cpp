@@ -107,6 +107,7 @@ static int nrFitRules = 0;
 static int nrTotRules = 0;
 static int nrDistinctRules = 0;
 static int nrGenerations;
+static double termAvgFitness = 0.0;
 
 // Names of candidate statistics for fitness search
 static std::vector<std::string> statNames {
@@ -140,7 +141,7 @@ static void MutateAndCross(int, Chromosome*, Chromosome*, Chromosome*&, Chromoso
 static Chromosome* NoteNewRule(int, Chromosome*);
 static void ParseCommand(const int, char**);
 static void PostProcess();
-static void RecordPool(int, Pool*);
+static double RecordPool(int, Pool*);
 static std::string RunId(std::string);
 static double SimulateGeneration(int, Pool*&);
 static int Uniform(int, int);
@@ -527,13 +528,28 @@ void PostProcess() {
 }
 
 //---------------
-void RecordPool(int generationNr, Pool* p) {
-    for (int ix = 0; ix < p->get_capacity(); ix += 1)
+double RecordPool(int generationNr, Pool* p) {
+    double totFitness = 0.0;
+    for (int ix = 0; ix < p->get_capacity(); ix += 1) {
+        double fitness = p->get_entry(ix)->get_fitness();
+        if (cmdOpt.statMin >= 0 && cmdOpt.statMax >= 0) {
+            assert(cmdOpt.statMinuend >= 0);
+            totFitness += cmdOpt.statMinuend - fitness;
+        }
+        else if (cmdOpt.statMin >= 0 && cmdOpt.statMinuend < 0) {
+            totFitness += fitness;
+        }
+        else if (cmdOpt.statMax >= 0 && cmdOpt.statMinuend >= 0) {
+            totFitness += cmdOpt.statMinuend - fitness;
+        } else assert(false);
+
         genFS
           << grunId << " "
           << generationNr << " "
           << p->get_entry(ix)->get_ruleNr() << " "
-          << p->get_entry(ix)->get_fitness() << std::endl;
+          << fitness << std::endl;
+    }
+    return totFitness / p->get_capacity();
 }
 
 //---------------
@@ -647,6 +663,7 @@ void WriteSummary() {
     info["nrTotRules"] = nrTotRules;
     info["nrDistinctRules"] = nrDistinctRules;
     info["nrFitRules"] = nrFitRules;
+    info["termAvgFitness"] = termAvgFitness;
 
     Json::StreamWriterBuilder wBuilder;
     std::string infoString = Compress(Json::writeString(wBuilder, info));
@@ -991,7 +1008,7 @@ int main(const int argc, char* argv[]) {
 
     // Snapshot and record the final pool state.
     assert(pool->Write(snapName));
-    RecordPool(generationNr, pool);
+    termAvgFitness = RecordPool(generationNr, pool);
 
     // Write summary information.
     WriteSummary();
