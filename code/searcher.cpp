@@ -44,8 +44,7 @@
 // - Random number generation can be seeded with the --randseed <seed> command
 //   line option.
 // - Each newly generated rule is recorded along with its fitness. Evolution
-//   stops when either 'max-generations' pools have been processed or the number
-//   of rules exceeding 'target-fitness' exceeds 'stop-after'.
+//   stops when 'max-generations' pools have been processed.
 //
 // Results are recorded in files with the root name specified with command
 // line option --record <rootname>:
@@ -155,7 +154,6 @@ struct CommandOpts {
     int extendId;
     int initNrNodes;
     int maxGenerations;
-    int stopAfter;
     int probMutation;
     unsigned int cycleCheckDepth;
     bool rulePresent;
@@ -663,7 +661,6 @@ void ParseCommand(const int argc, char* argv[]) {
     cmdOpt.rulePresent = false;
     cmdOpt.cumFitnessExp = 1.0;
     cmdOpt.poolSize = 40;
-    cmdOpt.stopAfter = 0;
     cmdOpt.probMutation = 20;
     cmdOpt.machineTypeName = "C";
     cmdOpt.tapeStructure = "single-center";
@@ -933,7 +930,7 @@ int main(const int argc, char* argv[]) {
     // Write the initial rulepath entries.
     for (int ix = 0; ix < pool->get_capacity(); ix += 1) NoteNewRule(0, pool->get_entry(ix));
 
-    // Simulate reproduction until reaching maxGenerations or nrFitRules > stopAfter.
+    // Simulate reproduction until reaching maxGenerations.
     // Write a snapshot of the pool state before each generation advance.
     int generationNr = 0;
     double statistic = pool->AvgFitness();
@@ -945,8 +942,7 @@ int main(const int argc, char* argv[]) {
         RecordPool(generationNr, pool);
         statistic = SimulateGeneration(generationNr, pool); // Replaces pool
         generationNr += 1;
-    } while (generationNr < cmdOpt.maxGenerations
-            && (cmdOpt.stopAfter == 0 || nrFitRules <= cmdOpt.stopAfter));
+    } while (generationNr < cmdOpt.maxGenerations);
     nrGenerations = generationNr;
 
     // Post-process the rulepath file to remove lines with duplicate rule
