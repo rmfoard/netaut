@@ -31,7 +31,7 @@ CREATE TABLE gs (
 -----------------
 CREATE TABLE gp (
     grunId               varchar(256) NOT NULL,
+    fitness             double precision,
     generationNr        integer,
-    ruleNr              bigint,
-    fitness             double precision
+    ruleNr              bigint
 );
