@@ -116,10 +116,12 @@ previously thought to evolve by natural selection are instead
 manifestations of things that nature found "easy" to accomplish using
 the same fundamental principles that underlie simple automata.
 
-In this work, we analyze simple graph automata using simulations of abstract
-machines that operate on the same principles as
+In this work, we analyze simple, rule-based graph automata using simulations of abstract
+machines. Our machines operate on the same principles as
 cellular automata but use a graph, rather than a "tape" or grid, as a substrate.
 Where cellular machines define cell adjacency spatially, our machines use graph topology.
+We discuss the machines' behavior under varied rules and explore a genetic search
+algorithm for finding rules that yield terminal graphs with specific characteristics.
 
 
 \section{Methods}
@@ -350,6 +352,18 @@ cascades, and the resulting reductions in graph size, are common in both
 
 Input parameters and statistics gathered. Data base and analysis tooling.
 Constituent packages. How parameter values were selected and varied.
+
+
+\subsection{Searching the Rule-Space}
+
+The rule-space for machine \textbf{C} is vast and incoherent. It comprises
+$7.2 \times 10^14$ rules; numerically similar rules produce
+very dissimilar behaviors and terminal graph states. We developed a genetic
+search algorithm for finding rules the produce terminal graph states with
+specified characteristics, such as high clustering coefficients, or
+a large number of connected components.
+
+The search algorithm xxx
 
 %------------------------------------------------
 
