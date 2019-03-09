@@ -161,9 +161,9 @@ beginning with a randomly generated 32-node graph and terminating in a
 static configuration.}
 \end{marginfigure}
 
-Each simulation run begins with a randomly generated graph and progresses by
-iteratively modifying its edges and node states; changes are made according to a rule selected
-for the run. Each rule is effectively a simple program  that specifies, based on the state
+Each simulation run begins with a selected rule and a randomly generated graph. It proceeds by
+iteratively modifying the graph's edges and node states according to the rule.
+Each rule is effectively a simple program  that specifies, based on the state
 of each node and its neighbors, how local changes should be applied during an
 iteration.
 
@@ -357,13 +357,24 @@ Constituent packages. How parameter values were selected and varied.
 \subsection{Searching the Rule-Space}
 
 The rule-space for machine \textbf{C} is vast and incoherent. It comprises
-$7.2 \times 10^14$ rules; numerically similar rules produce
-very dissimilar behaviors and terminal graph states. We developed a genetic
-search algorithm for finding rules the produce terminal graph states with
-specified characteristics, such as high clustering coefficients, or
-a large number of connected components.
+$7.2 \times 10^{14}$ rules; numerically similar rules produce
+very dissimilar behaviors, yielding widely varying terminal graph states.
+We developed a genetic search algorithm for finding rules the produce terminal
+graph states with specified characteristics such as high clustering coefficients, or
+a large number of connected components. A "fitness" function is defined
+that quantifies the relative extent to which a rule produces a
+terminal graph with the desired characteristics.
 
-The search algorithm xxx
+The search proceeds by first creating a pool of randomly selected rules, then
+attempting to improve its collective fitness by iteratively replacing
+lower-fitness rules with new ones. The replacement rules are synthesized by
+choosing two existing rules with relatively high fitness and "crossing" them,
+possibly mutating one of them before crossing. The process iterates, terminating
+either when the pool reaches a target fitness or when an iteration limit
+is reached. Successful searches terminate with a pool having significantly
+higher fitness than that of randomly generated pools.
+
+A rule is mutated by... Two rules are crossed by...
 
 %------------------------------------------------
 
