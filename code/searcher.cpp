@@ -513,7 +513,7 @@ void PostProcess() {
             adjFitness = rps[i].fitness;
         }
         else if (cmdOpt.statMax >= 0 && cmdOpt.statMinuend >= 0) {
-            if (cmdOpt.statMinuend - rps[i].fitness < cmdOpt.statMax) nrFitRules += 1;
+            if (cmdOpt.statMinuend - rps[i].fitness <= cmdOpt.statMax) nrFitRules += 1;
             adjFitness = cmdOpt.statMinuend - rps[i].fitness;
         } else assert(false);
 
