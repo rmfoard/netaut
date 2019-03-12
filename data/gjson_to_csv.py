@@ -30,7 +30,8 @@ def main():
         'statName',
         'tapeStructure',
         'termAvgFitness',
-        'topoStructure'
+        'topoStructure',
+        'version'
     ]
 
     gp_names = [
