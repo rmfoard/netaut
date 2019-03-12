@@ -5,6 +5,6 @@ while read paramline; do
     max=$3
     minuend=$4
     for cfe in 0.6 1.0 1.4; do
-        echo './searcher ' --record many --nodes 257 --max-iterations 257 --max-generations 80 --pool-size 40 --prob-mutation 50 --stat-name $name --stat-min $min --stat-max $max --stat-minuend $minuend --cum-fitness-exp $cfe
+        ~/netaut/code/searcher --record many --nodes 257 --max-iterations 257 --max-generations 80 --pool-size 40 --prob-mutation 50 --stat-name $name --stat-min $min --stat-max $max --stat-minuend $minuend --cum-fitness-exp $cfe 2>>many_stderr.txt
     done
 done

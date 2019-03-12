@@ -26,7 +26,7 @@
 #include "rule.h"
 #include "runner.h"
 
-#define VERSION "V190227.0"
+#define VERSION "V190312.0"
 
 // This program runs a genetic search for rules that, when run in an instance
 // of automaton C, produce a fitness statistic that exceeds 'target-fitness'.
@@ -664,6 +664,8 @@ void WriteSummary() {
     info["nrDistinctRules"] = nrDistinctRules;
     info["nrFitRules"] = nrFitRules;
     info["termAvgFitness"] = termAvgFitness;
+
+    info["version"] = VERSION;
 
     Json::StreamWriterBuilder wBuilder;
     std::string infoString = Compress(Json::writeString(wBuilder, info));
