@@ -1,20 +1,40 @@
-avgClustCoef 0.0 0.25 1.0
-avgClustCoef 0.25 0.50 1.0
-avgClustCoef 0.50 0.75 1.0
-avgClustCoef 0.75 1.0 1.0
-diameter 1 64 257
-diameter 64 128 257
-diameter 128 192 257
-diameter 192 256 257
-nrCcSizes 1 6 24
-nrCcSizes 6 12 24
-nrCcSizes 12 18 24
-nrCcSizes 18 24 24
-nrInDegrees 1 64 257
-nrInDegrees 64 128 257
-nrInDegrees 128 192 257
-nrInDegrees 192 256 257
-nrCcs 1 64 257
-nrCcs 64 128 257
-nrCcs 128 192 257
-nrCcs 192 256 257
+avgClustCoef 0.0 0.25 1.0 2
+avgClustCoef 0.25 0.50 1.0 2
+avgClustCoef 0.50 0.75 1.0 2
+avgClustCoef 0.75 1.0 1.0 2
+diameter 1 64 257 2
+diameter 64 128 257 2
+diameter 128 192 257 2
+diameter 192 256 257 2
+nrCcSizes 1 6 24 2
+nrCcSizes 6 12 24 2
+nrCcSizes 12 18 24 2
+nrCcSizes 18 24 24 2
+nrInDegrees 1 64 257 2
+nrInDegrees 64 128 257 2
+nrInDegrees 128 192 257 2
+nrInDegrees 192 256 257 2
+nrCcs 1 64 257 2
+nrCcs 64 128 257 2
+nrCcs 128 192 257 2
+nrCcs 192 256 257 2
+avgClustCoef 0.0 0.25 1.0 3
+avgClustCoef 0.25 0.50 1.0 3
+avgClustCoef 0.50 0.75 1.0 3
+avgClustCoef 0.75 1.0 1.0 3
+diameter 1 64 257 3
+diameter 64 128 257 3
+diameter 128 192 257 3
+diameter 192 256 257 3
+nrCcSizes 1 6 24 3
+nrCcSizes 6 12 24 3
+nrCcSizes 12 18 24 3
+nrCcSizes 18 24 24 3
+nrInDegrees 1 64 257 3
+nrInDegrees 64 128 257 3
+nrInDegrees 128 192 257 3
+nrInDegrees 192 256 257 3
+nrCcs 1 64 257 3
+nrCcs 64 128 257 3
+nrCcs 128 192 257 3
+nrCcs 192 256 257 3
