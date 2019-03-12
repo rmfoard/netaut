@@ -22,7 +22,8 @@ CREATE TABLE gs (
     statName            varchar(32),
     tapeStructure       varchar(32),
     termAvgFitness      double precision,
-    topoStructure       varchar(32)
+    topoStructure       varchar(32),
+    version             varchar(64)
 );
 
 -----------------
