@@ -348,26 +348,26 @@ case I resolutions may or may not. In either case, cascades can result. These
 cascades, and the resulting reductions in graph size, are common in both
 \textbf{C} and \textbf{R} simulations.
 
-\subsection{The Simulator}
+\subsection{The Automaton Simulator(\textit{Explorer})}
 
 Input parameters and statistics gathered. Data base and analysis tooling.
 Constituent packages. How parameter values were selected and varied.
 
 
-\subsection{Searching the Rule-Space}
+\subsection{The Rule-space Searcher (\textit{Searcher}")
 
 The rule-space for machine \textbf{C} is vast and incoherent. It comprises
 $7.2 \times 10^{14}$ rules; numerically similar rules produce
-very dissimilar behaviors, yielding widely varying terminal graph states.
+very dissimilar behaviors and yield widely varying terminal graph states.
 We developed a genetic search algorithm for finding rules the produce terminal
-graph states with specified characteristics such as high clustering coefficients, or
-a large number of (separate) connected components. A "fitness" function is defined
-that quantifies the relative extent to which a rule produces a
-terminal graph with the desired characteristics.
+graph states with specific characteristics such as high clustering coefficients, or
+a large number of (separate) connected components. A "fitness" function
+quantifies the relative extent to which a rule produces a terminal graph
+with the desired characteristics.
 
 The search proceeds by first creating a pool of randomly selected rules, then
-attempting to improve its aggregate fitness by iteratively replacing
-lower-fitness rules with new ones. The replacement rules are synthesized by
+improving aggregate fitness by iteratively replacing lower-fitness rules
+with new ones. The replacement rules are synthesized by
 choosing two existing rules with relatively high fitness and "crossing" them,
 possibly mutating one of them before crossing. The process iterates, terminating
 either when the pool reaches a target fitness or when an iteration limit
@@ -376,15 +376,21 @@ higher fitness than that of randomly generated pools.
 
 A rule is mutated by replacing one or more of its components with a new,
 randomly chosen value. Two rules are crossed by randomly choosing one or
-more of their components to exchange. The likelihood of a mutation occurring
-is controlled by the \textit{probMutation} parameter.
+more of their components and exchanging them. The likelihood of a mutation
+occurring is controlled by the \textit{probMutation} parameter.
 
-The search proceeds in generations. Each new generation creates a new
+The search proceeds in generations. Each successive generation creates a new
 pool of rules from the previous generation's by repeatedly choosing pairs
 of rules from the previous pool, mutating and crossing them, then adding
-the chosen "parent" rules and their new offspring to the new pool until
+the chosen rules and their new offspring to the new pool until
 it is full. The process repeats until \textit{maxGenerations} have been
 generated.
+
+Rules with relatively high fitness are selected from a pool using
+a list of rules in order of decreasing fitness. Each entry
+is accompanied by cumulative fitness, summed from the beginning
+of the list. A choice is made by choosing a target fitness value
+randomly
 
 %------------------------------------------------
 
