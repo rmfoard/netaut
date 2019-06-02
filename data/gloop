@@ -17,6 +17,6 @@ while [ $runnr -le $4 ]; do
     --record $9 \
     --graph-start 0 \
     --graph-stride 1 \
-    --write-as iter_$runnr
+    --write-graph-as iter_$runnr
     ((runnr++))
 done
