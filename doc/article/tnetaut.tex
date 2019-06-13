@@ -557,53 +557,6 @@ LastTopic & \\ \bottomrule
     \end{floatrow}
 \end{figure}
 
-\begin{figure}
-\centering
-  \includegraphics{nriter-x-finnn-smooth.png} \\
-  \caption{Number of iterations $\times$ terminal graph size, machine \textbf{C},
-cycling and collapsing outcomes for varied initial graph sizes}
-  \label{fig:NriterXFinnn}
-\end{figure}
-
-\subsection{Cascade and Collapse Dynamics}
-
-There are striking differences in way that pruning shrinks the graph
-under machine \textbf{C} versus with machine \textbf{R}.
-Figures \ref{fig:RCollapseDynamics} and \ref{fig:CCollapseDynamics} each
-show the progressive reductions in graph size. \textbf{R}'s graphs
-shrink in regular, linear fashion while \textbf{C}'s node counts
-step down in increments that vary widely from one to the next.
-
-\begin{figure}[htb]
-%\centering
-%\includegraphics[height=10cm]{rcol_stepdown.png}
-\includegraphics{rcol_stepdown.png}
-\caption{Decrease in machine \textbf{R} graph size for 16 10-iteration runs
-on a 521-node graph with collapsing outcomes}
-\label{fig:RCollapseDynamics}
-\end{figure}
-
-\begin{figure}[htb]
-%\centering
-%\includegraphics[height=10cm]{ccol_stepdown.png}
-\includegraphics{ccol_stepdown.png}
-\caption{Change in machine \textbf{C} graph size for 16 10-iteration runs
-on a 521-node graph with collapsing outcomes}
-\label{fig:CCollapseDynamics}
-\end{figure}
-
-Graph size reduction in \textbf{C} runs that cycle step down in a similarly
-irregular pattern. (Here we need to investigate the distribution of the
-increments and draw parallels with other progressions as appropriate. Are
-these like sandpiles?)
-
-\begin{figure}[htb]
-\includegraphics[height=10cm]{ccyc_stepdown.png}
-\caption{Change in machine \textbf{C} graph size for 16 10-iteration runs
-on a 521-node graph with cycling outcomes}
-\label{fig:CCyclingDynamics}
-\end{figure}
-
 \clearpage
 
 \subsection{In-Degree Entropy}
