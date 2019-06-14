@@ -595,13 +595,29 @@ random graph as soon as the first iteration is finished.
 
 \subsection{Degree Distribution}
 
+Because of the structure constraint that all nodes have out-degree of two, the distribution
+of out-degrees is always flat at that value. In-degrees may vary unconstrained as successive
+iterations transform the graph. The terminal graphs produced by both the \textbf{C} and
+\textbf{R} machines almost invariably had in-degree distributions characterized by a large
+plurality of nodes with degree 0 or 1 and a handful of nodes with varied, very large degree.
+The blue line in Figure \ref{fig:dd} shows the typical case; for comparison, the green line
+plots the distribution for a very rare case having the power-law distribution that appears
+for most real-world networks.
+
+\begin{marginfigure}
+  \includegraphics{dd.png}
+  \caption{In-degree distribution excerpts for the typical case (blue) and a
+        rare outcome (green) in which a power-law distribution was generated}
+  \label{fig:dd}
+\end{marginfigure}
+
 \subsection{Predicting Outcomes}
 
 \subsection{Searching the Rule-space}
 
 %------------------------------------------------
 
-\section{Discussion & Conclusions}
+\section{Discussion and Conclusions}
 
 Possible areas for further investigation:
 
