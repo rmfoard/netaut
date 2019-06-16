@@ -384,8 +384,7 @@ Two types of encoding were used for the \textit{encoded\_rule} value:
     a modified one-hot scheme. Where an edge destination could take values
     \textit{L, R, LL, LR, RL,} or \textit{RR}, for example, the destination
     \textit{RL} would be redundantly encoded in the bit sequence
-    \textit{0,0,0,0,1,0}, indicating
-    \textit{L=0, R=0, LL=0, L=0, RL=1, RR=0}.
+    \textit{0,0,0,0,1,0}, indicating \textit{L=0, R=0, LL=0, L=0, RL=1, RR=0}.
 \end{itemize}
 \vspace{2mm}
 
@@ -394,7 +393,9 @@ Two types of encoding were used for the \textit{encoded\_rule} value:
 The rule-space for machine \textbf{C} is vast and incoherent. It comprises
 $7.2 \times 10^{14}$ rules; numerically similar rules produce
 very dissimilar behaviors and yield widely varying terminal graph states.
-We developed a genetic search algorithm for finding rules that produce terminal
+We developed a genetic search algorithm\footnote{The algorithm design benefitted
+from the experience of Adonis Bovell, GTRI CIPHER laboratory.}
+for finding rules that produce terminal
 graph states with specific characteristics such as high clustering coefficients, or
 a large number of (separate) connected components. A "fitness" function
 quantifies the relative extent to which a rule produces a terminal graph
