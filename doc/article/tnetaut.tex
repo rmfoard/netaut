@@ -382,8 +382,9 @@ Two types of encoding were used for the \textit{encoded\_rule} value:
     two neighbors, and,
     \item Rule-map: A vector of 112 \textit{0/1} values encoding the rule in
     a modified one-hot scheme. Where an edge destination could take values
-    \textit{L, R, LL, LR, RL,} or \textit{RR}, the value \textit{RL} would be
-    encoded in the bit sequence \textit{0,0,0,0,1,0}, indicating
+    \textit{L, R, LL, LR, RL,} or \textit{RR}, for example, the destination
+    \textit{RL} would be redundantly encoded in the bit sequence
+    \textit{0,0,0,0,1,0}, indicating
     \textit{L=0, R=0, LL=0, L=0, RL=1, RR=0}.
 \end{itemize}
 \vspace{2mm}
