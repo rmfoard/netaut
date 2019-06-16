@@ -353,14 +353,47 @@ cascades, and the resulting reductions in graph size, are common in both
 Input parameters and statistics gathered. Data base and analysis tooling.
 Constituent packages. How parameter values were selected and varied.
 
-\subsection{Simple Machine Learning}
+\subsection{Outcome Prediction with Simple Machine Learning}
+
+A simple learning experiment was conducted to gauge whether, given a
+specified rule, a trained neural network could predict the values of
+the machine's terminal graph. Training data consisted of
+(\textit{encoded\_rule}, \textit{statistic\_value}) pairs in which
+\textit{statistic\_value} was one of:
+
+\vspace{1mm}
+\begin{itemize}
+\setlength{\itemindent}{2em}
+    \item residual number of nodes
+    \item average clustering coefficient
+    \item number of iterations to reach terminal state
+    \item diameter
+    \item outcome (cycling vs. collapse)
+\end{itemize}
+\vspace{2mm}
+Two types of encoding were used for the \textit{encoded\_rule} value:
+
+\vspace{1mm}
+\begin{itemize}
+\setlength{\itemindent}{2em}
+    \item Rule-parts: A vector of eight integers in the range
+    [0, 72 $(6 \times 6 \times 2)$], each representing the local transformation
+    to be applied depending on the compound state of a node and its
+    two neighbors, and,
+    \item Rule-map: A vector of 112 \textit{0/1} values encoding the rule in
+    a modified one-hot scheme. Where an edge destination could take values
+    \textit{L, R, LL, LR, RL,} or \textit{RR}, the value \textit{RL} would be
+    encoded in the bit sequence \textit{0,0,0,0,1,0}, indicating
+    \textit{L=0, R=0, LL=0, L=0, RL=1, RR=0}.
+\end{itemize}
+\vspace{2mm}
 
 \subsection{The Rule-space Searcher (\textit{Searcher})}
 
 The rule-space for machine \textbf{C} is vast and incoherent. It comprises
 $7.2 \times 10^{14}$ rules; numerically similar rules produce
 very dissimilar behaviors and yield widely varying terminal graph states.
-We developed a genetic search algorithm for finding rules the produce terminal
+We developed a genetic search algorithm for finding rules that produce terminal
 graph states with specific characteristics such as high clustering coefficients, or
 a large number of (separate) connected components. A "fitness" function
 quantifies the relative extent to which a rule produces a terminal graph
@@ -613,7 +646,21 @@ for most real-world networks.
 
 \subsection{Predicting Outcomes}
 
+Using the \textit{KERAS} framework, a simple neural network with an input
+layer, a single hidden layer, and an output layer was constructed; weights
+were updated using stochastic gradient descent. For both \textit{rule-part} and
+\textit{rule-map} input encodings, with networks trained over half the rules for
+which data was available, no outcome statistic was predicted with accuracy
+better than that of random choice. No further attempt was made at predicting
+outcomes.
+
 \subsection{Searching the Rule-space}
+
+The genetic search algorithm described in \textit{Methods} was applied to
+the task of finding rules that generated terminal graphs with characteristic
+statistics falling within specified ranges. For many characteristics, the
+search algorithm perfomed dramatically better than random selection. Results
+are summarized in xxx.
 
 %------------------------------------------------
 
