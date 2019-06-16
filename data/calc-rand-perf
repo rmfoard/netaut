@@ -1,8 +1,10 @@
 psql primes <<EOF
 set search_path to rings, public;
-select statname, statmin, statmax, count(*) from gs, tmp where gs.statname = '$1'
-  and gs.statmin <= tmp.$1
-  and tmp.$1 < gs.statmax
+insert into randperf (statname, statmin, statmax, nrrandrules)
+select statname, statmin, statmax, count(*) as nrrandrules from maxfitgs as gs, tmp
+  where gs.statname = '$1'
+    and gs.statmin <= tmp.$1
+    and tmp.$1 < gs.statmax
   group by gs.statname, gs.statmin, gs.statmax
   order by gs.statname, gs.statmin;
 EOF
