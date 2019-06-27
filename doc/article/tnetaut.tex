@@ -80,14 +80,19 @@ phone: 404-281-3487
 
 \begin{abstract}
 \noindent A simple, rule-based
-graph automaton was defined and simulated. Each of its possible rules specifies a set
+graph automaton was defined and simulated. Each of its 722 trillion possible rules specifies a set
 of local topology and node state changes to be applied iteratively, starting with a random initial graph.
 Simulation runs were performed using many different rules, each run terminating when its graph
 collapsed or cycled.
 Evolving and terminal graph states were analyzed macroscopically, using
 aggregate statistics, and microscopically, by inspecting graph structures.
 Results were compared with those from simulations of a machine that
-iterated by applying random, rather than rule-based, changes. We found that...
+iterated by applying random, rather than rule-based, changes.
+Simple neural networks were unable to predict terminal graph characteristics
+given the rule that yielded the graph.
+Using a genetic search procedure to search the rule-space for rules producing
+target terminal characteristics yielded results dramatically better than those
+from random searches.
 \end{abstract}
 
 \section{Introduction}
