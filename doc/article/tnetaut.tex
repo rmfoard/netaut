@@ -353,10 +353,24 @@ case I resolutions may or may not. In either case, cascades can result. These
 cascades, and the resulting reductions in graph size, are common in both
 \textbf{C} and \textbf{R} simulations.
 
-\subsection{The Automaton Simulator(\textit{Explorer})}
+\subsection{The Automaton Simulator(\textit{Explorer}) and Data Flow}
 
-Input parameters and statistics gathered. Data base and analysis tooling.
-Constituent packages. How parameter values were selected and varied.
+The automaton simulator was constructed in \textit{C++}. It can be used
+to simulate the rule-based automaton with or without permitting
+multi-edges in the evolving graphs. It can also simulate operation
+in a random mode, in which node state and topology changes are still
+applied within each node's two-hop neighborhood but are determined at
+random rather than by applying a governing rule.
+For each execution, command line arguments select the type of automaton,
+governing rule number, number of graph nodes, depth of cycle-checking,
+random number seed, and maximum number of iterations.
+
+Each simulator run produces JSON-encoded files containing run parameters
+and intermediate and final outcome statistics such as node count, graph
+diameter, average clustering coefficient, etc. These files are imported
+into a \textit{Postgres} database that accumulates data as simulation
+batches are completed. \textit{SQL} and \textit{R} scripts are then
+used to query and analyze the assembled results.
 
 \subsection{Outcome Prediction with Simple Machine Learning}
 
@@ -682,6 +696,7 @@ graph statistics in the target quartile of the range after examining
 
 \section{Discussion and Conclusions}
 
+xxx
 Possible areas for further investigation:
 
 \begin{itemize}
