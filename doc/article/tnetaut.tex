@@ -100,15 +100,18 @@ from random searches.
 \newthought{Since Alan Turing conceived his
 universal machine} in 1936, simple abstract automata have drawn research attention.
 Interest broadened beyond the academic realm in 1970,
-when Conway published his \textit{Game of Life} simulations (citation needed) that highlighted the ability
+when Conway published his \textit{Game of Life}
+simulations\footnote{Games, M., 1970. The fantastic combinations of John Conway’s new solitaire game “life” by Martin Gardner. Scientific American, 223, pp.120-123.}
+that highlighted the ability
 of uncomplicated cellular automata to behave in complex ways. Researchers in the
 nascent field of complexity theory began studying similar phenomena, such as the
-sandpile avalanches first explored by Per Bak (true??).
+sandpile avalanches first explored by
+Per Bak\footnote{Bak, P., 2013. How nature works: the science of self-organized criticality. Springer Science \& Business Media.}.
 
-In \textit{A New Kind of Science} (199?), Stephen Wolfram systematically analyzed
+In \textit{A New Kind of Science}\footnote{Wolfram, S., 2002. A new kind of science (Vol. 5, p. 130). Champaign, IL: Wolfram media.},
+Stephen Wolfram systematically analyzed
 a variety of cellular automata types. He found particular inspiration in the
-behavior of a one-dimensional machine running "Rule 110." Among his observations were... (list
-irreducibility, etc.)
+behavior of a one-dimensional machine running "Rule 110."
 
 \begin{marginfigure}
 \includegraphics{rule110.jpeg}
@@ -139,6 +142,7 @@ was analyzed macroscopically, using aggregate statistics, and microscopically, b
 statistical and graphic snapshots from individual runs.
 
 \begin{marginfigure}
+\vspace{-35mm}
 \hspace{3em}
 \includegraphics[width=2.5cm]{evol2a_0.ps}
 \end{marginfigure}
@@ -211,7 +215,7 @@ Two outbound edges are attached to each node, with
 the destination of each selected at random from all nodes. For \textbf{C} runs, the
 generator observes the constraint that the edges cannot share the same destination node.
 In all initial graphs, nodes have out-degree 2, but in-degree can vary from 0 to N.
-Initial graphs are a subset of the class of Erdos-Renyi random graphs (citation needed)
+Initial graphs are a subset of the class of Erdos-Renyi random graphs\footnote{Erdos, P. and Renyi, A., 1959. On random graphs I. Publ. Math. Debrecen, 6, pp.290-297.}
 \textit{G(n, p)} where \textit{n} is the number of nodes and \textit{p} is the probability
 that two nodes are connected by an edge. Because all graphs have fixed out-degree 2,
 the generation process creates random variation only in the nodes' in-degrees. As a result,
@@ -564,7 +568,7 @@ Graph Size} &
 Between \textbf{C} and \textbf{R} runs ending in collapse, \\%
 \textbf{C} runs average nearly twice the number of \\%
 iterations (Figure \ref{fig:OutcomesNriterAvg}) and end with much higher \\%
-pre-collapse node counts (Figure \ref{fig:OutcomesFinnnDist}). They \\%
+pre-collapse node counts. They \\%
 run longer and their node counts \\%
 "fall farther" when they collapse. \\%
 \\%
@@ -577,7 +581,7 @@ Machine \textbf{C} runs lengths correlate \\%
 with terminal graphs sizes except in \\%
 the case of the largest sizes, which tend \\%
 to be produced in somewhat shorter runs. \\%
-run lengths decrease somewhat (Figure \ref{fig:NriterXFinnn})} \\
+run lengths decrease somewhat} \\
 
 \vspace{2mm}
 \makecell[tl]{
@@ -590,8 +594,8 @@ machine \textbf{C} are smaller than \\%
 those for \textbf{R} in the large majority \\%
 of cases (Figure \ref{fig:OutcomesAccDist}).} \\
 
-\vspace{2mm}
-LastTopic & \\ \bottomrule
+\vspace{2mm} \\ \bottomrule
+%LastTopic & \\ \bottomrule
 \end{tabular}
 \label{tab:TabQ}
 \end{table}
@@ -620,7 +624,8 @@ Machine \textbf{C}, on average, generates graphs with a larger
 maximum in-degree than in the random case of machine \textbf{R}, and also produces a
 larger number of distinct in-degrees.
 
-Shannon's entropy [citation needed], computed on summary in-degree statistics and
+Shannon's entropy\footnote{Shannon, C.E., 1948. A mathematical theory of communication. Bell system technical journal, 27(3), pp.379-423.}
+computed on summary in-degree statistics and
 normalized,\footnote{
 Normalized entropy calculation: \\
 \vspace{2mm}
@@ -696,17 +701,41 @@ graph statistics in the target quartile of the range after examining
 
 \section{Discussion and Conclusions}
 
-xxx
-Possible areas for further investigation:
+40\% of terminal graphs produced by \textbf{Machine C} using randomly
+chosen rules did not collapse to empty. As a group, they had widely varying
+configurations and degree distributions. Only a handful, though, showed the
+power-law, "scale-free" distribution that is a signature of most
+real-world networks. It is possible that, under the correct transformation,
+scale-free structures would be found to be encoded at a coarser level of
+detail than that of the final graphs -- this is a possible area for further
+investigation.
 
-\begin{itemize}
-    \item Search strategies for rules with specific characteristics.
-    \item Encodings of more complex graph structures.
-    \item Exploring mathematical parallels.
-    \item Investigating variations on the machines, both simpler and more complex.
-\end{itemize}
+A pruning process was applied to \textbf{Machine C}'s evolving graphs in order
+to maintain structure constraints. Pruning typically had the effect of
+reducing node counts in an irregularly cascading fashion reminiscent of
+Per Bak's sandpile avalanches. Firther research specifically focused on
+this phenomenon could illuminate interesting dynamics.
 
-A statement requiring citation \cite{Figueredo:2009dg}.
+The failure to predict outcomes using simple neural nets suggests that
+\textbf{Machine C} behavior is not reducible to a simpler means of
+generation.
+
+The effectiveness of genetic search in finding rules producing specific
+values in terminal graph statistics, on the other hand, may indicate the
+presence of regularities in the seemingly incoherent rule-space.
+It may be useful to explore the possibiliry more thoroughly to see if
+it is feasible to discover rules that give rise to useful functional
+characteristics in evolving or terminal graph structures.
+
+The correspondence of graph structures and their dynamics with mathematical
+constructs was not investigated in this work, and could conceivably point
+out parallels that open new lines of inquiry.
+
+In this study, practical considerations dictated the selection of a single
+type of automaton and accompanying graph topology restrictions. Examining
+other, similar automata types could give insight into strategies for
+seeking other abstract machines with behaviors of theoretical or practical
+interest.
 
 %----------------------------------------------------------------------------------------
 %	REFERENCE LIST
@@ -714,16 +743,21 @@ A statement requiring citation \cite{Figueredo:2009dg}.
 
 \begin{thebibliography}{99} % Bibliography - this is intentionally simple in this template
 
-\bibitem[Figueredo and Wolf, 2009]{Figueredo:2009dg}
-Figueredo, A.~J. and Wolf, P. S.~A. (2009).
-\newblock Assortative pairing and life history strategy - a cross-cultural
-  study.
-\newblock {\em Human Nature}, 20:317--330.
+\bibitem{Games}
+Games, M., 1970. The fantastic combinations of John Conway’s new solitaire game “life” by Martin Gardner. Scientific American, 223, pp.120-123.
+
+\bibitem{Bak}
+Bak, P., 2013. How nature works: the science of self-organized criticality. Springer Science \& Business Media.
  
+\bibitem{Wolfram}
+Wolfram, S., 2002. A new kind of science (Vol. 5, p. 130). Champaign, IL: Wolfram media.
+
+\bibitem{Erdos}
+Erdos, P. and Renyi, A., 1959. On random graphs I. Publ. Math. Debrecen, 6, pp.290-297.
+
+\bibitem{Shannon}
+Shannon, C.E., 1948. A mathematical theory of communication. Bell system technical journal, 27(3), pp.379-423.
+
 \end{thebibliography}
-
-\vspace{1cm}
-
-\emph{This handout was based on an article I originally wrote for the Carolinia Farm Stewardship newsletter, March-April 2004.}
 
 \end{document}
